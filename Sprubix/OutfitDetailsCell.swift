@@ -1,0 +1,273 @@
+//
+//  OutfitDetailsCell.swift
+//  Sprubix
+//
+//  Created by Yan Wye Huong on 14/3/15.
+//  Copyright (c) 2015 Sprubix. All rights reserved.
+//
+
+import UIKit
+
+class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewDataSource {
+    var navController:UINavigationController?
+    
+    var imageName : String?
+    var pullAction : ((offset : CGPoint) -> Void)?
+    var tappedAction : (() -> Void)?
+    
+    let tableView = UITableView(frame: screenBounds, style: UITableViewStyle.Plain)
+    
+    var outfit: NSDictionary!
+    var pieces: [NSDictionary]!
+    
+    var pieceImageView:UIImageView!
+    var pieceImages: [UIImageView] = [UIImageView]()
+
+    var outfitImageCell: UITableViewCell!
+    var creditsCell: UITableViewCell!
+    var descriptionCell: UITableViewCell!
+    var commentsCell: UITableViewCell!
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        //tableView.backgroundColor = UIColor(red: 229/255, green: 229/255, blue: 229/255, alpha: 1)
+        
+        tableView.backgroundColor = UIColor.whiteColor()
+        
+        contentView.addSubview(tableView)
+        
+        tableView.showsVerticalScrollIndicator = false
+        tableView.separatorColor = UIColor.clearColor()
+        tableView.delegate = self
+        tableView.dataSource = self
+        
+        self.autoresizingMask = UIViewAutoresizing.FlexibleWidth | UIViewAutoresizing.FlexibleHeight;
+        
+        outfitImageCell = UITableViewCell()
+        creditsCell = UITableViewCell()
+        descriptionCell = UITableViewCell()
+        commentsCell = UITableViewCell()
+        
+        outfitImageCell.backgroundColor = UIColor.whiteColor()
+        creditsCell.backgroundColor = UIColor.whiteColor()
+        descriptionCell.backgroundColor = UIColor.whiteColor()
+        commentsCell.backgroundColor = UIColor.whiteColor()
+    }
+    
+    required init(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        tableView.reloadData()
+    }
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        
+        pieceImageView.removeFromSuperview()
+    }
+    
+    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return 4
+    }
+    
+    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell
+    {
+        switch(indexPath.row)
+        {
+        case 0:
+            pieceImages.removeAll()
+            var outfitHeight:CGFloat = 0
+            var prevPieceHeight:CGFloat = 0
+            
+            pieces = outfit["pieces"] as [NSDictionary]
+            
+            for piece in pieces {
+                // calculate piece UIImageView height
+                var itemHeight = piece["height"] as CGFloat
+                var itemWidth = piece["width"] as CGFloat
+                
+                let pieceHeight:CGFloat = itemHeight * screenWidth / itemWidth
+                
+                // setting the image for piece
+                pieceImageView = UIImageView()
+                pieceImageView.image = nil
+                pieceImageView.frame = CGRect(x:0, y: prevPieceHeight, width: UIScreen.mainScreen().bounds.width, height: pieceHeight)
+                
+                var pieceImagesString = piece["images"] as NSString!
+                var pieceImagesData:NSData = pieceImagesString.dataUsingEncoding(NSUTF8StringEncoding)!
+                
+                var pieceImagesDict: NSDictionary = NSJSONSerialization.JSONObjectWithData(pieceImagesData, options: NSJSONReadingOptions.MutableContainers, error: nil) as NSDictionary
+                
+                var pieceCoverURL = NSURL(string: pieceImagesDict["cover"] as NSString)
+                
+                pieceImageView.setImageWithURL(pieceCoverURL)
+                pieceImageView.contentMode = UIViewContentMode.ScaleAspectFit
+                pieceImageView.userInteractionEnabled = true
+                
+                // add gesture recognizers
+                var singleTap = UITapGestureRecognizer(target: self, action: Selector("wasSingleTapped:"))
+                singleTap.numberOfTapsRequired = 1
+                pieceImageView.addGestureRecognizer(singleTap)
+                
+                var doubleTap = UITapGestureRecognizer(target: self, action: Selector("wasDoubleTapped:"))
+                doubleTap.numberOfTapsRequired = 2
+                pieceImageView.addGestureRecognizer(doubleTap)
+                
+                singleTap.requireGestureRecognizerToFail(doubleTap) // so that single tap will not be called during a double tap
+                
+                outfitImageCell.addSubview(pieceImageView)
+                
+                pieceImages.append(pieceImageView)
+                
+                prevPieceHeight = pieceHeight // to offset 2nd piece image's height with first image's height
+                outfitHeight += pieceHeight // accumulate height of all pieces
+            }
+            
+            return outfitImageCell
+        case 1:
+            // init 'posted by' and 'from' credits
+            let creditsViewHeight:CGFloat = 80
+            var creditsView:UIView = UIView(frame: CGRect(x: 0, y: 0, width: screenWidth, height: creditsViewHeight))
+            
+            var postedByButton:SprubixCreditButton = SprubixCreditButton(frame: CGRect(x: 0, y: 0, width: screenWidth/2, height: creditsViewHeight), buttonLabel: "posted by", username: "user name")
+            var fromButton:SprubixCreditButton = SprubixCreditButton(frame: CGRect(x: screenWidth/2, y: 0, width: screenWidth/2, height: creditsViewHeight), buttonLabel: "from", username: "user name")
+            
+            creditsView.addSubview(postedByButton)
+            creditsView.addSubview(fromButton)
+            
+            creditsCell.addSubview(creditsView)
+            
+            return creditsCell
+        case 2:
+            descriptionCell.textLabel?.text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud."
+            
+            descriptionCell.textLabel?.lineBreakMode = NSLineBreakMode.ByWordWrapping
+            descriptionCell.textLabel?.numberOfLines = 0
+            descriptionCell.userInteractionEnabled = false
+            
+            return descriptionCell
+            
+        case 3:
+            // init comments
+            let viewAllCommentsHeight:CGFloat = 40
+            //let commentYPos:CGFloat = screenWidth + creditsViewHeight + itemSpecHeightTotal + itemDescriptionHeight + viewAllCommentsHeight
+            
+            // view all comments button
+            var viewAllComments:UIButton = UIButton(frame: CGRect(x: 0, y: 0, width: screenWidth/2 + 35, height: viewAllCommentsHeight))
+            var numComments:Int = 15
+            viewAllComments.setTitle("View all comments (\(numComments))", forState: UIControlState.Normal)
+            viewAllComments.setTitleColor(UIColor.lightGrayColor(), forState: UIControlState.Normal)
+            viewAllComments.backgroundColor = UIColor.whiteColor()
+            
+            var viewAllCommentsBG:UIView = UIView(frame: CGRect(x: 0, y: 0, width: screenWidth, height: viewAllCommentsHeight))
+            viewAllCommentsBG.backgroundColor = UIColor.whiteColor()
+            
+            var viewAllCommentsLineTop = UIView(frame: CGRect(x: 0, y: 0, width: screenWidth, height: 2))
+            viewAllCommentsLineTop.backgroundColor = UIColor(red: 244/255, green: 244/255, blue: 244/255, alpha: 1)
+            
+            viewAllCommentsBG.addSubview(viewAllComments)
+            viewAllCommentsBG.addSubview(viewAllCommentsLineTop)
+            
+            commentsCell.addSubview(viewAllCommentsBG)
+            
+            // the 3 most recent comments
+            var commentRowView1:SprubixItemCommentRow = SprubixItemCommentRow(username: "Onigiri", commentString: "Lorem ipsum dolor sit amet", y: viewAllCommentsHeight, button: false)
+            var commentRowView2:SprubixItemCommentRow = SprubixItemCommentRow(username: "Croquette", commentString: "Lorem ipsum dolor sit amet, consec tetur adipiscing elit", y: viewAllCommentsHeight + commentRowView1.commentRowHeight, button: false)
+            var commentRowView3:SprubixItemCommentRow = SprubixItemCommentRow(username: "Peach", commentString: "Lorem ipsum", y: viewAllCommentsHeight + commentRowView1.commentRowHeight + commentRowView2.commentRowHeight, button: false)
+            
+            commentsCell.addSubview(commentRowView1)
+            commentsCell.addSubview(commentRowView2)
+            commentsCell.addSubview(commentRowView3)
+            
+            // add a comment button
+            var commentRowButton:SprubixItemCommentRow = SprubixItemCommentRow(username: "", commentString: "", y: viewAllCommentsHeight + commentRowView1.commentRowHeight + commentRowView2.commentRowHeight + commentRowView3.commentRowHeight, button: true)
+            
+            commentsCell.addSubview(commentRowButton)
+            
+            // get rid of the gray bg when cell is selected
+            var bgColorView = UIView()
+            bgColorView.backgroundColor = UIColor.clearColor()
+            commentsCell.selectedBackgroundView = bgColorView
+            
+            return commentsCell
+            
+        default: fatalError("Unknown row in section")
+        }
+    }
+    
+    func wasSingleTapped(gesture: UITapGestureRecognizer) {
+        
+        var selectedPiece:UIImageView = gesture.view as UIImageView
+        var position = find(pieceImages, selectedPiece)
+        
+        var currentIndexPath:NSIndexPath = NSIndexPath(forItem: position!, inSection: 0)
+        
+        let pieceDetailsViewController = PieceDetailsViewController(collectionViewLayout: detailsViewControllerLayout(), currentIndexPath: currentIndexPath)
+        pieceDetailsViewController.pieces = pieces
+        
+        //collectionView.setToIndexPath(indexPath)
+        navController!.delegate = nil
+        navController!.pushViewController(pieceDetailsViewController, animated: true)
+        navController!.delegate = transitionDelegateHolder
+    }
+    
+    func wasDoubleTapped(gesture: UITapGestureRecognizer) {
+        println("double tapped!")
+        println(gesture.view)
+    }
+    
+    func detailsViewControllerLayout () -> UICollectionViewFlowLayout {
+        let flowLayout = UICollectionViewFlowLayout()
+        
+        let itemSize  = CGSizeMake(screenWidth, screenHeight) //navController!.navigationBarHidden ?
+            //CGSizeMake(screenWidth, screenHeight+20) : CGSizeMake(screenWidth, screenHeight-navigationHeaderAndStatusbarHeight)
+        
+        //let itemSize = CGSizeMake(screenWidth, screenHeight + navigationHeight)
+        
+        flowLayout.itemSize = itemSize
+        flowLayout.minimumLineSpacing = 0
+        flowLayout.minimumInteritemSpacing = 0
+        flowLayout.scrollDirection = .Horizontal
+        
+        return flowLayout
+    }
+    
+    func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat{
+        var cellHeight : CGFloat!
+        
+        switch(indexPath.row)
+        {
+        case 0:
+            
+            let outfitHeight = outfit["height"] as CGFloat
+            let outfitWidth = outfit["width"] as CGFloat
+            
+            let imageHeight = outfitHeight * screenWidth / outfitWidth
+            
+            cellHeight = imageHeight
+        case 1:
+            cellHeight = 80 // creditsViewHeight
+        case 2:
+            cellHeight = 100 // description height
+        case 3:
+            cellHeight = 270 // comments height
+        default:
+            cellHeight = 300
+        }
+        
+        return cellHeight
+    }
+    
+    func tableView(tableView: UITableView!, didSelectRowAtIndexPath indexPath: NSIndexPath!){
+        tappedAction?()
+    }
+    
+    func scrollViewWillBeginDecelerating(scrollView : UIScrollView){        
+        if scrollView.contentOffset.y < -100 {
+            pullAction?(offset: scrollView.contentOffset)
+        }
+    }
+}
