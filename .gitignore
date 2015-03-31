@@ -1,0 +1,14 @@
+# General
+*.swp
+*.swo
+*.rbo
+*.gem
+.rbenv-version
+.rbx/
+xcuserdata
+DerivedData
+/concatenated.*
+
+# Mac Hidden Files
+.DS_Store
+._.DS_Store
