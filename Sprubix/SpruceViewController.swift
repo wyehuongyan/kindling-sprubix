@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import QuartzCore
 
 protocol SpruceViewProtocol {
     func dismissSpruceView()
@@ -121,7 +122,7 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, UIActionShee
         
         scrollView.addSubview(creditsView)
         
-        scrollView.contentSize = CGSize(width: screenWidth, height: navigationHeight + prevPieceHeight + creditsViewHeight + 300)
+        scrollView.contentSize = CGSize(width: screenWidth, height: navigationHeight + prevPieceHeight + creditsViewHeight + 100) // 100 is tentative
         
         view.addSubview(scrollView)
     }
@@ -139,7 +140,17 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, UIActionShee
         newNavItem.title = "Spruce"
         
         // 4. create a custom back button
-        var backBarButtonItem:UIBarButtonItem = UIBarButtonItem(title: "Back", style: UIBarButtonItemStyle.Plain, target: self, action: "backTapped:")
+        var backButton:UIButton = UIButton.buttonWithType(UIButtonType.Custom) as UIButton
+        backButton.setImage(UIImage(named: "spruce-arrow-back"), forState: UIControlState.Normal)
+        backButton.frame = CGRect(x: -10, y: 0, width: 20, height: 20)
+        backButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+        Glow.addGlow(backButton)
+        backButton.addTarget(self, action: "backTapped:", forControlEvents: UIControlEvents.TouchUpInside)
+        
+        //var backButtonView:UIView = UIView(frame: CGRect(x: 0, y: 0, width: backButton.frame.width, height: backButton.frame.height))
+        //backButtonView.addSubview(backButton)
+        
+        var backBarButtonItem:UIBarButtonItem = UIBarButtonItem(customView: backButton)
         backBarButtonItem.tintColor = UIColor(red: 170/255, green: 170/255, blue: 170/255, alpha: 1.0)
         
         newNavItem.leftBarButtonItem = backBarButtonItem
@@ -173,7 +184,10 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, UIActionShee
         // button for confirmation
         confirmButton = UIButton.buttonWithType(UIButtonType.Custom) as UIButton
         confirmButton.frame = CGRect(x: screenWidth - 60, y: screenHeight - 60, width: 50, height: 50)
-        confirmButton.setImage(UIImage(named: "profile-myoutfits"), forState: UIControlState.Normal)
+        confirmButton.setImage(UIImage(named: "spruce-next"), forState: UIControlState.Normal)
+        
+        Glow.addGlow(confirmButton)
+        
         confirmButton.addTarget(self, action: "spruceConfirmed", forControlEvents: UIControlEvents.TouchUpInside)
         
         self.view.addSubview(confirmButton)
@@ -181,23 +195,32 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, UIActionShee
         // magic button
         magicButton = UIButton.buttonWithType(UIButtonType.Custom) as UIButton
         magicButton.frame = CGRect(x: screenWidth - 120, y: screenHeight - 60, width: 50, height: 50)
-        magicButton.setImage(UIImage(named: "profile-myoutfits"), forState: UIControlState.Normal)
+        magicButton.setImage(UIImage(named: "spruce-original-size"), forState: UIControlState.Normal)
+        
+        Glow.addGlow(magicButton)
+        
         magicButton.addGestureRecognizer(longPress)
         
         self.view.addSubview(magicButton)
         
         // removing an existing piece
         removePieceFeedButton = UIButton.buttonWithType(UIButtonType.Custom) as UIButton
-        removePieceFeedButton.setImage(UIImage(named: "pie-bar-icon"), forState: UIControlState.Normal)
+        removePieceFeedButton.setImage(UIImage(named: "spruce-piece-remove"), forState: UIControlState.Normal)
         removePieceFeedButton.frame = CGRect(x: 10, y: screenHeight - 60, width: 50, height: 50)
+        
+        Glow.addGlow(removePieceFeedButton)
+        
         removePieceFeedButton.addTarget(self, action: "toggleDeletePieceCrosses", forControlEvents: UIControlEvents.TouchUpInside)
         
         self.view.addSubview(removePieceFeedButton)
         
         // adding a new piece
         addPieceFeedButton = UIButton.buttonWithType(UIButtonType.Custom) as UIButton
-        addPieceFeedButton.setImage(UIImage(named: "pizza-bar-icon"), forState: UIControlState.Normal)
+        addPieceFeedButton.setImage(UIImage(named: "spruce-piece-add"), forState: UIControlState.Normal)
         addPieceFeedButton.frame = CGRect(x: 70, y: screenHeight - 60, width: 50, height: 50)
+
+        Glow.addGlow(addPieceFeedButton)
+        
         addPieceFeedButton.addTarget(self, action: "showAddPieceActionSheet", forControlEvents: UIControlEvents.TouchUpInside)
         
         self.view.addSubview(addPieceFeedButton)

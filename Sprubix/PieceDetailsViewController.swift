@@ -70,11 +70,19 @@ class PieceDetailsViewController: UICollectionViewController, UICollectionViewDe
             if prevChild.isKindOfClass(OutfitDetailsViewController) || prevChild.isKindOfClass(SprubixFeedController) {
                 //println("this is how we roll")
                 self.navigationController!.delegate = nil
+                
+                let transition = CATransition()
+                transition.duration = 0.3
+                transition.type = kCATransitionReveal
+                transition.subtype = kCATransitionFromBottom
+                transition.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
+                
+                self.navigationController!.view.layer.addAnimation(transition, forKey: kCATransition)
+                self.navigationController!.popViewControllerAnimated(false)
             } else {
                 self.navigationController!.delegate = transitionDelegateHolder
+                self.navigationController!.popViewControllerAnimated(true)
             }
-            
-            self.navigationController!.popViewControllerAnimated(true)
         }
         
         collectionCell.navController = self.navigationController

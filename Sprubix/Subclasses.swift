@@ -170,3 +170,13 @@ class SprubixCreditButton: UIButton {
         fatalError("init(coder:) has not been implemented")
     }
 }
+
+class Glow {
+    class func addGlow(item: AnyObject) {
+        item.layer.shadowColor = UIColor.blackColor().CGColor
+        item.layer.shadowOpacity = 0.4
+        item.layer.shadowRadius = 1
+        item.layer.shadowOffset = CGSizeZero
+        item.layer.masksToBounds = false
+    }
+}

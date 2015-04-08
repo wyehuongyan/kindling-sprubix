@@ -15,11 +15,11 @@
 		845048C11A9ECC81008BDBAA /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 845048BF1A9ECC81008BDBAA /* LaunchScreen.xib */; };
 		845048CD1A9ECC81008BDBAA /* SprubixTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 845048CC1A9ECC81008BDBAA /* SprubixTests.swift */; };
 		846C97931ABAB11F0050D0BC /* Subclasses.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846C97921ABAB11F0050D0BC /* Subclasses.swift */; };
-		846C97951ABAE6210050D0BC /* bg-header.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 846C97941ABAE6210050D0BC /* bg-header.jpg */; };
 		846C97971ABB2A8E0050D0BC /* SprubixFeedCommentsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846C97961ABB2A8E0050D0BC /* SprubixFeedCommentsController.swift */; };
 		846C97991ABD545A0050D0BC /* SpruceViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846C97981ABD545A0050D0BC /* SpruceViewController.swift */; };
 		846C979D1ABD68A80050D0BC /* SprucePieceFeedController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846C979C1ABD68A80050D0BC /* SprucePieceFeedController.swift */; };
 		846C97A01ABDA6F00050D0BC /* SprucePieceFeedCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846C979F1ABDA6F00050D0BC /* SprucePieceFeedCell.swift */; };
+		847D05821AD449C9005E09AB /* bg-header.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 847D05811AD449C9005E09AB /* bg-header.jpg */; };
 		849733371AA1B08300E5C750 /* SprubixFeedController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849733361AA1B08300E5C750 /* SprubixFeedController.swift */; };
 		849733411AA4561D00E5C750 /* SprubixFeedCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849733401AA4561D00E5C750 /* SprubixFeedCell.swift */; };
 		84B334E51AAB00DD00B9707D /* SidePanelViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B334E41AAB00DD00B9707D /* SidePanelViewController.swift */; };
@@ -75,11 +75,11 @@
 		845048CC1A9ECC81008BDBAA /* SprubixTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SprubixTests.swift; sourceTree = "<group>"; };
 		845048D61A9ECFE2008BDBAA /* Sprubix-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Sprubix-Bridging-Header.h"; sourceTree = SOURCE_ROOT; };
 		846C97921ABAB11F0050D0BC /* Subclasses.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Subclasses.swift; sourceTree = "<group>"; };
-		846C97941ABAE6210050D0BC /* bg-header.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "bg-header.jpg"; sourceTree = "<group>"; };
 		846C97961ABB2A8E0050D0BC /* SprubixFeedCommentsController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SprubixFeedCommentsController.swift; sourceTree = "<group>"; };
 		846C97981ABD545A0050D0BC /* SpruceViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpruceViewController.swift; sourceTree = "<group>"; };
 		846C979C1ABD68A80050D0BC /* SprucePieceFeedController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SprucePieceFeedController.swift; sourceTree = "<group>"; };
 		846C979F1ABDA6F00050D0BC /* SprucePieceFeedCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SprucePieceFeedCell.swift; sourceTree = "<group>"; };
+		847D05811AD449C9005E09AB /* bg-header.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "bg-header.jpg"; sourceTree = "<group>"; };
 		849733361AA1B08300E5C750 /* SprubixFeedController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SprubixFeedController.swift; sourceTree = "<group>"; };
 		849733401AA4561D00E5C750 /* SprubixFeedCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SprubixFeedCell.swift; sourceTree = "<group>"; };
 		84B334E41AAB00DD00B9707D /* SidePanelViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SidePanelViewController.swift; sourceTree = "<group>"; };
@@ -165,7 +165,7 @@
 				8497333F1AA4556A00E5C750 /* Views */,
 				8497333E1AA4556200E5C750 /* Controllers */,
 				845048B51A9ECC81008BDBAA /* Sprubix.xcdatamodeld */,
-				846C97941ABAE6210050D0BC /* bg-header.jpg */,
+				847D05811AD449C9005E09AB /* bg-header.jpg */,
 				84B334F31AAC99F300B9707D /* icon-placeholder.png */,
 				84B334ED1AAC287800B9707D /* person-placeholder.jpg */,
 				84D697281AC922DA00C676FD /* logo_final_square.png */,
@@ -368,6 +368,7 @@
 				TargetAttributes = {
 					845048AD1A9ECC81008BDBAA = {
 						CreatedOnToolsVersion = 6.1.1;
+						DevelopmentTeam = 89UBS4A28G;
 					};
 					845048C51A9ECC81008BDBAA = {
 						CreatedOnToolsVersion = 6.1.1;
@@ -400,10 +401,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				84B334EE1AAC287800B9707D /* person-placeholder.jpg in Resources */,
+				847D05821AD449C9005E09AB /* bg-header.jpg in Resources */,
 				845048BC1A9ECC81008BDBAA /* Main.storyboard in Resources */,
 				845048C11A9ECC81008BDBAA /* LaunchScreen.xib in Resources */,
 				84D697291AC922DA00C676FD /* logo_final_square.png in Resources */,
-				846C97951ABAE6210050D0BC /* bg-header.jpg in Resources */,
 				845048BE1A9ECC81008BDBAA /* Images.xcassets in Resources */,
 				84B334F41AAC99F300B9707D /* icon-placeholder.png in Resources */,
 			);
@@ -611,10 +612,14 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				INFOPLIST_FILE = Sprubix/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				OTHER_SWIFT_FLAGS = "-D DEBUG";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "Sprubix-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -626,9 +631,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				INFOPLIST_FILE = Sprubix/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "Sprubix-Bridging-Header.h";
 			};
 			name = Release;

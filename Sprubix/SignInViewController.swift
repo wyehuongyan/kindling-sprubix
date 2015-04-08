@@ -148,7 +148,11 @@ class SignInViewController: UIViewController, UITextFieldDelegate, UITableViewDa
                         
                         var userId = data["id"] as Int!
                         
-                        self.saveCookies(userId);
+                        defaults.setObject(userId, forKey: "userId")
+                        defaults.setObject(data, forKey: "userData")
+                        defaults.synchronize()
+                        
+                        //self.saveCookies(userId);
                         
                         // redirect to containerViewController (not sprubixFeedController)
                         self.dismissViewControllerAnimated(true, completion: nil)
@@ -166,7 +170,7 @@ class SignInViewController: UIViewController, UITextFieldDelegate, UITableViewDa
         
         var cookies:NSData = NSKeyedArchiver.archivedDataWithRootObject(NSHTTPCookieStorage.sharedHTTPCookieStorage().cookies!)
         
-        defaults.setObject(cookies, forKey: "sessionCookies")
+        //defaults.setObject(cookies, forKey: "sessionCookies")
         defaults.setObject(userId, forKey: "userId")
         defaults.synchronize()
         

@@ -73,8 +73,7 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
         return 4
     }
     
-    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell
-    {
+    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         switch(indexPath.row)
         {
         case 0:
@@ -122,7 +121,7 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
                 
                 pieceImages.append(pieceImageView)
                 
-                prevPieceHeight = pieceHeight // to offset 2nd piece image's height with first image's height
+                prevPieceHeight += pieceHeight // to offset 2nd piece image's height with first image's height
                 outfitHeight += pieceHeight // accumulate height of all pieces
             }
             
@@ -210,7 +209,17 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
         
         //collectionView.setToIndexPath(indexPath)
         navController!.delegate = nil
-        navController!.pushViewController(pieceDetailsViewController, animated: true)
+        //navController!.pushViewController(pieceDetailsViewController, animated: true)
+        
+        let transition = CATransition()
+        transition.duration = 0.3
+        transition.type = kCATransitionMoveIn
+        transition.subtype = kCATransitionFromTop
+        transition.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
+        
+        navController?.view.layer.addAnimation(transition, forKey: kCATransition)
+        navController!.pushViewController(pieceDetailsViewController, animated: false)
+        
         navController!.delegate = transitionDelegateHolder
     }
     

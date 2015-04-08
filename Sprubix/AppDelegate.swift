@@ -13,7 +13,7 @@ struct SprubixConfig {
     struct URL {
         #if DEBUG
         // debug
-        static let api: String = "http://api.sprubix.localhost"
+        static let api: String = "http://192.168.1.144/~wyehuongyan/kindling-core/public/index.php" //"http://api.sprubix.localhost"
         
         #else
         // release
@@ -35,11 +35,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
         // Override point for customization after application launch.
-        //AFNetworkActivityLogger.sharedLogger().startLogging()
+        AFNetworkActivityLogger.sharedLogger().startLogging()
         
         window = UIWindow(frame: UIScreen.mainScreen().bounds)
         window!.rootViewController = containerViewController
         window!.makeKeyAndVisible()
+        window!.backgroundColor = UIColor.whiteColor()
+        window!.tintColor = UIColor.whiteColor()
         
         checkLoggedIn()
         

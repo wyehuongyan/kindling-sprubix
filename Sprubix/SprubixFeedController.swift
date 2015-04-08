@@ -26,6 +26,7 @@ class SprubixFeedController: UIViewController, UITableViewDataSource, UITableVie
     
     var indexCellHeight = [CGFloat]()
     var outfits:[NSDictionary] = [NSDictionary]()
+    var followingUsers:[NSDictionary] = [NSDictionary]()
     var delegate: SprubixFeedControllerDelegate?
     
     // refresh control
@@ -61,10 +62,22 @@ class SprubixFeedController: UIViewController, UITableViewDataSource, UITableVie
         
         if userId != nil {
             // retrieve 3 example pieces
-            manager.GET(SprubixConfig.URL.api + "/user/\(userId!)/outfits",
+            manager.GET(SprubixConfig.URL.api + "/user/\(userId!)/outfits/following",
                 parameters: nil,
                 success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
-                    self.outfits = responseObject["data"] as [NSDictionary]!
+                    self.followingUsers = responseObject["data"] as [NSDictionary]!
+
+                    // reset
+                    self.outfits = [NSDictionary]()
+                    
+                    for followingUser in self.followingUsers {
+                        var currentOutfits = followingUser["outfits"] as [NSDictionary]!
+                        
+                        for outfit in currentOutfits {
+                            self.outfits.append(outfit)
+                        }
+                    }
+                    
                     self.sprubixFeedTableView.reloadData()
                 },
                 failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
@@ -78,11 +91,12 @@ class SprubixFeedController: UIViewController, UITableViewDataSource, UITableVie
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        loadCookies()
+        //loadCookies()
         
         sprubixFeedTableView.dataSource = self
         sprubixFeedTableView.delegate = self
         sprubixFeedTableView.showsVerticalScrollIndicator = false
+        sprubixFeedTableView.separatorColor = UIColor.clearColor()
         
         self.shyNavBarManager.scrollView = self.sprubixFeedTableView
         self.shyNavBarManager.expansionResistance = 20
@@ -94,11 +108,27 @@ class SprubixFeedController: UIViewController, UITableViewDataSource, UITableVie
         sprubixFeedTableView.insertSubview(refreshControl, atIndex: 0)
         refreshControl.endRefreshing()
         
+        // sprubix logo
+        var logoImageView = UIImageView(image: UIImage(named: "main-sprubix-logo"))
+        let logoImageWidth:CGFloat = 50
+        let logoImageHeight:CGFloat = 30
+        logoImageView.frame = CGRect(x: -logoImageWidth / 2, y: -logoImageHeight / 2, width: logoImageWidth, height: logoImageHeight)
+        
+        /*
+        var logoImageView = UIImageView(image: UIImage(named: "main-sprubix-text"))
+        logoImageView.frame = CGRect(x: -screenWidth / 2 + 20, y: -20, width: 100, height: 40)
+        */
+        
+        logoImageView.contentMode = UIViewContentMode.ScaleAspectFit
+        
+        self.navigationItem.titleView = UIView()
+        self.navigationItem.titleView?.addSubview(logoImageView)
+        
         initButtons()
     }
     
     func refresh(sender: AnyObject) {
-        sprubixFeedTableView.reloadData()
+        //retrieveOutfits()
         
         refreshControl.endRefreshing()
     }
@@ -106,6 +136,11 @@ class SprubixFeedController: UIViewController, UITableViewDataSource, UITableVie
     override func viewWillAppear(animated: Bool) {
         self.navigationController?.setNavigationBarHidden(false, animated: true)
         self.navigationController?.navigationBar.barTintColor = UIColor.whiteColor()
+        
+        if(refreshControl.refreshing) {
+            refreshControl.endRefreshing()
+            refreshControl.beginRefreshing()
+        }
         
         retrieveOutfits()
     }
@@ -160,7 +195,9 @@ class SprubixFeedController: UIViewController, UITableViewDataSource, UITableVie
         
         let cell:SprubixFeedCell = sprubixFeedTableView.dequeueReusableCellWithIdentifier("SprubixFeedCell") as SprubixFeedCell
         
-        cell.initOutfit(outfits[indexPath.row])
+        cell.outfit = outfits[indexPath.row]
+        cell.initOutfit()
+        
         cell.delegate = self
         cell.navController = self.navigationController
         
@@ -170,43 +207,15 @@ class SprubixFeedController: UIViewController, UITableViewDataSource, UITableVie
         
     }
     
-    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        
-        let cell:SprubixFeedCell = tableView.cellForRowAtIndexPath(indexPath) as SprubixFeedCell
-        
-        //println(cell.outfitHeight)
-        
-        /*
-        manager.GET(SprubixConfig.URL.api + "/auth/check",
-            parameters: nil,
-            success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
-                println("didSelectRow")
-                println(responseObject)
-            },
-            failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
-                println("Error: " + error.localizedDescription)
-        })
-        */
-
-        /*
-        // testingly delete cookies
-        for cookie in cookies {
-            NSHTTPCookieStorage.sharedHTTPCookieStorage().deleteCookie(cookie)
-            println("deleted cookie: \(cookie)\n")
-            println(NSHTTPCookieStorage.sharedHTTPCookieStorage().cookies!)
-        }
-        */
-        
-    }
-    
     func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
         
-        if indexCellHeight.count > 0
-        {
-            return indexCellHeight[indexPath.row]
-        }
+        let outfit = outfits[indexPath.row]
         
-        return 200.0
+        let h = outfit["height"] as CGFloat
+        let w = outfit["width"] as CGFloat
+        let height = h * screenWidth / w
+        
+        return height
     }
 
     func initButtons() {
@@ -214,7 +223,7 @@ class SprubixFeedController: UIViewController, UITableViewDataSource, UITableVie
         createOutfitButton = UIButton.buttonWithType(UIButtonType.Custom) as UIButton
         createOutfitButton.frame = CGRect(x: screenWidth - 50, y: screenHeight - 50, width: 40, height: 40)
         createOutfitButton.backgroundColor = UIColor.whiteColor()
-        createOutfitButton.setImage(UIImage(named: "profile-myoutfits"), forState: UIControlState.Normal)
+        createOutfitButton.setImage(UIImage(named: "main-cta-add"), forState: UIControlState.Normal)
         createOutfitButton.addTarget(self, action: "createOutfit", forControlEvents: UIControlEvents.TouchUpInside)
         
         // circle mask

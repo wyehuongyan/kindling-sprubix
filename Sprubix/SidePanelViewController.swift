@@ -17,6 +17,9 @@ class SidePanelViewController: UIViewController, UITableViewDataSource, UITableV
     
     @IBOutlet var sidePanelTableView: UITableView!
     
+    var profileImage:UIImageView = UIImageView()
+    var profileName:UILabel = UILabel()
+    
     var sidePanelOptions:[SidePanelOption]!
     var delegate: SidePanelViewControllerDelegate?
     
@@ -30,8 +33,12 @@ class SidePanelViewController: UIViewController, UITableViewDataSource, UITableV
     }
     
     func initUserInfo() {
+        let userData:NSDictionary! = defaults.dictionaryForKey("userData")
+        
         // create profile UIImageView programmatically
-        var profileImage:UIImageView = UIImageView(image: UIImage(named: "person-placeholder.jpg"))
+        let userThumbnailURL = NSURL(string: userData["image"] as NSString)
+        
+        profileImage.setImageWithURL(userThumbnailURL)
         let profileImageLength:CGFloat = 100
         
         // 30 is the sprubixfeed offset of 60 divided by 2. 50 is arbitary value, but should convert to constraint
@@ -45,10 +52,9 @@ class SidePanelViewController: UIViewController, UITableViewDataSource, UITableV
         profileImage.userInteractionEnabled = true
         
         // create username UILabel
-        var profileName:UILabel = UILabel()
         let profileNameLength:CGFloat = 200
         profileName.frame = CGRect(x: (view.bounds.width / 2) - (profileNameLength / 2) - 30, y: profileImage.center.y + 60, width: profileNameLength, height: 21)
-        profileName.text = "User Name"
+        profileName.text = userData["username"] as? String
         profileName.textAlignment = NSTextAlignment.Center
         
         view.addSubview(profileImage)

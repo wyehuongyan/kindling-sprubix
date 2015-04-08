@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6254" systemVersion="14C109" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6751" systemVersion="14C109" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6247"/>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6736"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
     </dependencies>
     <scenes>
@@ -54,7 +55,7 @@
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Label" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="WuI-6L-5CI">
                                                     <rect key="frame" x="60" y="19" width="200" height="21"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                                    <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                                    <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                             </subviews>
@@ -151,7 +152,7 @@
             </objects>
             <point key="canvasLocation" x="1089" y="176"/>
         </scene>
-        <!--Sprubix-->
+        <!--Sprubix Feed Controller-->
         <scene sceneID="bHz-uR-VrI">
             <objects>
                 <tableViewController storyboardIdentifier="SprubixFeed" id="bpG-EO-ei2" customClass="SprubixFeedController" customModule="Sprubix" customModuleProvider="target" sceneMemberID="viewController">
@@ -165,7 +166,7 @@
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="Cb6-y9-sO6" id="vUP-3y-Stv">
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
-                                        <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="person-placeholder.jpg" translatesAutoresizingMaskIntoConstraints="NO" id="cBO-7I-qNh">
+                                        <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="cBO-7I-qNh">
                                             <rect key="frame" x="8" y="8" width="40" height="40"/>
                                             <constraints>
                                                 <constraint firstAttribute="height" constant="40" id="N7r-iT-QYl"/>
@@ -182,15 +183,13 @@
                                             <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                             <nil key="highlightedColor"/>
                                         </label>
-                                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="SOi-fO-jFl">
-                                            <rect key="frame" x="8" y="159" width="62" height="30"/>
+                                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="SOi-fO-jFl">
+                                            <rect key="frame" x="8" y="149" width="84" height="40"/>
                                             <constraints>
-                                                <constraint firstAttribute="width" constant="62" id="iUW-yW-9nA"/>
+                                                <constraint firstAttribute="width" constant="84" id="iUW-yW-9nA"/>
                                             </constraints>
                                             <color key="tintColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                            <state key="normal" title="Spruce">
-                                                <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
-                                            </state>
+                                            <state key="normal" image="main-spruce"/>
                                             <connections>
                                                 <action selector="spruceItUp:" destination="Cb6-y9-sO6" eventType="touchUpInside" id="YIm-CB-Smf"/>
                                             </connections>
@@ -202,7 +201,7 @@
                                                 <constraint firstAttribute="height" constant="24" id="zZq-RQ-3sE"/>
                                             </constraints>
                                             <color key="tintColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                            <state key="normal" image="pizza-bar-icon"/>
+                                            <state key="normal" image="main-like"/>
                                         </button>
                                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1X1-4O-Xus">
                                             <rect key="frame" x="559" y="149" width="24" height="24"/>
@@ -211,7 +210,7 @@
                                                 <constraint firstAttribute="height" constant="24" id="A2j-6C-mkR"/>
                                             </constraints>
                                             <color key="tintColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                            <state key="normal" image="pizza-bar-icon"/>
+                                            <state key="normal" image="main-comments"/>
                                             <connections>
                                                 <action selector="viewComments:" destination="Cb6-y9-sO6" eventType="touchUpInside" id="mMt-0A-0LB"/>
                                             </connections>
@@ -267,6 +266,11 @@
                                     </constraints>
                                 </tableViewCellContentView>
                                 <connections>
+                                    <outlet property="commentsButton" destination="1X1-4O-Xus" id="BP2-co-TjE"/>
+                                    <outlet property="likeButton" destination="JhN-AN-6Ye" id="LQk-KD-ISc"/>
+                                    <outlet property="spruceButton" destination="SOi-fO-jFl" id="iFc-fM-MPF"/>
+                                    <outlet property="timestamp" destination="vh5-Zh-l4c" id="7hV-NK-sAR"/>
+                                    <outlet property="userName" destination="MfQ-n7-VeV" id="Jk4-AH-N6A"/>
                                     <outlet property="userThumbnail" destination="cBO-7I-qNh" id="tFl-Ur-U4c"/>
                                 </connections>
                             </tableViewCell>
@@ -276,8 +280,9 @@
                             <outlet property="delegate" destination="bpG-EO-ei2" id="ykU-AA-v9m"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" title="Sprubix" id="omK-gB-I7C">
-                        <barButtonItem key="leftBarButtonItem" title="Menu" id="Eki-aD-oo5">
+                    <navigationItem key="navigationItem" id="omK-gB-I7C">
+                        <barButtonItem key="leftBarButtonItem" image="main-hamburger" id="Eki-aD-oo5">
+                            <inset key="imageInsets" minX="-16" minY="5" maxX="35" maxY="5"/>
                             <color key="tintColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
                             <connections>
                                 <action selector="sidePanel:" destination="bpG-EO-ei2" id="ulO-nT-Ube"/>
@@ -308,14 +313,14 @@
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Label" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="eG2-gL-mqW">
                                 <rect key="frame" x="77" y="161" width="42" height="21"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     </view>
                     <navigationItem key="navigationItem" id="8zb-PF-bfQ">
-                        <barButtonItem key="leftBarButtonItem" title="Close" id="1ne-yi-LcB">
+                        <barButtonItem key="leftBarButtonItem" title="X" id="1ne-yi-LcB">
                             <color key="tintColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                             <connections>
                                 <action selector="closeUserProfile:" destination="Hc4-Tf-9LC" id="3Vd-eH-rnm"/>
@@ -349,7 +354,9 @@
         </scene>
     </scenes>
     <resources>
-        <image name="person-placeholder.jpg" width="500" height="500"/>
-        <image name="pizza-bar-icon" width="29" height="29"/>
+        <image name="main-comments" width="40" height="40"/>
+        <image name="main-hamburger" width="40" height="40"/>
+        <image name="main-like" width="40" height="40"/>
+        <image name="main-spruce" width="80" height="40"/>
     </resources>
 </document>

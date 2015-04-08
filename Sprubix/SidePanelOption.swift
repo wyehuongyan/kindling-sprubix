@@ -22,11 +22,11 @@ class SidePanelOption {
     // create customized option list here
     class func userOptions() -> Array<SidePanelOption> {
         return [
-            SidePanelOption(title: "Messages", image: UIImage(named: "icon-placeholder.png")),
-            SidePanelOption(title: "Notifications", image: UIImage(named: "icon-placeholder.png")),
-            SidePanelOption(title: "Create Outfit", image: UIImage(named: "icon-placeholder.png")),
-            SidePanelOption(title: "Liked Outfits", image: UIImage(named: "icon-placeholder.png")),
-            SidePanelOption(title: "Settings", image: UIImage(named: "icon-placeholder.png"))
+            SidePanelOption(title: "Messages", image: UIImage(named: "sidemenu-messages")),
+            SidePanelOption(title: "Notifications", image: UIImage(named: "sidemenu-notifications")),
+            SidePanelOption(title: "Create Outfit", image: UIImage(named: "sidemenu-create")),
+            SidePanelOption(title: "Liked Outfits", image: UIImage(named: "sidemenu-likes")),
+            SidePanelOption(title: "Settings", image: UIImage(named: "sidemenu-settings"))
         ]
     }
 }

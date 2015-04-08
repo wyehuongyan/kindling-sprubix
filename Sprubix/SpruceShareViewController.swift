@@ -38,7 +38,7 @@ class SpruceShareViewController: UIViewController, UITableViewDelegate, UITableV
         
         shareButton = UIButton(frame: CGRect(x: 0, y: screenHeight - navigationHeight, width: screenWidth, height: navigationHeight))
         shareButton.backgroundColor = sprubixColor
-        shareButton.setTitle("Share!", forState: UIControlState.Normal)
+        shareButton.setTitle("Spruce it!", forState: UIControlState.Normal)
         
         view.addSubview(shareButton)
     }
@@ -53,10 +53,20 @@ class SpruceShareViewController: UIViewController, UITableViewDelegate, UITableV
         
         // 3. add a new navigation item w/title to the new nav bar
         var newNavItem = UINavigationItem()
-        newNavItem.title = "Share to..."
+        newNavItem.title = "Good to go?"
         
         // 4. create a custom back button
-        var backBarButtonItem:UIBarButtonItem = UIBarButtonItem(title: "Back", style: UIBarButtonItemStyle.Plain, target: self, action: "backTapped:")
+        var backButton:UIButton = UIButton.buttonWithType(UIButtonType.Custom) as UIButton
+        backButton.setImage(UIImage(named: "spruce-arrow-back"), forState: UIControlState.Normal)
+        backButton.frame = CGRect(x: -10, y: 0, width: 20, height: 20)
+        backButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+        Glow.addGlow(backButton)
+        backButton.addTarget(self, action: "backTapped:", forControlEvents: UIControlEvents.TouchUpInside)
+        
+        //var backButtonView:UIView = UIView(frame: CGRect(x: 0, y: 0, width: backButton.frame.width, height: backButton.frame.height))
+        //backButtonView.addSubview(backButton)
+        
+        var backBarButtonItem:UIBarButtonItem = UIBarButtonItem(customView: backButton)
         backBarButtonItem.tintColor = UIColor(red: 170/255, green: 170/255, blue: 170/255, alpha: 1.0)
         
         newNavItem.leftBarButtonItem = backBarButtonItem
@@ -152,12 +162,14 @@ class SpruceShareViewController: UIViewController, UITableViewDelegate, UITableV
             
             return descriptionCell
         case 3:
+            // Facebook
             var socialButtonRow1:UIView = UIView(frame: CGRect(x: 0, y: 0, width: screenWidth, height: 44))
             
             var socialButtonFacebook = UIButton.buttonWithType(UIButtonType.Custom) as UIButton
-            socialButtonFacebook.setImage(UIImage(named: "pizza-bar-icon"), forState: UIControlState.Normal)
+            socialButtonFacebook.setImage(UIImage(named: "spruce-share-fb"), forState: UIControlState.Normal)
             socialButtonFacebook.setTitle("Facebook", forState: UIControlState.Normal)
             socialButtonFacebook.setTitleColor(UIColor.blackColor(), forState: UIControlState.Normal)
+            socialButtonFacebook.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
             socialButtonFacebook.frame = CGRect(x: 0, y: 0, width: screenWidth / 2, height: 44)
             socialButtonFacebook.contentHorizontalAlignment = UIControlContentHorizontalAlignment.Left
             socialButtonFacebook.imageEdgeInsets = UIEdgeInsetsMake(5, 20, 5, 0)
@@ -165,10 +177,12 @@ class SpruceShareViewController: UIViewController, UITableViewDelegate, UITableV
         
             socialButtonRow1.addSubview(socialButtonFacebook)
             
+            // Twitter
             var socialButtonTwitter = UIButton.buttonWithType(UIButtonType.Custom) as UIButton
-            socialButtonTwitter.setImage(UIImage(named: "pizza-bar-icon"), forState: UIControlState.Normal)
+            socialButtonTwitter.setImage(UIImage(named: "spruce-share-twitter"), forState: UIControlState.Normal)
             socialButtonTwitter.setTitle("Twitter", forState: UIControlState.Normal)
             socialButtonTwitter.setTitleColor(UIColor.blackColor(), forState: UIControlState.Normal)
+            socialButtonTwitter.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
             socialButtonTwitter.frame = CGRect(x: screenWidth / 2, y: 0, width: screenWidth / 2, height: 44)
             socialButtonTwitter.contentHorizontalAlignment = UIControlContentHorizontalAlignment.Left
             socialButtonTwitter.imageEdgeInsets = UIEdgeInsetsMake(5, 20, 5, 0)
@@ -178,12 +192,14 @@ class SpruceShareViewController: UIViewController, UITableViewDelegate, UITableV
             
             socialCell.addSubview(socialButtonRow1)
             
+            // Tumblr
             var socialButtonRow2:UIView = UIView(frame: CGRect(x: 0, y: 44, width: screenWidth, height: 44))
             
             var socialButtonTumblr = UIButton.buttonWithType(UIButtonType.Custom) as UIButton
-            socialButtonTumblr.setImage(UIImage(named: "pizza-bar-icon"), forState: UIControlState.Normal)
+            socialButtonTumblr.setImage(UIImage(named: "spruce-share-tumblr"), forState: UIControlState.Normal)
             socialButtonTumblr.setTitle("Tumblr", forState: UIControlState.Normal)
             socialButtonTumblr.setTitleColor(UIColor.blackColor(), forState: UIControlState.Normal)
+            socialButtonTumblr.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
             socialButtonTumblr.frame = CGRect(x: 0, y: 0, width: screenWidth / 2, height: 44)
             socialButtonTumblr.contentHorizontalAlignment = UIControlContentHorizontalAlignment.Left
             socialButtonTumblr.imageEdgeInsets = UIEdgeInsetsMake(5, 20, 5, 0)
@@ -191,6 +207,19 @@ class SpruceShareViewController: UIViewController, UITableViewDelegate, UITableV
 
             socialButtonRow2.addSubview(socialButtonTumblr)
         
+            // Pinterest
+            var socialButtonPinterest = UIButton.buttonWithType(UIButtonType.Custom) as UIButton
+            socialButtonPinterest.setImage(UIImage(named: "spruce-share-pinterest"), forState: UIControlState.Normal)
+            socialButtonPinterest.setTitle("Pinterest", forState: UIControlState.Normal)
+            socialButtonPinterest.setTitleColor(UIColor.blackColor(), forState: UIControlState.Normal)
+            socialButtonPinterest.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+            socialButtonPinterest.frame = CGRect(x: screenWidth / 2, y: 0, width: screenWidth / 2, height: 44)
+            socialButtonPinterest.contentHorizontalAlignment = UIControlContentHorizontalAlignment.Left
+            socialButtonPinterest.imageEdgeInsets = UIEdgeInsetsMake(5, 20, 5, 0)
+            socialButtonPinterest.titleEdgeInsets = UIEdgeInsetsMake(10, 30, 10, 0)
+            
+            socialButtonRow2.addSubview(socialButtonPinterest)
+            
             socialCell.addSubview(socialButtonRow2)
         
             var socialButtonsLineTop = UIView(frame: CGRect(x: 0, y: 0, width: screenWidth, height: 2))

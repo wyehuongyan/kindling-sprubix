@@ -130,40 +130,64 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         // generate 4 labels with icons
         let itemImageViewWidth:CGFloat = 0.3 * screenWidth
         
-        var itemNameImageView:UIImageView = UIImageView(frame: CGRect(x: 0, y: 0, width: itemImageViewWidth, height: itemSpecHeight))
-        itemNameImageView.image = UIImage(named: "icon-placeholder.png")
-        itemNameImageView.contentMode = UIViewContentMode.ScaleAspectFit
+        // name
+        var itemNameImage = UIButton.buttonWithType(UIButtonType.Custom) as UIButton
+        itemNameImage.setImage(UIImage(named: "view-item-name"), forState: UIControlState.Normal)
+        itemNameImage.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+        itemNameImage.frame = CGRect(x: 0, y: 0, width: itemImageViewWidth, height: itemSpecHeight)
+        itemNameImage.imageEdgeInsets = UIEdgeInsetsMake(10, 10, 10, 0)
+        
+        Glow.addGlow(itemNameImage)
+        
         var itemNameLabel:UILabel = UILabel(frame: CGRect(x: itemImageViewWidth, y: 0, width: screenWidth - itemImageViewWidth, height: itemSpecHeight))
         itemNameLabel.text = "Name"
         
-        var itemCategoryImageView:UIImageView = UIImageView(frame: CGRect(x: 0, y: itemSpecHeight, width: itemImageViewWidth, height: itemSpecHeight))
-        itemCategoryImageView.image = UIImage(named: "icon-placeholder.png")
-        itemCategoryImageView.contentMode = UIViewContentMode.ScaleAspectFit
+        // category
+        var itemCategoryImage = UIButton.buttonWithType(UIButtonType.Custom) as UIButton
+        itemCategoryImage.setImage(UIImage(named: "view-item-cat-top"), forState: UIControlState.Normal)
+        itemCategoryImage.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+        itemCategoryImage.frame = CGRect(x: 0, y: itemSpecHeight, width: itemImageViewWidth, height: itemSpecHeight)
+        itemCategoryImage.imageEdgeInsets = UIEdgeInsetsMake(10, 10, 10, 0)
+        
+        Glow.addGlow(itemCategoryImage)
+        
         var itemCategoryLabel:UILabel = UILabel(frame: CGRect(x: itemImageViewWidth, y: itemSpecHeight, width: screenWidth - itemImageViewWidth, height: itemSpecHeight))
         itemCategoryLabel.text = "Category"
         
-        var itemBrandImageView:UIImageView = UIImageView(frame: CGRect(x: 0, y: itemSpecHeight * 2, width: itemImageViewWidth, height: itemSpecHeight))
-        itemBrandImageView.image = UIImage(named: "icon-placeholder.png")
-        itemBrandImageView.contentMode = UIViewContentMode.ScaleAspectFit
+        // brand
+        var itemBrandImage = UIButton.buttonWithType(UIButtonType.Custom) as UIButton
+        itemBrandImage.setImage(UIImage(named: "view-item-brand"), forState: UIControlState.Normal)
+        itemBrandImage.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+        itemBrandImage.frame = CGRect(x: 0, y: itemSpecHeight * 2, width: itemImageViewWidth, height: itemSpecHeight)
+        itemBrandImage.imageEdgeInsets = UIEdgeInsetsMake(10, 10, 10, 0)
+        
+        Glow.addGlow(itemBrandImage)
+        
         var itemBrandLabel:UILabel = UILabel(frame: CGRect(x: itemImageViewWidth, y: itemSpecHeight * 2, width: screenWidth - itemImageViewWidth, height: itemSpecHeight))
         itemBrandLabel.text = "Brand"
         
-        var itemSizeImageView:UIImageView = UIImageView(frame: CGRect(x: 0, y: itemSpecHeight * 3, width: itemImageViewWidth, height: itemSpecHeight))
-        itemSizeImageView.image = UIImage(named: "icon-placeholder.png")
-        itemSizeImageView.contentMode = UIViewContentMode.ScaleAspectFit
+        // size
+        var itemSizeImage = UIButton.buttonWithType(UIButtonType.Custom) as UIButton
+        itemSizeImage.setImage(UIImage(named: "view-item-size"), forState: UIControlState.Normal)
+        itemSizeImage.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+        itemSizeImage.frame = CGRect(x: 0, y: itemSpecHeight * 3, width: itemImageViewWidth, height: itemSpecHeight)
+        itemSizeImage.imageEdgeInsets = UIEdgeInsetsMake(10, 10, 10, 0)
+        
+        Glow.addGlow(itemSizeImage)
+
         var itemSizeLabel:UILabel = UILabel(frame: CGRect(x: itemImageViewWidth, y: itemSpecHeight * 3, width: screenWidth - itemImageViewWidth, height: itemSpecHeight))
         itemSizeLabel.text = "Size"
         
-        pieceSpecsView.addSubview(itemNameImageView)
+        pieceSpecsView.addSubview(itemNameImage)
         pieceSpecsView.addSubview(itemNameLabel)
         
-        pieceSpecsView.addSubview(itemCategoryImageView)
+        pieceSpecsView.addSubview(itemCategoryImage)
         pieceSpecsView.addSubview(itemCategoryLabel)
         
-        pieceSpecsView.addSubview(itemBrandImageView)
+        pieceSpecsView.addSubview(itemBrandImage)
         pieceSpecsView.addSubview(itemBrandLabel)
         
-        pieceSpecsView.addSubview(itemSizeImageView)
+        pieceSpecsView.addSubview(itemSizeImage)
         pieceSpecsView.addSubview(itemSizeLabel)
         
         pieceDetailInfoView.addSubview(pieceSpecsView)

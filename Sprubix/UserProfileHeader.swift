@@ -69,6 +69,8 @@ class UserProfileHeader: UICollectionReusableView, UIScrollViewDelegate {
         button1.frame = CGRect(x: 0, y: 0, width: buttonWidth, height: toolbarHeight)
         button1.backgroundColor = UIColor.whiteColor()
         button1.setImage(UIImage(named: "profile-myoutfits"), forState: UIControlState.Normal)
+        button1.imageEdgeInsets = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
+        button1.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
         button1.setImage(UIImage(named: "profile-myoutfits"), forState: UIControlState.Selected)
         button1.tintColor = UIColor.lightGrayColor()
         button1.autoresizesSubviews = true
@@ -79,8 +81,10 @@ class UserProfileHeader: UICollectionReusableView, UIScrollViewDelegate {
         button2 = UIButton.buttonWithType(UIButtonType.System) as UIButton
         button2.frame = CGRect(x: buttonWidth, y: 0, width: buttonWidth, height: toolbarHeight)
         button2.backgroundColor = UIColor.whiteColor()
-        button2.setImage(UIImage(named: "profile-myoutfits"), forState: UIControlState.Normal)
-        button2.setImage(UIImage(named: "profile-myoutfits"), forState: UIControlState.Selected)
+        button2.setImage(UIImage(named: "profile-mycloset"), forState: UIControlState.Normal)
+        button2.imageEdgeInsets = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
+        button2.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+        button2.setImage(UIImage(named: "profile-mycloset"), forState: UIControlState.Selected)
         button2.tintColor = UIColor.lightGrayColor()
         button2.autoresizesSubviews = true
         button2.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin | UIViewAutoresizing.FlexibleRightMargin | UIViewAutoresizing.FlexibleWidth
@@ -90,8 +94,10 @@ class UserProfileHeader: UICollectionReusableView, UIScrollViewDelegate {
         button3 = UIButton.buttonWithType(UIButtonType.System) as UIButton
         button3.frame = CGRect(x: buttonWidth * 2, y: 0, width: buttonWidth, height: toolbarHeight)
         button3.backgroundColor = UIColor.whiteColor()
-        button3.setImage(UIImage(named: "profile-myoutfits"), forState: UIControlState.Normal)
-        button3.setImage(UIImage(named: "profile-myoutfits"), forState: UIControlState.Selected)
+        button3.setImage(UIImage(named: "profile-community"), forState: UIControlState.Normal)
+        button3.imageEdgeInsets = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
+        button3.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+        button3.setImage(UIImage(named: "profile-community"), forState: UIControlState.Selected)
         button3.tintColor = UIColor.lightGrayColor()
         button3.autoresizesSubviews = true
         button3.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin | UIViewAutoresizing.FlexibleRightMargin | UIViewAutoresizing.FlexibleWidth
@@ -125,7 +131,11 @@ class UserProfileHeader: UICollectionReusableView, UIScrollViewDelegate {
         userInfoScrollView.delegate = self
         
         // add user profile pic, username on first page
+        let userData:NSDictionary! = defaults.dictionaryForKey("userData")
+        let userThumbnailURL = NSURL(string: userData["image"] as NSString)
+        
         var profileImage:UIImageView = UIImageView(image: UIImage(named: "person-placeholder.jpg"))
+        profileImage.setImageWithURL(userThumbnailURL)
         let profileImageLength:CGFloat = 100
         
         // 50 is arbitary value, but should convert to constraint
@@ -143,7 +153,7 @@ class UserProfileHeader: UICollectionReusableView, UIScrollViewDelegate {
         var profileName:UILabel = UILabel()
         let profileNameLength:CGFloat = bounds.width
         profileName.frame = CGRect(x: (bounds.width / 2) - (profileNameLength / 2), y: profileImage.center.y + 60, width: profileNameLength, height: 21)
-        profileName.text = "User Name"
+        profileName.text = userData["username"] as? String
         profileName.textColor = UIColor.whiteColor()
         profileName.font = UIFont(name: profileName.font.fontName, size: 20)
         profileName.textAlignment = NSTextAlignment.Center

@@ -15,7 +15,12 @@ protocol SprubixFeedCellProtocol {
 
 class SprubixFeedCell: UITableViewCell {
     
+    @IBOutlet var userName: UILabel!
     @IBOutlet var userThumbnail: UIImageView!
+    @IBOutlet var timestamp: UILabel!
+    @IBOutlet var spruceButton: UIButton!
+    @IBOutlet var likeButton: UIButton!
+    @IBOutlet var commentsButton: UIButton!
     
     @IBAction func spruceItUp(sender: AnyObject) {
         delegate?.spruceOutfit(outfit)
@@ -34,10 +39,18 @@ class SprubixFeedCell: UITableViewCell {
     var outfit:NSDictionary!
     var pieceImages: [UIImageView] = [UIImageView]()
     
-    // array of UIImageViews to store images for each piece
-    func initOutfit(outfit: NSDictionary) {
-        self.outfit = outfit
+    override func prepareForReuse() {
+        for pieceImage in pieceImages {
+            pieceImage.removeFromSuperview()
+            pieceImage.image = nil
+        }
         
+        userThumbnail.image = nil
+        pieceImages.removeAll()
+    }
+    
+    // array of UIImageViews to store images for each piece
+    func initOutfit() {
         pieces = outfit["pieces"] as [NSDictionary]
         
         var prevPieceHeight:CGFloat = 0
@@ -53,7 +66,7 @@ class SprubixFeedCell: UITableViewCell {
             let pieceHeight:CGFloat = itemHeight * screenWidth / itemWidth
             
             // setting the image for piece
-            var pieceImageView:UIImageView = UIImageView()
+            let pieceImageView:UIImageView = UIImageView()
             pieceImageView.image = nil
             pieceImageView.frame = CGRect(x:0, y: prevPieceHeight, width: UIScreen.mainScreen().bounds.width, height: pieceHeight)
             
@@ -96,6 +109,29 @@ class SprubixFeedCell: UITableViewCell {
         userThumbnail.clipsToBounds = true
         userThumbnail.layer.borderWidth = 1.0
         userThumbnail.layer.borderColor = UIColor.lightGrayColor().CGColor
+        
+        // user info
+        let user = outfit["user"] as NSDictionary
+        let userThumbnailURL = NSURL(string: user["image"] as NSString)
+
+        userThumbnail.setImageWithURL(userThumbnailURL)
+        userName.text = user["username"] as NSString
+        
+        // time stamp
+        let created_at = outfit["created_at_custom_format"] as NSDictionary
+        let timestampString = created_at["created_at_human"] as String
+        var timestampArray = split(timestampString) {$0 == " "}
+        var time = timestampArray[0]
+        var stamp = timestampArray[1]
+        
+        timestamp.text = time + stamp[0]
+        
+        // add glow to buttons
+        Glow.addGlow(spruceButton)
+        Glow.addGlow(likeButton)
+        Glow.addGlow(commentsButton)
+        Glow.addGlow(userName)
+        Glow.addGlow(timestamp)
     }
     
     func wasSingleTapped(gesture: UITapGestureRecognizer) {
@@ -109,7 +145,16 @@ class SprubixFeedCell: UITableViewCell {
         
         //collectionView.setToIndexPath(indexPath)
         navController!.delegate = nil
-        navController!.pushViewController(pieceDetailsViewController, animated: true)
+        
+        let transition = CATransition()
+        transition.duration = 0.3
+        transition.type = kCATransitionMoveIn
+        transition.subtype = kCATransitionFromTop
+        transition.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
+        
+        navController?.view.layer.addAnimation(transition, forKey: kCATransition)
+        navController!.pushViewController(pieceDetailsViewController, animated: false)
+        
         navController!.delegate = transitionDelegateHolder
     }
     
@@ -150,5 +195,24 @@ class SprubixFeedCell: UITableViewCell {
 
     required init(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
+    }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+    }
+}
+
+extension String {
+    
+    subscript (i: Int) -> Character {
+        return self[advance(self.startIndex, i)]
+    }
+    
+    subscript (i: Int) -> String {
+        return String(self[i] as Character)
+    }
+    
+    subscript (r: Range<Int>) -> String {
+        return substringWithRange(Range(start: advance(startIndex, r.startIndex), end: advance(startIndex, r.endIndex)))
     }
 }

@@ -69,30 +69,39 @@ class SprucePieceFeedController: UICollectionViewController, UICollectionViewDel
     }
     
     func initButtons() {
-        // left and right arrow buttons
+        // left
         leftArrowButton = UIButton.buttonWithType(UIButtonType.System) as UIButton
+        
         setLeftArrowButtonFrame(pieceHeight)
+        
         leftArrowButton.backgroundColor = UIColor.clearColor()
-        leftArrowButton.setImage(UIImage(named: "pie-bar-icon"), forState: UIControlState.Normal)
-        leftArrowButton.setImage(UIImage(named: "pizza-bar-icon"), forState: UIControlState.Selected)
+        leftArrowButton.setImage(UIImage(named: "spruce-arrow-left"), forState: UIControlState.Normal)
+        leftArrowButton.setImage(UIImage(named: "spruce-arrow-left"), forState: UIControlState.Selected)
         leftArrowButton.tintColor = UIColor.whiteColor()
         leftArrowButton.autoresizesSubviews = true
         leftArrowButton.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin | UIViewAutoresizing.FlexibleRightMargin | UIViewAutoresizing.FlexibleWidth
         leftArrowButton.exclusiveTouch = true
         leftArrowButton.addTarget(self, action: "leftArrowPressed:", forControlEvents: UIControlEvents.TouchUpInside)
+
+        Glow.addGlow(leftArrowButton)
         
         view.addSubview(leftArrowButton)
         
+        // right
         rightArrowButton = UIButton.buttonWithType(UIButtonType.System) as UIButton
+        
         setRightArrowButtonFrame(pieceHeight)
+       
         rightArrowButton.backgroundColor = UIColor.clearColor()
-        rightArrowButton.setImage(UIImage(named: "pie-bar-icon"), forState: UIControlState.Normal)
-        rightArrowButton.setImage(UIImage(named: "pizza-bar-icon"), forState: UIControlState.Selected)
+        rightArrowButton.setImage(UIImage(named: "spruce-arrow-right"), forState: UIControlState.Normal)
+        rightArrowButton.setImage(UIImage(named: "spruce-arrow-right"), forState: UIControlState.Selected)
         rightArrowButton.tintColor = UIColor.whiteColor()
         rightArrowButton.autoresizesSubviews = true
         rightArrowButton.autoresizingMask = UIViewAutoresizing.FlexibleLeftMargin | UIViewAutoresizing.FlexibleRightMargin | UIViewAutoresizing.FlexibleWidth
         rightArrowButton.exclusiveTouch = true
         rightArrowButton.addTarget(self, action: "rightArrowPressed:", forControlEvents: UIControlEvents.TouchUpInside)
+        
+        Glow.addGlow(rightArrowButton)
         
         view.addSubview(rightArrowButton)
     }
@@ -219,9 +228,9 @@ class SprucePieceFeedController: UICollectionViewController, UICollectionViewDel
         if userId != nil {
             // retrieve 3 example pieces
             manager.POST(SprubixConfig.URL.api + "/pieces",
-                parameters: nil /*[
+                parameters: [
                     "type" : pieceType
-                ]*/,
+                ],
                 success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
                     self.sprucePieces = responseObject["data"] as [NSDictionary]!
                     

@@ -3,16 +3,17 @@
     {
       "idiom" : "universal",
       "scale" : "1x",
-      "filename" : "profile_mycoord@1x.png"
+      "filename" : "spruce_share_tumblr@1x.png"
     },
     {
       "idiom" : "universal",
       "scale" : "2x",
-      "filename" : "profile_mycoord@2x.png"
+      "filename" : "spruce_share_tumblr@2x.png"
     },
     {
       "idiom" : "universal",
-      "scale" : "3x"
+      "scale" : "3x",
+      "filename" : "spruce_share_tumblr@3x.png"
     }
   ],
   "info" : {
