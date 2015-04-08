@@ -60,7 +60,7 @@ class SignInViewController: UIViewController, UITextFieldDelegate, UITableViewDa
         
         view.addSubview(signInView)
         
-        sprubixLogoView = UIImageView(image: UIImage(named: "logo_final_square.png"))
+        sprubixLogoView = UIImageView(image: UIImage(named: "logo-final-square.png"))
         
         sprubixLogoView.frame = CGRect(x: screenWidth / 2 - sprubixLogoWidth / 2, y: signInView.frame.origin.y - sprubixLogoWidth, width: sprubixLogoWidth, height: sprubixLogoWidth)
         
@@ -72,6 +72,7 @@ class SignInViewController: UIViewController, UITextFieldDelegate, UITableViewDa
         case 0:
             userNameText = UITextField(frame: CGRectInset(userNameCell.contentView.bounds, 15, 0))
             
+            userNameText.tintColor = sprubixColor
             userNameText.placeholder = "Username or email"
             userNameCell.addSubview(userNameText)
             
@@ -79,6 +80,7 @@ class SignInViewController: UIViewController, UITextFieldDelegate, UITableViewDa
         case 1:
             passwordText = UITextField(frame: CGRectInset(passwordCell.contentView.bounds, 15, 0))
             
+            passwordText.tintColor = sprubixColor
             passwordText.secureTextEntry = true
             passwordText.placeholder = "Password"
             passwordCell.addSubview(passwordText)

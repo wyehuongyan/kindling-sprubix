@@ -229,16 +229,16 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         pieceDetailInfoView.addSubview(viewAllCommentsBG)
         
         // the 3 most recent comments
-        var commentRowView1:SprubixItemCommentRow = SprubixItemCommentRow(username: "Onigiri", commentString: "Lorem ipsum dolor sit amet", y: commentYPos, button: false)
-        var commentRowView2:SprubixItemCommentRow = SprubixItemCommentRow(username: "Croquette", commentString: "Lorem ipsum dolor sit amet, consec tetur adipiscing elit", y: commentYPos + commentRowView1.commentRowHeight, button: false)
-        var commentRowView3:SprubixItemCommentRow = SprubixItemCommentRow(username: "Peach", commentString: "Lorem ipsum", y: commentYPos + commentRowView1.commentRowHeight + commentRowView2.commentRowHeight, button: false)
+        var commentRowView1:SprubixItemCommentRow = SprubixItemCommentRow(username: "Onigiri", commentString: "Lorem ipsum dolor sit amet", y: commentYPos, button: false, userThumbnail: "user4-mika.jpg")
+        var commentRowView2:SprubixItemCommentRow = SprubixItemCommentRow(username: "Croquette", commentString: "Lorem ipsum dolor sit amet, consec tetur adipiscing elit", y: commentYPos + commentRowView1.commentRowHeight, button: false, userThumbnail: "user5-rika.jpg")
+        var commentRowView3:SprubixItemCommentRow = SprubixItemCommentRow(username: "Peach", commentString: "Lorem ipsum", y: commentYPos + commentRowView1.commentRowHeight + commentRowView2.commentRowHeight, button: false, userThumbnail: "user6-melody.jpg")
         
         pieceDetailInfoView.addSubview(commentRowView1)
         pieceDetailInfoView.addSubview(commentRowView2)
         pieceDetailInfoView.addSubview(commentRowView3)
         
         // add a comment button
-        var commentRowButton:SprubixItemCommentRow = SprubixItemCommentRow(username: "", commentString: "", y: commentYPos + commentRowView1.commentRowHeight + commentRowView2.commentRowHeight + commentRowView3.commentRowHeight, button: true)
+        var commentRowButton:SprubixItemCommentRow = SprubixItemCommentRow(username: "", commentString: "", y: commentYPos + commentRowView1.commentRowHeight + commentRowView2.commentRowHeight + commentRowView3.commentRowHeight, button: true, userThumbnail: "sprubix-user")
         
         commentRowButton.postCommentButton.addTarget(self, action: "addCommentPressed:", forControlEvents: UIControlEvents.TouchUpInside)
         

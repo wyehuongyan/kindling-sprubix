@@ -20,6 +20,9 @@
 		846C979D1ABD68A80050D0BC /* SprucePieceFeedController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846C979C1ABD68A80050D0BC /* SprucePieceFeedController.swift */; };
 		846C97A01ABDA6F00050D0BC /* SprucePieceFeedCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846C979F1ABDA6F00050D0BC /* SprucePieceFeedCell.swift */; };
 		847D05821AD449C9005E09AB /* bg-header.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 847D05811AD449C9005E09AB /* bg-header.jpg */; };
+		847D05861AD58DDA005E09AB /* user4-mika.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 847D05831AD58DDA005E09AB /* user4-mika.jpg */; };
+		847D05871AD58DDA005E09AB /* user5-rika.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 847D05841AD58DDA005E09AB /* user5-rika.jpg */; };
+		847D05881AD58DDA005E09AB /* user6-melody.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 847D05851AD58DDA005E09AB /* user6-melody.jpg */; };
 		849733371AA1B08300E5C750 /* SprubixFeedController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849733361AA1B08300E5C750 /* SprubixFeedController.swift */; };
 		849733411AA4561D00E5C750 /* SprubixFeedCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849733401AA4561D00E5C750 /* SprubixFeedCell.swift */; };
 		84B334E51AAB00DD00B9707D /* SidePanelViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B334E41AAB00DD00B9707D /* SidePanelViewController.swift */; };
@@ -45,7 +48,7 @@
 		84B3354E1AB4520C00B9707D /* PieceDetailsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B3354D1AB4520C00B9707D /* PieceDetailsCell.swift */; };
 		84C9AC3E1AA06041009ADF5C /* SignUpViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84C9AC3D1AA06041009ADF5C /* SignUpViewController.swift */; };
 		84D697271AC7E05800C676FD /* SpruceShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D697261AC7E05800C676FD /* SpruceShareViewController.swift */; };
-		84D697291AC922DA00C676FD /* logo_final_square.png in Resources */ = {isa = PBXBuildFile; fileRef = 84D697281AC922DA00C676FD /* logo_final_square.png */; };
+		84D697291AC922DA00C676FD /* logo-final-square.png in Resources */ = {isa = PBXBuildFile; fileRef = 84D697281AC922DA00C676FD /* logo-final-square.png */; };
 		D8A13E31F42E1CF8820EA450 /* libPods-Sprubix.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C5FB579969B9F9C35D0AC76 /* libPods-Sprubix.a */; };
 /* End PBXBuildFile section */
 
@@ -80,6 +83,9 @@
 		846C979C1ABD68A80050D0BC /* SprucePieceFeedController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SprucePieceFeedController.swift; sourceTree = "<group>"; };
 		846C979F1ABDA6F00050D0BC /* SprucePieceFeedCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SprucePieceFeedCell.swift; sourceTree = "<group>"; };
 		847D05811AD449C9005E09AB /* bg-header.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "bg-header.jpg"; sourceTree = "<group>"; };
+		847D05831AD58DDA005E09AB /* user4-mika.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "user4-mika.jpg"; sourceTree = "<group>"; };
+		847D05841AD58DDA005E09AB /* user5-rika.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "user5-rika.jpg"; sourceTree = "<group>"; };
+		847D05851AD58DDA005E09AB /* user6-melody.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "user6-melody.jpg"; sourceTree = "<group>"; };
 		849733361AA1B08300E5C750 /* SprubixFeedController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SprubixFeedController.swift; sourceTree = "<group>"; };
 		849733401AA4561D00E5C750 /* SprubixFeedCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SprubixFeedCell.swift; sourceTree = "<group>"; };
 		84B334E41AAB00DD00B9707D /* SidePanelViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SidePanelViewController.swift; sourceTree = "<group>"; };
@@ -105,7 +111,7 @@
 		84B3354D1AB4520C00B9707D /* PieceDetailsCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PieceDetailsCell.swift; sourceTree = "<group>"; };
 		84C9AC3D1AA06041009ADF5C /* SignUpViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignUpViewController.swift; sourceTree = "<group>"; };
 		84D697261AC7E05800C676FD /* SpruceShareViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpruceShareViewController.swift; sourceTree = "<group>"; };
-		84D697281AC922DA00C676FD /* logo_final_square.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = logo_final_square.png; sourceTree = "<group>"; };
+		84D697281AC922DA00C676FD /* logo-final-square.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "logo-final-square.png"; sourceTree = "<group>"; };
 		9C19E471A8B7AC341F31C03D /* Pods-Sprubix.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Sprubix.release.xcconfig"; path = "Pods/Target Support Files/Pods-Sprubix/Pods-Sprubix.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -165,10 +171,6 @@
 				8497333F1AA4556A00E5C750 /* Views */,
 				8497333E1AA4556200E5C750 /* Controllers */,
 				845048B51A9ECC81008BDBAA /* Sprubix.xcdatamodeld */,
-				847D05811AD449C9005E09AB /* bg-header.jpg */,
-				84B334F31AAC99F300B9707D /* icon-placeholder.png */,
-				84B334ED1AAC287800B9707D /* person-placeholder.jpg */,
-				84D697281AC922DA00C676FD /* logo_final_square.png */,
 				845048B11A9ECC81008BDBAA /* Supporting Files */,
 			);
 			path = Sprubix;
@@ -183,6 +185,13 @@
 				84B335411AB2BC1400B9707D /* Macro.swift */,
 				84B335431AB2BD0700B9707D /* Extension.swift */,
 				846C97921ABAB11F0050D0BC /* Subclasses.swift */,
+				847D05811AD449C9005E09AB /* bg-header.jpg */,
+				84B334F31AAC99F300B9707D /* icon-placeholder.png */,
+				84B334ED1AAC287800B9707D /* person-placeholder.jpg */,
+				84D697281AC922DA00C676FD /* logo-final-square.png */,
+				847D05831AD58DDA005E09AB /* user4-mika.jpg */,
+				847D05841AD58DDA005E09AB /* user5-rika.jpg */,
+				847D05851AD58DDA005E09AB /* user6-melody.jpg */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -402,10 +411,13 @@
 			files = (
 				84B334EE1AAC287800B9707D /* person-placeholder.jpg in Resources */,
 				847D05821AD449C9005E09AB /* bg-header.jpg in Resources */,
+				847D05881AD58DDA005E09AB /* user6-melody.jpg in Resources */,
+				847D05871AD58DDA005E09AB /* user5-rika.jpg in Resources */,
 				845048BC1A9ECC81008BDBAA /* Main.storyboard in Resources */,
 				845048C11A9ECC81008BDBAA /* LaunchScreen.xib in Resources */,
-				84D697291AC922DA00C676FD /* logo_final_square.png in Resources */,
+				84D697291AC922DA00C676FD /* logo-final-square.png in Resources */,
 				845048BE1A9ECC81008BDBAA /* Images.xcassets in Resources */,
+				847D05861AD58DDA005E09AB /* user4-mika.jpg in Resources */,
 				84B334F41AAC99F300B9707D /* icon-placeholder.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

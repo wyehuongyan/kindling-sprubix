@@ -13,7 +13,7 @@ protocol SpruceViewProtocol {
     func dismissSpruceView()
 }
 
-class SpruceViewController: UIViewController, UIScrollViewDelegate, UIActionSheetDelegate, SprucePieceFeedProtocol {
+class SpruceViewController: UIViewController, UIScrollViewDelegate, UIActionSheetDelegate, UITextViewDelegate, SprucePieceFeedProtocol {
     var delegate: SpruceViewProtocol?
     
     var outfit: NSDictionary!
@@ -23,6 +23,8 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, UIActionShee
     var scrollView: UIScrollView = UIScrollView()
     var creditsView:UIView!
     let creditsViewHeight:CGFloat = 80
+    
+    let descriptionHeight:CGFloat = 50
     
     var childControllers:[SprucePieceFeedController] = [SprucePieceFeedController]()
     
@@ -41,8 +43,20 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, UIActionShee
     var newNavBar:UINavigationBar!
     var newNavItem:UINavigationItem!
     
+    var descriptionText:UITextView!
+    var placeholderText:String = "Tell us more about this outfit!"
+    var keyboardVisible = false
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        // listen to keyboard show/hide events
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("keyboardWillShow:"), name:UIKeyboardWillShowNotification, object: nil);
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("keyboardWillHide:"), name:UIKeyboardWillHideNotification, object: nil);
+        
+        // register method when tapped to hide keyboard
+        let tableTapGestureRecognizer:UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: "tableTapped:")
+        self.view.addGestureRecognizer(tableTapGestureRecognizer)
         
         initSprucePieceFeeds()
     }
@@ -122,7 +136,17 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, UIActionShee
         
         scrollView.addSubview(creditsView)
         
-        scrollView.contentSize = CGSize(width: screenWidth, height: navigationHeight + prevPieceHeight + creditsViewHeight + 100) // 100 is tentative
+        descriptionText = UITextView(frame: CGRectInset(CGRect(x: 0, y: navigationHeight + prevPieceHeight + creditsViewHeight, width: screenWidth, height: descriptionHeight), 15, 0))
+
+        descriptionText.tintColor = sprubixColor
+        descriptionText.text = placeholderText
+        descriptionText.textColor = UIColor.lightGrayColor()
+        descriptionText.font = UIFont(name: descriptionText.font.fontName, size: 16)
+        descriptionText.delegate = self
+        
+        scrollView.addSubview(descriptionText)
+        
+        scrollView.contentSize = CGSize(width: screenWidth, height: navigationHeight + prevPieceHeight + creditsViewHeight + descriptionHeight + 100)
         
         view.addSubview(scrollView)
     }
@@ -653,6 +677,74 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, UIActionShee
     }
     
     override func prefersStatusBarHidden() -> Bool {
+        return true
+    }
+    
+    // UITextViewDelegate
+    func textViewShouldBeginEditing(textView: UITextView) -> Bool {
+        if textView.text == placeholderText {
+            descriptionText.text = ""
+            descriptionText.textColor = UIColor.blackColor()
+        }
+        
+        return true
+    }
+    
+    func textViewDidEndEditing(textView: UITextView) {
+        if textView.text == "" {
+            descriptionText.text = "Tell us more about this outfit!"
+            descriptionText.textColor = UIColor.lightGrayColor()
+            descriptionText.resignFirstResponder()
+        }
+    }
+    
+    /**
+    * Handler for keyboard show event
+    */
+    func keyboardWillShow(notification: NSNotification) {
+        if !keyboardVisible {
+            var info = notification.userInfo!
+            var keyboardFrame: CGRect = (info[UIKeyboardFrameEndUserInfoKey] as NSValue).CGRectValue()
+            
+            UIView.animateWithDuration(0.2, delay: 0.1, options: UIViewAnimationOptions.CurveEaseInOut, animations: { () -> Void in
+
+                self.scrollView.frame.origin.y -= keyboardFrame.height
+                self.keyboardVisible = true
+                
+                }, completion: nil)
+        }
+    }
+    
+    /**
+    * Handler for keyboard hide event
+    */
+    func keyboardWillHide(notification: NSNotification) {
+        if keyboardVisible {
+            var info = notification.userInfo!
+            var keyboardFrame: CGRect = (info[UIKeyboardFrameEndUserInfoKey] as NSValue).CGRectValue()
+            
+            UIView.animateWithDuration(0.2, delay: 0.1, options: UIViewAnimationOptions.CurveEaseInOut, animations: { () -> Void in
+                
+                self.scrollView.frame.origin.y += keyboardFrame.height
+                self.keyboardVisible = false
+                
+                }, completion: nil)
+        }
+    }
+    
+    /**
+    * Called when the user click on the view (outside the UITextField).
+    */
+    func tableTapped(gesture: UITapGestureRecognizer) {
+        self.view.endEditing(true)
+    }
+    
+    /**
+    * Called when 'return' key pressed. return NO to ignore.
+    */
+    func textFieldShouldReturn(textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        
         return true
     }
 }

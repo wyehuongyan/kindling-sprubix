@@ -30,7 +30,7 @@ class SprubixItemCommentRow: UIView {
         super.init(frame: frame)
     }
     
-    init(username:String, commentString:String, y: CGFloat, button: Bool) {
+    init(username:String, commentString:String, y: CGFloat, button: Bool, userThumbnail:String = "person-placeholder.jpg") {
         super.init()
         
         var commentRowView = self
@@ -40,7 +40,17 @@ class SprubixItemCommentRow: UIView {
         
         // commenter's image
         var commentImageView:UIImageView = UIImageView(frame: CGRect(x: 20, y: 0, width: commentImageViewWidth, height: commentImageViewWidth))
-        commentImageView.image = UIImage(named: "person-placeholder.jpg")
+
+        if userThumbnail != "sprubix-user" {
+            commentImageView.image = UIImage(named: userThumbnail)
+        } else {
+            let userData:NSDictionary! = defaults.dictionaryForKey("userData")
+            
+            // create profile UIImageView programmatically
+            let userThumbnailURL = NSURL(string: userData["image"] as NSString)
+            
+            commentImageView.setImageWithURL(userThumbnailURL)
+        }
         
         // circle mask
         commentImageView.layer.cornerRadius = commentImageView.frame.size.width / 2
