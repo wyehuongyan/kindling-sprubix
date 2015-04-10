@@ -13,7 +13,7 @@ enum SlideOutState {
     case SidePanelExpanded
 }
 
-class ContainerViewController: UIViewController, SprubixFeedControllerDelegate, SidePanelViewControllerDelegate, UserProfileViewDelegate {
+class ContainerViewController: UIViewController, SprubixFeedControllerDelegate, SidePanelViewControllerDelegate {
     
     var sprubixNavigationController: UINavigationController!
     var sprubixFeedController: SprubixFeedController!
@@ -58,27 +58,18 @@ class ContainerViewController: UIViewController, SprubixFeedControllerDelegate, 
         return true
     }
     
-    // UserProfileViewDelegate
-    func userProfileDismissed() {
-        userProfileNavController = nil
-    }
-    
     // SidePanelViewControllerDelegate
-    func sidePanelUserProfileSelected() {
-        if userProfileNavController == nil {
-            userProfileViewController = UIStoryboard.userProfileViewController()
-            userProfileViewController?.delegate = self
-            
-            // wrap the userProfileController in a custom navigation controller, so we can push views to it
-            userProfileNavController = WaterFallNavigationController(rootViewController: userProfileViewController!)
-        }
+    func showUserProfile(user: NSDictionary) {
+        userProfileViewController = UIStoryboard.userProfileViewController()
+        userProfileViewController?.user = user
         
-        sprubixNavigationController.presentViewController(userProfileNavController!, animated: true, completion:{ self.toggleSidePanel() })
-        //sprubixNavigationController.pushViewController(userProfileViewController!, animated: true)
+        //sprubixNavigationController.presentViewController(userProfileNavController!, animated: true, completion:{ self.closeSidePanel() })
+
+        self.closeSidePanel()
+        sprubixNavigationController.pushViewController(userProfileViewController!, animated: true)
     }
     
     // SprubixFeedControllerDelegate
-    
     func toggleSidePanel() {
         let notAlreadyExpanded = (currentState != .SidePanelExpanded)
         
@@ -100,6 +91,12 @@ class ContainerViewController: UIViewController, SprubixFeedControllerDelegate, 
             sidePanelViewController!.sidePanelOptions = SidePanelOption.userOptions()
             
             addChildSidePanelController(sidePanelViewController!)
+        }
+    }
+    
+    func closeSidePanel() {
+        if currentState != .Collapsed {
+            toggleSidePanel()
         }
     }
     

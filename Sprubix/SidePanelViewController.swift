@@ -9,7 +9,7 @@
 import UIKit
 
 protocol SidePanelViewControllerDelegate {
-    func sidePanelUserProfileSelected()
+    func showUserProfile(user: NSDictionary)
     //func sidePanelCellSelected(sidePanelOption: SidePanelOption)
 }
 
@@ -58,7 +58,7 @@ class SidePanelViewController: UIViewController, UITableViewDataSource, UITableV
         profileName.textAlignment = NSTextAlignment.Center
         
         view.addSubview(profileImage)
-        view.addSubview(profileName)
+        //view.addSubview(profileName)
         
         // add gesture recognizers
         var singleTap = UITapGestureRecognizer(target: self, action: Selector("wasSingleTapped:"))
@@ -67,7 +67,9 @@ class SidePanelViewController: UIViewController, UITableViewDataSource, UITableV
     }
     
     func wasSingleTapped(gesture: UITapGestureRecognizer) {
-        delegate?.sidePanelUserProfileSelected()
+        let userData:NSDictionary! = defaults.dictionaryForKey("userData")
+        
+        delegate?.showUserProfile(userData)
     }
     
     // MARK: Table View Data Source

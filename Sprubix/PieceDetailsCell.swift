@@ -17,7 +17,11 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
     var outfits: [NSDictionary] = [NSDictionary]()
     
     var piece: NSDictionary!
+    var user: NSDictionary!
+    var inspiredBy: NSDictionary!
+    
     var pullAction : ((offset : CGPoint) -> Void)?
+    var returnAction : (() -> Void)?
     var tappedAction : (() -> Void)?
     
     let relatedOutfitCellIdentifier = "ProfileOutfitCell"
@@ -31,6 +35,7 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
     
     // piece detail info
     var pieceDetailInfoView:UIView!
+    var pullLabel:UILabel!
     var pieceImageView: UIImageView = UIImageView()
     var totalHeaderHeight: CGFloat!
     
@@ -94,6 +99,14 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         
         pieceDetailInfoView = UIView()
         
+        // uilabel for 'pull down to go back'
+        pullLabel = UILabel(frame: CGRect(x: 0, y: -40, width: screenWidth, height: 30))
+        pullLabel.text = "Pull down to go back"
+        pullLabel.textColor = UIColor.lightGrayColor()
+        pullLabel.textAlignment = NSTextAlignment.Center
+        
+        pieceDetailInfoView.addSubview(pullLabel)
+        
         pieceDetailInfoView.addSubview(pieceImageView)
         
         // init horizontal scrollview
@@ -112,8 +125,17 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         let creditsViewHeight:CGFloat = 80
         var creditsView:UIView = UIView(frame: CGRect(x: 0, y: screenWidth, width: screenWidth, height: creditsViewHeight))
         
-        var postedByButton:SprubixCreditButton = SprubixCreditButton(frame: CGRect(x: 0, y: 0, width: screenWidth/2, height: creditsViewHeight), buttonLabel: "posted by", username: "user name")
-        var fromButton:SprubixCreditButton = SprubixCreditButton(frame: CGRect(x: screenWidth/2, y: 0, width: screenWidth/2, height: creditsViewHeight), buttonLabel: "from", username: "user name")
+        var postedByButton:SprubixCreditButton = SprubixCreditButton(frame: CGRect(x: 0, y: 0, width: screenWidth/2, height: creditsViewHeight), buttonLabel: "posted by", username: user["username"] as String, userThumbnail: user["image"] as String)
+        
+        // if no inspired by, it is original
+        // inspired by = parent, always credit parent
+        var fromButton:SprubixCreditButton!
+        
+        if inspiredBy == nil {
+            fromButton = SprubixCreditButton(frame: CGRect(x: screenWidth/2, y: 0, width: screenWidth/2, height: creditsViewHeight), buttonLabel: "from", username: user["username"] as String, userThumbnail: user["image"] as String)
+        } else {
+            fromButton = SprubixCreditButton(frame: CGRect(x: screenWidth/2, y: 0, width: screenWidth/2, height: creditsViewHeight), buttonLabel: "from", username: inspiredBy["username"] as String, userThumbnail: inspiredBy["image"] as String)
+        }
         
         creditsView.addSubview(postedByButton)
         creditsView.addSubview(fromButton)
@@ -140,7 +162,7 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         Glow.addGlow(itemNameImage)
         
         var itemNameLabel:UILabel = UILabel(frame: CGRect(x: itemImageViewWidth, y: 0, width: screenWidth - itemImageViewWidth, height: itemSpecHeight))
-        itemNameLabel.text = "Name"
+        itemNameLabel.text = piece["name"] as NSString!
         
         // category
         var itemCategoryImage = UIButton.buttonWithType(UIButtonType.Custom) as UIButton
@@ -197,7 +219,7 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         itemDescription.lineBreakMode = NSLineBreakMode.ByWordWrapping
         itemDescription.numberOfLines = 0
         itemDescription.backgroundColor = UIColor.whiteColor()
-        itemDescription.text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud."
+        itemDescription.text = piece["description"] as NSString!
         
         var itemDescriptionHeight = heightForTextLabel(itemDescription.text!, font: itemDescription.font, width: screenWidth, hasInsets: true)
         
@@ -229,9 +251,9 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         pieceDetailInfoView.addSubview(viewAllCommentsBG)
         
         // the 3 most recent comments
-        var commentRowView1:SprubixItemCommentRow = SprubixItemCommentRow(username: "Onigiri", commentString: "Lorem ipsum dolor sit amet", y: commentYPos, button: false, userThumbnail: "user4-mika.jpg")
-        var commentRowView2:SprubixItemCommentRow = SprubixItemCommentRow(username: "Croquette", commentString: "Lorem ipsum dolor sit amet, consec tetur adipiscing elit", y: commentYPos + commentRowView1.commentRowHeight, button: false, userThumbnail: "user5-rika.jpg")
-        var commentRowView3:SprubixItemCommentRow = SprubixItemCommentRow(username: "Peach", commentString: "Lorem ipsum", y: commentYPos + commentRowView1.commentRowHeight + commentRowView2.commentRowHeight, button: false, userThumbnail: "user6-melody.jpg")
+        var commentRowView1:SprubixItemCommentRow = SprubixItemCommentRow(username: "Mika", commentString: "Lorem ipsum dolor sit amet", y: commentYPos, button: false, userThumbnail: "user4-mika.jpg")
+        var commentRowView2:SprubixItemCommentRow = SprubixItemCommentRow(username: "Rika", commentString: "Lorem ipsum dolor sit amet, consec tetur adipiscing elit", y: commentYPos + commentRowView1.commentRowHeight, button: false, userThumbnail: "user5-rika.jpg")
+        var commentRowView3:SprubixItemCommentRow = SprubixItemCommentRow(username: "Melody", commentString: "Lorem ipsum", y: commentYPos + commentRowView1.commentRowHeight + commentRowView2.commentRowHeight, button: false, userThumbnail: "user6-melody.jpg")
         
         pieceDetailInfoView.addSubview(commentRowView1)
         pieceDetailInfoView.addSubview(commentRowView2)
@@ -246,6 +268,12 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         
         let commentSectionHeight:CGFloat = commentRowView1.commentRowHeight + commentRowView2.commentRowHeight + commentRowView3.commentRowHeight + commentRowButton.commentRowHeight
         
+        var outfitsUsingLabel:UILabel = UILabel(frame: CGRectInset(CGRect(x: 0, y: commentYPos + commentSectionHeight, width: screenWidth, height: 70), 20, 15))
+        outfitsUsingLabel.text = "Outfits using this item"
+        outfitsUsingLabel.textColor = UIColor.grayColor()
+        
+        pieceDetailInfoView.addSubview(outfitsUsingLabel)
+        
         // total height of entire header
         totalHeaderHeight = commentYPos + commentSectionHeight
 
@@ -253,7 +281,7 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         
         singlePieceCollectionView.addSubview(pieceDetailInfoView)
         
-        resetHeaderHeight(totalHeaderHeight, padding: 65.0)
+        resetHeaderHeight(totalHeaderHeight, padding: 60.0)
     }
     
     // CHTCollectionViewDelegateWaterfallLayout
@@ -303,8 +331,22 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         singlePieceCollectionView.setCollectionViewLayout(relatedOutfitsLayout, animated: false)
     }
     
+    func scrollViewDidScroll(scrollView: UIScrollView) {
+        if scrollView.contentOffset.y < -80 {
+            pullLabel.text = "Release to go back"
+            
+            if scrollView.contentOffset.y < -150 {
+                pullLabel.text = "Return to main feed"
+            }
+        } else {
+            pullLabel.text = "Pull down to go back"
+        }
+    }
+    
     func scrollViewWillBeginDecelerating(scrollView : UIScrollView){
-        if scrollView.contentOffset.y < -100 {
+        if scrollView.contentOffset.y < -150 {
+            returnAction?()
+        } else if scrollView.contentOffset.y < -80 {
             pullAction?(offset: scrollView.contentOffset)
         }
     }

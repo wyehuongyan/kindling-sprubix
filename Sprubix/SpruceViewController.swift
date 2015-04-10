@@ -16,6 +16,9 @@ protocol SpruceViewProtocol {
 class SpruceViewController: UIViewController, UIScrollViewDelegate, UIActionSheetDelegate, UITextViewDelegate, SprucePieceFeedProtocol {
     var delegate: SpruceViewProtocol?
     
+    var usernameFrom: String!
+    var userThumbnailFrom: String!
+    
     var outfit: NSDictionary!
     var pieces: [NSDictionary]!
     var currentSprucePieceTypes: [String] = [String]() // contains the types of pieces in the current outfit
@@ -128,8 +131,10 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, UIActionShee
         // init 'posted by' and 'from' credits
         creditsView = UIView(frame: CGRect(x: 0, y: navigationHeight + prevPieceHeight, width: screenWidth, height: creditsViewHeight))
         
-        var postedByButton:SprubixCreditButton = SprubixCreditButton(frame: CGRect(x: 0, y: 0, width: screenWidth/2, height: creditsViewHeight), buttonLabel: "posted by", username: "user name")
-        var fromButton:SprubixCreditButton = SprubixCreditButton(frame: CGRect(x: screenWidth/2, y: 0, width: screenWidth/2, height: creditsViewHeight), buttonLabel: "from", username: "user name")
+        let userData:NSDictionary! = defaults.dictionaryForKey("userData")
+        
+        var postedByButton:SprubixCreditButton = SprubixCreditButton(frame: CGRect(x: 0, y: 0, width: screenWidth/2, height: creditsViewHeight), buttonLabel: "posted by", username: userData["username"] as String!, userThumbnail: userData["image"] as String!)
+        var fromButton:SprubixCreditButton = SprubixCreditButton(frame: CGRect(x: screenWidth/2, y: 0, width: screenWidth/2, height: creditsViewHeight), buttonLabel: "from", username: usernameFrom, userThumbnail: userThumbnailFrom)
         
         creditsView.addSubview(postedByButton)
         creditsView.addSubview(fromButton)

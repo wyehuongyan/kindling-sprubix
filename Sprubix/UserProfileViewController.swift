@@ -14,14 +14,9 @@ enum ProfileState {
     case Community
 }
 
-protocol UserProfileViewDelegate {
-    func userProfileDismissed()
-}
-
 class UserProfileViewController: UIViewController, UICollectionViewDataSource, CHTCollectionViewDelegateWaterfallLayout, TransitionProtocol, WaterFallViewControllerProtocol, UserProfileHeaderDelegate {
     
-    var delegate: UserProfileViewDelegate?
-    var userId: Int?
+    var user:NSDictionary! // continue at home
     
     var outfitsLoaded:Bool = false
     var piecesLoaded:Bool = false
@@ -44,9 +39,10 @@ class UserProfileViewController: UIViewController, UICollectionViewDataSource, C
     var currentProfileState: ProfileState = .Outfits
     
     @IBAction func closeUserProfile(sender: UIBarButtonItem) {
-        self.navigationController?.dismissViewControllerAnimated(true, completion: nil)
+        //self.navigationController?.dismissViewControllerAnimated(true, completion: nil)
         
-        delegate?.userProfileDismissed()
+        self.navigationController!.delegate = nil
+        self.navigationController!.popViewControllerAnimated(true)
     }
     
     override func viewDidLoad() {
@@ -115,6 +111,11 @@ class UserProfileViewController: UIViewController, UICollectionViewDataSource, C
         self.navigationController?.navigationBar.setBackgroundImage(UIImage(), forBarMetrics: UIBarMetrics.Default)
         self.navigationController?.navigationBar.shadowImage = UIImage()
         self.navigationController?.navigationBar.translucent = true
+    }
+    
+    override func viewWillDisappear(animated: Bool) {
+        self.navigationController?.navigationBar.setBackgroundImage(nil, forBarMetrics: UIBarMetrics.Default)
+        self.navigationController?.navigationBar.shadowImage = nil
     }
     
     func scrollViewDidScroll(scrollView: UIScrollView) {
@@ -216,6 +217,8 @@ class UserProfileViewController: UIViewController, UICollectionViewDataSource, C
         if kind == CHTCollectionElementKindSectionHeader {
             reusableView = collectionView.dequeueReusableSupplementaryViewOfKind(kind, withReuseIdentifier: userProfileHeaderIdentifier, forIndexPath: indexPath) as UserProfileHeader
             
+            (reusableView as UserProfileHeader).user = user
+            (reusableView as UserProfileHeader).setProfileInfo()
             (reusableView as UserProfileHeader).delegate = self
             
         } else if kind == CHTCollectionElementKindSectionFooter {
@@ -236,6 +239,7 @@ class UserProfileViewController: UIViewController, UICollectionViewDataSource, C
         case .Pieces:
             let pieceDetailsViewController = PieceDetailsViewController(collectionViewLayout: detailsViewControllerLayout(), currentIndexPath:indexPath)
             pieceDetailsViewController.pieces = pieces
+            pieceDetailsViewController.user = user
             
             collectionView.setToIndexPath(indexPath)
             navigationController!.pushViewController(pieceDetailsViewController, animated: true)
@@ -263,7 +267,7 @@ class UserProfileViewController: UIViewController, UICollectionViewDataSource, C
     // UserProfileHeaderDelegate
     func loadUserOutfits() {
         if outfitsLoaded != true {
-            var userId:Int? = defaults.objectForKey("userId") as? Int
+            var userId:Int? = user["id"] as? Int
             
             if userId != nil {
                 manager.GET(SprubixConfig.URL.api + "/user/\(userId!)/outfits",
@@ -298,7 +302,7 @@ class UserProfileViewController: UIViewController, UICollectionViewDataSource, C
     
     func loadUserPieces() {
         if piecesLoaded != true {
-            var userId:Int? = defaults.objectForKey("userId") as? Int
+            var userId:Int? = user["id"] as? Int
             
             if userId != nil {
                 manager.GET(SprubixConfig.URL.api + "/user/\(userId!)/pieces",

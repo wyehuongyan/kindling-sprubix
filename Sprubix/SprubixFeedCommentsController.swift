@@ -96,9 +96,9 @@ class SprubixFeedCommentsController: UIViewController, UITableViewDataSource, UI
             commentsCell.addSubview(viewAllComments)
             
             // the 3 most recent comments
-            var commentRowView1:SprubixItemCommentRow = SprubixItemCommentRow(username: "Onigiri", commentString: "Lorem ipsum dolor sit amet", y: viewAllCommentsHeight, button: false, userThumbnail: "user4-mika.jpg")
-            var commentRowView2:SprubixItemCommentRow = SprubixItemCommentRow(username: "Croquette", commentString: "Lorem ipsum dolor sit amet, consec tetur adipiscing elit", y: viewAllCommentsHeight + commentRowView1.commentRowHeight, button: false, userThumbnail: "user5-rika.jpg")
-            var commentRowView3:SprubixItemCommentRow = SprubixItemCommentRow(username: "Peach", commentString: "Lorem ipsum", y: viewAllCommentsHeight + commentRowView1.commentRowHeight + commentRowView2.commentRowHeight, button: false, userThumbnail: "user6-melody.jpg")
+            var commentRowView1:SprubixItemCommentRow = SprubixItemCommentRow(username: "Mika", commentString: "Lorem ipsum dolor sit amet", y: viewAllCommentsHeight, button: false, userThumbnail: "user4-mika.jpg")
+            var commentRowView2:SprubixItemCommentRow = SprubixItemCommentRow(username: "Rika", commentString: "Lorem ipsum dolor sit amet, consec tetur adipiscing elit", y: viewAllCommentsHeight + commentRowView1.commentRowHeight, button: false, userThumbnail: "user5-rika.jpg")
+            var commentRowView3:SprubixItemCommentRow = SprubixItemCommentRow(username: "Melody", commentString: "Lorem ipsum", y: viewAllCommentsHeight + commentRowView1.commentRowHeight + commentRowView2.commentRowHeight, button: false, userThumbnail: "user6-melody.jpg")
             
             commentsCell.addSubview(commentRowView1)
             commentsCell.addSubview(commentRowView2)

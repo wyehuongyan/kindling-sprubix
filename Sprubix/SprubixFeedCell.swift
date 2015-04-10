@@ -10,7 +10,8 @@ import UIKit
 
 protocol SprubixFeedCellProtocol {
     func displayCommentsView(selectedOutfit: NSDictionary)
-    func spruceOutfit(selectedOutfit: NSDictionary)
+    func spruceOutfit(selectedOutfit: NSDictionary, userName: String, userThumbnail: String)
+    func showProfile(user: NSDictionary)
 }
 
 class SprubixFeedCell: UITableViewCell {
@@ -23,12 +24,14 @@ class SprubixFeedCell: UITableViewCell {
     @IBOutlet var commentsButton: UIButton!
     
     @IBAction func spruceItUp(sender: AnyObject) {
-        delegate?.spruceOutfit(outfit)
+        delegate?.spruceOutfit(outfit, userName: userName.text!, userThumbnail: user["image"] as NSString)
     }
     
     @IBAction func viewComments(sender: AnyObject) {
         delegate?.displayCommentsView(outfit)
     }
+    
+    var user: NSDictionary!
     
     var navController:UINavigationController?
     var delegate:SprubixFeedCellProtocol?
@@ -101,6 +104,19 @@ class SprubixFeedCell: UITableViewCell {
             outfitHeight += pieceHeight // accumulate height of all pieces
         }
         
+        // gesture recognizer
+        let userThumbnailToProfile:UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: "showProfile:")
+        userThumbnailToProfile.numberOfTapsRequired = 1
+        
+        userThumbnail.userInteractionEnabled = true
+        userThumbnail.addGestureRecognizer(userThumbnailToProfile)
+        
+        let userNameToProfile:UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: "showProfile:")
+        userNameToProfile.numberOfTapsRequired = 1
+        
+        userName.userInteractionEnabled = true
+        userName.addGestureRecognizer(userNameToProfile)
+        
         initUserInfo()
     }
     
@@ -111,7 +127,7 @@ class SprubixFeedCell: UITableViewCell {
         userThumbnail.layer.borderColor = UIColor.lightGrayColor().CGColor
         
         // user info
-        let user = outfit["user"] as NSDictionary
+        user = outfit["user"] as NSDictionary
         let userThumbnailURL = NSURL(string: user["image"] as NSString)
 
         userThumbnail.setImageWithURL(userThumbnailURL)
@@ -142,6 +158,15 @@ class SprubixFeedCell: UITableViewCell {
         
         let pieceDetailsViewController = PieceDetailsViewController(collectionViewLayout: detailsViewControllerLayout(), currentIndexPath: currentIndexPath)
         pieceDetailsViewController.pieces = pieces
+        pieceDetailsViewController.user = user
+        
+        var inspiredBy: AnyObject = outfit["inspired_by"]!
+        
+        if inspiredBy.isKindOfClass(NSNull) {
+            pieceDetailsViewController.inspiredBy = nil
+        } else {
+            pieceDetailsViewController.inspiredBy = outfit["inspired_by"] as NSDictionary!
+        }
         
         //collectionView.setToIndexPath(indexPath)
         navController!.delegate = nil
@@ -175,6 +200,10 @@ class SprubixFeedCell: UITableViewCell {
         // remove userId object from user defaults
         let defaults = NSUserDefaults.standardUserDefaults()
         defaults.removeObjectForKey("userId")
+    }
+    
+    func showProfile(gesture: UITapGestureRecognizer) {
+        delegate?.showProfile(user)
     }
     
     func detailsViewControllerLayout () -> UICollectionViewFlowLayout {

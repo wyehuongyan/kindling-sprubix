@@ -56,17 +56,41 @@ class OutfitDetailsViewController: UICollectionViewController, UICollectionViewD
         let collectionCell: OutfitDetailsCell = collectionView.dequeueReusableCellWithReuseIdentifier(outfitDetailsCellIdentifier, forIndexPath: indexPath) as OutfitDetailsCell
         
         var outfit = outfits[indexPath.row] as NSDictionary
+        var inspiredBy: AnyObject = outfit["inspired_by"]!
         
+        if inspiredBy.isKindOfClass(NSNull) {
+            collectionCell.inspiredBy = nil
+        } else {
+            collectionCell.inspiredBy = outfit["inspired_by"] as NSDictionary!
+        }
+        
+        collectionCell.user = outfit["user"] as NSDictionary!
         collectionCell.outfit = outfit
         collectionCell.tappedAction = {}
+        
+        // return to previous
         collectionCell.pullAction = { offset in
             self.pullOffset = offset
             
-            //var childrenCount = self.navigationController!.viewControllers.count
-            //println("prev child: \(self.navigationController!.viewControllers[childrenCount-2])")
-            
             self.navigationController!.delegate = transitionDelegateHolder
             self.navigationController!.popViewControllerAnimated(true)
+        }
+        
+        // return to main feed
+        collectionCell.returnAction = { Void in
+            self.navigationController!.delegate = nil
+            
+            let transition = CATransition()
+            transition.duration = 0.3
+            transition.type = kCATransitionReveal
+            transition.subtype = kCATransitionFromBottom
+            transition.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
+            
+            self.navigationController!.view.layer.addAnimation(transition, forKey: kCATransition)
+            
+            self.navigationController?.popToViewController(self.navigationController?.viewControllers.first! as UIViewController, animated: false)
+            
+            return
         }
 
         collectionCell.navController = self.navigationController

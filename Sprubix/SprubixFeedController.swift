@@ -11,6 +11,7 @@ import UIKit
 @objc
 protocol SprubixFeedControllerDelegate {
     optional func toggleSidePanel()
+    func showUserProfile(user: NSDictionary)
 }
 
 class SprubixFeedController: UIViewController, UITableViewDataSource, UITableViewDelegate, SprubixFeedCellProtocol, SprubixFeedCommentsProtocol, SpruceViewProtocol {
@@ -270,12 +271,18 @@ class SprubixFeedController: UIViewController, UITableViewDataSource, UITableVie
             })
         }
     }
+
+    func showProfile(user: NSDictionary) {
+        delegate?.showUserProfile(user)
+    }
     
     // SpruceViewProtocol
-    func spruceOutfit(selectedOutfit: NSDictionary) {
+    func spruceOutfit(selectedOutfit: NSDictionary, userName: String, userThumbnail: String) {
         if spruceViewController == nil {
             spruceViewController = SpruceViewController()
             spruceViewController?.outfit = selectedOutfit
+            spruceViewController?.usernameFrom = userName
+            spruceViewController?.userThumbnailFrom = userThumbnail
             spruceViewController?.delegate = self
             
             self.navigationController?.pushViewController(self.spruceViewController!, animated: true)

@@ -128,7 +128,7 @@ class SprubixCreditButton: UIButton {
         super.init(frame: frame)
     }
     
-    init(frame: CGRect, buttonLabel: String, username: String) {
+    init(frame: CGRect, buttonLabel: String, username: String, userThumbnail: String = "person-placeholder.jpg") {
         super.init(frame:frame)
         
         // the button
@@ -139,7 +139,15 @@ class SprubixCreditButton: UIButton {
         
         // profile pic inside button
         var creditImageView: UIImageView = UIImageView()
-        creditImageView.image = UIImage(named: "person-placeholder.jpg")
+        
+        if userThumbnail == "person-placeholder.jpg" {
+            creditImageView.image = UIImage(named: userThumbnail)
+        } else {
+            // create profile UIImageView programmatically
+            let userThumbnailURL = NSURL(string: userThumbnail)
+            creditImageView.setImageWithURL(userThumbnailURL)
+        }
+        
         let creditImageViewWidth:CGFloat = 35
         creditImageView.frame = CGRect(x: 20, y: (self.frame.height/2) - creditImageViewWidth/2, width: creditImageViewWidth, height: creditImageViewWidth)
         
@@ -184,7 +192,7 @@ class SprubixCreditButton: UIButton {
 class Glow {
     class func addGlow(item: AnyObject) {
         item.layer.shadowColor = UIColor.blackColor().CGColor
-        item.layer.shadowOpacity = 0.4
+        item.layer.shadowOpacity = 0.8
         item.layer.shadowRadius = 1
         item.layer.shadowOffset = CGSizeZero
         item.layer.masksToBounds = false

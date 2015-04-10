@@ -33,6 +33,12 @@ class UserProfileHeader: UICollectionReusableView, UIScrollViewDelegate {
     var userInfoScrollView:UIScrollView!
     
     var delegate: UserProfileHeaderDelegate?
+    var user: NSDictionary!
+    
+    var profileImage:UIImageView!
+    var profileRealName:UILabel!
+    var profileName:UILabel!
+    var profileDescription:UILabel!
     
     required init(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -48,7 +54,6 @@ class UserProfileHeader: UICollectionReusableView, UIScrollViewDelegate {
     
     func initHeaderImage() {
         coverImageContent.frame = bounds
-        coverImageContent.image = UIImage(named: "bg-header.jpg")
         coverImageContent.contentMode = UIViewContentMode.ScaleAspectFill
         coverImageContent.clipsToBounds = true
         coverImageContent.autoresizingMask = UIViewAutoresizing.FlexibleHeight
@@ -131,11 +136,10 @@ class UserProfileHeader: UICollectionReusableView, UIScrollViewDelegate {
         userInfoScrollView.delegate = self
         
         // add user profile pic, username on first page
-        let userData:NSDictionary! = defaults.dictionaryForKey("userData")
-        let userThumbnailURL = NSURL(string: userData["image"] as NSString)
+        //let userData:NSDictionary! = defaults.dictionaryForKey("userData")
+        //let userThumbnailURL = NSURL(string: user["image"] as NSString)
         
-        var profileImage:UIImageView = UIImageView(image: UIImage(named: "person-placeholder.jpg"))
-        profileImage.setImageWithURL(userThumbnailURL)
+        profileImage = UIImageView(image: UIImage(named: "person-placeholder.jpg"))
         let profileImageLength:CGFloat = 100
         
         // 50 is arbitary value, but should convert to constraint
@@ -149,13 +153,27 @@ class UserProfileHeader: UICollectionReusableView, UIScrollViewDelegate {
         
         userInfoScrollView.addSubview(profileImage)
         
-        // create username UILabel
-        var profileName:UILabel = UILabel()
+        // create real name UILabel
+        profileRealName = UILabel()
         let profileNameLength:CGFloat = bounds.width
-        profileName.frame = CGRect(x: (bounds.width / 2) - (profileNameLength / 2), y: profileImage.center.y + 60, width: profileNameLength, height: 21)
-        profileName.text = userData["username"] as? String
+        profileRealName.frame = CGRect(x: (bounds.width / 2) - (profileNameLength / 2), y: profileImage.center.y + 50, width: profileNameLength, height: 30)
+        profileRealName.text = "realname"
+        profileRealName.textColor = UIColor.whiteColor()
+        profileRealName.font = UIFont(name: profileRealName.font.fontName, size: 22)
+        profileRealName.textAlignment = NSTextAlignment.Center
+        profileRealName.layer.shadowOpacity = 1.0;
+        profileRealName.layer.shadowRadius = 1.0;
+        profileRealName.layer.shadowColor = UIColor.grayColor().CGColor;
+        profileRealName.layer.shadowOffset = CGSizeMake(0.0, 1.0);
+        
+        userInfoScrollView.addSubview(profileRealName)
+        
+        // create username UILabel
+        profileName = UILabel()
+        profileName.frame = CGRect(x: (bounds.width / 2) - (profileNameLength / 2), y: profileImage.center.y + 80, width: profileNameLength, height: 21)
+        profileName.text = "username"
         profileName.textColor = UIColor.whiteColor()
-        profileName.font = UIFont(name: profileName.font.fontName, size: 20)
+        profileName.font = UIFont(name: profileName.font.fontName, size: 16)
         profileName.textAlignment = NSTextAlignment.Center
         profileName.layer.shadowOpacity = 1.0;
         profileName.layer.shadowRadius = 1.0;
@@ -168,7 +186,7 @@ class UserProfileHeader: UICollectionReusableView, UIScrollViewDelegate {
         var profileDescriptionBG:UIView = UIView(frame: CGRect(x: bounds.width, y: 0, width: bounds.width, height: bounds.height))
         profileDescriptionBG.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.2)
         
-        var profileDescription:UILabel = UILabel()
+        profileDescription = UILabel()
         let profileDescriptionLength:CGFloat = bounds.width
         profileDescription.frame = CGRect(x: (bounds.width / 2) - (profileDescriptionLength / 2), y: 100, width: profileDescriptionLength, height: 21)
         profileDescription.text = "User Description"
@@ -191,6 +209,20 @@ class UserProfileHeader: UICollectionReusableView, UIScrollViewDelegate {
         
         addSubview(pageControl) // do not add to scrollview or it will be scrolled away!
         addSubview(userInfoScrollView)
+    }
+    
+    func setProfileInfo() {
+        let userThumbnailURL = NSURL(string: user["image"] as NSString)
+        let userCoverURL = NSURL(string: user["cover"] as NSString)
+        let username = user["username"] as String!
+        let name = user["name"] as String!
+
+        profileImage.setImageWithURL(userThumbnailURL)
+        coverImageContent.setImageWithURL(userCoverURL)
+        
+        profileRealName.text = name
+        profileName.text = "@\(username)"
+        profileDescription.text = user["description"] as String!
     }
     
     func scrollViewDidScroll(scrollView: UIScrollView) {

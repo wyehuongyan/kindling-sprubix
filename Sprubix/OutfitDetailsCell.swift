@@ -12,17 +12,23 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
     var navController:UINavigationController?
     
     var imageName : String?
+
     var pullAction : ((offset : CGPoint) -> Void)?
+    var returnAction : (() -> Void)?
     var tappedAction : (() -> Void)?
     
     let tableView = UITableView(frame: screenBounds, style: UITableViewStyle.Plain)
     
     var outfit: NSDictionary!
     var pieces: [NSDictionary]!
+    var user: NSDictionary!
+    var inspiredBy: NSDictionary!
     
     var pieceImageView:UIImageView!
     var pieceImages: [UIImageView] = [UIImageView]()
 
+    var pullLabel:UILabel!
+    
     var outfitImageCell: UITableViewCell!
     var creditsCell: UITableViewCell!
     var descriptionCell: UITableViewCell!
@@ -77,6 +83,14 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
         switch(indexPath.row)
         {
         case 0:
+            // uilabel for 'pull down to go back'
+            pullLabel = UILabel(frame: CGRect(x: 0, y: -40, width: screenWidth, height: 30))
+            pullLabel.text = "Pull down to go back"
+            pullLabel.textColor = UIColor.lightGrayColor()
+            pullLabel.textAlignment = NSTextAlignment.Center
+            
+            outfitImageCell.addSubview(pullLabel)
+            
             pieceImages.removeAll()
             var outfitHeight:CGFloat = 0
             var prevPieceHeight:CGFloat = 0
@@ -131,8 +145,17 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
             let creditsViewHeight:CGFloat = 80
             var creditsView:UIView = UIView(frame: CGRect(x: 0, y: 0, width: screenWidth, height: creditsViewHeight))
             
-            var postedByButton:SprubixCreditButton = SprubixCreditButton(frame: CGRect(x: 0, y: 0, width: screenWidth/2, height: creditsViewHeight), buttonLabel: "posted by", username: "user name")
-            var fromButton:SprubixCreditButton = SprubixCreditButton(frame: CGRect(x: screenWidth/2, y: 0, width: screenWidth/2, height: creditsViewHeight), buttonLabel: "from", username: "user name")
+            var postedByButton:SprubixCreditButton = SprubixCreditButton(frame: CGRect(x: 0, y: 0, width: screenWidth/2, height: creditsViewHeight), buttonLabel: "posted by", username: user["username"] as String, userThumbnail: user["image"] as String)
+            
+            // if no inspired by, it is original
+            // inspired by = parent, always credit parent
+            var fromButton:SprubixCreditButton!
+            
+            if inspiredBy == nil {
+                fromButton = SprubixCreditButton(frame: CGRect(x: screenWidth/2, y: 0, width: screenWidth/2, height: creditsViewHeight), buttonLabel: "from", username: user["username"] as String, userThumbnail: user["image"] as String)
+            } else {
+                fromButton = SprubixCreditButton(frame: CGRect(x: screenWidth/2, y: 0, width: screenWidth/2, height: creditsViewHeight), buttonLabel: "from", username: inspiredBy["username"] as String, userThumbnail: inspiredBy["image"] as String)
+            }
             
             creditsView.addSubview(postedByButton)
             creditsView.addSubview(fromButton)
@@ -141,7 +164,7 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
             
             return creditsCell
         case 2:
-            descriptionCell.textLabel?.text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud."
+            descriptionCell.textLabel?.text = outfit["description"] as String!
             
             descriptionCell.textLabel?.lineBreakMode = NSLineBreakMode.ByWordWrapping
             descriptionCell.textLabel?.numberOfLines = 0
@@ -173,9 +196,9 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
             commentsCell.addSubview(viewAllCommentsBG)
             
             // the 3 most recent comments
-            var commentRowView1:SprubixItemCommentRow = SprubixItemCommentRow(username: "Onigiri", commentString: "Lorem ipsum dolor sit amet", y: viewAllCommentsHeight, button: false, userThumbnail: "user4-mika.jpg")
-            var commentRowView2:SprubixItemCommentRow = SprubixItemCommentRow(username: "Croquette", commentString: "Lorem ipsum dolor sit amet, consec tetur adipiscing elit", y: viewAllCommentsHeight + commentRowView1.commentRowHeight, button: false, userThumbnail: "user5-rika.jpg")
-            var commentRowView3:SprubixItemCommentRow = SprubixItemCommentRow(username: "Peach", commentString: "Lorem ipsum", y: viewAllCommentsHeight + commentRowView1.commentRowHeight + commentRowView2.commentRowHeight, button: false, userThumbnail: "user6-melody.jpg")
+            var commentRowView1:SprubixItemCommentRow = SprubixItemCommentRow(username: "Mika", commentString: "Lorem ipsum dolor sit amet", y: viewAllCommentsHeight, button: false, userThumbnail: "user4-mika.jpg")
+            var commentRowView2:SprubixItemCommentRow = SprubixItemCommentRow(username: "Rika", commentString: "Lorem ipsum dolor sit amet, consec tetur adipiscing elit", y: viewAllCommentsHeight + commentRowView1.commentRowHeight, button: false, userThumbnail: "user5-rika.jpg")
+            var commentRowView3:SprubixItemCommentRow = SprubixItemCommentRow(username: "Melody", commentString: "Lorem ipsum", y: viewAllCommentsHeight + commentRowView1.commentRowHeight + commentRowView2.commentRowHeight, button: false, userThumbnail: "user6-melody.jpg")
             
             commentsCell.addSubview(commentRowView1)
             commentsCell.addSubview(commentRowView2)
@@ -205,7 +228,10 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
         var currentIndexPath:NSIndexPath = NSIndexPath(forItem: position!, inSection: 0)
         
         let pieceDetailsViewController = PieceDetailsViewController(collectionViewLayout: detailsViewControllerLayout(), currentIndexPath: currentIndexPath)
+
         pieceDetailsViewController.pieces = pieces
+        pieceDetailsViewController.user = user
+        pieceDetailsViewController.inspiredBy = inspiredBy
         
         //collectionView.setToIndexPath(indexPath)
         navController!.delegate = nil
@@ -226,6 +252,16 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
     func wasDoubleTapped(gesture: UITapGestureRecognizer) {
         println("double tapped!")
         println(gesture.view)
+    }
+    
+    func heightForTextLabel(text:String, width:CGFloat, padding: CGFloat) -> CGFloat{
+        let label:UILabel = UILabel(frame: CGRectMake(0, 0, width, CGFloat.max))
+        label.numberOfLines = 0
+        label.lineBreakMode = NSLineBreakMode.ByWordWrapping
+        label.text = text
+        
+        label.sizeToFit()
+        return label.frame.height + padding
     }
     
     func detailsViewControllerLayout () -> UICollectionViewFlowLayout {
@@ -260,7 +296,7 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
         case 1:
             cellHeight = 80 // creditsViewHeight
         case 2:
-            cellHeight = 100 // description height
+            cellHeight = heightForTextLabel(outfit["description"] as String!, width: screenWidth, padding: 20) // description height
         case 3:
             cellHeight = 270 // comments height
         default:
@@ -274,8 +310,22 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
         tappedAction?()
     }
     
+    func scrollViewDidScroll(scrollView: UIScrollView) {
+        if scrollView.contentOffset.y < -80 {
+            pullLabel.text = "Release to go back"
+            
+            if scrollView.contentOffset.y < -150 {
+                pullLabel.text = "Return to main feed"
+            }
+        } else {
+            pullLabel.text = "Pull down to go back"
+        }
+    }
+    
     func scrollViewWillBeginDecelerating(scrollView : UIScrollView){        
-        if scrollView.contentOffset.y < -100 {
+        if scrollView.contentOffset.y < -150 {
+            returnAction?()
+        } else if scrollView.contentOffset.y < -80 {
             pullAction?(offset: scrollView.contentOffset)
         }
     }
