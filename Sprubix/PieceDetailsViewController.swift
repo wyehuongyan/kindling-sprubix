@@ -65,9 +65,7 @@ class PieceDetailsViewController: UICollectionViewController, UICollectionViewDe
         collectionCell.tappedAction = {}
         
         // return to previous
-        collectionCell.pullAction = { offset in
-            println("pull action")
-            
+        collectionCell.pullAction = { offset in            
             self.pullOffset = offset
             
             var childrenCount = self.navigationController!.viewControllers.count

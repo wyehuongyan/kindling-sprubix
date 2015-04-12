@@ -31,6 +31,14 @@ class SprubixFeedCell: UITableViewCell {
         delegate?.displayCommentsView(outfit)
     }
     
+    @IBAction func likeOutfit(sender: UIButton) {
+        if sender.selected != true {
+            sender.selected = true
+        } else {
+            sender.selected = false
+        }
+    }
+    
     var user: NSDictionary!
     
     var navController:UINavigationController?
@@ -42,12 +50,20 @@ class SprubixFeedCell: UITableViewCell {
     var outfit:NSDictionary!
     var pieceImages: [UIImageView] = [UIImageView]()
     
+    var likeImageView:UIImageView!
+    
     override func prepareForReuse() {
         for pieceImage in pieceImages {
+            
+            for gestureRecognizer in pieceImage.gestureRecognizers as [UIGestureRecognizer] {
+                pieceImage.removeGestureRecognizer(gestureRecognizer)
+            }
+            
             pieceImage.removeFromSuperview()
             pieceImage.image = nil
         }
         
+        likeButton.selected = false
         userThumbnail.image = nil
         pieceImages.removeAll()
     }
@@ -117,6 +133,15 @@ class SprubixFeedCell: UITableViewCell {
         userName.userInteractionEnabled = true
         userName.addGestureRecognizer(userNameToProfile)
         
+        // like heart image
+        let likeImageViewWidth:CGFloat = 150
+        likeImageView = UIImageView(image: UIImage(named: "main-like-filled-large"))
+        likeImageView.frame = CGRect(x: screenWidth / 2 - likeImageViewWidth / 2, y: 0, width: likeImageViewWidth, height: outfitHeight)
+        likeImageView.contentMode = UIViewContentMode.ScaleAspectFit
+        likeImageView.alpha = 0
+        
+        contentView.addSubview(likeImageView)
+        
         initUserInfo()
     }
     
@@ -152,8 +177,14 @@ class SprubixFeedCell: UITableViewCell {
     
     func wasSingleTapped(gesture: UITapGestureRecognizer) {
         var selectedPiece:UIImageView = gesture.view as UIImageView
+
+        //println("pieceImages: \(pieceImages)")
+        //println("selectedPiece: \(selectedPiece)")
         var position = find(pieceImages, selectedPiece)
-        
+        // position sometimes become nil and causes the app to crash
+        // reason: pieceImages refresh everytime main feed is loaded. selectedPiece sometimes does not refresh. why? 
+        // solution: remove the gestureRecognizer in prepareForReuse
+        //println("position: \(position)")
         var currentIndexPath:NSIndexPath = NSIndexPath(forItem: position!, inSection: 0)
         
         let pieceDetailsViewController = PieceDetailsViewController(collectionViewLayout: detailsViewControllerLayout(), currentIndexPath: currentIndexPath)
@@ -184,22 +215,18 @@ class SprubixFeedCell: UITableViewCell {
     }
     
     func wasDoubleTapped(gesture: UITapGestureRecognizer) {
-        println("I was double tapped! \n\(gesture.view!)")
+        // like outfit
+        UIView.animateWithDuration(0.3, delay: 0.2, usingSpringWithDamping: 0.9, initialSpringVelocity: 0, options: .CurveEaseInOut, animations: {
+            self.likeImageView.alpha = 1.0
+            }, completion: { finished in
+                if finished {
+                    UIView.animateWithDuration(0.3, delay: 0.2, usingSpringWithDamping: 0.9, initialSpringVelocity: 0, options: .CurveEaseInOut, animations: {
+                        self.likeImageView.alpha = 0.0
+                        }, completion: nil)
+                }
+        })
         
-        var cookies:[NSHTTPCookie] = [NSHTTPCookie]()
-        cookies = NSHTTPCookieStorage.sharedHTTPCookieStorage().cookies as [NSHTTPCookie]!
-        println("currently we have these cookies: \(cookies)")
-        
-        // testingly delete cookies
-        for cookie in cookies {
-            NSHTTPCookieStorage.sharedHTTPCookieStorage().deleteCookie(cookie)
-            println("deleted cookie: \(cookie)\n")
-            println(NSHTTPCookieStorage.sharedHTTPCookieStorage().cookies!)
-        }
-        
-        // remove userId object from user defaults
-        let defaults = NSUserDefaults.standardUserDefaults()
-        defaults.removeObjectForKey("userId")
+        likeButton.selected = true
     }
     
     func showProfile(gesture: UITapGestureRecognizer) {

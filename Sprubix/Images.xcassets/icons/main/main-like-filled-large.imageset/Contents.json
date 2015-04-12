@@ -3,16 +3,17 @@
     {
       "idiom" : "universal",
       "scale" : "1x",
-      "filename" : "pie-bar-icon.png"
+      "filename" : "main_like_big_filled@1x.png"
     },
     {
       "idiom" : "universal",
       "scale" : "2x",
-      "filename" : "pie-bar-icon2.png"
+      "filename" : "main_like_big_filled@2x.png"
     },
     {
       "idiom" : "universal",
-      "scale" : "3x"
+      "scale" : "3x",
+      "filename" : "main_like_big_filled@3x.png"
     }
   ],
   "info" : {

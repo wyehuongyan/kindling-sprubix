@@ -195,7 +195,7 @@
                                                 <action selector="spruceItUp:" destination="Cb6-y9-sO6" eventType="touchUpInside" id="YIm-CB-Smf"/>
                                             </connections>
                                         </button>
-                                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="JhN-AN-6Ye">
+                                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="JhN-AN-6Ye">
                                             <rect key="frame" x="519" y="149" width="24" height="24"/>
                                             <constraints>
                                                 <constraint firstAttribute="width" constant="24" id="A9v-el-9lx"/>
@@ -203,6 +203,10 @@
                                             </constraints>
                                             <color key="tintColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                             <state key="normal" image="main-like"/>
+                                            <state key="selected" image="main-like-filled"/>
+                                            <connections>
+                                                <action selector="likeOutfit:" destination="Cb6-y9-sO6" eventType="touchUpInside" id="vpn-Wr-d8T"/>
+                                            </connections>
                                         </button>
                                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1X1-4O-Xus">
                                             <rect key="frame" x="559" y="149" width="24" height="24"/>
@@ -358,6 +362,7 @@
         <image name="main-comments" width="40" height="40"/>
         <image name="main-hamburger" width="40" height="40"/>
         <image name="main-like" width="40" height="40"/>
+        <image name="main-like-filled" width="40" height="40"/>
         <image name="main-spruce" width="80" height="40"/>
     </resources>
 </document>
