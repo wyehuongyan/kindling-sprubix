@@ -16,7 +16,7 @@ enum ProfileState {
 
 class UserProfileViewController: UIViewController, UICollectionViewDataSource, CHTCollectionViewDelegateWaterfallLayout, TransitionProtocol, WaterFallViewControllerProtocol, UserProfileHeaderDelegate {
     
-    var user:NSDictionary! // continue at home
+    var user:NSDictionary!
     
     var outfitsLoaded:Bool = false
     var piecesLoaded:Bool = false
@@ -34,6 +34,7 @@ class UserProfileViewController: UIViewController, UICollectionViewDataSource, C
     
     var outfits:[NSDictionary] = [NSDictionary]()
     var pieces:[NSDictionary] = [NSDictionary]()
+    var communityOutfits:[NSDictionary] = [NSDictionary]()
     
     var profileCollectionView: UICollectionView!
     var currentProfileState: ProfileState = .Outfits
@@ -145,6 +146,10 @@ class UserProfileViewController: UIViewController, UICollectionViewDataSource, C
             let piece = pieces[indexPath.row] as NSDictionary
             itemHeight = piece["height"] as CGFloat
             itemWidth = piece["height"] as CGFloat
+        case .Community:
+            let communityOutfit = communityOutfits[indexPath.row] as NSDictionary
+            itemHeight = communityOutfit["height"] as CGFloat
+            itemWidth = communityOutfit["width"] as CGFloat
         default:
             break
         }
@@ -163,6 +168,8 @@ class UserProfileViewController: UIViewController, UICollectionViewDataSource, C
             count = outfits.count
         case .Pieces:
             count = pieces.count
+        case .Community:
+            count = communityOutfits.count
         default:
             break
         }
@@ -200,7 +207,12 @@ class UserProfileViewController: UIViewController, UICollectionViewDataSource, C
             let imageGridHeight = pieceHeight * gridWidth/pieceWidth
             
             (cell as ProfilePieceCell).imageGridSize = CGRect(x: 0, y: 0, width: gridWidth, height: imageGridHeight)
-
+        case .Community:
+            cell = collectionView.dequeueReusableCellWithReuseIdentifier(profileOutfitCellIdentifier, forIndexPath: indexPath) as ProfileOutfitCell
+            
+            var communityOutfit = communityOutfits[indexPath.row] as NSDictionary
+            
+            (cell as ProfileOutfitCell).imageURLString = communityOutfit["images"] as String!
         default:
             break
         }
@@ -243,6 +255,12 @@ class UserProfileViewController: UIViewController, UICollectionViewDataSource, C
             
             collectionView.setToIndexPath(indexPath)
             navigationController!.pushViewController(pieceDetailsViewController, animated: true)
+        case .Community:
+            let outfitDetailsViewController = OutfitDetailsViewController(collectionViewLayout: detailsViewControllerLayout(), currentIndexPath:indexPath)
+            outfitDetailsViewController.outfits = communityOutfits
+            
+            collectionView.setToIndexPath(indexPath)
+            navigationController!.pushViewController(outfitDetailsViewController, animated: true)
         default:
             break
         }
@@ -335,17 +353,32 @@ class UserProfileViewController: UIViewController, UICollectionViewDataSource, C
     
     func loadCommunityOutfits() {
         if communityLoaded != true {
-            self.communityLoaded = true
-            // tentative
-            self.currentProfileState = .Outfits
-            self.profileCollectionView.reloadData()
+            var userId:Int? = user["id"] as? Int
             
-            // set layout
-            self.profileCollectionView.collectionViewLayout.invalidateLayout()
-            self.profileCollectionView.setCollectionViewLayout(self.userOutfitsLayout, animated: false)
+            if userId != nil {
+                manager.GET(SprubixConfig.URL.api + "/user/\(userId!)/outfits/community",
+                    parameters: nil,
+                    success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                        self.communityOutfits = responseObject["data"] as [NSDictionary]!
+                        
+                        self.communityLoaded = true
+                        self.currentProfileState = .Community
+                        self.profileCollectionView.reloadData()
+                        
+                        // set layout
+                        self.profileCollectionView.collectionViewLayout.invalidateLayout()
+                        self.profileCollectionView.setCollectionViewLayout(self.userOutfitsLayout, animated: false)
+                        
+                    },
+                    failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                        println("Error: " + error.localizedDescription)
+                })
+            } else {
+                println("userId not found, please login or create an account")
+            }
         } else {
-            // tentative
-            self.currentProfileState = .Outfits
+            // community outfits already loaded
+            self.currentProfileState = .Community
             self.profileCollectionView.reloadData()
             
             // set layout
@@ -370,6 +403,10 @@ class UserProfileViewController: UIViewController, UICollectionViewDataSource, C
             let piece = pieces[pageIndex] as NSDictionary
             itemHeight = piece["height"] as CGFloat
             itemWidth = piece["width"] as CGFloat
+        case .Community:
+            let communityOutfit = communityOutfits[pageIndex] as NSDictionary
+            itemHeight = communityOutfit["height"] as CGFloat
+            itemWidth = communityOutfit["width"] as CGFloat
         default:
             break
         }

@@ -60,14 +60,14 @@ class SprubixFeedController: UIViewController, UITableViewDataSource, UITableVie
     
     func retrieveOutfits() {
         let userId:Int? = defaults.objectForKey("userId") as? Int
-        
+       
         if userId != nil {
             // retrieve 3 example pieces
             manager.GET(SprubixConfig.URL.api + "/user/\(userId!)/outfits/following",
                 parameters: nil,
                 success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
                     self.followingUsers = responseObject["data"] as [NSDictionary]!
-
+                    
                     // reset
                     self.outfits = [NSDictionary]()
                     
@@ -212,7 +212,7 @@ class SprubixFeedController: UIViewController, UITableViewDataSource, UITableVie
         
         let outfit = outfits[indexPath.row]
         
-        let h = outfit["height"] as CGFloat
+        let h:CGFloat = outfit["height"] as CGFloat
         let w = outfit["width"] as CGFloat
         let height = h * screenWidth / w
         

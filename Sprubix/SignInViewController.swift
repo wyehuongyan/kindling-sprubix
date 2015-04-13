@@ -150,9 +150,7 @@ class SignInViewController: UIViewController, UITextFieldDelegate, UITableViewDa
                         println(message)
                         println(data)
                         
-                        var userId = data["id"] as Int!
-                        
-                        defaults.setObject(userId, forKey: "userId")
+                        defaults.setObject(data["id"], forKey: "userId")
                         defaults.setObject(data, forKey: "userData")
                         defaults.synchronize()
                         

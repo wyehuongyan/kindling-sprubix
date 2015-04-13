@@ -14,6 +14,7 @@ struct SprubixConfig {
         #if DEBUG
         // debug
         static let api: String = "http://192.168.1.6/~wyehuongyan/kindling-core/public/index.php" //"http://api.sprubix.localhost"
+        //static let api: String = "http://api.sprubix.com"
         
         #else
         // release
