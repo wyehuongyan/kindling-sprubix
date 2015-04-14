@@ -12,8 +12,8 @@ class SpruceShareViewController: UIViewController, UITableViewDelegate, UITableV
     let creditsViewHeight:CGFloat = 80
     
     var spruceShareTableView:UITableView!
-    
     var outfitImageView:UIImageView! = UIImageView()
+    var descriptionCellText: String = ""
     
     var outfitImageCell: UITableViewCell = UITableViewCell()
     var creditsCell: UITableViewCell = UITableViewCell()
@@ -117,7 +117,11 @@ class SpruceShareViewController: UIViewController, UITableViewDelegate, UITableV
         case 1:
             cellHeight = creditsViewHeight // creditsViewHeight
         case 2:
-            cellHeight = 100 // description height
+            if descriptionCellText != "" {
+                cellHeight = heightForTextLabel(descriptionCellText, width: screenWidth, padding: 20) // description height
+            } else {
+                cellHeight = 0
+            }
         case 3:
             cellHeight = 200 // social share
         default:
@@ -154,7 +158,7 @@ class SpruceShareViewController: UIViewController, UITableViewDelegate, UITableV
             
             return creditsCell
         case 2:
-            descriptionCell.textLabel?.text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud."
+            descriptionCell.textLabel?.text = descriptionCellText
             
             descriptionCell.textLabel?.lineBreakMode = NSLineBreakMode.ByWordWrapping
             descriptionCell.textLabel?.numberOfLines = 0
@@ -163,7 +167,7 @@ class SpruceShareViewController: UIViewController, UITableViewDelegate, UITableV
             return descriptionCell
         case 3:
             // Facebook
-            var socialButtonRow1:UIView = UIView(frame: CGRect(x: 0, y: 0, width: screenWidth, height: 44))
+            var socialButtonRow1:UIView = UIView(frame: CGRect(x: 0, y: 10, width: screenWidth, height: 44))
             
             var socialButtonFacebook = UIButton.buttonWithType(UIButtonType.Custom) as UIButton
             socialButtonFacebook.setImage(UIImage(named: "spruce-share-fb"), forState: UIControlState.Normal)
@@ -193,7 +197,7 @@ class SpruceShareViewController: UIViewController, UITableViewDelegate, UITableV
             socialCell.addSubview(socialButtonRow1)
             
             // Tumblr
-            var socialButtonRow2:UIView = UIView(frame: CGRect(x: 0, y: 44, width: screenWidth, height: 44))
+            var socialButtonRow2:UIView = UIView(frame: CGRect(x: 0, y: 54, width: screenWidth, height: 44))
             
             var socialButtonTumblr = UIButton.buttonWithType(UIButtonType.Custom) as UIButton
             socialButtonTumblr.setImage(UIImage(named: "spruce-share-tumblr"), forState: UIControlState.Normal)
@@ -235,5 +239,15 @@ class SpruceShareViewController: UIViewController, UITableViewDelegate, UITableV
     func backTapped(sender: UIBarButtonItem) {
         self.navigationController?.popViewControllerAnimated(true)
         //delegate?.dismissSpruceView()
+    }
+    
+    func heightForTextLabel(text:String, width:CGFloat, padding: CGFloat) -> CGFloat{
+        let label:UILabel = UILabel(frame: CGRectMake(0, 0, width, CGFloat.max))
+        label.numberOfLines = 0
+        label.lineBreakMode = NSLineBreakMode.ByWordWrapping
+        label.text = text
+        
+        label.sizeToFit()
+        return label.frame.height + padding
     }
 }

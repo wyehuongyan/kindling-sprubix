@@ -468,6 +468,10 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, UIActionShee
         spruceShareViewController.outfitImageView.frame = CGRect(x: 0, y: 0, width: finalImage.size.width, height: finalImage.size.height)
         spruceShareViewController.outfitImageView.image = finalImage
         
+        if descriptionText.text != placeholderText {
+            spruceShareViewController.descriptionCellText = descriptionText.text
+        }
+        
         self.navigationController?.pushViewController(spruceShareViewController, animated: true)
     }
     
@@ -509,10 +513,12 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, UIActionShee
                 })
         }
         
-        // shift the credits view
+        // shift the credits and description view
         UIView.animateWithDuration(0.5, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .CurveEaseInOut, animations: {
             
             self.creditsView.frame = CGRect(x: self.creditsView.frame.origin.x, y: prevHeight + navigationHeight, width: self.creditsView.frame.width, height: self.creditsView.frame.height)
+            
+            self.descriptionText.frame = CGRect(x: self.descriptionText.frame.origin.x, y: prevHeight + navigationHeight + self.creditsViewHeight, width: self.descriptionText.frame.width, height: self.descriptionText.frame.height)
             
             }, completion: nil)
     }
@@ -556,6 +562,8 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, UIActionShee
         UIView.animateWithDuration(0.5, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .CurveEaseInOut, animations: {
             
             self.creditsView.frame = CGRect(x: self.creditsView.frame.origin.x, y: prevHeight + navigationHeight, width: self.creditsView.frame.width, height: self.creditsView.frame.height)
+            
+            self.descriptionText.frame = CGRect(x: self.descriptionText.frame.origin.x, y: prevHeight + navigationHeight + self.creditsViewHeight, width: self.descriptionText.frame.width, height: self.descriptionText.frame.height)
             
             }, completion: nil)
     }
