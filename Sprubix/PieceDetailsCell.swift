@@ -66,17 +66,6 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         singlePieceCollectionView.delegate = self;
         
         addSubview(singlePieceCollectionView)
-        
-        // testing
-        manager.GET(SprubixConfig.URL.api + "/user/1/outfits",
-            parameters: nil,
-            success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
-                self.outfits = responseObject["data"] as [NSDictionary]!
-                self.singlePieceCollectionView.reloadData()
-            },
-            failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
-                println("Error: " + error.localizedDescription)
-        })
     }
 
     required init(coder aDecoder: NSCoder) {
@@ -282,6 +271,8 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         singlePieceCollectionView.addSubview(pieceDetailInfoView)
         
         resetHeaderHeight(totalHeaderHeight, padding: 60.0)
+        
+        retrieveOutfits()
     }
     
     // CHTCollectionViewDelegateWaterfallLayout
@@ -315,6 +306,21 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
     
     func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return outfits.count
+    }
+    
+    func retrieveOutfits() {
+        let pieceId:Int = piece["id"] as Int!
+        
+        // retrieve outfits using this piece
+        manager.GET(SprubixConfig.URL.api + "/piece/\(pieceId)/outfits",
+            parameters: nil,
+            success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                self.outfits = responseObject["data"] as [NSDictionary]!
+                self.singlePieceCollectionView.reloadData()
+            },
+            failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                println("Error: " + error.localizedDescription)
+        })
     }
     
     // ResetHeaderHeight protocol
@@ -392,6 +398,6 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
     
     // selectors
     func addCommentPressed(sender: UIButton) {
-        println("lol")
+        println("comment button pressed")
     }
 }

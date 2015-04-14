@@ -12,8 +12,8 @@ class PieceDetailsViewController: UICollectionViewController, UICollectionViewDe
     let pieceDetailsCellIdentifier = "PieceDetailsCell"
     
     var pieces: [NSDictionary] = [NSDictionary]()
-    var user: NSDictionary!
     var inspiredBy: NSDictionary!
+    var user: NSDictionary!
     var pullOffset = CGPointZero
     
     var piecesRelevantCollectionView: UICollectionView? // relevant outfit collection from pieceDetailsCell
@@ -60,8 +60,9 @@ class PieceDetailsViewController: UICollectionViewController, UICollectionViewDe
         var piece = pieces[indexPath.row] as NSDictionary
         
         collectionCell.piece = piece
+        
         collectionCell.user = user
-        collectionCell.inspiredBy = inspiredBy
+        collectionCell.inspiredBy = piece["user"] as NSDictionary!
         collectionCell.tappedAction = {}
         
         // return to previous
