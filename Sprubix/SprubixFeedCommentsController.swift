@@ -15,6 +15,7 @@ protocol SprubixFeedCommentsProtocol {
 class SprubixFeedCommentsController: UIViewController, UITableViewDataSource, UITableViewDelegate {
     var delegate: SprubixFeedCommentsProtocol?
     
+    var outfit: NSDictionary!
     var descriptionCommentsDismissView: UIView!
     var descriptionCommentsTableView: UITableView!
     
@@ -67,7 +68,7 @@ class SprubixFeedCommentsController: UIViewController, UITableViewDataSource, UI
         switch(indexPath.row)
         {
         case 0: // description
-            descriptionCell.textLabel?.text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud."
+            descriptionCell.textLabel?.text = outfit["description"] as String!
             
             descriptionCell.textLabel?.lineBreakMode = NSLineBreakMode.ByWordWrapping
             descriptionCell.textLabel?.numberOfLines = 0
@@ -96,9 +97,9 @@ class SprubixFeedCommentsController: UIViewController, UITableViewDataSource, UI
             commentsCell.addSubview(viewAllComments)
             
             // the 3 most recent comments
-            var commentRowView1:SprubixItemCommentRow = SprubixItemCommentRow(username: "Mika", commentString: "Lorem ipsum dolor sit amet", y: viewAllCommentsHeight, button: false, userThumbnail: "user4-mika.jpg")
-            var commentRowView2:SprubixItemCommentRow = SprubixItemCommentRow(username: "Rika", commentString: "Lorem ipsum dolor sit amet, consec tetur adipiscing elit", y: viewAllCommentsHeight + commentRowView1.commentRowHeight, button: false, userThumbnail: "user5-rika.jpg")
-            var commentRowView3:SprubixItemCommentRow = SprubixItemCommentRow(username: "Melody", commentString: "Lorem ipsum", y: viewAllCommentsHeight + commentRowView1.commentRowHeight + commentRowView2.commentRowHeight, button: false, userThumbnail: "user6-melody.jpg")
+            var commentRowView1:SprubixItemCommentRow = SprubixItemCommentRow(username: "Mika", commentString: "Really love this!", y: viewAllCommentsHeight, button: false, userThumbnail: "user4-mika.jpg")
+            var commentRowView2:SprubixItemCommentRow = SprubixItemCommentRow(username: "Rika", commentString: "Hey! I also have this at home!", y: viewAllCommentsHeight + commentRowView1.commentRowHeight, button: false, userThumbnail: "user5-rika.jpg")
+            var commentRowView3:SprubixItemCommentRow = SprubixItemCommentRow(username: "Melody", commentString: "How much is it?", y: viewAllCommentsHeight + commentRowView1.commentRowHeight + commentRowView2.commentRowHeight, button: false, userThumbnail: "user6-melody.jpg")
             
             commentsCell.addSubview(commentRowView1)
             commentsCell.addSubview(commentRowView2)
@@ -129,7 +130,14 @@ class SprubixFeedCommentsController: UIViewController, UITableViewDataSource, UI
         switch(indexPath.row)
         {
         case 0:
-            cellHeight = 100
+            // description
+            let descriptionText = outfit["description"] as String!
+            
+            if descriptionText != "" {
+                cellHeight = heightForTextLabel(descriptionText, width: screenWidth, padding: 20) // description height
+            } else {
+                cellHeight = 0
+            }
         case 1:
             cellHeight = 270
         default:
@@ -137,6 +145,16 @@ class SprubixFeedCommentsController: UIViewController, UITableViewDataSource, UI
         }
         
         return cellHeight
+    }
+    
+    func heightForTextLabel(text:String, width:CGFloat, padding: CGFloat) -> CGFloat{
+        let label:UILabel = UILabel(frame: CGRectMake(0, 0, width, CGFloat.max))
+        label.numberOfLines = 0
+        label.lineBreakMode = NSLineBreakMode.ByWordWrapping
+        label.text = text
+        
+        label.sizeToFit()
+        return label.frame.height + padding
     }
     
     func addCommentPressed(sender: UIButton) {

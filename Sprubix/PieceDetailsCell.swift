@@ -163,7 +163,7 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         Glow.addGlow(itemCategoryImage)
         
         var itemCategoryLabel:UILabel = UILabel(frame: CGRect(x: itemImageViewWidth, y: itemSpecHeight, width: screenWidth - itemImageViewWidth, height: itemSpecHeight))
-        itemCategoryLabel.text = "Category"
+        itemCategoryLabel.text = piece["category"] as NSString!
         
         // brand
         var itemBrandImage = UIButton.buttonWithType(UIButtonType.Custom) as UIButton
@@ -175,7 +175,7 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         Glow.addGlow(itemBrandImage)
         
         var itemBrandLabel:UILabel = UILabel(frame: CGRect(x: itemImageViewWidth, y: itemSpecHeight * 2, width: screenWidth - itemImageViewWidth, height: itemSpecHeight))
-        itemBrandLabel.text = "Brand"
+        itemBrandLabel.text = piece["brand"] as NSString!
         
         // size
         var itemSizeImage = UIButton.buttonWithType(UIButtonType.Custom) as UIButton
@@ -187,7 +187,7 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         Glow.addGlow(itemSizeImage)
 
         var itemSizeLabel:UILabel = UILabel(frame: CGRect(x: itemImageViewWidth, y: itemSpecHeight * 3, width: screenWidth - itemImageViewWidth, height: itemSpecHeight))
-        itemSizeLabel.text = "Size"
+        itemSizeLabel.text = piece["size"] as NSString!
         
         pieceSpecsView.addSubview(itemNameImage)
         pieceSpecsView.addSubview(itemNameLabel)
@@ -240,9 +240,9 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         pieceDetailInfoView.addSubview(viewAllCommentsBG)
         
         // the 3 most recent comments
-        var commentRowView1:SprubixItemCommentRow = SprubixItemCommentRow(username: "Mika", commentString: "Lorem ipsum dolor sit amet", y: commentYPos, button: false, userThumbnail: "user4-mika.jpg")
-        var commentRowView2:SprubixItemCommentRow = SprubixItemCommentRow(username: "Rika", commentString: "Lorem ipsum dolor sit amet, consec tetur adipiscing elit", y: commentYPos + commentRowView1.commentRowHeight, button: false, userThumbnail: "user5-rika.jpg")
-        var commentRowView3:SprubixItemCommentRow = SprubixItemCommentRow(username: "Melody", commentString: "Lorem ipsum", y: commentYPos + commentRowView1.commentRowHeight + commentRowView2.commentRowHeight, button: false, userThumbnail: "user6-melody.jpg")
+        var commentRowView1:SprubixItemCommentRow = SprubixItemCommentRow(username: "Mika", commentString: "Really love this!", y: commentYPos, button: false, userThumbnail: "user4-mika.jpg")
+        var commentRowView2:SprubixItemCommentRow = SprubixItemCommentRow(username: "Rika", commentString: "Hey! I also have this at home!", y: commentYPos + commentRowView1.commentRowHeight, button: false, userThumbnail: "user5-rika.jpg")
+        var commentRowView3:SprubixItemCommentRow = SprubixItemCommentRow(username: "Melody", commentString: "How much is it?", y: commentYPos + commentRowView1.commentRowHeight + commentRowView2.commentRowHeight, button: false, userThumbnail: "user6-melody.jpg")
         
         pieceDetailInfoView.addSubview(commentRowView1)
         pieceDetailInfoView.addSubview(commentRowView2)

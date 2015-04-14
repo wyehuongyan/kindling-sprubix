@@ -247,6 +247,7 @@ class SprubixFeedController: UIViewController, UITableViewDataSource, UITableVie
             sprubixCommentsController = SprubixFeedCommentsController()
             // prepare the view below the screen for animation
             sprubixCommentsController?.view.frame = CGRect(x: 0, y: screenHeight, width: screenWidth, height: screenHeight)
+            sprubixCommentsController?.outfit = selectedOutfit
             sprubixCommentsController?.delegate = self
             
             self.navigationController?.view.insertSubview(sprubixCommentsController!.view, atIndex: 1)
