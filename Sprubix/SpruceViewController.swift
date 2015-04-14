@@ -467,6 +467,8 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, UIActionShee
         
         spruceShareViewController.outfitImageView.frame = CGRect(x: 0, y: 0, width: finalImage.size.width, height: finalImage.size.height)
         spruceShareViewController.outfitImageView.image = finalImage
+        spruceShareViewController.usernameFrom = usernameFrom
+        spruceShareViewController.userThumbnailFrom = userThumbnailFrom
         
         if descriptionText.text != placeholderText {
             spruceShareViewController.descriptionCellText = descriptionText.text

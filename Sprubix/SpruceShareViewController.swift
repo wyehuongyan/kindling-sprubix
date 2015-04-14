@@ -11,6 +11,9 @@ import UIKit
 class SpruceShareViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     let creditsViewHeight:CGFloat = 80
     
+    var usernameFrom: String!
+    var userThumbnailFrom: String!
+    
     var spruceShareTableView:UITableView!
     var outfitImageView:UIImageView! = UIImageView()
     var descriptionCellText: String = ""
@@ -145,11 +148,13 @@ class SpruceShareViewController: UIViewController, UITableViewDelegate, UITableV
             
             return outfitImageCell
         case 1:
+            let userData:NSDictionary! = defaults.dictionaryForKey("userData")
+            
             // init 'posted by' and 'from' credits
             var creditsView:UIView = UIView(frame: CGRect(x: 0, y: 0, width: screenWidth, height: creditsViewHeight))
             
-            var postedByButton:SprubixCreditButton = SprubixCreditButton(frame: CGRect(x: 0, y: 0, width: screenWidth/2, height: creditsViewHeight), buttonLabel: "posted by", username: "user name")
-            var fromButton:SprubixCreditButton = SprubixCreditButton(frame: CGRect(x: screenWidth/2, y: 0, width: screenWidth/2, height: creditsViewHeight), buttonLabel: "from", username: "user name")
+            var postedByButton:SprubixCreditButton = SprubixCreditButton(frame: CGRect(x: 0, y: 0, width: screenWidth/2, height: creditsViewHeight), buttonLabel: "posted by", username: userData["username"] as String!, userThumbnail: userData["image"] as String!)
+            var fromButton:SprubixCreditButton = SprubixCreditButton(frame: CGRect(x: screenWidth/2, y: 0, width: screenWidth/2, height: creditsViewHeight), buttonLabel: "from", username: usernameFrom, userThumbnail: userThumbnailFrom)
             
             creditsView.addSubview(postedByButton)
             creditsView.addSubview(fromButton)
