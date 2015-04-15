@@ -60,12 +60,13 @@ class OutfitDetailsViewController: UICollectionViewController, UICollectionViewD
         
         if inspiredBy.isKindOfClass(NSNull) {
             collectionCell.inspiredBy = nil
-        } else {
+        } else {            
             collectionCell.inspiredBy = outfit["inspired_by"] as NSDictionary!
         }
         
         collectionCell.user = outfit["user"] as NSDictionary!
         collectionCell.outfit = outfit
+        
         collectionCell.tappedAction = {}
         
         // return to previous

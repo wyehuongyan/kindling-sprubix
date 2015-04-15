@@ -360,8 +360,6 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
     func collectionView(collectionView: UICollectionView, didSelectItemAtIndexPath indexPath: NSIndexPath) {
         delegate?.relevantOutfitSelected(collectionView, index: indexPath)
         
-        //println(navController)
-        
         let outfitDetailsViewController = OutfitDetailsViewController(collectionViewLayout: detailsViewControllerLayout(), currentIndexPath:indexPath)
         outfitDetailsViewController.outfits = outfits
         
