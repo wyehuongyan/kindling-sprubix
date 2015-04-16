@@ -62,6 +62,7 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, UIActionShee
         self.view.addGestureRecognizer(tableTapGestureRecognizer)
         
         initSprucePieceFeeds()
+        initButtons()
     }
     
     override func viewDidDisappear(animated: Bool) {
@@ -72,7 +73,6 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, UIActionShee
         super.viewWillAppear(animated)
         
         initNavBar()
-        initButtons()
     }
     
     func initSprucePieceFeeds() {
@@ -184,26 +184,9 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, UIActionShee
         
         newNavItem.leftBarButtonItem = backBarButtonItem
         
-        // 5. create a custom magic button
-        var expandOutfitButton:UIButton = UIButton.buttonWithType(UIButtonType.Custom) as UIButton
-        expandOutfitButton.frame = CGRect(x: 0, y: 0, width: 70, height: 37)
-        expandOutfitButton.setTitle("Magic", forState: UIControlState.Normal)
-        expandOutfitButton.setTitleColor(UIColor(red: 170/255, green: 170/255, blue: 170/255, alpha: 1.0), forState: UIControlState.Normal)
-        expandOutfitButton.exclusiveTouch = true
-        
-        // gesture recognizer
-        longPress = UILongPressGestureRecognizer(target: self, action: Selector("longPressed:"))
-        
-        // add gesture recognizer to button
-        expandOutfitButton.addGestureRecognizer(longPress)
-        
-        var expandOutfitBarButtonItem:UIBarButtonItem = UIBarButtonItem(customView: expandOutfitButton)
-        
-        //newNavItem.rightBarButtonItem = expandOutfitBarButtonItem
-        
         newNavBar.setItems([newNavItem], animated: false)
         
-        // 6. add the nav bar to the main view
+        // 5. add the nav bar to the main view
         self.view.addSubview(newNavBar)
         
         //self.navigationController?.interactivePopGestureRecognizer.delegate = self
@@ -225,6 +208,9 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, UIActionShee
         magicButton = UIButton.buttonWithType(UIButtonType.Custom) as UIButton
         magicButton.frame = CGRect(x: screenWidth - 120, y: screenHeight - 60, width: 50, height: 50)
         magicButton.setImage(UIImage(named: "spruce-original-size"), forState: UIControlState.Normal)
+        
+        // gesture recognizer
+        longPress = UILongPressGestureRecognizer(target: self, action: Selector("longPressed:"))
         
         Glow.addGlow(magicButton)
         
