@@ -115,7 +115,7 @@ class SignUpViewController: UIViewController, UITableViewDataSource, UITableView
     /**
     * Called when the user click on the view (outside the UITextField).
     */
-    override func touchesBegan(touches: NSSet, withEvent event: UIEvent) {
+    override func touchesBegan(touches: Set<NSObject>, withEvent event: UIEvent) {
         self.view.endEditing(true)
     }
     
@@ -145,13 +145,13 @@ class SignUpViewController: UIViewController, UITableViewDataSource, UITableView
                         "password_confirmation" : passwordText.text
                     ],
                     success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
-                        var response = responseObject as NSDictionary
-                        var statusCode:String = response["status"] as String!
+                        var response = responseObject as! NSDictionary
+                        var statusCode:String = response["status"] as! String
                         
                         if statusCode == "400" {
                             // error
-                            var message = response["message"] as String!
-                            var data = response["data"] as NSDictionary!
+                            var message = response["message"] as! String
+                            var data = response["data"] as! NSDictionary
                             
                             println(message)
                             println(data)
@@ -159,8 +159,8 @@ class SignUpViewController: UIViewController, UITableViewDataSource, UITableView
                         } else if statusCode == "200" {
                             // success
                             textField.resignFirstResponder()
-                            var message = response["message"] as String!
-                            var data = response["data"] as NSDictionary!
+                            var message = response["message"] as! String
+                            var data = response["data"] as! NSDictionary
                             
                             println(message)
                             println(data)
@@ -202,7 +202,7 @@ class SignUpViewController: UIViewController, UITableViewDataSource, UITableView
             
             println("Please enter a password")
 
-        } else if countElements(passwordText.text) < 6 {
+        } else if count(passwordText.text) < 6 {
             validated = false
             
             println("The password must be at least 6 characters.")
@@ -224,9 +224,12 @@ class SignUpViewController: UIViewController, UITableViewDataSource, UITableView
     func isValidEmail(testStr:String) -> Bool {
         let emailRegEx = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,4}"
         
-        if let emailTest = NSPredicate(format:"SELF MATCHES %@", emailRegEx) {
-            return emailTest.evaluateWithObject(testStr)
+        let emailTest = NSPredicate(format:"SELF MATCHES %@", emailRegEx)
+        
+        if emailTest.evaluateWithObject(testStr) {
+            return true
         }
+        
         return false
     }
 }

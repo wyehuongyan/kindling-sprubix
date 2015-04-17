@@ -59,7 +59,7 @@ class SpruceShareViewController: UIViewController, UITableViewDelegate, UITableV
         newNavItem.title = "Good to go?"
         
         // 4. create a custom back button
-        var backButton:UIButton = UIButton.buttonWithType(UIButtonType.Custom) as UIButton
+        var backButton:UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
         backButton.setImage(UIImage(named: "spruce-arrow-back"), forState: UIControlState.Normal)
         backButton.frame = CGRect(x: -10, y: 0, width: 20, height: 20)
         backButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
@@ -141,6 +141,7 @@ class SpruceShareViewController: UIViewController, UITableViewDelegate, UITableV
             //outfitImageView = UIImageView(image: UIImage(named: "person-placeholder.jpg"))
             //outfitImageView.frame = CGRect(x: 0, y: 0, width: screenWidth, height: 500)
             outfitImageView.clipsToBounds = true
+            outfitImageView.backgroundColor = sprubixColor
             outfitImageView.contentMode = UIViewContentMode.ScaleAspectFill
             
             outfitImageCell.addSubview(outfitImageView)
@@ -153,7 +154,7 @@ class SpruceShareViewController: UIViewController, UITableViewDelegate, UITableV
             // init 'posted by' and 'from' credits
             var creditsView:UIView = UIView(frame: CGRect(x: 0, y: 0, width: screenWidth, height: creditsViewHeight))
             
-            var postedByButton:SprubixCreditButton = SprubixCreditButton(frame: CGRect(x: 0, y: 0, width: screenWidth/2, height: creditsViewHeight), buttonLabel: "posted by", username: userData["username"] as String!, userThumbnail: userData["image"] as String!)
+            var postedByButton:SprubixCreditButton = SprubixCreditButton(frame: CGRect(x: 0, y: 0, width: screenWidth/2, height: creditsViewHeight), buttonLabel: "posted by", username: userData["username"] as! String, userThumbnail: userData["image"] as! String)
             var fromButton:SprubixCreditButton = SprubixCreditButton(frame: CGRect(x: screenWidth/2, y: 0, width: screenWidth/2, height: creditsViewHeight), buttonLabel: "from", username: usernameFrom, userThumbnail: userThumbnailFrom)
             
             creditsView.addSubview(postedByButton)
@@ -174,7 +175,7 @@ class SpruceShareViewController: UIViewController, UITableViewDelegate, UITableV
             // Facebook
             var socialButtonRow1:UIView = UIView(frame: CGRect(x: 0, y: 10, width: screenWidth, height: 44))
             
-            var socialButtonFacebook = UIButton.buttonWithType(UIButtonType.Custom) as UIButton
+            var socialButtonFacebook = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
             socialButtonFacebook.setImage(UIImage(named: "spruce-share-fb"), forState: UIControlState.Normal)
             socialButtonFacebook.setTitle("Facebook", forState: UIControlState.Normal)
             socialButtonFacebook.setTitleColor(UIColor.blackColor(), forState: UIControlState.Normal)
@@ -187,7 +188,7 @@ class SpruceShareViewController: UIViewController, UITableViewDelegate, UITableV
             socialButtonRow1.addSubview(socialButtonFacebook)
             
             // Twitter
-            var socialButtonTwitter = UIButton.buttonWithType(UIButtonType.Custom) as UIButton
+            var socialButtonTwitter = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
             socialButtonTwitter.setImage(UIImage(named: "spruce-share-twitter"), forState: UIControlState.Normal)
             socialButtonTwitter.setTitle("Twitter", forState: UIControlState.Normal)
             socialButtonTwitter.setTitleColor(UIColor.blackColor(), forState: UIControlState.Normal)
@@ -204,7 +205,7 @@ class SpruceShareViewController: UIViewController, UITableViewDelegate, UITableV
             // Tumblr
             var socialButtonRow2:UIView = UIView(frame: CGRect(x: 0, y: 54, width: screenWidth, height: 44))
             
-            var socialButtonTumblr = UIButton.buttonWithType(UIButtonType.Custom) as UIButton
+            var socialButtonTumblr = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
             socialButtonTumblr.setImage(UIImage(named: "spruce-share-tumblr"), forState: UIControlState.Normal)
             socialButtonTumblr.setTitle("Tumblr", forState: UIControlState.Normal)
             socialButtonTumblr.setTitleColor(UIColor.blackColor(), forState: UIControlState.Normal)
@@ -217,7 +218,7 @@ class SpruceShareViewController: UIViewController, UITableViewDelegate, UITableV
             socialButtonRow2.addSubview(socialButtonTumblr)
         
             // Pinterest
-            var socialButtonPinterest = UIButton.buttonWithType(UIButtonType.Custom) as UIButton
+            var socialButtonPinterest = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
             socialButtonPinterest.setImage(UIImage(named: "spruce-share-pinterest"), forState: UIControlState.Normal)
             socialButtonPinterest.setTitle("Pinterest", forState: UIControlState.Normal)
             socialButtonPinterest.setTitleColor(UIColor.blackColor(), forState: UIControlState.Normal)

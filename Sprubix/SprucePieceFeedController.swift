@@ -70,7 +70,7 @@ class SprucePieceFeedController: UICollectionViewController, UICollectionViewDel
     
     func initButtons() {
         // left
-        leftArrowButton = UIButton.buttonWithType(UIButtonType.System) as UIButton
+        leftArrowButton = UIButton.buttonWithType(UIButtonType.System) as! UIButton
         
         setLeftArrowButtonFrame(pieceHeight)
         
@@ -88,7 +88,7 @@ class SprucePieceFeedController: UICollectionViewController, UICollectionViewDel
         view.addSubview(leftArrowButton)
         
         // right
-        rightArrowButton = UIButton.buttonWithType(UIButtonType.System) as UIButton
+        rightArrowButton = UIButton.buttonWithType(UIButtonType.System) as! UIButton
         
         setRightArrowButtonFrame(pieceHeight)
        
@@ -129,7 +129,7 @@ class SprucePieceFeedController: UICollectionViewController, UICollectionViewDel
         deleteOverlay.backgroundColor = UIColor.clearColor().colorWithAlphaComponent(0.3)
         deleteOverlay.alpha = 0
         
-        var deleteCross = UIButton.buttonWithType(UIButtonType.System) as UIButton
+        var deleteCross = UIButton.buttonWithType(UIButtonType.System) as! UIButton
         deleteCross.frame = CGRect(x: arrowButtonPadding, y: arrowButtonPadding, width: 30, height: 30)
         deleteCross.setTitle("X", forState: UIControlState.Normal)
         deleteCross.titleLabel?.font = UIFont(name: deleteCross.titleLabel!.font.fontName, size: 24)
@@ -185,7 +185,7 @@ class SprucePieceFeedController: UICollectionViewController, UICollectionViewDel
     override func scrollViewDidEndScrollingAnimation(scrollView: UIScrollView) {
         let indexPath: NSIndexPath = NSIndexPath(forItem: index, inSection: 0)
         
-        currentVisibleCell = self.collectionView?.cellForItemAtIndexPath(indexPath) as SprucePieceFeedCell
+        currentVisibleCell = self.collectionView?.cellForItemAtIndexPath(indexPath) as! SprucePieceFeedCell
         
         scrolling = false
     }
@@ -197,13 +197,13 @@ class SprucePieceFeedController: UICollectionViewController, UICollectionViewDel
         
         let visibleIndexPath: NSIndexPath = self.collectionView!.indexPathForItemAtPoint(visiblePoint)!
         
-        currentVisibleCell = self.collectionView!.cellForItemAtIndexPath(visibleIndexPath) as SprucePieceFeedCell
+        currentVisibleCell = self.collectionView!.cellForItemAtIndexPath(visibleIndexPath) as! SprucePieceFeedCell
         
         index = visibleIndexPath.item
     }
     
     override func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
-        let collectionCell: SprucePieceFeedCell = collectionView.dequeueReusableCellWithReuseIdentifier(sprucePieceFeedCellIdentifier, forIndexPath: indexPath) as SprucePieceFeedCell
+        let collectionCell: SprucePieceFeedCell = collectionView.dequeueReusableCellWithReuseIdentifier(sprucePieceFeedCellIdentifier, forIndexPath: indexPath) as! SprucePieceFeedCell
         
         if indexPath.row == 0 {
             currentVisibleCell = collectionCell
@@ -232,7 +232,7 @@ class SprucePieceFeedController: UICollectionViewController, UICollectionViewDel
                     "type" : pieceType
                 ],
                 success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
-                    self.sprucePieces = responseObject["data"] as [NSDictionary]!
+                    self.sprucePieces = responseObject["data"] as! [NSDictionary]
                     
                     if self.piece != nil {
                         self.sprucePieces.insert(self.piece, atIndex: 0)

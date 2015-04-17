@@ -46,9 +46,9 @@ class SprubixFeedController: UIViewController, UITableViewDataSource, UITableVie
         var object:NSData? = defaults.objectForKey("sessionCookies") as? NSData
         
         if object != nil {
-            let cookies:NSArray = NSKeyedUnarchiver.unarchiveObjectWithData(object!) as NSArray
+            let cookies:NSArray = NSKeyedUnarchiver.unarchiveObjectWithData(object!) as! NSArray
             for cookie in cookies {
-                var c = cookie as NSHTTPCookie
+                var c = cookie as! NSHTTPCookie
                 
                 NSHTTPCookieStorage.sharedHTTPCookieStorage().setCookie(c)
                 println("persisted cookie:  \(c)")
@@ -66,13 +66,13 @@ class SprubixFeedController: UIViewController, UITableViewDataSource, UITableVie
             manager.GET(SprubixConfig.URL.api + "/user/\(userId!)/outfits/following",
                 parameters: nil,
                 success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
-                    self.followingUsers = responseObject["data"] as [NSDictionary]!
+                    self.followingUsers = responseObject["data"] as! [NSDictionary]
                     
                     // reset
                     self.outfits = [NSDictionary]()
                     
                     for followingUser in self.followingUsers {
-                        var currentOutfits = followingUser["outfits"] as [NSDictionary]!
+                        var currentOutfits = followingUser["outfits"] as! [NSDictionary]
                         
                         for outfit in currentOutfits {
                             self.outfits.append(outfit)
@@ -194,7 +194,7 @@ class SprubixFeedController: UIViewController, UITableViewDataSource, UITableVie
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         
-        let cell:SprubixFeedCell = sprubixFeedTableView.dequeueReusableCellWithIdentifier("SprubixFeedCell") as SprubixFeedCell
+        let cell:SprubixFeedCell = sprubixFeedTableView.dequeueReusableCellWithIdentifier("SprubixFeedCell") as! SprubixFeedCell
         
         cell.outfit = outfits[indexPath.row]
         cell.initOutfit()
@@ -212,8 +212,8 @@ class SprubixFeedController: UIViewController, UITableViewDataSource, UITableVie
         
         let outfit = outfits[indexPath.row]
         
-        let h:CGFloat = outfit["height"] as CGFloat
-        let w = outfit["width"] as CGFloat
+        let h:CGFloat = outfit["height"] as! CGFloat
+        let w = outfit["width"] as! CGFloat
         let height = h * screenWidth / w
         
         return height
@@ -221,7 +221,7 @@ class SprubixFeedController: UIViewController, UITableViewDataSource, UITableVie
 
     func initButtons() {
         // create outfit button at bottom right
-        createOutfitButton = UIButton.buttonWithType(UIButtonType.Custom) as UIButton
+        createOutfitButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
         createOutfitButton.frame = CGRect(x: screenWidth - 50, y: screenHeight - 50, width: 40, height: 40)
         createOutfitButton.backgroundColor = UIColor.whiteColor()
         createOutfitButton.setImage(UIImage(named: "main-cta-add"), forState: UIControlState.Normal)

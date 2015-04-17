@@ -55,14 +55,14 @@ class PieceDetailsViewController: UICollectionViewController, UICollectionViewDe
     }
     
     override func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell{
-        let collectionCell: PieceDetailsCell = collectionView.dequeueReusableCellWithReuseIdentifier(pieceDetailsCellIdentifier, forIndexPath: indexPath) as PieceDetailsCell
+        let collectionCell: PieceDetailsCell = collectionView.dequeueReusableCellWithReuseIdentifier(pieceDetailsCellIdentifier, forIndexPath: indexPath) as! PieceDetailsCell
         
         var piece = pieces[indexPath.row] as NSDictionary
         
         collectionCell.piece = piece
         
         collectionCell.user = user
-        collectionCell.inspiredBy = piece["user"] as NSDictionary!
+        collectionCell.inspiredBy = piece["user"] as! NSDictionary
         collectionCell.tappedAction = {}
         
         // return to previous

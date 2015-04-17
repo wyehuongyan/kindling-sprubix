@@ -30,12 +30,12 @@ class SprucePieceFeedCell: UICollectionViewCell {
         super.layoutSubviews()
         
         // calculate piece UIImageView height
-        var itemHeight = piece["height"] as CGFloat
-        var itemWidth = piece["width"] as CGFloat
+        var itemHeight = piece["height"] as! CGFloat
+        var itemWidth = piece["width"] as! CGFloat
         
         pieceHeight = itemHeight * screenWidth / itemWidth
         
-        var pieceImagesString = piece["images"] as NSString!
+        var pieceImagesString = piece["images"] as! String
         var pieceImagesData:NSData = pieceImagesString.dataUsingEncoding(NSUTF8StringEncoding)!
         
         pieceImageView.image = nil
@@ -45,9 +45,9 @@ class SprucePieceFeedCell: UICollectionViewCell {
         //pieceImageView.userInteractionEnabled = true
         pieceImageView.frame = CGRect(x:0, y: 0, width: frame.size.width, height: frame.size.height)
         
-        var pieceImagesDict: NSDictionary = NSJSONSerialization.JSONObjectWithData(pieceImagesData, options: NSJSONReadingOptions.MutableContainers, error: nil) as NSDictionary
+        var pieceImagesDict: NSDictionary = NSJSONSerialization.JSONObjectWithData(pieceImagesData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSDictionary
         
-        var pieceCoverURL = NSURL(string: pieceImagesDict["cover"] as NSString)
+        var pieceCoverURL = NSURL(string: pieceImagesDict["cover"] as! String)
         
         pieceImageView.setImageWithURL(pieceCoverURL)
     }

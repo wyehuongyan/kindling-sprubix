@@ -36,7 +36,7 @@ class SidePanelViewController: UIViewController, UITableViewDataSource, UITableV
         let userData:NSDictionary! = defaults.dictionaryForKey("userData")
         
         // create profile UIImageView programmatically
-        let userThumbnailURL = NSURL(string: userData["image"] as NSString)
+        let userThumbnailURL = NSURL(string: userData["image"] as! String)
         
         profileImage.setImageWithURL(userThumbnailURL)
         let profileImageLength:CGFloat = 100
@@ -83,7 +83,7 @@ class SidePanelViewController: UIViewController, UITableViewDataSource, UITableV
     }
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier("SidePanelCell", forIndexPath: indexPath) as SidePanelCell
+        let cell = tableView.dequeueReusableCellWithIdentifier("SidePanelCell", forIndexPath: indexPath) as! SidePanelCell
         cell.configureForSidePanelOption(sidePanelOptions[indexPath.row])
         
         return cell

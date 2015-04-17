@@ -85,12 +85,12 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, UIActionShee
         
         // depending on piece type (HEAD, TOP, BOTTOM, FEET)
         // instantiate an instance of SprucePieceFeedController
-        pieces = outfit["pieces"] as [NSDictionary]
+        pieces = outfit["pieces"] as! [NSDictionary]
         
         var prevPieceHeight:CGFloat = 0
         
         for piece in pieces {
-            var pieceType: String = piece["type"] as String
+            var pieceType: String = piece["type"] as! String
             
             var position = find(actionSheetButtonNames, pieceType)
             
@@ -101,8 +101,8 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, UIActionShee
             currentSprucePieceTypes.append(pieceType) // contains the types of pieces in the current outfit
             
             // calculate piece UIImageView height
-            var itemHeight = piece["height"] as CGFloat
-            var itemWidth = piece["width"] as CGFloat
+            var itemHeight = piece["height"] as! CGFloat
+            var itemWidth = piece["width"] as! CGFloat
             
             let pieceHeight:CGFloat = itemHeight * screenWidth / itemWidth
             let sprucePieceFeedController = SprucePieceFeedController(collectionViewLayout: sprucePieceFeedControllerLayout(pieceHeight), pieceType: pieceType, pieceHeight: pieceHeight)
@@ -133,7 +133,7 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, UIActionShee
         
         let userData:NSDictionary! = defaults.dictionaryForKey("userData")
         
-        var postedByButton:SprubixCreditButton = SprubixCreditButton(frame: CGRect(x: 0, y: 0, width: screenWidth/2, height: creditsViewHeight), buttonLabel: "posted by", username: userData["username"] as String!, userThumbnail: userData["image"] as String!)
+        var postedByButton:SprubixCreditButton = SprubixCreditButton(frame: CGRect(x: 0, y: 0, width: screenWidth/2, height: creditsViewHeight), buttonLabel: "posted by", username: userData["username"] as! String, userThumbnail: userData["image"] as! String)
         var fromButton:SprubixCreditButton = SprubixCreditButton(frame: CGRect(x: screenWidth/2, y: 0, width: screenWidth/2, height: creditsViewHeight), buttonLabel: "from", username: usernameFrom, userThumbnail: userThumbnailFrom)
         
         creditsView.addSubview(postedByButton)
@@ -169,7 +169,7 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, UIActionShee
         newNavItem.title = "Spruce"
         
         // 4. create a custom back button
-        var backButton:UIButton = UIButton.buttonWithType(UIButtonType.Custom) as UIButton
+        var backButton:UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
         backButton.setImage(UIImage(named: "spruce-arrow-back"), forState: UIControlState.Normal)
         backButton.frame = CGRect(x: -10, y: 0, width: 20, height: 20)
         backButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
@@ -194,7 +194,7 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, UIActionShee
     
     func initButtons() {
         // button for confirmation
-        confirmButton = UIButton.buttonWithType(UIButtonType.Custom) as UIButton
+        confirmButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
         confirmButton.frame = CGRect(x: screenWidth - 60, y: screenHeight - 60, width: 50, height: 50)
         confirmButton.setImage(UIImage(named: "spruce-next"), forState: UIControlState.Normal)
         
@@ -205,7 +205,7 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, UIActionShee
         self.view.addSubview(confirmButton)
         
         // magic button
-        magicButton = UIButton.buttonWithType(UIButtonType.Custom) as UIButton
+        magicButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
         magicButton.frame = CGRect(x: screenWidth - 120, y: screenHeight - 60, width: 50, height: 50)
         magicButton.setImage(UIImage(named: "spruce-original-size"), forState: UIControlState.Normal)
         
@@ -219,7 +219,7 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, UIActionShee
         self.view.addSubview(magicButton)
         
         // removing an existing piece
-        removePieceFeedButton = UIButton.buttonWithType(UIButtonType.Custom) as UIButton
+        removePieceFeedButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
         removePieceFeedButton.setImage(UIImage(named: "spruce-piece-remove"), forState: UIControlState.Normal)
         removePieceFeedButton.frame = CGRect(x: 10, y: screenHeight - 60, width: 50, height: 50)
         
@@ -230,7 +230,7 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, UIActionShee
         self.view.addSubview(removePieceFeedButton)
         
         // adding a new piece
-        addPieceFeedButton = UIButton.buttonWithType(UIButtonType.Custom) as UIButton
+        addPieceFeedButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
         addPieceFeedButton.setImage(UIImage(named: "spruce-piece-add"), forState: UIControlState.Normal)
         addPieceFeedButton.frame = CGRect(x: 70, y: screenHeight - 60, width: 50, height: 50)
 
@@ -393,6 +393,8 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, UIActionShee
                 
                 self.creditsView.frame = CGRect(x: self.creditsView.frame.origin.x, y: self.creditsView.frame.origin.y + newPieceHeight, width: self.creditsView.frame.width, height: self.creditsView.frame.height)
                 
+                self.descriptionText.frame = CGRect(x: self.descriptionText.frame.origin.x, y: self.descriptionText.frame.origin.y + newPieceHeight, width: self.descriptionText.frame.width, height: self.descriptionText.frame.height)
+                
                 }, completion: nil)
             
             // increase height of scrollview
@@ -438,9 +440,11 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, UIActionShee
         UIGraphicsBeginImageContextWithOptions(size, false, 0.0) // avoid image quality degrading
         
         for image in images {
-            image.drawInRect(CGRectMake(0, prevHeight, size.width, image.size.height))
+            var pieceHeight = image.size.height * screenWidth / image.size.width
             
-            prevHeight += image.size.height
+            image.drawInRect(CGRectMake(0, prevHeight, size.width, pieceHeight))
+            
+            prevHeight += pieceHeight
         }
         
         // final image
@@ -588,6 +592,8 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, UIActionShee
                 
                 self.creditsView.frame = CGRect(x: self.creditsView.frame.origin.x, y: self.creditsView.frame.origin.y - deleteChildController.pieceHeight, width: self.creditsView.frame.width, height: self.creditsView.frame.height)
                 
+                self.descriptionText.frame = CGRect(x: self.descriptionText.frame.origin.x, y: self.descriptionText.frame.origin.y - deleteChildController.pieceHeight, width: self.descriptionText.frame.width, height: self.descriptionText.frame.height)
+                
                 }, completion: nil)
             
             // 2. add the removed childcontroller piecetype back to actionSheetButtonNames
@@ -705,7 +711,7 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, UIActionShee
     func keyboardWillShow(notification: NSNotification) {
         if !keyboardVisible {
             var info = notification.userInfo!
-            var keyboardFrame: CGRect = (info[UIKeyboardFrameEndUserInfoKey] as NSValue).CGRectValue()
+            var keyboardFrame: CGRect = (info[UIKeyboardFrameEndUserInfoKey] as! NSValue).CGRectValue()
             
             UIView.animateWithDuration(0.2, delay: 0.1, options: UIViewAnimationOptions.CurveEaseInOut, animations: { () -> Void in
 
@@ -722,7 +728,7 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, UIActionShee
     func keyboardWillHide(notification: NSNotification) {
         if keyboardVisible {
             var info = notification.userInfo!
-            var keyboardFrame: CGRect = (info[UIKeyboardFrameEndUserInfoKey] as NSValue).CGRectValue()
+            var keyboardFrame: CGRect = (info[UIKeyboardFrameEndUserInfoKey] as! NSValue).CGRectValue()
             
             UIView.animateWithDuration(0.2, delay: 0.1, options: UIViewAnimationOptions.CurveEaseInOut, animations: { () -> Void in
                 

@@ -30,7 +30,7 @@ class SprubixStretchyHeader: CHTCollectionViewWaterfallLayout {
             
             for attrs in attributes {
                 
-                var attr = attrs as UICollectionViewLayoutAttributes
+                var attr = attrs as! UICollectionViewLayoutAttributes
                 
                 // Locate the header attributes
                 var kind:NSString? = attr.representedElementKind
@@ -49,6 +49,6 @@ class SprubixStretchyHeader: CHTCollectionViewWaterfallLayout {
             }
         }
         
-        return attributes;
+        return attributes as [AnyObject];
     }
 }

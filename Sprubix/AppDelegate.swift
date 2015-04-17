@@ -88,7 +88,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func checkLoggedIn() {
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        let signInVC = storyboard.instantiateViewControllerWithIdentifier("SignInNav") as UIViewController
+        let signInVC = storyboard.instantiateViewControllerWithIdentifier("SignInNav") as! UIViewController
         
         var activeController:UIViewController = self.window!.rootViewController!
         
@@ -96,13 +96,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         if activeController.isKindOfClass(UINavigationController) {
             println("This active controller is a UINavigationController")
-            activeController = (activeController as UINavigationController).visibleViewController
+            activeController = (activeController as! UINavigationController).visibleViewController
         }
         
         manager.GET(SprubixConfig.URL.api + "/auth/check",
             parameters: nil,
             success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
-                var response = responseObject as NSDictionary
+                var response = responseObject as! NSDictionary
                 var user = response["user"] as? NSDictionary
                 
                 if user != nil {
@@ -150,7 +150,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     lazy var applicationDocumentsDirectory: NSURL = {
         // The directory the application uses to store the Core Data store file. This code uses a directory named "com.sprubix.Sprubix" in the application's documents Application Support directory.
         let urls = NSFileManager.defaultManager().URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask)
-        return urls[urls.count-1] as NSURL
+        return urls[urls.count-1] as! NSURL
     }()
 
     lazy var managedObjectModel: NSManagedObjectModel = {
@@ -173,7 +173,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             dict[NSLocalizedDescriptionKey] = "Failed to initialize the application's saved data"
             dict[NSLocalizedFailureReasonErrorKey] = failureReason
             dict[NSUnderlyingErrorKey] = error
-            error = NSError(domain: "YOUR_ERROR_DOMAIN", code: 9999, userInfo: dict)
+            error = NSError(domain: "YOUR_ERROR_DOMAIN", code: 9999, userInfo: dict as [NSObject : AnyObject])
             // Replace this with code to handle the error appropriately.
             // abort() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
             NSLog("Unresolved error \(error), \(error!.userInfo)")

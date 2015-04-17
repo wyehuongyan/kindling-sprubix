@@ -28,19 +28,19 @@ class Transition: NSObject, UIViewControllerAnimatedTransitioning {
             containerView.addSubview(toView)
             toView.hidden = true
             
-            let waterFallView = (toViewController as TransitionProtocol).transitionCollectionView()
-            let pageView = (fromViewController as TransitionProtocol).transitionCollectionView()
+            let waterFallView = (toViewController as! TransitionProtocol).transitionCollectionView()
+            let pageView = (fromViewController as! TransitionProtocol).transitionCollectionView()
             waterFallView.layoutIfNeeded()
             let indexPath = pageView.fromPageIndexPath()
             let gridView = waterFallView.cellForItemAtIndexPath(indexPath)
             let leftUpperPoint = gridView!.convertPoint(CGPointZero, toView: nil)
             
-            let snapShot = (gridView as TransitionWaterfallGridViewProtocol).snapShotForTransition()
+            let snapShot = (gridView as! TransitionWaterfallGridViewProtocol).snapShotForTransition()
 
             let animationScale = screenWidth/(snapShot.frame.width)
             
             snapShot.transform = CGAffineTransformMakeScale(animationScale, animationScale)
-            let pullOffsetY = (fromViewController as HorizontalPageViewControllerProtocol).pageViewCellScrollViewContentOffset().y
+            let pullOffsetY = (fromViewController as! HorizontalPageViewControllerProtocol).pageViewCellScrollViewContentOffset().y
             let offsetY : CGFloat = fromViewController.navigationController!.navigationBarHidden ? 0.0 : navigationHeaderAndStatusbarHeight
             
             snapShot.origin(CGPointMake(0, -pullOffsetY+offsetY))
@@ -73,8 +73,8 @@ class Transition: NSObject, UIViewControllerAnimatedTransitioning {
             let fromView = fromViewController.view
             let toView = toViewController.view
             
-            let waterFallView : UICollectionView = (fromViewController as TransitionProtocol).transitionCollectionView()
-            let pageView : UICollectionView = (toViewController as TransitionProtocol).transitionCollectionView()
+            let waterFallView : UICollectionView = (fromViewController as! TransitionProtocol).transitionCollectionView()
+            let pageView : UICollectionView = (toViewController as! TransitionProtocol).transitionCollectionView()
             
             let whiteViewContainer = UIView(frame: screenBounds)
             whiteViewContainer.backgroundColor = UIColor(red: 229/255, green: 229/255, blue: 229/255, alpha: 1)
@@ -106,7 +106,7 @@ class Transition: NSObject, UIViewControllerAnimatedTransitioning {
 //            println(gridView)
 //            println(gridView as? TransitionWaterfallGridViewProtocol)
             
-            let snapShot = (gridView as TransitionWaterfallGridViewProtocol).snapShotForTransition()
+            let snapShot = (gridView as! TransitionWaterfallGridViewProtocol).snapShotForTransition()
             
             let animationScale = screenWidth/(snapShot.frame.width)
             

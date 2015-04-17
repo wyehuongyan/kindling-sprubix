@@ -53,7 +53,7 @@ class OutfitDetailsViewController: UICollectionViewController, UICollectionViewD
     }
     
     override func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell{
-        let collectionCell: OutfitDetailsCell = collectionView.dequeueReusableCellWithReuseIdentifier(outfitDetailsCellIdentifier, forIndexPath: indexPath) as OutfitDetailsCell
+        let collectionCell: OutfitDetailsCell = collectionView.dequeueReusableCellWithReuseIdentifier(outfitDetailsCellIdentifier, forIndexPath: indexPath) as! OutfitDetailsCell
         
         var outfit = outfits[indexPath.row] as NSDictionary
         var inspiredBy: AnyObject = outfit["inspired_by"]!
@@ -61,10 +61,10 @@ class OutfitDetailsViewController: UICollectionViewController, UICollectionViewD
         if inspiredBy.isKindOfClass(NSNull) {
             collectionCell.inspiredBy = nil
         } else {            
-            collectionCell.inspiredBy = outfit["inspired_by"] as NSDictionary!
+            collectionCell.inspiredBy = outfit["inspired_by"] as! NSDictionary
         }
         
-        collectionCell.user = outfit["user"] as NSDictionary!
+        collectionCell.user = outfit["user"] as! NSDictionary!
         collectionCell.outfit = outfit
         
         collectionCell.tappedAction = {}
@@ -89,7 +89,7 @@ class OutfitDetailsViewController: UICollectionViewController, UICollectionViewD
             
             self.navigationController!.view.layer.addAnimation(transition, forKey: kCATransition)
             
-            self.navigationController?.popToViewController(self.navigationController?.viewControllers.first! as UIViewController, animated: false)
+            self.navigationController?.popToViewController(self.navigationController?.viewControllers.first! as! UIViewController, animated: false)
             
             return
         }

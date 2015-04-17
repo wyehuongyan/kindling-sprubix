@@ -95,12 +95,12 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
             var outfitHeight:CGFloat = 0
             var prevPieceHeight:CGFloat = 0
             
-            pieces = outfit["pieces"] as [NSDictionary]
+            pieces = outfit["pieces"] as! [NSDictionary]
             
             for piece in pieces {
                 // calculate piece UIImageView height
-                var itemHeight = piece["height"] as CGFloat
-                var itemWidth = piece["width"] as CGFloat
+                var itemHeight = piece["height"] as! CGFloat
+                var itemWidth = piece["width"] as! CGFloat
                 
                 let pieceHeight:CGFloat = itemHeight * screenWidth / itemWidth
                 
@@ -109,12 +109,12 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
                 pieceImageView.image = nil
                 pieceImageView.frame = CGRect(x:0, y: prevPieceHeight, width: UIScreen.mainScreen().bounds.width, height: pieceHeight)
                 
-                var pieceImagesString = piece["images"] as NSString!
+                var pieceImagesString = piece["images"] as! String
                 var pieceImagesData:NSData = pieceImagesString.dataUsingEncoding(NSUTF8StringEncoding)!
                 
-                var pieceImagesDict: NSDictionary = NSJSONSerialization.JSONObjectWithData(pieceImagesData, options: NSJSONReadingOptions.MutableContainers, error: nil) as NSDictionary
+                var pieceImagesDict: NSDictionary = NSJSONSerialization.JSONObjectWithData(pieceImagesData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSDictionary
                 
-                var pieceCoverURL = NSURL(string: pieceImagesDict["cover"] as NSString)
+                var pieceCoverURL = NSURL(string: pieceImagesDict["cover"] as! String)
                 
                 pieceImageView.setImageWithURL(pieceCoverURL)
                 pieceImageView.contentMode = UIViewContentMode.ScaleAspectFit
@@ -145,16 +145,16 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
             let creditsViewHeight:CGFloat = 80
             var creditsView:UIView = UIView(frame: CGRect(x: 0, y: 0, width: screenWidth, height: creditsViewHeight))
             
-            var postedByButton:SprubixCreditButton = SprubixCreditButton(frame: CGRect(x: 0, y: 0, width: screenWidth/2, height: creditsViewHeight), buttonLabel: "posted by", username: user["username"] as String, userThumbnail: user["image"] as String)
+            var postedByButton:SprubixCreditButton = SprubixCreditButton(frame: CGRect(x: 0, y: 0, width: screenWidth/2, height: creditsViewHeight), buttonLabel: "posted by", username: user["username"] as! String, userThumbnail: user["image"] as! String)
             
             // if no inspired by, it is original
             // inspired by = parent, always credit parent
             var fromButton:SprubixCreditButton!
             
             if inspiredBy == nil {
-                fromButton = SprubixCreditButton(frame: CGRect(x: screenWidth/2, y: 0, width: screenWidth/2, height: creditsViewHeight), buttonLabel: "from", username: user["username"] as String, userThumbnail: user["image"] as String)
+                fromButton = SprubixCreditButton(frame: CGRect(x: screenWidth/2, y: 0, width: screenWidth/2, height: creditsViewHeight), buttonLabel: "from", username: user["username"] as! String, userThumbnail: user["image"] as! String)
             } else {
-                fromButton = SprubixCreditButton(frame: CGRect(x: screenWidth/2, y: 0, width: screenWidth/2, height: creditsViewHeight), buttonLabel: "from", username: inspiredBy["username"] as String, userThumbnail: inspiredBy["image"] as String)
+                fromButton = SprubixCreditButton(frame: CGRect(x: screenWidth/2, y: 0, width: screenWidth/2, height: creditsViewHeight), buttonLabel: "from", username: inspiredBy["username"] as! String, userThumbnail: inspiredBy["image"] as! String)
             }
             
             creditsView.addSubview(postedByButton)
@@ -164,7 +164,7 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
             
             return creditsCell
         case 2:
-            descriptionCell.textLabel?.text = outfit["description"] as String!
+            descriptionCell.textLabel?.text = outfit["description"] as! String!
             
             descriptionCell.textLabel?.lineBreakMode = NSLineBreakMode.ByWordWrapping
             descriptionCell.textLabel?.numberOfLines = 0
@@ -222,7 +222,7 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
     
     func wasSingleTapped(gesture: UITapGestureRecognizer) {
         
-        var selectedPiece:UIImageView = gesture.view as UIImageView
+        var selectedPiece:UIImageView = gesture.view as! UIImageView
         var position = find(pieceImages, selectedPiece)
         
         var currentIndexPath:NSIndexPath = NSIndexPath(forItem: position!, inSection: 0)
@@ -287,8 +287,8 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
         {
         case 0:
             
-            let outfitHeight = outfit["height"] as CGFloat
-            let outfitWidth = outfit["width"] as CGFloat
+            let outfitHeight = outfit["height"] as! CGFloat
+            let outfitWidth = outfit["width"] as! CGFloat
             
             let imageHeight = outfitHeight * screenWidth / outfitWidth
             
@@ -296,7 +296,7 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
         case 1:
             cellHeight = 80 // creditsViewHeight
         case 2:
-            cellHeight = heightForTextLabel(outfit["description"] as String!, width: screenWidth, padding: 20) // description height
+            cellHeight = heightForTextLabel(outfit["description"] as! String, width: screenWidth, padding: 20) // description height
         case 3:
             cellHeight = 270 // comments height
         default:
@@ -306,7 +306,7 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
         return cellHeight
     }
     
-    func tableView(tableView: UITableView!, didSelectRowAtIndexPath indexPath: NSIndexPath!){
+    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath){
         tappedAction?()
     }
     

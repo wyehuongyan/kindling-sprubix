@@ -99,12 +99,12 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         pieceDetailInfoView.addSubview(pieceImageView)
         
         // init horizontal scrollview
-        var pieceImagesString = piece["images"] as NSString!
+        var pieceImagesString = piece["images"] as! String
         var pieceImagesData:NSData = pieceImagesString.dataUsingEncoding(NSUTF8StringEncoding)!
         
-        var pieceImagesDict: NSDictionary = NSJSONSerialization.JSONObjectWithData(pieceImagesData, options: NSJSONReadingOptions.MutableContainers, error: nil) as NSDictionary
+        var pieceImagesDict: NSDictionary = NSJSONSerialization.JSONObjectWithData(pieceImagesData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSDictionary
         
-        var pieceImageURL = NSURL(string: pieceImagesDict["cover"] as NSString)
+        var pieceImageURL = NSURL(string: pieceImagesDict["cover"] as! String)
         
         pieceImageView.setImageWithURL(pieceImageURL)
         pieceImageView.frame = CGRect(x: 0, y: 0, width: screenWidth, height: screenWidth)
@@ -114,16 +114,16 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         let creditsViewHeight:CGFloat = 80
         var creditsView:UIView = UIView(frame: CGRect(x: 0, y: screenWidth, width: screenWidth, height: creditsViewHeight))
         
-        var postedByButton:SprubixCreditButton = SprubixCreditButton(frame: CGRect(x: 0, y: 0, width: screenWidth/2, height: creditsViewHeight), buttonLabel: "posted by", username: user["username"] as String, userThumbnail: user["image"] as String)
+        var postedByButton:SprubixCreditButton = SprubixCreditButton(frame: CGRect(x: 0, y: 0, width: screenWidth/2, height: creditsViewHeight), buttonLabel: "posted by", username: user["username"] as! String, userThumbnail: user["image"] as! String)
         
         // if no inspired by, it is original
         // inspired by = parent, always credit parent
         var fromButton:SprubixCreditButton!
         
         if inspiredBy == nil {
-            fromButton = SprubixCreditButton(frame: CGRect(x: screenWidth/2, y: 0, width: screenWidth/2, height: creditsViewHeight), buttonLabel: "from", username: user["username"] as String, userThumbnail: user["image"] as String)
+            fromButton = SprubixCreditButton(frame: CGRect(x: screenWidth/2, y: 0, width: screenWidth/2, height: creditsViewHeight), buttonLabel: "from", username: user["username"] as! String, userThumbnail: user["image"] as! String)
         } else {
-            fromButton = SprubixCreditButton(frame: CGRect(x: screenWidth/2, y: 0, width: screenWidth/2, height: creditsViewHeight), buttonLabel: "from", username: inspiredBy["username"] as String, userThumbnail: inspiredBy["image"] as String)
+            fromButton = SprubixCreditButton(frame: CGRect(x: screenWidth/2, y: 0, width: screenWidth/2, height: creditsViewHeight), buttonLabel: "from", username: inspiredBy["username"] as! String, userThumbnail: inspiredBy["image"] as! String)
         }
         
         creditsView.addSubview(postedByButton)
@@ -142,7 +142,7 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         let itemImageViewWidth:CGFloat = 0.3 * screenWidth
         
         // name
-        var itemNameImage = UIButton.buttonWithType(UIButtonType.Custom) as UIButton
+        var itemNameImage = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
         itemNameImage.setImage(UIImage(named: "view-item-name"), forState: UIControlState.Normal)
         itemNameImage.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
         itemNameImage.frame = CGRect(x: 0, y: 0, width: itemImageViewWidth, height: itemSpecHeight)
@@ -151,10 +151,10 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         Glow.addGlow(itemNameImage)
         
         var itemNameLabel:UILabel = UILabel(frame: CGRect(x: itemImageViewWidth, y: 0, width: screenWidth - itemImageViewWidth, height: itemSpecHeight))
-        itemNameLabel.text = piece["name"] as NSString!
+        itemNameLabel.text = piece["name"] as? String
         
         // category
-        var itemCategoryImage = UIButton.buttonWithType(UIButtonType.Custom) as UIButton
+        var itemCategoryImage = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
         itemCategoryImage.setImage(UIImage(named: "view-item-cat-top"), forState: UIControlState.Normal)
         itemCategoryImage.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
         itemCategoryImage.frame = CGRect(x: 0, y: itemSpecHeight, width: itemImageViewWidth, height: itemSpecHeight)
@@ -163,10 +163,10 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         Glow.addGlow(itemCategoryImage)
         
         var itemCategoryLabel:UILabel = UILabel(frame: CGRect(x: itemImageViewWidth, y: itemSpecHeight, width: screenWidth - itemImageViewWidth, height: itemSpecHeight))
-        itemCategoryLabel.text = piece["category"] as NSString!
+        itemCategoryLabel.text = piece["category"] as? String
         
         // brand
-        var itemBrandImage = UIButton.buttonWithType(UIButtonType.Custom) as UIButton
+        var itemBrandImage = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
         itemBrandImage.setImage(UIImage(named: "view-item-brand"), forState: UIControlState.Normal)
         itemBrandImage.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
         itemBrandImage.frame = CGRect(x: 0, y: itemSpecHeight * 2, width: itemImageViewWidth, height: itemSpecHeight)
@@ -175,10 +175,10 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         Glow.addGlow(itemBrandImage)
         
         var itemBrandLabel:UILabel = UILabel(frame: CGRect(x: itemImageViewWidth, y: itemSpecHeight * 2, width: screenWidth - itemImageViewWidth, height: itemSpecHeight))
-        itemBrandLabel.text = piece["brand"] as NSString!
+        itemBrandLabel.text = piece["brand"] as? String
         
         // size
-        var itemSizeImage = UIButton.buttonWithType(UIButtonType.Custom) as UIButton
+        var itemSizeImage = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
         itemSizeImage.setImage(UIImage(named: "view-item-size"), forState: UIControlState.Normal)
         itemSizeImage.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
         itemSizeImage.frame = CGRect(x: 0, y: itemSpecHeight * 3, width: itemImageViewWidth, height: itemSpecHeight)
@@ -187,7 +187,7 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         Glow.addGlow(itemSizeImage)
 
         var itemSizeLabel:UILabel = UILabel(frame: CGRect(x: itemImageViewWidth, y: itemSpecHeight * 3, width: screenWidth - itemImageViewWidth, height: itemSpecHeight))
-        itemSizeLabel.text = piece["size"] as NSString!
+        itemSizeLabel.text = piece["size"] as? String
         
         pieceSpecsView.addSubview(itemNameImage)
         pieceSpecsView.addSubview(itemNameLabel)
@@ -208,7 +208,7 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         itemDescription.lineBreakMode = NSLineBreakMode.ByWordWrapping
         itemDescription.numberOfLines = 0
         itemDescription.backgroundColor = UIColor.whiteColor()
-        itemDescription.text = piece["description"] as NSString!
+        itemDescription.text = piece["description"] as? String
         
         var itemDescriptionHeight = heightForTextLabel(itemDescription.text!, font: itemDescription.font, width: screenWidth, hasInsets: true)
         
@@ -282,8 +282,8 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         var itemWidth:CGFloat!
         
         let outfit = outfits[indexPath.row] as NSDictionary
-        itemHeight = outfit["height"] as CGFloat
-        itemWidth = outfit["width"] as CGFloat
+        itemHeight = outfit["height"] as! CGFloat
+        itemWidth = outfit["width"] as! CGFloat
         
         let imageHeight = itemHeight * gridWidth/itemWidth
         
@@ -292,11 +292,11 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
     
     // UICollectionViewDataSource
     func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
-        var cell = collectionView.dequeueReusableCellWithReuseIdentifier(relatedOutfitCellIdentifier, forIndexPath: indexPath) as ProfileOutfitCell
+        var cell = collectionView.dequeueReusableCellWithReuseIdentifier(relatedOutfitCellIdentifier, forIndexPath: indexPath) as! ProfileOutfitCell
         
         var outfit = outfits[indexPath.row] as NSDictionary
         
-        (cell as ProfileOutfitCell).imageURLString = outfit["images"] as String!
+        (cell as ProfileOutfitCell).imageURLString = outfit["images"] as! String
         
         cell.setNeedsLayout()
         cell.setNeedsDisplay()
@@ -309,13 +309,13 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
     }
     
     func retrieveOutfits() {
-        let pieceId:Int = piece["id"] as Int!
+        let pieceId:Int = piece["id"] as! Int
         
         // retrieve outfits using this piece
         manager.GET(SprubixConfig.URL.api + "/piece/\(pieceId)/outfits",
             parameters: nil,
             success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
-                self.outfits = responseObject["data"] as [NSDictionary]!
+                self.outfits = responseObject["data"] as! [NSDictionary]
                 self.singlePieceCollectionView.reloadData()
             },
             failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in

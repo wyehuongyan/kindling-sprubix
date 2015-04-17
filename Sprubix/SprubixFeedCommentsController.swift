@@ -68,7 +68,7 @@ class SprubixFeedCommentsController: UIViewController, UITableViewDataSource, UI
         switch(indexPath.row)
         {
         case 0: // description
-            descriptionCell.textLabel?.text = outfit["description"] as String!
+            descriptionCell.textLabel?.text = outfit["description"] as? String
             
             descriptionCell.textLabel?.lineBreakMode = NSLineBreakMode.ByWordWrapping
             descriptionCell.textLabel?.numberOfLines = 0
@@ -131,7 +131,7 @@ class SprubixFeedCommentsController: UIViewController, UITableViewDataSource, UI
         {
         case 0:
             // description
-            let descriptionText = outfit["description"] as String!
+            let descriptionText = outfit["description"] as! String
             
             if descriptionText != "" {
                 cellHeight = heightForTextLabel(descriptionText, width: screenWidth, padding: 20) // description height

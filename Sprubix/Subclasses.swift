@@ -9,7 +9,7 @@
 import UIKit
 
 class NavigationControllerDelegate: NSObject, UINavigationControllerDelegate{
-    func navigationController(navigationController: UINavigationController!, animationControllerForOperation operation: UINavigationControllerOperation, fromViewController fromVC: UIViewController!, toViewController toVC: UIViewController!) -> UIViewControllerAnimatedTransitioning!{
+    func navigationController(navigationController: UINavigationController, animationControllerForOperation operation: UINavigationControllerOperation, fromViewController fromVC: UIViewController, toViewController toVC: UIViewController) -> UIViewControllerAnimatedTransitioning? {
         
         let transition = Transition()
         transition.presenting = operation == .Pop
@@ -30,8 +30,8 @@ class SprubixItemCommentRow: UIView {
         super.init(frame: frame)
     }
     
-    init(username:String, commentString:String, y: CGFloat, button: Bool, userThumbnail:String = "person-placeholder.jpg") {
-        super.init()
+    convenience init(username:String, commentString:String, y: CGFloat, button: Bool, userThumbnail:String = "person-placeholder.jpg") {
+        self.init()
         
         var commentRowView = self
         
@@ -47,7 +47,7 @@ class SprubixItemCommentRow: UIView {
             let userData:NSDictionary! = defaults.dictionaryForKey("userData")
             
             // create profile UIImageView programmatically
-            let userThumbnailURL = NSURL(string: userData["image"] as NSString)
+            let userThumbnailURL = NSURL(string: userData["image"] as! String)
             
             commentImageView.setImageWithURL(userThumbnailURL)
         }
@@ -61,7 +61,7 @@ class SprubixItemCommentRow: UIView {
         commentRowView.addSubview(commentImageView)
         
         if button {
-            postCommentButton = UIButton.buttonWithType(UIButtonType.System) as UIButton
+            postCommentButton = UIButton.buttonWithType(UIButtonType.System) as! UIButton
             postCommentButton.frame = CGRect(x: commentImageViewWidth + 28, y: 0, width: screenWidth - (commentImageViewWidth + 50), height: commentImageViewWidth)
             postCommentButton.setTitle("Add a comment", forState: UIControlState.Normal)
             postCommentButton.setTitleColor(UIColor.whiteColor(), forState: UIControlState.Normal)

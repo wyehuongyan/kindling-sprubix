@@ -130,13 +130,13 @@ class SignInViewController: UIViewController, UITextFieldDelegate, UITableViewDa
                     "password" : passwordText.text
                 ],
                 success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
-                    var response = responseObject as NSDictionary
-                    var statusCode:String = response["status"] as String!
+                    var response = responseObject as! NSDictionary
+                    var statusCode:String = response["status"] as! String
                     
                     if statusCode == "400" {
                         // error
-                        var message = response["message"] as String!
-                        var data = response["data"] as String!
+                        var message = response["message"] as! String
+                        var data = response["data"] as! String
                         
                         println(message)
                         println(data)
@@ -144,8 +144,8 @@ class SignInViewController: UIViewController, UITextFieldDelegate, UITableViewDa
                     } else if statusCode == "200" {
                         // success
                         self.view.endEditing(true)
-                        var message = response["message"] as String!
-                        var data = response["data"] as NSDictionary!
+                        var message = response["message"] as! String
+                        var data = response["data"] as! NSDictionary
                         
                         println(message)
                         println(data)
@@ -184,7 +184,7 @@ class SignInViewController: UIViewController, UITextFieldDelegate, UITableViewDa
     func keyboardWillShow(notification: NSNotification) {
         if !keyboardVisible {
             var info = notification.userInfo!
-            var keyboardFrame: CGRect = (info[UIKeyboardFrameEndUserInfoKey] as NSValue).CGRectValue()
+            var keyboardFrame: CGRect = (info[UIKeyboardFrameEndUserInfoKey] as! NSValue).CGRectValue()
             
             UIView.animateWithDuration(0.2, delay: 0.1, options: UIViewAnimationOptions.CurveEaseInOut, animations: { () -> Void in
                     self.signInView.frame.origin.y -= 0.2 * keyboardFrame.height
@@ -200,7 +200,7 @@ class SignInViewController: UIViewController, UITextFieldDelegate, UITableViewDa
     func keyboardWillHide(notification: NSNotification) {
         if keyboardVisible {
             var info = notification.userInfo!
-            var keyboardFrame: CGRect = (info[UIKeyboardFrameEndUserInfoKey] as NSValue).CGRectValue()
+            var keyboardFrame: CGRect = (info[UIKeyboardFrameEndUserInfoKey] as! NSValue).CGRectValue()
             
             UIView.animateWithDuration(0.2, delay: 0.1, options: UIViewAnimationOptions.CurveEaseInOut, animations: { () -> Void in
                 
@@ -224,7 +224,7 @@ class SignInViewController: UIViewController, UITextFieldDelegate, UITableViewDa
     /**
     * Called when the user click on the view (outside the UITextField).
     */
-    override func touchesBegan(touches: NSSet, withEvent event: UIEvent) {
+    override func touchesBegan(touches: Set<NSObject>, withEvent event: UIEvent) {
         self.view.endEditing(true)
     }
     

@@ -24,7 +24,7 @@ class SprubixFeedCell: UITableViewCell {
     @IBOutlet var commentsButton: UIButton!
     
     @IBAction func spruceItUp(sender: AnyObject) {
-        delegate?.spruceOutfit(outfit, userName: userName.text!, userThumbnail: user["image"] as NSString)
+        delegate?.spruceOutfit(outfit, userName: userName.text!, userThumbnail: user["image"] as! String)
     }
     
     @IBAction func viewComments(sender: AnyObject) {
@@ -55,7 +55,7 @@ class SprubixFeedCell: UITableViewCell {
     override func prepareForReuse() {
         for pieceImage in pieceImages {
             
-            for gestureRecognizer in pieceImage.gestureRecognizers as [UIGestureRecognizer] {
+            for gestureRecognizer in pieceImage.gestureRecognizers as! [UIGestureRecognizer] {
                 pieceImage.removeGestureRecognizer(gestureRecognizer)
             }
             
@@ -70,7 +70,7 @@ class SprubixFeedCell: UITableViewCell {
     
     // array of UIImageViews to store images for each piece
     func initOutfit() {
-        pieces = outfit["pieces"] as [NSDictionary]
+        pieces = outfit["pieces"] as! [NSDictionary]
         
         var prevPieceHeight:CGFloat = 0
         outfitHeight = 0
@@ -79,8 +79,8 @@ class SprubixFeedCell: UITableViewCell {
             var piece = pieces[i]
             
             // calculate piece UIImageView height
-            var itemHeight = piece["height"] as CGFloat
-            var itemWidth = piece["width"] as CGFloat
+            var itemHeight = piece["height"] as! CGFloat
+            var itemWidth = piece["width"] as! CGFloat
             
             let pieceHeight:CGFloat = itemHeight * screenWidth / itemWidth
             
@@ -89,12 +89,12 @@ class SprubixFeedCell: UITableViewCell {
             pieceImageView.image = nil
             pieceImageView.frame = CGRect(x:0, y: prevPieceHeight, width: UIScreen.mainScreen().bounds.width, height: pieceHeight)
             
-            var pieceImagesString = piece["images"] as NSString!
+            var pieceImagesString = piece["images"] as! String
             var pieceImagesData:NSData = pieceImagesString.dataUsingEncoding(NSUTF8StringEncoding)!
             
-            var pieceImagesDict: NSDictionary = NSJSONSerialization.JSONObjectWithData(pieceImagesData, options: NSJSONReadingOptions.MutableContainers, error: nil) as NSDictionary
+            var pieceImagesDict: NSDictionary = NSJSONSerialization.JSONObjectWithData(pieceImagesData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSDictionary
             
-            var pieceCoverURL = NSURL(string: pieceImagesDict["cover"] as NSString)
+            var pieceCoverURL = NSURL(string: pieceImagesDict["cover"] as! String)
 
             pieceImageView.setImageWithURL(pieceCoverURL)
             pieceImageView.contentMode = UIViewContentMode.ScaleAspectFit
@@ -152,15 +152,15 @@ class SprubixFeedCell: UITableViewCell {
         userThumbnail.layer.borderColor = UIColor.lightGrayColor().CGColor
         
         // user info
-        user = outfit["user"] as NSDictionary
-        let userThumbnailURL = NSURL(string: user["image"] as NSString)
+        user = outfit["user"] as! NSDictionary
+        let userThumbnailURL = NSURL(string: user["image"] as! String)
 
         userThumbnail.setImageWithURL(userThumbnailURL)
-        userName.text = user["username"] as NSString
+        userName.text = user["username"] as? String
         
         // time stamp
-        let created_at = outfit["created_at_custom_format"] as NSDictionary
-        let timestampString = created_at["created_at_human"] as String
+        let created_at = outfit["created_at_custom_format"] as! NSDictionary
+        let timestampString = created_at["created_at_human"] as! String
         var timestampArray = split(timestampString) {$0 == " "}
         var time = timestampArray[0]
         var stamp = timestampArray[1]
@@ -176,7 +176,7 @@ class SprubixFeedCell: UITableViewCell {
     }
     
     func wasSingleTapped(gesture: UITapGestureRecognizer) {
-        var selectedPiece:UIImageView = gesture.view as UIImageView
+        var selectedPiece:UIImageView = gesture.view as! UIImageView
 
         //println("pieceImages: \(pieceImages)")
         //println("selectedPiece: \(selectedPiece)")
@@ -196,7 +196,7 @@ class SprubixFeedCell: UITableViewCell {
         if inspiredBy.isKindOfClass(NSNull) {
             pieceDetailsViewController.inspiredBy = nil
         } else {
-            pieceDetailsViewController.inspiredBy = outfit["inspired_by"] as NSDictionary!
+            pieceDetailsViewController.inspiredBy = outfit["inspired_by"] as! NSDictionary
         }
         
         //collectionView.setToIndexPath(indexPath)

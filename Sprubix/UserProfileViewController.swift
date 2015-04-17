@@ -140,16 +140,16 @@ class UserProfileViewController: UIViewController, UICollectionViewDataSource, C
         switch(currentProfileState) {
         case .Outfits:
             let outfit = outfits[indexPath.row] as NSDictionary
-            itemHeight = outfit["height"] as CGFloat
-            itemWidth = outfit["width"] as CGFloat
+            itemHeight = outfit["height"] as! CGFloat
+            itemWidth = outfit["width"] as! CGFloat
         case .Pieces:
             let piece = pieces[indexPath.row] as NSDictionary
-            itemHeight = piece["height"] as CGFloat
-            itemWidth = piece["height"] as CGFloat
+            itemHeight = piece["height"] as! CGFloat
+            itemWidth = piece["height"] as! CGFloat
         case .Community:
             let communityOutfit = communityOutfits[indexPath.row] as NSDictionary
-            itemHeight = communityOutfit["height"] as CGFloat
-            itemWidth = communityOutfit["width"] as CGFloat
+            itemHeight = communityOutfit["height"] as! CGFloat
+            itemWidth = communityOutfit["width"] as! CGFloat
         default:
             break
         }
@@ -182,37 +182,37 @@ class UserProfileViewController: UIViewController, UICollectionViewDataSource, C
         
         switch(currentProfileState) {
         case .Outfits:
-            cell = collectionView.dequeueReusableCellWithReuseIdentifier(profileOutfitCellIdentifier, forIndexPath: indexPath) as ProfileOutfitCell
+            cell = collectionView.dequeueReusableCellWithReuseIdentifier(profileOutfitCellIdentifier, forIndexPath: indexPath) as! ProfileOutfitCell
             
             var outfit = outfits[indexPath.row] as NSDictionary
             
-            (cell as ProfileOutfitCell).imageURLString = outfit["images"] as String!
+            (cell as! ProfileOutfitCell).imageURLString = outfit["images"] as! String
 
         case .Pieces:
-            cell = collectionView.dequeueReusableCellWithReuseIdentifier(profilePieceCellIdentifier, forIndexPath: indexPath) as ProfilePieceCell
+            cell = collectionView.dequeueReusableCellWithReuseIdentifier(profilePieceCellIdentifier, forIndexPath: indexPath) as! ProfilePieceCell
             
             var piece = pieces[indexPath.row] as NSDictionary
-            var pieceImagesString = piece["images"] as NSString!
+            var pieceImagesString = piece["images"] as! NSString
             var pieceImagesData:NSData = pieceImagesString.dataUsingEncoding(NSUTF8StringEncoding)!
             
-            var pieceImagesDict: NSDictionary = NSJSONSerialization.JSONObjectWithData(pieceImagesData, options: NSJSONReadingOptions.MutableContainers, error: nil) as NSDictionary
+            var pieceImagesDict: NSDictionary = NSJSONSerialization.JSONObjectWithData(pieceImagesData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSDictionary
             
-            (cell as ProfilePieceCell).imageURLString = pieceImagesDict["cover"] as String!
+            (cell as! ProfilePieceCell).imageURLString = pieceImagesDict["cover"] as! String
             
             // this part is to calculate the correct dimensions of the ProfilePieceCell.
             // On the UI it appears as a square but the real dimensions must be recorded for the animation scale to work properly
-            let pieceHeight = piece["height"] as CGFloat
-            let pieceWidth = piece["width"] as CGFloat
+            let pieceHeight = piece["height"] as! CGFloat
+            let pieceWidth = piece["width"] as! CGFloat
             
             let imageGridHeight = pieceHeight * gridWidth/pieceWidth
             
-            (cell as ProfilePieceCell).imageGridSize = CGRect(x: 0, y: 0, width: gridWidth, height: imageGridHeight)
+            (cell as! ProfilePieceCell).imageGridSize = CGRect(x: 0, y: 0, width: gridWidth, height: imageGridHeight)
         case .Community:
-            cell = collectionView.dequeueReusableCellWithReuseIdentifier(profileOutfitCellIdentifier, forIndexPath: indexPath) as ProfileOutfitCell
+            cell = collectionView.dequeueReusableCellWithReuseIdentifier(profileOutfitCellIdentifier, forIndexPath: indexPath) as! ProfileOutfitCell
             
             var communityOutfit = communityOutfits[indexPath.row] as NSDictionary
             
-            (cell as ProfileOutfitCell).imageURLString = communityOutfit["images"] as String!
+            (cell as! ProfileOutfitCell).imageURLString = communityOutfit["images"] as! String
         default:
             break
         }
@@ -227,14 +227,14 @@ class UserProfileViewController: UIViewController, UICollectionViewDataSource, C
         var reusableView:UICollectionReusableView!
         
         if kind == CHTCollectionElementKindSectionHeader {
-            reusableView = collectionView.dequeueReusableSupplementaryViewOfKind(kind, withReuseIdentifier: userProfileHeaderIdentifier, forIndexPath: indexPath) as UserProfileHeader
+            reusableView = collectionView.dequeueReusableSupplementaryViewOfKind(kind, withReuseIdentifier: userProfileHeaderIdentifier, forIndexPath: indexPath) as! UserProfileHeader
             
-            (reusableView as UserProfileHeader).user = user
-            (reusableView as UserProfileHeader).setProfileInfo()
-            (reusableView as UserProfileHeader).delegate = self
+            (reusableView as! UserProfileHeader).user = user
+            (reusableView as! UserProfileHeader).setProfileInfo()
+            (reusableView as! UserProfileHeader).delegate = self
             
         } else if kind == CHTCollectionElementKindSectionFooter {
-            reusableView = collectionView.dequeueReusableSupplementaryViewOfKind(kind, withReuseIdentifier: userProfileFooterIdentifier, forIndexPath: indexPath) as UICollectionReusableView
+            reusableView = collectionView.dequeueReusableSupplementaryViewOfKind(kind, withReuseIdentifier: userProfileFooterIdentifier, forIndexPath: indexPath) as! UICollectionReusableView
         }
         
         return reusableView
@@ -291,7 +291,7 @@ class UserProfileViewController: UIViewController, UICollectionViewDataSource, C
                 manager.GET(SprubixConfig.URL.api + "/user/\(userId!)/outfits",
                     parameters: nil,
                     success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
-                        self.outfits = responseObject["data"] as [NSDictionary]!
+                        self.outfits = responseObject["data"] as! [NSDictionary]
                         
                         self.outfitsLoaded = true
                         self.currentProfileState = .Outfits
@@ -326,7 +326,7 @@ class UserProfileViewController: UIViewController, UICollectionViewDataSource, C
                 manager.GET(SprubixConfig.URL.api + "/user/\(userId!)/pieces",
                     parameters: nil,
                     success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
-                        self.pieces = responseObject["data"] as [NSDictionary]!
+                        self.pieces = responseObject["data"] as! [NSDictionary]
                         
                         self.piecesLoaded = true
                         self.currentProfileState = .Pieces
@@ -359,7 +359,7 @@ class UserProfileViewController: UIViewController, UICollectionViewDataSource, C
                 manager.GET(SprubixConfig.URL.api + "/user/\(userId!)/outfits/community",
                     parameters: nil,
                     success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
-                        self.communityOutfits = responseObject["data"] as [NSDictionary]!
+                        self.communityOutfits = responseObject["data"] as! [NSDictionary]
                         
                         self.communityLoaded = true
                         self.currentProfileState = .Community
@@ -397,16 +397,16 @@ class UserProfileViewController: UIViewController, UICollectionViewDataSource, C
         switch(currentProfileState) {
         case .Outfits:
             let outfit = outfits[pageIndex] as NSDictionary
-            itemHeight = outfit["height"] as CGFloat
-            itemWidth = outfit["width"] as CGFloat
+            itemHeight = outfit["height"] as! CGFloat
+            itemWidth = outfit["width"] as! CGFloat
         case .Pieces:
             let piece = pieces[pageIndex] as NSDictionary
-            itemHeight = piece["height"] as CGFloat
-            itemWidth = piece["width"] as CGFloat
+            itemHeight = piece["height"] as! CGFloat
+            itemWidth = piece["width"] as! CGFloat
         case .Community:
             let communityOutfit = communityOutfits[pageIndex] as NSDictionary
-            itemHeight = communityOutfit["height"] as CGFloat
-            itemWidth = communityOutfit["width"] as CGFloat
+            itemHeight = communityOutfit["height"] as! CGFloat
+            itemWidth = communityOutfit["width"] as! CGFloat
         default:
             break
         }

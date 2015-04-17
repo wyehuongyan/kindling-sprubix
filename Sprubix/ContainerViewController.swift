@@ -84,7 +84,7 @@ class ContainerViewController: UIViewController, SprubixFeedControllerDelegate, 
     func addSidePanelViewController() {
         if sidePanelViewController == nil {
             // close any comment viewcontroller in sprubixFeedController (if it's opened)
-            var rootViewController = (sprubixNavigationController.viewControllers.first) as SprubixFeedController
+            var rootViewController = (sprubixNavigationController.viewControllers.first) as! SprubixFeedController
             rootViewController.dismissCommentsView()
             
             sidePanelViewController = UIStoryboard.sidePanelViewController()

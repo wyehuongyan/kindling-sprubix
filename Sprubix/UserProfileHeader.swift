@@ -70,7 +70,7 @@ class UserProfileHeader: UICollectionReusableView, UIScrollViewDelegate {
         // toolbar items
         var buttonWidth = bounds.width / 3
         
-        button1 = UIButton.buttonWithType(UIButtonType.System) as UIButton
+        button1 = UIButton.buttonWithType(UIButtonType.System) as! UIButton
         button1.frame = CGRect(x: 0, y: 0, width: buttonWidth, height: toolbarHeight)
         button1.backgroundColor = UIColor.whiteColor()
         button1.setImage(UIImage(named: "profile-myoutfits"), forState: UIControlState.Normal)
@@ -83,7 +83,7 @@ class UserProfileHeader: UICollectionReusableView, UIScrollViewDelegate {
         button1.exclusiveTouch = true
         button1.addTarget(self, action: "userOutfitsPressed:", forControlEvents: UIControlEvents.TouchUpInside)
         
-        button2 = UIButton.buttonWithType(UIButtonType.System) as UIButton
+        button2 = UIButton.buttonWithType(UIButtonType.System) as! UIButton
         button2.frame = CGRect(x: buttonWidth, y: 0, width: buttonWidth, height: toolbarHeight)
         button2.backgroundColor = UIColor.whiteColor()
         button2.setImage(UIImage(named: "profile-mycloset"), forState: UIControlState.Normal)
@@ -96,7 +96,7 @@ class UserProfileHeader: UICollectionReusableView, UIScrollViewDelegate {
         button2.exclusiveTouch = true
         button2.addTarget(self, action: "userPiecesPressed:", forControlEvents: UIControlEvents.TouchUpInside)
         
-        button3 = UIButton.buttonWithType(UIButtonType.System) as UIButton
+        button3 = UIButton.buttonWithType(UIButtonType.System) as! UIButton
         button3.frame = CGRect(x: buttonWidth * 2, y: 0, width: buttonWidth, height: toolbarHeight)
         button3.backgroundColor = UIColor.whiteColor()
         button3.setImage(UIImage(named: "profile-community"), forState: UIControlState.Normal)
@@ -212,17 +212,17 @@ class UserProfileHeader: UICollectionReusableView, UIScrollViewDelegate {
     }
     
     func setProfileInfo() {
-        let userThumbnailURL = NSURL(string: user["image"] as NSString)
-        let userCoverURL = NSURL(string: user["cover"] as NSString)
-        let username = user["username"] as String!
-        let name = user["name"] as String!
+        let userThumbnailURL = NSURL(string: user["image"] as! String)
+        let userCoverURL = NSURL(string: user["cover"] as! String)
+        let username = user["username"] as! String!
+        let name = user["name"] as! String!
 
         profileImage.setImageWithURL(userThumbnailURL)
         coverImageContent.setImageWithURL(userCoverURL)
         
         profileRealName.text = name
         profileName.text = "@\(username)"
-        profileDescription.text = user["description"] as String!
+        profileDescription.text = user["description"] as? String
     }
     
     func scrollViewDidScroll(scrollView: UIScrollView) {
