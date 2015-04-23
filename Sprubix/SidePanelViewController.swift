@@ -10,6 +10,7 @@ import UIKit
 
 protocol SidePanelViewControllerDelegate {
     func showUserProfile(user: NSDictionary)
+    func showCreateOutfit()
     //func sidePanelCellSelected(sidePanelOption: SidePanelOption)
 }
 
@@ -95,6 +96,8 @@ class SidePanelViewController: UIViewController, UITableViewDataSource, UITableV
         //let selectedSidePanelCell = sidePanelOptions[indexPath.row]
         //delegate?.sidePanelCellSelected(selectedSidePanelCell)
         println(sidePanelOptions[indexPath.row].title)
+        
+        delegate?.showCreateOutfit()
     }
     
 }

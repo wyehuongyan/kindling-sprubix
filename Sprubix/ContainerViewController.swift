@@ -28,10 +28,11 @@ class ContainerViewController: UIViewController, SprubixFeedControllerDelegate, 
     var sidePanelViewController: SidePanelViewController? // optional as it will be added/removed at times
     var darkenedOverlay:UIView? // darkened overlay over the view when sidemenu is toggled on
     
-    var userProfileNavController: WaterFallNavigationController?
-    var userProfileViewController: UserProfileViewController?
-    
     let sprubixFeedExpandedOffset: CGFloat = 60 // how much of sprubix feed that is left after animating off screen
+    
+    // side panel
+    var userProfileViewController: UserProfileViewController?
+    var sprubixCameraViewController: SprubixCameraViewController?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -62,11 +63,17 @@ class ContainerViewController: UIViewController, SprubixFeedControllerDelegate, 
     func showUserProfile(user: NSDictionary) {
         userProfileViewController = UIStoryboard.userProfileViewController()
         userProfileViewController?.user = user
-        
-        //sprubixNavigationController.presentViewController(userProfileNavController!, animated: true, completion:{ self.closeSidePanel() })
 
         self.closeSidePanel()
         sprubixNavigationController.pushViewController(userProfileViewController!, animated: true)
+    }
+    
+    func showCreateOutfit() {
+        sprubixCameraViewController = UIStoryboard.sprubixCameraViewController()
+        
+        self.closeSidePanel()
+        
+        sprubixNavigationController.pushViewController(sprubixCameraViewController!, animated: false)
     }
     
     // SprubixFeedControllerDelegate
@@ -214,5 +221,9 @@ private extension UIStoryboard {
     
     class func userProfileViewController() -> UserProfileViewController? {
         return mainStoryboard().instantiateViewControllerWithIdentifier("UserProfile") as? UserProfileViewController
+    }
+    
+    class func sprubixCameraViewController() -> SprubixCameraViewController? {
+        return mainStoryboard().instantiateViewControllerWithIdentifier("SprubixCamera") as? SprubixCameraViewController
     }
 }

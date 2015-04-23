@@ -24,6 +24,9 @@
 		847D05881AD58DDA005E09AB /* user6-melody.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 847D05851AD58DDA005E09AB /* user6-melody.jpg */; };
 		849733371AA1B08300E5C750 /* SprubixFeedController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849733361AA1B08300E5C750 /* SprubixFeedController.swift */; };
 		849733411AA4561D00E5C750 /* SprubixFeedCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849733401AA4561D00E5C750 /* SprubixFeedCell.swift */; };
+		84ACA11E1AE78F250084D4CF /* SprubixCameraViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84ACA11D1AE78F250084D4CF /* SprubixCameraViewController.swift */; };
+		84ACA1211AE790020084D4CF /* SprubixCamera.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84ACA1201AE790020084D4CF /* SprubixCamera.swift */; };
+		84ACA1231AE7B5C80084D4CF /* EditSnapshotViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84ACA1221AE7B5C80084D4CF /* EditSnapshotViewController.swift */; };
 		84B334E51AAB00DD00B9707D /* SidePanelViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B334E41AAB00DD00B9707D /* SidePanelViewController.swift */; };
 		84B334E81AAB0C7D00B9707D /* SidePanelOption.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B334E71AAB0C7D00B9707D /* SidePanelOption.swift */; };
 		84B334EA1AAB0CC900B9707D /* SidePanelCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B334E91AAB0CC900B9707D /* SidePanelCell.swift */; };
@@ -86,6 +89,9 @@
 		847D05851AD58DDA005E09AB /* user6-melody.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "user6-melody.jpg"; sourceTree = "<group>"; };
 		849733361AA1B08300E5C750 /* SprubixFeedController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SprubixFeedController.swift; sourceTree = "<group>"; };
 		849733401AA4561D00E5C750 /* SprubixFeedCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SprubixFeedCell.swift; sourceTree = "<group>"; };
+		84ACA11D1AE78F250084D4CF /* SprubixCameraViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SprubixCameraViewController.swift; sourceTree = "<group>"; };
+		84ACA1201AE790020084D4CF /* SprubixCamera.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SprubixCamera.swift; sourceTree = "<group>"; };
+		84ACA1221AE7B5C80084D4CF /* EditSnapshotViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EditSnapshotViewController.swift; sourceTree = "<group>"; };
 		84B334E41AAB00DD00B9707D /* SidePanelViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SidePanelViewController.swift; sourceTree = "<group>"; };
 		84B334E71AAB0C7D00B9707D /* SidePanelOption.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SidePanelOption.swift; sourceTree = "<group>"; };
 		84B334E91AAB0CC900B9707D /* SidePanelCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SidePanelCell.swift; sourceTree = "<group>"; };
@@ -246,7 +252,8 @@
 				846C979B1ABD5BE50050D0BC /* Feed */,
 				846C979A1ABD5BCC0050D0BC /* Spruce */,
 				84FCCAC11AB56466009C10B2 /* Auth */,
-				84B335271AADE1F600B9707D /* UserProfileViewController.swift */,
+				84ACA11B1AE78D920084D4CF /* Profile */,
+				84ACA11C1AE78EBF0084D4CF /* Create */,
 				84B335451AB2DA6F00B9707D /* OutfitDetailsViewController.swift */,
 				84B3354B1AB449F500B9707D /* PieceDetailsViewController.swift */,
 			);
@@ -262,18 +269,42 @@
 				846C979E1ABDA5840050D0BC /* Spruce */,
 				849733401AA4561D00E5C750 /* SprubixFeedCell.swift */,
 				84B334E91AAB0CC900B9707D /* SidePanelCell.swift */,
-				84B335291AAEBF8300B9707D /* ProfileOutfitCell.swift */,
-				84B335351AB1ADBD00B9707D /* ProfilePieceCell.swift */,
 				84B335491AB4035A00B9707D /* OutfitDetailsCell.swift */,
 				84B3354D1AB4520C00B9707D /* PieceDetailsCell.swift */,
 			);
 			name = Views;
 			sourceTree = "<group>";
 		};
+		84ACA11B1AE78D920084D4CF /* Profile */ = {
+			isa = PBXGroup;
+			children = (
+				84B335271AADE1F600B9707D /* UserProfileViewController.swift */,
+			);
+			name = Profile;
+			sourceTree = "<group>";
+		};
+		84ACA11C1AE78EBF0084D4CF /* Create */ = {
+			isa = PBXGroup;
+			children = (
+				84ACA11D1AE78F250084D4CF /* SprubixCameraViewController.swift */,
+				84ACA1221AE7B5C80084D4CF /* EditSnapshotViewController.swift */,
+			);
+			name = Create;
+			sourceTree = "<group>";
+		};
+		84ACA11F1AE78FE00084D4CF /* Create */ = {
+			isa = PBXGroup;
+			children = (
+				84ACA1201AE790020084D4CF /* SprubixCamera.swift */,
+			);
+			name = Create;
+			sourceTree = "<group>";
+		};
 		84B334E61AAB0C5A00B9707D /* Models */ = {
 			isa = PBXGroup;
 			children = (
 				84B3353B1AB2B96A00B9707D /* Transition */,
+				84ACA11F1AE78FE00084D4CF /* Create */,
 				84B335311AAF095900B9707D /* SprubixStretchyHeader.swift */,
 				84B334E71AAB0C7D00B9707D /* SidePanelOption.swift */,
 			);
@@ -300,6 +331,8 @@
 		84FCCABF1AB56422009C10B2 /* Profile */ = {
 			isa = PBXGroup;
 			children = (
+				84B335291AAEBF8300B9707D /* ProfileOutfitCell.swift */,
+				84B335351AB1ADBD00B9707D /* ProfilePieceCell.swift */,
 				84B3352B1AAEE2EB00B9707D /* UserProfileHeader.swift */,
 				84B3352D1AAEEA1000B9707D /* UserProfileFooter.swift */,
 			);
@@ -481,9 +514,11 @@
 				84B3354E1AB4520C00B9707D /* PieceDetailsCell.swift in Sources */,
 				846C979D1ABD68A80050D0BC /* SprucePieceFeedController.swift in Sources */,
 				84B335321AAF095900B9707D /* SprubixStretchyHeader.swift in Sources */,
+				84ACA1211AE790020084D4CF /* SprubixCamera.swift in Sources */,
 				846C97A01ABDA6F00050D0BC /* SprucePieceFeedCell.swift in Sources */,
 				846C97931ABAB11F0050D0BC /* Subclasses.swift in Sources */,
 				84B335481AB2DBB800B9707D /* WaterFallNavigationController.swift in Sources */,
+				84ACA11E1AE78F250084D4CF /* SprubixCameraViewController.swift in Sources */,
 				845048B71A9ECC81008BDBAA /* Sprubix.xcdatamodeld in Sources */,
 				84B3354C1AB449F500B9707D /* PieceDetailsViewController.swift in Sources */,
 				84B3352E1AAEEA1000B9707D /* UserProfileFooter.swift in Sources */,
@@ -495,6 +530,7 @@
 				849733411AA4561D00E5C750 /* SprubixFeedCell.swift in Sources */,
 				84D697271AC7E05800C676FD /* SpruceShareViewController.swift in Sources */,
 				84B335461AB2DA6F00B9707D /* OutfitDetailsViewController.swift in Sources */,
+				84ACA1231AE7B5C80084D4CF /* EditSnapshotViewController.swift in Sources */,
 				84B335421AB2BC1400B9707D /* Macro.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
