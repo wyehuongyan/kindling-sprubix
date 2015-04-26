@@ -14,7 +14,7 @@ enum ProfileState {
     case Community
 }
 
-class UserProfileViewController: UIViewController, UICollectionViewDataSource, CHTCollectionViewDelegateWaterfallLayout, TransitionProtocol, WaterFallViewControllerProtocol, UserProfileHeaderDelegate {
+class UserProfileViewController: UIViewController, UICollectionViewDataSource, CHTCollectionViewDelegateWaterfallLayout, TransitionProtocol, UserProfileHeaderDelegate {
     
     var user:NSDictionary!
     
@@ -383,49 +383,6 @@ class UserProfileViewController: UIViewController, UICollectionViewDataSource, C
             
             // set layout
             self.profileCollectionView.setCollectionViewLayout(self.userOutfitsLayout, animated: false)
-        }
-    }
-    
-    // WaterFallViewControllerProtocol
-    func viewWillAppearWithPageIndex(pageIndex : NSInteger) {
-        var position : UICollectionViewScrollPosition =
-        .CenteredHorizontally & .CenteredVertically
-        
-        var itemHeight:CGFloat!
-        var itemWidth:CGFloat!
-        
-        switch(currentProfileState) {
-        case .Outfits:
-            let outfit = outfits[pageIndex] as NSDictionary
-            itemHeight = outfit["height"] as! CGFloat
-            itemWidth = outfit["width"] as! CGFloat
-        case .Pieces:
-            let piece = pieces[pageIndex] as NSDictionary
-            itemHeight = piece["height"] as! CGFloat
-            itemWidth = piece["width"] as! CGFloat
-        case .Community:
-            let communityOutfit = communityOutfits[pageIndex] as NSDictionary
-            itemHeight = communityOutfit["height"] as! CGFloat
-            itemWidth = communityOutfit["width"] as! CGFloat
-        default:
-            break
-        }
-        
-        let imageHeight = itemHeight * gridWidth/itemWidth
-        
-        if imageHeight > 400 {//whatever you like, it's the max value for height of image
-            position = .Top
-        }
-        
-        let currentIndexPath = NSIndexPath(forRow: pageIndex, inSection: 0)
-        let collectionView = self.profileCollectionView!
-        
-        collectionView.setToIndexPath(currentIndexPath)
-        
-        if pageIndex < 2{
-            collectionView.setContentOffset(CGPointZero, animated: false)
-        }else{
-            collectionView.scrollToItemAtIndexPath(currentIndexPath, atScrollPosition: position, animated: false)
         }
     }
     

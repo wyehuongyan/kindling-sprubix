@@ -17,6 +17,7 @@ class ContainerViewController: UIViewController, SprubixFeedControllerDelegate, 
     
     var sprubixNavigationController: UINavigationController!
     var sprubixFeedController: SprubixFeedController!
+    var mainFeedController: MainFeedController!
     
     var currentState: SlideOutState = .Collapsed {
         didSet {
@@ -42,7 +43,12 @@ class ContainerViewController: UIViewController, SprubixFeedControllerDelegate, 
         
         // wrap the sprubixFeedController in a navigation controller, so we can push views to it
         // and display bar button items in the navigation bar
-        sprubixNavigationController = UINavigationController(rootViewController: sprubixFeedController)
+        //sprubixNavigationController = UINavigationController(rootViewController: sprubixFeedController)
+        
+        mainFeedController = MainFeedController()
+        mainFeedController.delegate = self
+        
+        sprubixNavigationController = UINavigationController(rootViewController: mainFeedController)
         view.addSubview(sprubixNavigationController.view)
         
         sprubixNavigationController.view.backgroundColor = UIColor.whiteColor()
@@ -91,8 +97,10 @@ class ContainerViewController: UIViewController, SprubixFeedControllerDelegate, 
     func addSidePanelViewController() {
         if sidePanelViewController == nil {
             // close any comment viewcontroller in sprubixFeedController (if it's opened)
-            var rootViewController = (sprubixNavigationController.viewControllers.first) as! SprubixFeedController
-            rootViewController.dismissCommentsView()
+            //var rootViewController = (sprubixNavigationController.viewControllers.first) as! SprubixFeedController
+            //rootViewController.dismissCommentsView()
+            
+            var rootViewController = (sprubixNavigationController.viewControllers.first) as! MainFeedController
             
             sidePanelViewController = UIStoryboard.sidePanelViewController()
             sidePanelViewController!.sidePanelOptions = SidePanelOption.userOptions()

@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		84470D8A1AECC41B007E9A93 /* MainFeedController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84470D891AECC41B007E9A93 /* MainFeedController.swift */; };
+		84470D8C1AED1847007E9A93 /* MainFeedCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84470D8B1AED1847007E9A93 /* MainFeedCell.swift */; };
 		845048B41A9ECC81008BDBAA /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 845048B31A9ECC81008BDBAA /* AppDelegate.swift */; };
 		845048B71A9ECC81008BDBAA /* Sprubix.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 845048B51A9ECC81008BDBAA /* Sprubix.xcdatamodeld */; };
 		845048B91A9ECC81008BDBAA /* SignInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 845048B81A9ECC81008BDBAA /* SignInViewController.swift */; };
@@ -67,6 +69,8 @@
 /* Begin PBXFileReference section */
 		2C5FB579969B9F9C35D0AC76 /* libPods-Sprubix.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Sprubix.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3CCB3E13BD90F2A4CB30E528 /* Pods-Sprubix.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Sprubix.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Sprubix/Pods-Sprubix.debug.xcconfig"; sourceTree = "<group>"; };
+		84470D891AECC41B007E9A93 /* MainFeedController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainFeedController.swift; sourceTree = "<group>"; };
+		84470D8B1AED1847007E9A93 /* MainFeedCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainFeedCell.swift; sourceTree = "<group>"; };
 		845048AE1A9ECC81008BDBAA /* Sprubix.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Sprubix.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		845048B21A9ECC81008BDBAA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		845048B31A9ECC81008BDBAA /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -231,6 +235,7 @@
 			children = (
 				849733361AA1B08300E5C750 /* SprubixFeedController.swift */,
 				846C97961ABB2A8E0050D0BC /* SprubixFeedCommentsController.swift */,
+				84470D891AECC41B007E9A93 /* MainFeedController.swift */,
 			);
 			name = Feed;
 			sourceTree = "<group>";
@@ -268,6 +273,7 @@
 				84FCCABF1AB56422009C10B2 /* Profile */,
 				846C979E1ABDA5840050D0BC /* Spruce */,
 				849733401AA4561D00E5C750 /* SprubixFeedCell.swift */,
+				84470D8B1AED1847007E9A93 /* MainFeedCell.swift */,
 				84B334E91AAB0CC900B9707D /* SidePanelCell.swift */,
 				84B335491AB4035A00B9707D /* OutfitDetailsCell.swift */,
 				84B3354D1AB4520C00B9707D /* PieceDetailsCell.swift */,
@@ -506,6 +512,7 @@
 				84B334EC1AAB1F9B00B9707D /* ContainerViewController.swift in Sources */,
 				84B334EA1AAB0CC900B9707D /* SidePanelCell.swift in Sources */,
 				845048B41A9ECC81008BDBAA /* AppDelegate.swift in Sources */,
+				84470D8A1AECC41B007E9A93 /* MainFeedController.swift in Sources */,
 				84C9AC3E1AA06041009ADF5C /* SignUpViewController.swift in Sources */,
 				84B334E51AAB00DD00B9707D /* SidePanelViewController.swift in Sources */,
 				846C97991ABD545A0050D0BC /* SpruceViewController.swift in Sources */,
@@ -520,6 +527,7 @@
 				84B335481AB2DBB800B9707D /* WaterFallNavigationController.swift in Sources */,
 				84ACA11E1AE78F250084D4CF /* SprubixCameraViewController.swift in Sources */,
 				845048B71A9ECC81008BDBAA /* Sprubix.xcdatamodeld in Sources */,
+				84470D8C1AED1847007E9A93 /* MainFeedCell.swift in Sources */,
 				84B3354C1AB449F500B9707D /* PieceDetailsViewController.swift in Sources */,
 				84B3352E1AAEEA1000B9707D /* UserProfileFooter.swift in Sources */,
 				84B334E81AAB0C7D00B9707D /* SidePanelOption.swift in Sources */,
