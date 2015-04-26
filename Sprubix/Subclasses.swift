@@ -128,13 +128,13 @@ class SprubixHandleBarSeperator: UIView {
         super.init(frame: frame)
     }
     
-    init(frame: CGRect, handleWidth: CGFloat, lineStroke: CGFloat) {
+    init(frame: CGRect, handleWidth: CGFloat, lineStroke: CGFloat, glow: Bool = true, opacity: CGFloat = 1.0) {
         super.init(frame: frame)
         
         // seperator line
         var seperatorLineTop: UIView = UIView(frame: CGRect(x: 0, y: 0, width: self.frame.width, height: lineStroke))
         seperatorLineTop.backgroundColor = UIColor.whiteColor()
-        Glow.addGlow(seperatorLineTop)
+        seperatorLineTop.alpha = opacity
         
         self.addSubview(seperatorLineTop)
         
@@ -144,10 +144,14 @@ class SprubixHandleBarSeperator: UIView {
         var handleBar: UIView = UIView(frame: CGRectMake(self.frame.width / 2 - handleBarWidth / 2, lineStroke / 2 - handleBarHeight / 2, handleBarWidth, handleBarHeight))
         handleBar.backgroundColor = UIColor.whiteColor()
         handleBar.layer.cornerRadius = handleBarHeight / 2
-        Glow.addGlow(handleBar)
+        handleBar.alpha = opacity
         
         self.addSubview(handleBar)
         
+        if glow != false {
+            Glow.addGlow(seperatorLineTop)
+            Glow.addGlow(handleBar)
+        }
     }
 
     required init(coder aDecoder: NSCoder) {
