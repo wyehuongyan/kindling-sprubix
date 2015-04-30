@@ -124,6 +124,9 @@ class SprubixItemDescription: UILabel {
 }
 
 class SprubixHandleBarSeperator: UIView {
+    var seperatorLineTop: UIView!
+    var handleBar: UIView!
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
     }
@@ -132,7 +135,7 @@ class SprubixHandleBarSeperator: UIView {
         super.init(frame: frame)
         
         // seperator line
-        var seperatorLineTop: UIView = UIView(frame: CGRect(x: 0, y: 0, width: self.frame.width, height: lineStroke))
+        seperatorLineTop = UIView(frame: CGRect(x: 0, y: 0, width: self.frame.width, height: lineStroke))
         seperatorLineTop.backgroundColor = UIColor.whiteColor()
         seperatorLineTop.alpha = opacity
         
@@ -141,7 +144,7 @@ class SprubixHandleBarSeperator: UIView {
         // handlebar
         let handleBarWidth: CGFloat = handleWidth
         let handleBarHeight: CGFloat = 5.0 + lineStroke
-        var handleBar: UIView = UIView(frame: CGRectMake(self.frame.width / 2 - handleBarWidth / 2, lineStroke / 2 - handleBarHeight / 2, handleBarWidth, handleBarHeight))
+        handleBar = UIView(frame: CGRectMake(self.frame.width / 2 - handleBarWidth / 2, lineStroke / 2 - handleBarHeight / 2, handleBarWidth, handleBarHeight))
         handleBar.backgroundColor = UIColor.whiteColor()
         handleBar.layer.cornerRadius = handleBarHeight / 2
         handleBar.alpha = opacity
@@ -152,6 +155,11 @@ class SprubixHandleBarSeperator: UIView {
             Glow.addGlow(seperatorLineTop)
             Glow.addGlow(handleBar)
         }
+    }
+    
+    func setCustomBackgroundColor(color: UIColor) {
+        seperatorLineTop.backgroundColor = color
+        handleBar.backgroundColor = color
     }
 
     required init(coder aDecoder: NSCoder) {

@@ -31,36 +31,46 @@ class EditSnapshotViewController: UIViewController {
     
     let dragLimit:CGFloat = 30
     
+    var editScrollView: UIScrollView!
+    var previewStillImages: [UIImageView]!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         self.view.backgroundColor = UIColor.whiteColor()
         
         // snap shot still
-        snapshot.frame = CGRectMake(0, navigationHeaderAndStatusbarHeight, screenWidth, screenWidth / 0.75)
-        handleBarView.frame = snapshot.frame
-        boundingBoxView.frame = snapshot.frame
+        snapshot.frame = CGRectMake(0, screenHeight / 2 - screenWidth / 1.5, screenWidth, screenWidth / 0.75)
         
         snapshot.contentMode = UIViewContentMode.ScaleAspectFit
         snapshot.backgroundColor = sprubixColor
 
-        self.view.addSubview(snapshot)
+        //self.view.addSubview(snapshot)
         
-        // gesture recognizer to drag the handle bars
-        var longPressGestureRecognizer: UILongPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action: "handlePan:")
-        longPressGestureRecognizer.minimumPressDuration = 0.0
+        initPreviewStillImages()
+    }
+    
+    func initPreviewStillImages() {
+        editScrollView = UIScrollView(frame: CGRectMake(0, screenHeight / 2 - screenWidth / 1.5, screenWidth, screenWidth / 0.75))
+        editScrollView.scrollEnabled = true
+        editScrollView.alwaysBounceVertical = true
+        editScrollView.showsVerticalScrollIndicator = false
         
-        handleBarView.userInteractionEnabled = true
-        handleBarView.addGestureRecognizer(longPressGestureRecognizer)
-
+        editScrollView.contentSize = CGSizeMake(screenWidth, CGFloat(previewStillImages.count) * screenWidth / 0.75)
+        
         initHandleBarSeperators()
         initBoundingBoxes()
         
-        self.view.addSubview(boundingBoxView)
-        self.view.addSubview(handleBarView)
+        for previewStillImage in previewStillImages {
+            editScrollView.insertSubview(previewStillImage, atIndex: 0)
+        }
+        
+        self.view.addSubview(editScrollView)
     }
     
     func initHandleBarSeperators() {
+        handleBarView.frame = CGRectMake(0, 0, editScrollView.frame.size.width, editScrollView.contentSize.height)
+        
         // handlebar seperator 1
         let sprubixHandleBarSeperatorHeight:CGFloat = 30
         sprubixHandleBarSeperator1 = SprubixHandleBarSeperator(frame: CGRectMake(0, 0, screenWidth, sprubixHandleBarSeperatorHeight), handleWidth: 80.0, lineStroke: 2)
@@ -68,31 +78,38 @@ class EditSnapshotViewController: UIViewController {
         handleBarView.addSubview(sprubixHandleBarSeperator1)
         
         // handlebar seperator 2
-        sprubixHandleBarSeperator2 = SprubixHandleBarSeperator(frame: CGRectMake(0, 0.20 * snapshot.frame.height, screenWidth, sprubixHandleBarSeperatorHeight), handleWidth: 50.0, lineStroke: 2)
+        sprubixHandleBarSeperator2 = SprubixHandleBarSeperator(frame: CGRectMake(0, 0.25 * editScrollView.contentSize.height, screenWidth, sprubixHandleBarSeperatorHeight), handleWidth: 50.0, lineStroke: 2)
         
         handleBarView.addSubview(sprubixHandleBarSeperator2)
         
         // handlebar seperator 3
-        sprubixHandleBarSeperator3 = SprubixHandleBarSeperator(frame: CGRectMake(0, 0.45 * snapshot.frame.height, screenWidth, sprubixHandleBarSeperatorHeight), handleWidth: 50.0, lineStroke: 2)
+        sprubixHandleBarSeperator3 = SprubixHandleBarSeperator(frame: CGRectMake(0, 0.50 * editScrollView.contentSize.height, screenWidth, sprubixHandleBarSeperatorHeight), handleWidth: 50.0, lineStroke: 2)
         
         handleBarView.addSubview(sprubixHandleBarSeperator3)
         
         // handlebar seperator 4
-        sprubixHandleBarSeperator4 = SprubixHandleBarSeperator(frame: CGRectMake(0, 0.85 * snapshot.frame.height, screenWidth, sprubixHandleBarSeperatorHeight), handleWidth: 50.0, lineStroke: 2)
+        sprubixHandleBarSeperator4 = SprubixHandleBarSeperator(frame: CGRectMake(0, 0.75 * editScrollView.contentSize.height, screenWidth, sprubixHandleBarSeperatorHeight), handleWidth: 50.0, lineStroke: 2)
         
         handleBarView.addSubview(sprubixHandleBarSeperator4)
         
         // handlebar seperator 5
-        sprubixHandleBarSeperator5 = SprubixHandleBarSeperator(frame: CGRectMake(0, snapshot.frame.height, screenWidth, sprubixHandleBarSeperatorHeight), handleWidth: 80.0, lineStroke: 2)
+        sprubixHandleBarSeperator5 = SprubixHandleBarSeperator(frame: CGRectMake(0, editScrollView.contentSize.height, screenWidth, sprubixHandleBarSeperatorHeight), handleWidth: 80.0, lineStroke: 2)
         
         handleBarView.addSubview(sprubixHandleBarSeperator5)
+        
+        // gesture recognizer to drag the handle bars
+        var longPressGestureRecognizer: UILongPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action: "handlePan:")
+        longPressGestureRecognizer.minimumPressDuration = 0.1
+        
+        editScrollView.addGestureRecognizer(longPressGestureRecognizer)
+        editScrollView.addSubview(handleBarView)
     }
     
     func resetHandleBarSeperators() {
         sprubixHandleBarSeperator1.frame.origin.y = 0
-        sprubixHandleBarSeperator2.frame.origin.y = 0.20 * snapshot.frame.height
-        sprubixHandleBarSeperator3.frame.origin.y = 0.45 * snapshot.frame.height
-        sprubixHandleBarSeperator4.frame.origin.y = 0.85 * snapshot.frame.height
+        sprubixHandleBarSeperator2.frame.origin.y = 0.25 * snapshot.frame.height
+        sprubixHandleBarSeperator3.frame.origin.y = 0.50 * snapshot.frame.height
+        sprubixHandleBarSeperator4.frame.origin.y = 0.75 * snapshot.frame.height
         sprubixHandleBarSeperator5.frame.origin.y = snapshot.frame.height
     }
     
@@ -117,6 +134,8 @@ class EditSnapshotViewController: UIViewController {
     }
     
     func initBoundingBoxes() {
+        boundingBoxView.frame = CGRectMake(0, 0, editScrollView.frame.size.width, editScrollView.contentSize.height)
+        
         // 6 bounding boxes
         // 4 invisible, 2 alpha-ed (first and last)
         
@@ -156,11 +175,13 @@ class EditSnapshotViewController: UIViewController {
         boundingBoxView.addSubview(boundingBoxFeet)
         
         // alpha-ed last
-        let boundingBox2Height:CGFloat = snapshot.frame.height - sprubixHandleBarSeperator5.frame.origin.y
+        let boundingBox2Height:CGFloat = editScrollView.contentSize.height - sprubixHandleBarSeperator5.frame.origin.y
         boundingBox2 = UIView(frame: CGRectMake(0, sprubixHandleBarSeperator5.frame.origin.y, screenWidth, boundingBox2Height))
         boundingBox2.backgroundColor = UIColor.whiteColor().colorWithAlphaComponent(0.75)
         
         boundingBoxView.addSubview(boundingBox2)
+        
+        editScrollView.insertSubview(boundingBoxView, atIndex: 0)
     }
     
     override func viewWillAppear(animated: Bool) {
@@ -193,18 +214,21 @@ class EditSnapshotViewController: UIViewController {
         // 5. add the nav bar to the main view
         self.view.addSubview(newNavBar)
 
-        resetHandleBarSeperators()
-        resetBoundingBoxes()
+        //resetHandleBarSeperators()
+        //resetBoundingBoxes()
     }
     
     // Callback Handler: handlebar drag gesture recognizer
     func handlePan(gesture: UILongPressGestureRecognizer) {
+        //println("handlePan")
+        
         if gesture.state == UIGestureRecognizerState.Began {
-            firstTouchPoint = gesture.locationInView(gesture.view)
-            draggedHandle = findHandlesBeingDragged(gesture.view!, touchPoint: firstTouchPoint)
+            firstTouchPoint = gesture.locationInView(handleBarView)
+            draggedHandle = findHandlesBeingDragged(handleBarView, touchPoint: firstTouchPoint)
+            (draggedHandle as! SprubixHandleBarSeperator).setCustomBackgroundColor(sprubixColor)
         } else if gesture.state == UIGestureRecognizerState.Changed {
             if draggedHandle != nil {
-                let currentTouchPoint: CGPoint = gesture.locationInView(gesture.view)
+                let currentTouchPoint: CGPoint = gesture.locationInView(handleBarView)
                 var translation:CGPoint = CGPointMake(currentTouchPoint.x - firstTouchPoint.x, currentTouchPoint.y - firstTouchPoint.y)
 
                 draggedHandle?.frame.origin.y = firstTouchPoint.y + translation.y
@@ -212,6 +236,8 @@ class EditSnapshotViewController: UIViewController {
                 updatePiecesBoxes(draggedHandle!)
                 updateTopAndBottomBoxes(draggedHandle!)
             }
+        } else if gesture.state == UIGestureRecognizerState.Ended {
+            (draggedHandle as! SprubixHandleBarSeperator).setCustomBackgroundColor(UIColor.whiteColor())
         }
     }
     
@@ -226,6 +252,7 @@ class EditSnapshotViewController: UIViewController {
             if (touchPoint.x >= frame.origin.x - tolerance) && (touchPoint.x <= frame.origin.x + frame.size.width + tolerance) {
                 // check y
                 if (touchPoint.y >= frame.origin.y - tolerance) && (touchPoint.y <= frame.origin.y + tolerance) {
+                    // found!
                     return subview as? UIView
                 }
             }
@@ -239,7 +266,7 @@ class EditSnapshotViewController: UIViewController {
         if draggedHandle == sprubixHandleBarSeperator1 {
             boundingBox1.frame.size.height = draggedHandle.frame.origin.y
         } else if draggedHandle == sprubixHandleBarSeperator5 {
-            boundingBox2.frame.size.height = snapshot.frame.height - draggedHandle.frame.origin.y
+            boundingBox2.frame.size.height = editScrollView.contentSize.height - draggedHandle.frame.origin.y
             boundingBox2.frame.origin.y = draggedHandle.frame.origin.y
         }
     }
@@ -371,9 +398,9 @@ class EditSnapshotViewController: UIViewController {
             //println("feet")
             
             // prevent going out of frame
-            if draggedHandle.frame.origin.y > snapshot.frame.height {
-                draggedHandle.frame.origin.y = snapshot.frame.height
-            }
+//            if draggedHandle.frame.origin.y > snapshot.frame.height {
+//                draggedHandle.frame.origin.y = snapshot.frame.height
+//            }
             
             if draggedHandle.frame.origin.y < sprubixHandleBarSeperator4.frame.origin.y + dragLimit { // dragging up
                 draggedHandle.frame.origin.y = sprubixHandleBarSeperator4.frame.origin.y + dragLimit

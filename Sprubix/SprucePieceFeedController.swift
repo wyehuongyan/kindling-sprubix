@@ -66,6 +66,7 @@ class SprucePieceFeedController: UICollectionViewController, UICollectionViewDel
         super.viewDidLoad()
         
         initButtons()
+        retrievePiecesOfType(pieceType)
     }
     
     func initButtons() {
@@ -170,8 +171,6 @@ class SprucePieceFeedController: UICollectionViewController, UICollectionViewDel
         super.viewWillAppear(animated)
         
         self.navigationController?.navigationBarHidden = true
-
-        retrievePiecesOfType(pieceType)
     }
     
     override func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {

@@ -9,20 +9,31 @@
 import UIKit
 import AVFoundation
 
-class SprubixCameraViewController: UIViewController, SprubixCameraDelegate {
+class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, SprubixCameraDelegate {
     
     var editSnapshotViewController: EditSnapshotViewController!
     
-    var sprubixHandleBarSeperator2:SprubixHandleBarSeperator!
-    var sprubixHandleBarSeperator3:SprubixHandleBarSeperator!
-    var sprubixHandleBarSeperator4:SprubixHandleBarSeperator!
-    var sprubixHandleBarSeperatorVertical:UIView!
+    var headButton: UIButton!
+    var topButton: UIButton!
+    var bottomButton: UIButton!
+    var feetButton: UIButton!
     
     var cameraPreview: UIView!
-    var handleBarView:UIView!
+    var handleBarView: UIView!
+    var pieceSelectorView: UIView!
+    var pieceSelectorlabel: UILabel!
+    var previewStillScrollView: UIScrollView!
+    var previewStillImages: [UIImageView] = [UIImageView]()
+    
+    var selectedPieces: [String: Bool] = ["HEAD": false, "TOP": false, "BOTTOM": false, "FEET": false]
+    var pieceTypes: [String] = ["HEAD", "TOP", "BOTTOM", "FEET"]
+    var selectedPiecesOrdered: [String] = [String]()
+    var snappedCount:CGFloat = 0.0
+    var selectedCount:CGFloat = 0.0
     
     //@IBOutlet var cameraPreview: UIView!
     @IBOutlet var cameraCapture: UIButton!
+    var okButton: UIButton!
     
     @IBAction func closeCreateOutfit(sender: AnyObject) {
         editSnapshotViewController = nil
@@ -38,38 +49,126 @@ class SprubixCameraViewController: UIViewController, SprubixCameraDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        initHandleBarSeperators()
+        initPieceSelector()
     }
     
-    func initHandleBarSeperators() {
-        handleBarView = UIView(frame: CGRectMake(0, navigationHeaderAndStatusbarHeight, screenWidth, screenWidth / 0.75))
+    func initPieceSelector() {
+        pieceSelectorView = UIView(frame: CGRectMake(0, 0, screenWidth, screenWidth / 0.75))
+        pieceSelectorView.backgroundColor = UIColor.whiteColor().colorWithAlphaComponent(0.75)
         
-        let sprubixHandleBarSeperatorHeight:CGFloat = 30
+        // scrollview
+        previewStillScrollView = UIScrollView(frame: CGRectMake(0, screenHeight / 2 - screenWidth / 1.5, screenWidth, screenWidth / 0.75))
+        previewStillScrollView.contentSize = CGSize(width: screenWidth, height: pieceSelectorView.frame.size.height)
+        previewStillScrollView.scrollEnabled = true
+        previewStillScrollView.pagingEnabled = true
+        previewStillScrollView.alwaysBounceVertical = true
+        previewStillScrollView.showsVerticalScrollIndicator = false
+        previewStillScrollView.delegate = self
         
-        // handlebar seperator 2
-        sprubixHandleBarSeperator2 = SprubixHandleBarSeperator(frame: CGRectMake(0, 0.20 * handleBarView.frame.height, screenWidth, sprubixHandleBarSeperatorHeight), handleWidth: 0, lineStroke: 2, glow: false, opacity: 0.3)
+        // label
+        pieceSelectorlabel = UILabel(frame: CGRectMake(0, previewStillScrollView.frame.origin.y - 30, screenWidth, 30))
+        pieceSelectorlabel.text = "I'm snapping my..."
+        pieceSelectorlabel.textColor = UIColor.lightGrayColor()
+        pieceSelectorlabel.textAlignment = NSTextAlignment.Center
         
-        handleBarView.addSubview(sprubixHandleBarSeperator2)
+        self.view.addSubview(pieceSelectorlabel)
         
-        // handlebar seperator 3
-        sprubixHandleBarSeperator3 = SprubixHandleBarSeperator(frame: CGRectMake(0, 0.45 * handleBarView.frame.height, screenWidth, sprubixHandleBarSeperatorHeight), handleWidth: 0, lineStroke: 2, glow: false, opacity: 0.3)
+        // create four buttons
+        let buttonWidth: CGFloat = 60
         
-        handleBarView.addSubview(sprubixHandleBarSeperator3)
+        // head
+        headButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+        headButton.frame = CGRectMake(screenWidth / 2 - buttonWidth / 2, 0.2 * pieceSelectorView.frame.size.height - buttonWidth / 2, buttonWidth, buttonWidth)
+        headButton.setImage(UIImage(named: "view-item-cat-head"), forState: UIControlState.Normal)
+        headButton.backgroundColor = UIColor.lightGrayColor()
+        headButton.layer.cornerRadius = buttonWidth / 2
+        headButton.addTarget(self, action: "headPieceSelected:", forControlEvents: UIControlEvents.TouchUpInside)
         
-        // handlebar seperator 4
-        sprubixHandleBarSeperator4 = SprubixHandleBarSeperator(frame: CGRectMake(0, 0.85 * handleBarView.frame.height, screenWidth, sprubixHandleBarSeperatorHeight), handleWidth: 0, lineStroke: 2, glow: false, opacity: 0.3)
+        pieceSelectorView.addSubview(headButton)
         
-        handleBarView.addSubview(sprubixHandleBarSeperator4)
+        // top
+        topButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+        topButton.frame = CGRectMake(screenWidth / 2 - buttonWidth / 2, 0.4 * pieceSelectorView.frame.size.height - buttonWidth / 2, buttonWidth, buttonWidth)
+        topButton.setImage(UIImage(named: "view-item-cat-top"), forState: UIControlState.Normal)
+        topButton.backgroundColor = UIColor.lightGrayColor()
+        topButton.layer.cornerRadius = buttonWidth / 2
+        topButton.addTarget(self, action: "topPieceSelected:", forControlEvents: UIControlEvents.TouchUpInside)
         
-        // handlebar seperatorVertical
-        let sprubixHandleBarSeperatorVerticalWidth:CGFloat = 2
-        sprubixHandleBarSeperatorVertical = UIView(frame: CGRectMake(screenWidth / 2 - sprubixHandleBarSeperatorVerticalWidth / 2, 0, sprubixHandleBarSeperatorVerticalWidth, handleBarView.frame.size.height))
-        sprubixHandleBarSeperatorVertical.alpha = 0.3
-        sprubixHandleBarSeperatorVertical.backgroundColor = UIColor.whiteColor()
+        pieceSelectorView.addSubview(topButton)
         
-        handleBarView.addSubview(sprubixHandleBarSeperatorVertical)
+        // bottom
+        bottomButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+        bottomButton.frame = CGRectMake(screenWidth / 2 - buttonWidth / 2, 0.6 * pieceSelectorView.frame.size.height - buttonWidth / 2, buttonWidth, buttonWidth)
+        bottomButton.setImage(UIImage(named: "view-item-cat-bot"), forState: UIControlState.Normal)
+        bottomButton.backgroundColor = UIColor.lightGrayColor()
+        bottomButton.layer.cornerRadius = buttonWidth / 2
+        bottomButton.addTarget(self, action: "bottomPieceSelected:", forControlEvents: UIControlEvents.TouchUpInside)
         
-        self.view.addSubview(handleBarView)
+        pieceSelectorView.addSubview(bottomButton)
+        
+        // feet
+        feetButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+        feetButton.frame = CGRectMake(screenWidth / 2 - buttonWidth / 2, 0.8 * pieceSelectorView.frame.size.height - buttonWidth / 2, buttonWidth, buttonWidth)
+        feetButton.setImage(UIImage(named: "view-item-cat-feet"), forState: UIControlState.Normal)
+        feetButton.backgroundColor = UIColor.lightGrayColor()
+        feetButton.layer.cornerRadius = buttonWidth / 2
+        feetButton.addTarget(self, action: "feetPieceSelected:", forControlEvents: UIControlEvents.TouchUpInside)
+        
+        pieceSelectorView.addSubview(feetButton)
+        
+        previewStillScrollView.addSubview(pieceSelectorView)
+        
+        // init "Ok" button
+        okButton = UIButton(frame: CGRectMake(screenWidth / 2 - buttonWidth / 2, screenHeight - 10 - buttonWidth, buttonWidth, buttonWidth))
+        okButton.setTitle("OK", forState: UIControlState.Normal)
+        okButton.backgroundColor = UIColor.greenColor()
+        okButton.layer.cornerRadius = buttonWidth / 2
+        okButton.layer.borderColor = UIColor.greenColor().CGColor
+        okButton.layer.borderWidth = 5.0
+        okButton.addTarget(self, action: "confirmPiecesSelected", forControlEvents: UIControlEvents.TouchUpInside)
+        
+        cameraCapture.alpha = 0
+        
+        self.view.addSubview(okButton)
+        self.view.addSubview(previewStillScrollView)
+    }
+    
+    func resetPieceSelector() {
+        for subview in previewStillScrollView.subviews {
+            subview.removeFromSuperview()
+        }
+        
+        previewStillScrollView.contentSize = CGSize(width: screenWidth, height: pieceSelectorView.frame.size.height)
+        cameraPreview.frame.origin.y = 0
+        previewStillScrollView.addSubview(cameraPreview)
+        previewStillScrollView.addSubview(pieceSelectorView)
+        
+        okButton.alpha = 1.0
+        pieceSelectorView.alpha = 1.0
+        cameraCapture.alpha = 0.0
+        pieceSelectorlabel.text = "I'm snapping my..."
+        pieceSelectorlabel.alpha = 1.0
+        snappedCount = 0.0
+        selectedCount = 0.0
+        
+        for (key, value) in selectedPieces {
+            selectedPieces[key] = false
+        }
+        
+        selectedPiecesOrdered.removeAll()
+        previewStillImages.removeAll()
+        
+        headButton.selected = false
+        headButton.backgroundColor = UIColor.lightGrayColor()
+        
+        topButton.selected = false
+        topButton.backgroundColor = UIColor.lightGrayColor()
+        
+        bottomButton.selected = false
+        bottomButton.backgroundColor = UIColor.lightGrayColor()
+        
+        feetButton.selected = false
+        feetButton.backgroundColor = UIColor.lightGrayColor()
     }
     
     override func viewWillAppear(animated: Bool) {
@@ -79,7 +178,7 @@ class SprubixCameraViewController: UIViewController, SprubixCameraDelegate {
         self.navigationController?.navigationBar.setBackgroundImage(UIImage(), forBarMetrics: UIBarMetrics.Default)
         self.navigationController?.navigationBar.shadowImage = UIImage()
         self.navigationController?.navigationBar.translucent = true
-        
+
         self.initializeCamera()
     }
     
@@ -90,10 +189,18 @@ class SprubixCameraViewController: UIViewController, SprubixCameraDelegate {
     }
     
     override func viewWillDisappear(animated: Bool) {
+        super.viewWillDisappear(animated)
+        
         self.navigationController?.navigationBar.setBackgroundImage(nil, forBarMetrics: UIBarMetrics.Default)
         self.navigationController?.navigationBar.shadowImage = nil
         
         self.camera?.stopCamera()
+    }
+    
+    override func viewDidDisappear(animated: Bool) {
+        super.viewDidDisappear(animated)
+        
+        self.resetPieceSelector()
     }
     
     func initializeCamera() {
@@ -102,9 +209,13 @@ class SprubixCameraViewController: UIViewController, SprubixCameraDelegate {
     
     func establishVideoPreviewArea() {
         if cameraPreview == nil {
-            cameraPreview = UIView(frame: CGRectMake(0, navigationHeaderAndStatusbarHeight, screenWidth, screenWidth / 0.75))
+            //cameraPreview = UIView(frame: CGRectMake(0, screenHeight / 2 - screenWidth / 1.5, screenWidth, screenWidth / 0.75))
+            cameraPreview = UIView(frame: CGRectMake(0, 0, screenWidth, screenWidth / 0.75))
             
-            self.view.insertSubview(cameraPreview, atIndex: 0)
+            var touch = UITapGestureRecognizer(target:self, action:"manualFocus:")
+            cameraPreview.addGestureRecognizer(touch)
+            
+            previewStillScrollView.insertSubview(cameraPreview, atIndex: 0)
         }
         
         self.preview = AVCaptureVideoPreviewLayer(session: self.camera?.session)
@@ -114,15 +225,27 @@ class SprubixCameraViewController: UIViewController, SprubixCameraDelegate {
     }
     
     // tap to focus
-    override func touchesBegan(touches: Set<NSObject>, withEvent event: UIEvent) {
-        if let touch = touches.first as? UITouch {
-            let touchPoint: CGPoint = touch.locationInView(touch.view)
-            self.camera?.focus(touchPoint, preview: self.preview!)
+    func manualFocus(gesture :UITapGestureRecognizer) {
+        var touchPoint: CGPoint = gesture.locationInView(gesture.view)
+
+        self.camera?.focus(touchPoint, preview: self.preview!)
+    }
+    
+    func calculatePage() {
+        let pageHeight = previewStillScrollView.frame.size.height
+        let page = Int(floor((previewStillScrollView.contentOffset.y * 2.0 + pageHeight) / (pageHeight * 2.0)))
+        
+        if selectedPiecesOrdered.count > 0 {
+            setSnapButtonIcon(selectedPiecesOrdered[page])
         }
     }
     
-    // MARK: Button Actions
+    // ScrollViewDelegate
+    func scrollViewDidScroll(scrollView: UIScrollView) {
+        calculatePage()
+    }
     
+    // MARK: Button Actions
     @IBAction func captureFrame(sender: AnyObject) {
             UIView.animateWithDuration(0.225, animations: { () -> Void in
                 self.cameraPreview.alpha = 0.0
@@ -130,20 +253,66 @@ class SprubixCameraViewController: UIViewController, SprubixCameraDelegate {
             
             self.camera?.captureStillImage({ (image) -> Void in
                 if image != nil {
+                    
                     // this is the part where image is captured successfully
-                    // slot in the edit snapshot view here
-                    if self.editSnapshotViewController == nil {
-                        self.editSnapshotViewController = EditSnapshotViewController()
+                    self.cameraCapture.enabled = false
+                    
+                    let selectedPiece = self.selectedPiecesOrdered[Int(self.snappedCount)]
+                
+                    // was selected by user
+                    var previewStillImageView: UIImageView = UIImageView(frame: CGRectMake(0, self.snappedCount * screenWidth / 0.75, screenWidth, screenWidth / 0.75))
+                    previewStillImageView.image = image
+                    
+                    // add this preview still into the storage array
+                    self.previewStillImages.append(previewStillImageView)
+                    
+                    self.cameraPreview.frame.origin.y = (self.snappedCount + 1) * screenWidth / 0.75
+                    self.cameraPreview.alpha = 1.0
+                    self.previewStillScrollView.addSubview(previewStillImageView)
+                    self.previewStillScrollView.contentSize = CGSize(width: screenWidth, height: self.pieceSelectorView.frame.size.height * (self.snappedCount + 2))
+                    
+                    self.snappedCount += 1
+
+                    // the delay is for the cameraStill to remain on screen for a while before moving away
+                    self.delay(0.6) {
+                        if self.snappedCount == self.selectedCount {
+                            // go to edit controller
+                            if self.editSnapshotViewController == nil {
+                                self.editSnapshotViewController = EditSnapshotViewController()
+                            }
+                            
+                            self.editSnapshotViewController.snapshot.image = image
+                            self.editSnapshotViewController.previewStillImages = self.previewStillImages
+                            
+                            self.navigationController?.pushViewController(self.editSnapshotViewController, animated: true)
+                        } else {
+                            // shift view to cameraPreview
+                            self.previewStillScrollView.scrollRectToVisible(self.cameraPreview.frame, animated: true)
+                            self.setSnapButtonIcon(self.selectedPiecesOrdered[Int(self.snappedCount)])
+                        }
+                        
+                        self.cameraCapture.enabled = true
                     }
-                    
-                    self.editSnapshotViewController.snapshot.image = image
-                    
-                    self.navigationController?.pushViewController(self.editSnapshotViewController, animated: false)
                     
                 } else {
                     NSLog("Uh oh! Something went wrong. Try it again.")
                 }
             })
+    }
+    
+    func setSnapButtonIcon(currentPiece: String) {
+        switch currentPiece {
+        case "HEAD":
+            self.cameraCapture.setImage(UIImage(named: "view-item-cat-head"), forState: UIControlState.Normal)
+        case "TOP":
+            self.cameraCapture.setImage(UIImage(named: "view-item-cat-top"), forState: UIControlState.Normal)
+        case "BOTTOM":
+            self.cameraCapture.setImage(UIImage(named: "view-item-cat-bot"), forState: UIControlState.Normal)
+        case "FEET":
+            self.cameraCapture.setImage(UIImage(named: "view-item-cat-feet"), forState: UIControlState.Normal)
+        default:
+            fatalError("Invalid piece info for setting snapbutton icon")
+        }
     }
     
     // MARK: Camera Delegate
@@ -163,5 +332,92 @@ class SprubixCameraViewController: UIViewController, SprubixCameraDelegate {
         UIView.animateWithDuration(0.225, animations: { () -> Void in
             self.cameraPreview.alpha = 0.0
         })
+    }
+    
+    // Button Callbacks
+    func headPieceSelected(sender: UIButton) {
+        if sender.selected != true {
+            sender.backgroundColor = sprubixColor
+            sender.selected = true
+            selectedCount += 1
+            selectedPieces["HEAD"] = true
+        } else {
+            sender.backgroundColor = UIColor.lightGrayColor()
+            sender.selected = false
+            selectedCount -= 1
+            selectedPieces["HEAD"] = false
+        }
+    }
+    
+    func topPieceSelected(sender: UIButton) {
+        if sender.selected != true {
+            sender.backgroundColor = sprubixColor
+            sender.selected = true
+            selectedCount += 1
+            selectedPieces["TOP"] = true
+        } else {
+            sender.backgroundColor = UIColor.lightGrayColor()
+            sender.selected = false
+            selectedCount -= 1
+            selectedPieces["TOP"] = false
+        }
+    }
+    
+    func bottomPieceSelected(sender: UIButton) {
+        if sender.selected != true {
+            sender.backgroundColor = sprubixColor
+            sender.selected = true
+            selectedCount += 1
+            selectedPieces["BOTTOM"] = true
+            
+        } else {
+            sender.backgroundColor = UIColor.lightGrayColor()
+            sender.selected = false
+            selectedCount -= 1
+            selectedPieces["BOTTOM"] = false
+        }
+    }
+    
+    func feetPieceSelected(sender: UIButton) {
+        if sender.selected != true {
+            sender.backgroundColor = sprubixColor
+            sender.selected = true
+            selectedCount += 1
+            selectedPieces["FEET"] = true
+        } else {
+            sender.backgroundColor = UIColor.lightGrayColor()
+            sender.selected = false
+            selectedCount -= 1
+            selectedPieces["FEET"] = false
+        }
+    }
+    
+    func confirmPiecesSelected() {
+        if selectedCount > 0 {
+            okButton.alpha = 0.0
+            pieceSelectorView.alpha = 0.0
+            pieceSelectorlabel.alpha = 0.0
+            cameraCapture.alpha = 1.0
+            
+            for var i = 0; i < self.pieceTypes.count; i++ {
+                let pieceType = self.pieceTypes[i]
+                
+                if self.selectedPieces[pieceType] != false {
+                    selectedPiecesOrdered.append(pieceType)
+                }
+            }
+            
+            // first one
+            setSnapButtonIcon(selectedPiecesOrdered[0])
+        }
+    }
+    
+    func delay(delay:Double, closure:()->()) {
+        dispatch_after(
+            dispatch_time(
+                DISPATCH_TIME_NOW,
+                Int64(delay * Double(NSEC_PER_SEC))
+            ),
+            dispatch_get_main_queue(), closure)
     }
 }

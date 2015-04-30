@@ -141,7 +141,7 @@ class SpruceShareViewController: UIViewController, UITableViewDelegate, UITableV
             //outfitImageView = UIImageView(image: UIImage(named: "person-placeholder.jpg"))
             //outfitImageView.frame = CGRect(x: 0, y: 0, width: screenWidth, height: 500)
             outfitImageView.clipsToBounds = true
-            outfitImageView.backgroundColor = sprubixColor
+            outfitImageView.backgroundColor = UIColor.whiteColor()
             outfitImageView.contentMode = UIViewContentMode.ScaleAspectFill
             
             outfitImageCell.addSubview(outfitImageView)
