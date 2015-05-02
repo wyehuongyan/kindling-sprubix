@@ -2,40 +2,40 @@ PODS:
   - AFNetworkActivityLogger (2.0.4):
     - AFNetworking/NSURLConnection (~> 2.0)
     - AFNetworking/NSURLSession (~> 2.0)
-  - AFNetworking (2.5.1):
-    - AFNetworking/NSURLConnection (= 2.5.1)
-    - AFNetworking/NSURLSession (= 2.5.1)
-    - AFNetworking/Reachability (= 2.5.1)
-    - AFNetworking/Security (= 2.5.1)
-    - AFNetworking/Serialization (= 2.5.1)
-    - AFNetworking/UIKit (= 2.5.1)
-  - AFNetworking/NSURLConnection (2.5.1):
+  - AFNetworking (2.5.3):
+    - AFNetworking/NSURLConnection (= 2.5.3)
+    - AFNetworking/NSURLSession (= 2.5.3)
+    - AFNetworking/Reachability (= 2.5.3)
+    - AFNetworking/Security (= 2.5.3)
+    - AFNetworking/Serialization (= 2.5.3)
+    - AFNetworking/UIKit (= 2.5.3)
+  - AFNetworking/NSURLConnection (2.5.3):
     - AFNetworking/Reachability
     - AFNetworking/Security
     - AFNetworking/Serialization
-  - AFNetworking/NSURLSession (2.5.1):
+  - AFNetworking/NSURLSession (2.5.3):
     - AFNetworking/Reachability
     - AFNetworking/Security
     - AFNetworking/Serialization
-  - AFNetworking/Reachability (2.5.1)
-  - AFNetworking/Security (2.5.1)
-  - AFNetworking/Serialization (2.5.1)
-  - AFNetworking/UIKit (2.5.1):
+  - AFNetworking/Reachability (2.5.3)
+  - AFNetworking/Security (2.5.3)
+  - AFNetworking/Serialization (2.5.3)
+  - AFNetworking/UIKit (2.5.3):
     - AFNetworking/NSURLConnection
     - AFNetworking/NSURLSession
   - CHTCollectionViewWaterfallLayout (0.8)
-  - TLYShyNavBar (0.9.8)
+  - TLYShyNavBar (0.9.10)
 
 DEPENDENCIES:
   - AFNetworkActivityLogger (~> 2.0)
-  - AFNetworking (~> 2.0)
+  - AFNetworking (~> 2.5.3)
   - CHTCollectionViewWaterfallLayout (~> 0.8)
   - TLYShyNavBar (~> 0.9.8)
 
 SPEC CHECKSUMS:
-  AFNetworkActivityLogger: cdaa92ea0d544835babe0ba097e7806182d8f837
-  AFNetworking: 8bee59492a6ff15d69130efa4d0dc67e0094a52a
-  CHTCollectionViewWaterfallLayout: 14b7950cbe45ae9297e7759148d69b022bac047d
-  TLYShyNavBar: cf15a919cf7f6e79080ac5b95b56580a752cf64d
+  AFNetworkActivityLogger: 121486778117d53b3ab1c61d264b88081d0c3eee
+  AFNetworking: e1d86c2a96bb5d2e7408da36149806706ee122fe
+  CHTCollectionViewWaterfallLayout: 058823cc65c9d84e059b0a85eede517550da0334
+  TLYShyNavBar: 297414e49b9f779655cbe128d167f8227a30bae8
 
 COCOAPODS: 0.35.0

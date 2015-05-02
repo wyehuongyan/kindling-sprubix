@@ -57,7 +57,7 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
         pieceSelectorView.backgroundColor = UIColor.whiteColor().colorWithAlphaComponent(0.75)
         
         // scrollview
-        previewStillScrollView = UIScrollView(frame: CGRectMake(0, screenHeight / 2 - screenWidth / 1.5, screenWidth, screenWidth / 0.75))
+        previewStillScrollView = UIScrollView(frame: CGRectMake(0, navigationHeight, screenWidth, screenWidth / 0.75))
         previewStillScrollView.contentSize = CGSize(width: screenWidth, height: pieceSelectorView.frame.size.height)
         previewStillScrollView.scrollEnabled = true
         previewStillScrollView.pagingEnabled = true
@@ -66,7 +66,7 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
         previewStillScrollView.delegate = self
         
         // label
-        pieceSelectorlabel = UILabel(frame: CGRectMake(0, previewStillScrollView.frame.origin.y - 30, screenWidth, 30))
+        pieceSelectorlabel = UILabel(frame: CGRectMake(0, previewStillScrollView.frame.origin.y - navigationHeight, screenWidth, navigationHeight))
         pieceSelectorlabel.text = "I'm snapping my..."
         pieceSelectorlabel.textColor = UIColor.lightGrayColor()
         pieceSelectorlabel.textAlignment = NSTextAlignment.Center
@@ -74,7 +74,7 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
         self.view.addSubview(pieceSelectorlabel)
         
         // create four buttons
-        let buttonWidth: CGFloat = 60
+        let buttonWidth: CGFloat = 80
         
         // head
         headButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
@@ -119,12 +119,14 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
         previewStillScrollView.addSubview(pieceSelectorView)
         
         // init "Ok" button
-        okButton = UIButton(frame: CGRectMake(screenWidth / 2 - buttonWidth / 2, screenHeight - 10 - buttonWidth, buttonWidth, buttonWidth))
+        let okButtonWidth: CGFloat = 100
+        okButton = UIButton(frame: CGRectMake(screenWidth / 2 - okButtonWidth / 2, screenHeight - 10 - okButtonWidth, okButtonWidth, okButtonWidth))
         okButton.setTitle("OK", forState: UIControlState.Normal)
-        okButton.backgroundColor = UIColor.greenColor()
-        okButton.layer.cornerRadius = buttonWidth / 2
-        okButton.layer.borderColor = UIColor.greenColor().CGColor
-        okButton.layer.borderWidth = 5.0
+        okButton.setTitleColor(sprubixColor, forState: UIControlState.Normal)
+        okButton.backgroundColor = UIColor.whiteColor()
+        okButton.layer.cornerRadius = okButtonWidth / 2
+        okButton.layer.borderColor = sprubixColor.CGColor
+        okButton.layer.borderWidth = 3.0
         okButton.addTarget(self, action: "confirmPiecesSelected", forControlEvents: UIControlEvents.TouchUpInside)
         
         cameraCapture.alpha = 0
@@ -144,6 +146,7 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
         previewStillScrollView.addSubview(pieceSelectorView)
         
         okButton.alpha = 1.0
+        cameraCapture.alpha = 1.0
         pieceSelectorView.alpha = 1.0
         cameraCapture.alpha = 0.0
         pieceSelectorlabel.text = "I'm snapping my..."
@@ -276,12 +279,13 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
                     // the delay is for the cameraStill to remain on screen for a while before moving away
                     self.delay(0.6) {
                         if self.snappedCount == self.selectedCount {
+                            self.cameraCapture.alpha = 0.0
+                            
                             // go to edit controller
                             if self.editSnapshotViewController == nil {
                                 self.editSnapshotViewController = EditSnapshotViewController()
                             }
                             
-                            self.editSnapshotViewController.snapshot.image = image
                             self.editSnapshotViewController.previewStillImages = self.previewStillImages
                             
                             self.navigationController?.pushViewController(self.editSnapshotViewController, animated: true)

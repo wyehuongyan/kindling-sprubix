@@ -13,8 +13,8 @@ struct SprubixConfig {
     struct URL {
         #if DEBUG
         // debug
-        //static let api: String = "http://192.168.1.144/~wyehuongyan/kindling-core/public/index.php" //"http://api.sprubix.localhost"
-        static let api: String = "http://api.sprubix.com"
+        static let api: String = "http://192.168.1.19/~wyehuongyan/kindling-core/public/index.php" //"http://api.sprubix.localhost"
+        //static let api: String = "http://api.sprubix.com"
         
         #else
         // release

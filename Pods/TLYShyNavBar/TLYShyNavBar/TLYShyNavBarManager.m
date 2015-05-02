@@ -28,8 +28,25 @@ static inline CGFloat AACStatusBarHeight()
     }
     
     CGSize statusBarSize = [UIApplication sharedApplication].statusBarFrame.size;
-    return MIN(statusBarSize.width, statusBarSize.height);
+    return MIN(MIN(statusBarSize.width, statusBarSize.height), 20.0f);
 }
+
+@implementation UIScrollView(Helper)
+
+// Modify contentInset and scrollIndicatorInsets while preserving visual content offset
+- (void)tly_smartSetInsets:(UIEdgeInsets)contentAndScrollIndicatorInsets
+{
+    if (contentAndScrollIndicatorInsets.top != self.contentInset.top)
+    {
+        CGPoint contentOffset = self.contentOffset;
+        contentOffset.y -= contentAndScrollIndicatorInsets.top - self.contentInset.top;
+        self.contentOffset = contentOffset;
+    }
+
+    self.contentInset = self.scrollIndicatorInsets = contentAndScrollIndicatorInsets;
+}
+
+@end
 
 #pragma mark - TLYShyNavBarManager class
 
@@ -109,7 +126,15 @@ static inline CGFloat AACStatusBarHeight()
         
         self.navBarController.child = self.extensionController;
         
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationDidBecomeActive) name:UIApplicationDidBecomeActiveNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(applicationDidBecomeActive:)
+                                                     name:UIApplicationDidBecomeActiveNotification
+                                                   object:nil];
+
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(applicationDidChangeStatusBarFrame:)
+                                                     name:UIApplicationDidChangeStatusBarFrameNotification
+                                                   object:nil];
     }
     return self;
 }
@@ -171,10 +196,29 @@ static inline CGFloat AACStatusBarHeight()
     return self.viewController.isViewLoaded && self.viewController.view.window;
 }
 
+- (void)setDisable:(BOOL)disable
+{
+    if (disable == _disable)
+    {
+        return;
+    }
+
+    _disable = disable;
+
+    if (!disable) {
+        self.previousYOffset = self.scrollView.contentOffset.y;
+    }
+}
+
 #pragma mark - Private methods
 
 - (BOOL)_shouldHandleScrolling
 {
+    if (self.disable)
+    {
+        return NO;
+    }
+
     CGRect scrollFrame = UIEdgeInsetsInsetRect(self.scrollView.bounds, self.scrollView.contentInset);
     CGFloat scrollableAmount = self.scrollView.contentSize.height - CGRectGetHeight(scrollFrame);
     BOOL scrollViewIsSuffecientlyLong = (scrollableAmount > self.navBarController.totalHeight);
@@ -203,7 +247,7 @@ static inline CGFloat AACStatusBarHeight()
         
         /* rounding to resolve a dumb issue with the contentOffset value */
         CGFloat end = floorf(self.scrollView.contentSize.height - CGRectGetHeight(self.scrollView.bounds) + self.scrollView.contentInset.bottom - 0.5f);
-        if (self.previousYOffset > end)
+        if (self.previousYOffset > end && deltaY > 0)
         {
             deltaY = MAX(0, deltaY - self.previousYOffset + end);
         }
@@ -306,8 +350,7 @@ static inline CGFloat AACStatusBarHeight()
     [self.navBarController expand];
     [self.extensionViewContainer.superview bringSubviewToFront:self.extensionViewContainer];
 
-    self.scrollView.contentInset = scrollInsets;
-    self.scrollView.scrollIndicatorInsets = scrollInsets;
+    [self.scrollView tly_smartSetInsets:scrollInsets];
 }
 
 - (void)cleanup
@@ -340,7 +383,12 @@ static inline CGFloat AACStatusBarHeight()
 
 #pragma mark - NSNotificationCenter methods
 
-- (void)applicationDidBecomeActive
+- (void)applicationDidBecomeActive:(NSNotification *)notification
+{
+    [self.navBarController expand];
+}
+
+- (void)applicationDidChangeStatusBarFrame:(NSNotification *)notification
 {
     [self.navBarController expand];
 }

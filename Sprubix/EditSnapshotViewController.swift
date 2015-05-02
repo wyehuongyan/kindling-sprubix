@@ -10,178 +10,130 @@ import UIKit
 
 class EditSnapshotViewController: UIViewController {
 
-    var snapshot:UIImageView = UIImageView()
-    var handleBarView:UIView = UIView()
-    var boundingBoxView:UIView = UIView()
-    var firstTouchPoint:CGPoint!
-    var draggedHandle:UIView?
+    var snapshot: UIImageView = UIImageView()
+    var handleBarView: UIView = UIView()
+    var boundingBoxView: UIView = UIView()
+
+    var firstTouchPoint: CGPoint!
+    var lastTouchPoint: CGPoint = CGPointZero
+    var draggedHandle: UIView?
+    var draggedBox: UIView?
     
-    var sprubixHandleBarSeperator1:SprubixHandleBarSeperator!
-    var sprubixHandleBarSeperator2:SprubixHandleBarSeperator!
-    var sprubixHandleBarSeperator3:SprubixHandleBarSeperator!
-    var sprubixHandleBarSeperator4:SprubixHandleBarSeperator!
-    var sprubixHandleBarSeperator5:SprubixHandleBarSeperator!
+    var scale: CGFloat = 1.0
+    var previousScale: CGFloat = 1.0
+    var pinchedBox: UIView?
     
-    var boundingBox1:UIView!
-    var boundingBox2:UIView!
-    var boundingBoxHead:UIView!
-    var boundingBoxTop:UIView!
-    var boundingBoxBottom:UIView!
-    var boundingBoxFeet:UIView!
+    var sprubixHandleBarSeperatorTop:SprubixHandleBarSeperator!
+    var sprubixHandleBarSeperatorBottom:SprubixHandleBarSeperator!
+    
+    var sprubixHandleBars: [SprubixHandleBarSeperator] = [SprubixHandleBarSeperator]()
+    var sprubixBoundingBoxes: [UIView] = [UIView]()
+    var sprubixImageViews: [UIImageView] = [UIImageView]()
     
     let dragLimit:CGFloat = 30
     
     var editScrollView: UIScrollView!
     var previewStillImages: [UIImageView]!
     
+    var oldBoxSizes: [CGSize] = [CGSize]()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        self.view.backgroundColor = UIColor.whiteColor()
-        
-        // snap shot still
-        snapshot.frame = CGRectMake(0, screenHeight / 2 - screenWidth / 1.5, screenWidth, screenWidth / 0.75)
-        
-        snapshot.contentMode = UIViewContentMode.ScaleAspectFit
-        snapshot.backgroundColor = sprubixColor
-
-        //self.view.addSubview(snapshot)
-        
-        initPreviewStillImages()
     }
     
-    func initPreviewStillImages() {
-        editScrollView = UIScrollView(frame: CGRectMake(0, screenHeight / 2 - screenWidth / 1.5, screenWidth, screenWidth / 0.75))
+    func initScrollView() {
+        editScrollView = UIScrollView(frame: CGRectMake(0, navigationHeight, screenWidth, screenWidth / 0.75))
         editScrollView.scrollEnabled = true
         editScrollView.alwaysBounceVertical = true
         editScrollView.showsVerticalScrollIndicator = false
+        editScrollView.backgroundColor = UIColor.lightGrayColor()
         
         editScrollView.contentSize = CGSizeMake(screenWidth, CGFloat(previewStillImages.count) * screenWidth / 0.75)
-        
-        initHandleBarSeperators()
-        initBoundingBoxes()
-        
-        for previewStillImage in previewStillImages {
-            editScrollView.insertSubview(previewStillImage, atIndex: 0)
-        }
         
         self.view.addSubview(editScrollView)
     }
     
-    func initHandleBarSeperators() {
-        handleBarView.frame = CGRectMake(0, 0, editScrollView.frame.size.width, editScrollView.contentSize.height)
-        
-        // handlebar seperator 1
+    func initBounds() {
         let sprubixHandleBarSeperatorHeight:CGFloat = 30
-        sprubixHandleBarSeperator1 = SprubixHandleBarSeperator(frame: CGRectMake(0, 0, screenWidth, sprubixHandleBarSeperatorHeight), handleWidth: 80.0, lineStroke: 2)
         
-        handleBarView.addSubview(sprubixHandleBarSeperator1)
+        // handlebar top
+        sprubixHandleBarSeperatorTop = SprubixHandleBarSeperator(frame: CGRectMake(0, 0, screenWidth, sprubixHandleBarSeperatorHeight), handleWidth: 0.0, lineStroke: 0)
+        sprubixHandleBarSeperatorTop.draggable = false
+    
+        sprubixHandleBars.append(sprubixHandleBarSeperatorTop)
+        handleBarView.addSubview(sprubixHandleBarSeperatorTop)
         
-        // handlebar seperator 2
-        sprubixHandleBarSeperator2 = SprubixHandleBarSeperator(frame: CGRectMake(0, 0.25 * editScrollView.contentSize.height, screenWidth, sprubixHandleBarSeperatorHeight), handleWidth: 50.0, lineStroke: 2)
+        // create new handle bar based on no. of previewStillImages
+        for var i = 1; i < previewStillImages.count; i++ {
+            var sprubixHandleBarSeperator = SprubixHandleBarSeperator(frame: CGRectMake(0, CGFloat(i) * screenWidth, screenWidth, sprubixHandleBarSeperatorHeight), handleWidth: 80.0, lineStroke: 2)
+            
+            sprubixHandleBars.append(sprubixHandleBarSeperator)
+            handleBarView.addSubview(sprubixHandleBarSeperator)
+        }
         
-        handleBarView.addSubview(sprubixHandleBarSeperator2)
+        // handlebar bottom
+        sprubixHandleBarSeperatorBottom = SprubixHandleBarSeperator(frame: CGRectMake(0, CGFloat(previewStillImages.count) * screenWidth, screenWidth, sprubixHandleBarSeperatorHeight), handleWidth: 80.0, lineStroke: 2)
         
-        // handlebar seperator 3
-        sprubixHandleBarSeperator3 = SprubixHandleBarSeperator(frame: CGRectMake(0, 0.50 * editScrollView.contentSize.height, screenWidth, sprubixHandleBarSeperatorHeight), handleWidth: 50.0, lineStroke: 2)
+        sprubixHandleBars.append(sprubixHandleBarSeperatorBottom)
+        handleBarView.addSubview(sprubixHandleBarSeperatorBottom)
         
-        handleBarView.addSubview(sprubixHandleBarSeperator3)
-        
-        // handlebar seperator 4
-        sprubixHandleBarSeperator4 = SprubixHandleBarSeperator(frame: CGRectMake(0, 0.75 * editScrollView.contentSize.height, screenWidth, sprubixHandleBarSeperatorHeight), handleWidth: 50.0, lineStroke: 2)
-        
-        handleBarView.addSubview(sprubixHandleBarSeperator4)
-        
-        // handlebar seperator 5
-        sprubixHandleBarSeperator5 = SprubixHandleBarSeperator(frame: CGRectMake(0, editScrollView.contentSize.height, screenWidth, sprubixHandleBarSeperatorHeight), handleWidth: 80.0, lineStroke: 2)
-        
-        handleBarView.addSubview(sprubixHandleBarSeperator5)
+        // bounding boxes
+        for var i = 0; i < sprubixHandleBars.count - 1; i++ {
+            let boundingBoxHeight: CGFloat = sprubixHandleBars[i + 1].frame.origin.y - sprubixHandleBars[i].frame.origin.y
+            
+            var boundingBox = UIView(frame: CGRectMake(0, CGFloat(i) * screenWidth, screenWidth, boundingBoxHeight))
+            //boundingBox.backgroundColor = UIColor(red: CGFloat(i * 255)/255, green: 102/255, blue: 108/255, alpha: 1).colorWithAlphaComponent(0.5)
+            
+            oldBoxSizes.append(boundingBox.frame.size)
+            
+            sprubixBoundingBoxes.append(boundingBox)
+            boundingBoxView.addSubview(boundingBox)
+        }
         
         // gesture recognizer to drag the handle bars
         var longPressGestureRecognizer: UILongPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action: "handlePan:")
-        longPressGestureRecognizer.minimumPressDuration = 0.1
+        longPressGestureRecognizer.minimumPressDuration = 0.2
         
+        var pinchGestureRecognizer: UIPinchGestureRecognizer = UIPinchGestureRecognizer(target: self, action: "handlePinch:")
+
+        editScrollView.addGestureRecognizer(pinchGestureRecognizer)
         editScrollView.addGestureRecognizer(longPressGestureRecognizer)
+        
+        editScrollView.addSubview(boundingBoxView)
         editScrollView.addSubview(handleBarView)
     }
     
+    func initPreviewImages() {
+        for var i = 0; i < previewStillImages.count; i++ {
+            var previewStillImage = previewStillImages[i]
+            
+            sprubixBoundingBoxes[i].contentMode = UIViewContentMode.ScaleAspectFill
+            
+            var imageView: UIImageView = UIImageView(frame: CGRectMake(0, 0, screenWidth, screenWidth/0.75))
+            imageView.contentMode = UIViewContentMode.ScaleAspectFill
+            imageView.image = previewStillImage.image
+            imageView.center.y = sprubixBoundingBoxes[i].frame.size.height / 2
+            
+            sprubixImageViews.append(imageView)
+            sprubixBoundingBoxes[i].addSubview(imageView)
+            sprubixBoundingBoxes[i].clipsToBounds = true
+        }
+    }
+    
     func resetHandleBarSeperators() {
-        sprubixHandleBarSeperator1.frame.origin.y = 0
-        sprubixHandleBarSeperator2.frame.origin.y = 0.25 * snapshot.frame.height
-        sprubixHandleBarSeperator3.frame.origin.y = 0.50 * snapshot.frame.height
-        sprubixHandleBarSeperator4.frame.origin.y = 0.75 * snapshot.frame.height
-        sprubixHandleBarSeperator5.frame.origin.y = snapshot.frame.height
+        for var i = 0; i < sprubixHandleBars.count; i++ {
+            sprubixHandleBars[i].frame.origin.y = CGFloat(i) * screenWidth
+        }
     }
     
     func resetBoundingBoxes() {
-        let boundingBox1Height:CGFloat = sprubixHandleBarSeperator1.frame.origin.y
-        boundingBox1.frame.size.height = boundingBox1Height
+        for var i = 0; i < sprubixHandleBars.count - 1; i++ {
+            let boundingBoxHeight: CGFloat = sprubixHandleBars[i + 1].frame.origin.y - sprubixHandleBars[i].frame.origin.y
         
-        let boundingBoxHeadHeight:CGFloat = sprubixHandleBarSeperator2.frame.origin.y - sprubixHandleBarSeperator1.frame.origin.y
-        boundingBoxHead.frame.size.height = boundingBoxHeadHeight
-        
-        let boundingBoxTopHeight:CGFloat = sprubixHandleBarSeperator3.frame.origin.y - sprubixHandleBarSeperator2.frame.origin.y
-        boundingBoxTop.frame.size.height = boundingBoxTopHeight
-        
-        let boundingBoxBottomHeight:CGFloat = sprubixHandleBarSeperator4.frame.origin.y - sprubixHandleBarSeperator3.frame.origin.y
-        boundingBoxBottom.frame.size.height = boundingBoxBottomHeight
-        
-        let boundingBoxFeetHeight:CGFloat = sprubixHandleBarSeperator5.frame.origin.y - sprubixHandleBarSeperator4.frame.origin.y
-        boundingBoxFeet.frame.size.height = boundingBoxFeetHeight
-        
-        let boundingBox2Height:CGFloat = snapshot.frame.height - sprubixHandleBarSeperator5.frame.origin.y
-        boundingBox2.frame.size.height = boundingBox2Height
-    }
-    
-    func initBoundingBoxes() {
-        boundingBoxView.frame = CGRectMake(0, 0, editScrollView.frame.size.width, editScrollView.contentSize.height)
-        
-        // 6 bounding boxes
-        // 4 invisible, 2 alpha-ed (first and last)
-        
-        // alpha-ed first
-        let boundingBox1Height:CGFloat = sprubixHandleBarSeperator1.frame.origin.y
-        boundingBox1 = UIView(frame: CGRectMake(0, 0, screenWidth, boundingBox1Height))
-        boundingBox1.backgroundColor = UIColor.whiteColor().colorWithAlphaComponent(0.75)
-        
-        boundingBoxView.addSubview(boundingBox1)
-        
-        // bounding box head
-        let boundingBoxHeadHeight:CGFloat = sprubixHandleBarSeperator2.frame.origin.y - sprubixHandleBarSeperator1.frame.origin.y
-        boundingBoxHead = UIView(frame: CGRectMake(0, 0, screenWidth, boundingBoxHeadHeight))
-        boundingBoxHead.backgroundColor = sprubixColor.colorWithAlphaComponent(0)
-        
-        boundingBoxView.addSubview(boundingBoxHead)
-        
-        // bounding box top
-        let boundingBoxTopHeight:CGFloat = sprubixHandleBarSeperator3.frame.origin.y - sprubixHandleBarSeperator2.frame.origin.y
-        boundingBoxTop = UIView(frame: CGRectMake(0, boundingBoxHeadHeight, screenWidth, boundingBoxTopHeight))
-        boundingBoxTop.backgroundColor = UIColor.greenColor().colorWithAlphaComponent(0)
-        
-        boundingBoxView.addSubview(boundingBoxTop)
-        
-        // bounding box bottom
-        let boundingBoxBottomHeight:CGFloat = sprubixHandleBarSeperator4.frame.origin.y - sprubixHandleBarSeperator3.frame.origin.y
-        boundingBoxBottom = UIView(frame: CGRectMake(0, boundingBoxHeadHeight + boundingBoxTopHeight, screenWidth, boundingBoxBottomHeight))
-        boundingBoxBottom.backgroundColor = UIColor.blueColor().colorWithAlphaComponent(0)
-        
-        boundingBoxView.addSubview(boundingBoxBottom)
-        
-        // bounding box feet
-        let boundingBoxFeetHeight:CGFloat = sprubixHandleBarSeperator5.frame.origin.y - sprubixHandleBarSeperator4.frame.origin.y
-        boundingBoxFeet = UIView(frame: CGRectMake(0, boundingBoxHeadHeight + boundingBoxTopHeight + boundingBoxBottomHeight, screenWidth, boundingBoxFeetHeight))
-        boundingBoxFeet.backgroundColor = UIColor.whiteColor().colorWithAlphaComponent(0)
-        
-        boundingBoxView.addSubview(boundingBoxFeet)
-        
-        // alpha-ed last
-        let boundingBox2Height:CGFloat = editScrollView.contentSize.height - sprubixHandleBarSeperator5.frame.origin.y
-        boundingBox2 = UIView(frame: CGRectMake(0, sprubixHandleBarSeperator5.frame.origin.y, screenWidth, boundingBox2Height))
-        boundingBox2.backgroundColor = UIColor.whiteColor().colorWithAlphaComponent(0.75)
-        
-        boundingBoxView.addSubview(boundingBox2)
-        
-        editScrollView.insertSubview(boundingBoxView, atIndex: 0)
+            sprubixBoundingBoxes[i].frame.origin.y = CGFloat(i) * screenWidth
+            sprubixBoundingBoxes[i].frame.size.height = boundingBoxHeight
+            sprubixBoundingBoxes[i].setNeedsDisplay()
+        }
     }
     
     override func viewWillAppear(animated: Bool) {
@@ -213,9 +165,90 @@ class EditSnapshotViewController: UIViewController {
         
         // 5. add the nav bar to the main view
         self.view.addSubview(newNavBar)
+        
+        initScrollView()
+        initBounds()
+        initPreviewImages()
+    }
+    
+    func handlePinch(gesture: UIPinchGestureRecognizer) {
+        // impt: there should be one 'scale' property per image, currently it's shared. hence zoom in max to img1, img2 cant zoom
+        firstTouchPoint = gesture.locationInView(boundingBoxView)
+        var currentScale: CGFloat = min(gesture.scale * scale, 4.0)
+        
+        if gesture.state == UIGestureRecognizerState.Began {
+            pinchedBox = findBoxBeingTouched(boundingBoxView, touchPoint: firstTouchPoint)
+            previousScale = scale
+        }
+        else if gesture.state == UIGestureRecognizerState.Changed {
+            if pinchedBox != nil {
+                var scaleStep: CGFloat = currentScale / previousScale
+                var pos = find(sprubixBoundingBoxes, pinchedBox!)
+                
+                sprubixImageViews[pos!].transform = CGAffineTransformScale(sprubixImageViews[pos!].transform, scaleStep, scaleStep)
+                
+                previousScale = currentScale
+            }
+        } else if   gesture.state == UIGestureRecognizerState.Ended ||
+                    gesture.state == UIGestureRecognizerState.Cancelled ||
+                    gesture.state == UIGestureRecognizerState.Failed {
+            
+                        if pinchedBox != nil {
+                            // if trying to scale smaller than current bounding box's frame
+                            if  gesture.scale * scale < pinchedBox!.frame.size.height / screenWidth || gesture.scale * scale < 1.0 { // screenWidth is original height of bounding box
+                                //underscaled
+                                
+                                if gesture.scale * scale < pinchedBox!.frame.size.height / screenWidth {
+                                    currentScale = pinchedBox!.frame.size.height / screenWidth
+                                } else {
+                                    currentScale = 1.0
+                                }
+                                
+                                var pos = find(sprubixBoundingBoxes, pinchedBox!)
+                                
+                                UIView.animateWithDuration(0.2, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .CurveEaseInOut, animations: {
+                                    
+                                    // 2 * self.pinchedBox!.frame.size.height / 3 is the expected width, based on current height
+                                    if 2 * self.pinchedBox!.frame.size.height / 3 >= screenWidth / 0.75 {
+                                        self.sprubixImageViews[pos!].frame.size = CGSizeMake(2 * self.pinchedBox!.frame.size.height / 3, self.pinchedBox!.frame.size.height)
+                                    } else {
+                                        self.sprubixImageViews[pos!].frame.size = CGSizeMake(screenWidth, screenWidth / 0.75)
+                                    }
+                                    
+                                    // center image
+                                    //self.sprubixImageViews[pos!].center.y = self.pinchedBox!.frame.size.height / 2
+                                    
+                                    }, completion: { finished in
+                                        if finished {
+                                            self.checkBoundaries(gesture)
+                                            //gesture.scale = self.pinchedBox!.frame.size.height / screenWidth
+                                        }
+                                })
+                            }
+                        }
 
-        //resetHandleBarSeperators()
-        //resetBoundingBoxes()
+                        self.checkBoundaries(gesture)
+                        scale = currentScale
+        }
+    }
+    
+    func findBoxBeingTouched(view: UIView, touchPoint: CGPoint) -> UIView? {
+        
+        // loop through subviews to find colliding handles
+        for subview in view.subviews {
+            let frame: CGRect = subview.frame
+            
+            // check x
+            if (touchPoint.x >= frame.origin.x) && (touchPoint.x <= frame.origin.x + frame.size.width) {
+                // check y
+                if (touchPoint.y >= frame.origin.y) && (touchPoint.y <= frame.origin.y + frame.size.height) {
+                    // found!
+                    return subview as? UIView
+                }
+            }
+        }
+        
+        return nil
     }
     
     // Callback Handler: handlebar drag gesture recognizer
@@ -224,24 +257,62 @@ class EditSnapshotViewController: UIViewController {
         
         if gesture.state == UIGestureRecognizerState.Began {
             firstTouchPoint = gesture.locationInView(handleBarView)
-            draggedHandle = findHandlesBeingDragged(handleBarView, touchPoint: firstTouchPoint)
-            (draggedHandle as! SprubixHandleBarSeperator).setCustomBackgroundColor(sprubixColor)
+            draggedHandle = findHandlesBeingTouched(handleBarView, touchPoint: firstTouchPoint)
+            
+            if draggedHandle != nil {
+                (draggedHandle as! SprubixHandleBarSeperator).setCustomBackgroundColor(sprubixColor)
+            } else {
+                // box
+                draggedBox = findBoxBeingTouched(boundingBoxView, touchPoint: firstTouchPoint)
+                
+                if draggedBox != nil {
+                    draggedBox!.layer.borderWidth = 5.0
+                    draggedBox!.layer.borderColor = UIColor(red: 255/255, green: 102/255, blue: 108/255, alpha: 0.5).CGColor // sprubix color with 50% alpha
+                }
+            }
+            
         } else if gesture.state == UIGestureRecognizerState.Changed {
             if draggedHandle != nil {
                 let currentTouchPoint: CGPoint = gesture.locationInView(handleBarView)
                 var translation:CGPoint = CGPointMake(currentTouchPoint.x - firstTouchPoint.x, currentTouchPoint.y - firstTouchPoint.y)
 
-                draggedHandle?.frame.origin.y = firstTouchPoint.y + translation.y
+                if (draggedHandle as! SprubixHandleBarSeperator).draggable != false {
+                    draggedHandle?.frame.origin.y = firstTouchPoint.y + translation.y
+                }
                 
-                updatePiecesBoxes(draggedHandle!)
-                updateTopAndBottomBoxes(draggedHandle!)
+                updateBoundingBoxes(draggedHandle!)
+            } else if draggedBox != nil {
+                // box
+                let currentTouchPoint: CGPoint = gesture.locationInView(boundingBoxView)
+                var translation:CGPoint = CGPointMake(currentTouchPoint.x - firstTouchPoint.x, currentTouchPoint.y - firstTouchPoint.y)
+                
+                var pos = find(sprubixBoundingBoxes, draggedBox!)
+                var diff = CGPointMake(lastTouchPoint.x - translation.x, lastTouchPoint.y - translation.y)
+                
+                sprubixImageViews[pos!].center = CGPointMake(sprubixImageViews[pos!].center.x - diff.x, sprubixImageViews[pos!].center.y - diff.y)
+                
+                lastTouchPoint = translation
             }
+            
+            checkCentered()
+            
         } else if gesture.state == UIGestureRecognizerState.Ended {
-            (draggedHandle as! SprubixHandleBarSeperator).setCustomBackgroundColor(UIColor.whiteColor())
+            if draggedHandle != nil {
+                (draggedHandle as! SprubixHandleBarSeperator).setCustomBackgroundColor(UIColor.whiteColor())
+            } else if draggedBox != nil {
+                // box
+                var pos = find(sprubixBoundingBoxes, draggedBox!)
+                
+                draggedBox!.layer.borderWidth = 0.0
+                
+                lastTouchPoint = CGPointZero
+            }
+            
+            checkBoundaries(gesture)
         }
     }
     
-    func findHandlesBeingDragged(view: UIView, touchPoint: CGPoint) -> UIView? {
+    func findHandlesBeingTouched(view: UIView, touchPoint: CGPoint) -> UIView? {
         let tolerance: CGFloat = 20.0
         
         // loop through subviews to find colliding handles
@@ -261,167 +332,194 @@ class EditSnapshotViewController: UIViewController {
         return nil
     }
     
-    func updateTopAndBottomBoxes(draggedHandle: UIView) {
-        // check invisible rects and bounding boxesso we
-        if draggedHandle == sprubixHandleBarSeperator1 {
-            boundingBox1.frame.size.height = draggedHandle.frame.origin.y
-        } else if draggedHandle == sprubixHandleBarSeperator5 {
-            boundingBox2.frame.size.height = editScrollView.contentSize.height - draggedHandle.frame.origin.y
-            boundingBox2.frame.origin.y = draggedHandle.frame.origin.y
+    func checkBoundaries(pinchGestureRecognizer: UIGestureRecognizer) {
+        for var i = 0; i < sprubixImageViews.count; i++ {
+            let imageView = sprubixImageViews[i]
+            let boundingBox = sprubixBoundingBoxes[i]
+            
+            // check if imageview is dragged to non draggable regions
+            if imageView.frame.origin.x > boundingBox.frame.origin.x {
+                
+                // left
+                UIView.animateWithDuration(0.5, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .CurveEaseInOut, animations: {
+                    pinchGestureRecognizer.enabled = false
+                    
+                    imageView.frame.origin.x = boundingBox.frame.origin.x
+                    
+                    }, completion: { finished in
+                        pinchGestureRecognizer.enabled = true
+                })
+            }
+            
+            if imageView.frame.origin.y > 0 {
+                // top
+                UIView.animateWithDuration(0.5, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .CurveEaseInOut, animations: {
+                    pinchGestureRecognizer.enabled = false
+                    
+                    imageView.frame.origin.y = 0
+                    
+                    }, completion: { finished in
+                        pinchGestureRecognizer.enabled = true
+                })
+            }
+            
+            if imageView.frame.origin.x + imageView.frame.size.width < boundingBox.frame.origin.x + boundingBox.frame.size.width {
+                // right
+                UIView.animateWithDuration(0.5, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .CurveEaseInOut, animations: {
+                    pinchGestureRecognizer.enabled = false
+                    
+                    imageView.frame.origin.x = boundingBox.frame.origin.x + boundingBox.frame.size.width - imageView.frame.size.width
+                    }, completion: { finished in
+                        pinchGestureRecognizer.enabled = true
+                })
+            }
+            
+            if imageView.frame.origin.y + imageView.frame.size.height < boundingBox.frame.size.height {
+                // bottom
+                UIView.animateWithDuration(0.5, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .CurveEaseInOut, animations: {
+                    pinchGestureRecognizer.enabled = false
+                    
+                    imageView.frame.origin.y = boundingBox.frame.size.height - imageView.frame.size.height
+                    }, completion: { finished in
+                        pinchGestureRecognizer.enabled = true
+                })
+            }
         }
     }
     
-    func updatePiecesBoxes(draggedHandle: UIView) {
-        // handle 1 = head
-        // handle 2 = head and top
-        // handle 3 = top and bottom
-        // handle 4 = bottom and feet
-        // handle 5 = feet
+    func updateBoundingBoxes(draggedHandle: UIView) {
+        let pos = find(sprubixHandleBars, (draggedHandle as! SprubixHandleBarSeperator))!
         
         switch draggedHandle {
-        case sprubixHandleBarSeperator1:
-            //println("head")
+        case sprubixHandleBarSeperatorTop:
             
-            // prevent going out of frame
-            if draggedHandle.frame.origin.y < 0 {
-                draggedHandle.frame.origin.y = 0
+            if (draggedHandle as! SprubixHandleBarSeperator).draggable != false {
+                // prevent going out of frame
+                if draggedHandle.frame.origin.y < 0 {
+                    draggedHandle.frame.origin.y = 0
+                }
+                
+                if draggedHandle.frame.origin.y > sprubixHandleBars[pos + 1].frame.origin.y - dragLimit { // dragging down
+                    draggedHandle.frame.origin.y = sprubixHandleBars[pos + 1].frame.origin.y - dragLimit
+                }
+                
+                var boundingBoxBelowHeight:CGFloat = sprubixHandleBars[pos + 1].frame.origin.y - draggedHandle.frame.origin.y
+                
+                // min size of below section is dragLimit
+                if boundingBoxBelowHeight < dragLimit {
+                    boundingBoxBelowHeight = dragLimit
+                }
+                
+                sprubixBoundingBoxes[pos].frame.origin.y = draggedHandle.frame.origin.y
+                sprubixBoundingBoxes[pos].frame.size.height = boundingBoxBelowHeight
+                
             }
             
-            if draggedHandle.frame.origin.y > sprubixHandleBarSeperator2.frame.origin.y - dragLimit { // dragging down
-                draggedHandle.frame.origin.y = sprubixHandleBarSeperator2.frame.origin.y - dragLimit
+        case sprubixHandleBarSeperatorBottom:
+            
+            if (draggedHandle as! SprubixHandleBarSeperator).draggable != false {
+                // prevent going out of frame
+    //            if draggedHandle.frame.origin.y > snapshot.frame.height {
+    //                draggedHandle.frame.origin.y = snapshot.frame.height
+    //            }
+                
+                if draggedHandle.frame.origin.y > sprubixHandleBars[pos - 1].frame.origin.y + sprubixImageViews[pos - 1].frame.height { // dragging down
+                    draggedHandle.frame.origin.y = sprubixHandleBars[pos - 1].frame.origin.y + sprubixImageViews[pos - 1].frame.height
+                } else if draggedHandle.frame.origin.y < sprubixHandleBars[pos - 1].frame.origin.y + dragLimit { // dragging up
+                    draggedHandle.frame.origin.y = sprubixHandleBars[pos - 1].frame.origin.y + dragLimit
+                }
+                
+                var boundingBoxAboveHeight:CGFloat = draggedHandle.frame.origin.y - sprubixHandleBars[pos - 1].frame.origin.y
+                
+                // min size of above section is dragLimit
+                if boundingBoxAboveHeight < dragLimit {
+                    boundingBoxAboveHeight = dragLimit
+                }
+                
+                sprubixBoundingBoxes[sprubixBoundingBoxes.count - 1].frame.size.height = boundingBoxAboveHeight
             }
-            
-            var boundingBoxHeadHeight:CGFloat = sprubixHandleBarSeperator2.frame.origin.y - draggedHandle.frame.origin.y
-            
-            // min size of "head" section is dragLimit
-            if boundingBoxHeadHeight < dragLimit {
-                boundingBoxHeadHeight = dragLimit
-            }
-            
-            boundingBoxHead.frame.origin.y = draggedHandle.frame.origin.y
-            boundingBoxHead.frame.size.height = boundingBoxHeadHeight
-            
-        case sprubixHandleBarSeperator2:
-            //println("head and top")
-            
-            // boundingBoxHead
-            if draggedHandle.frame.origin.y < sprubixHandleBarSeperator1.frame.origin.y + dragLimit { // dragging up
-                draggedHandle.frame.origin.y = sprubixHandleBarSeperator1.frame.origin.y + dragLimit
-            }
-            
-            // boundingBoxTop
-            if draggedHandle.frame.origin.y > sprubixHandleBarSeperator3.frame.origin.y - dragLimit { // dragging down
-                draggedHandle.frame.origin.y = sprubixHandleBarSeperator3.frame.origin.y - dragLimit
-            }
-            
-            // get latest heights
-            var boundingBoxHeadHeight:CGFloat = draggedHandle.frame.origin.y - sprubixHandleBarSeperator1.frame.origin.y
-            var boundingBoxTopHeight:CGFloat = sprubixHandleBarSeperator3.frame.origin.y - draggedHandle.frame.origin.y
-            
-            // min size of "head" section if dragLimit
-            if boundingBoxHeadHeight < dragLimit {
-                boundingBoxHeadHeight = dragLimit
-            }
-            
-            // min size of "top" section if dragLimit
-            if boundingBoxTopHeight < dragLimit {
-                boundingBoxTopHeight = dragLimit
-            }
-            
-            boundingBoxHead.frame.size.height = boundingBoxHeadHeight
-            boundingBoxTop.frame.origin.y = draggedHandle.frame.origin.y
-            boundingBoxTop.frame.size.height = boundingBoxTopHeight
-            
-        case sprubixHandleBarSeperator3:
-            //println("top and bottom")
-            
-            // boundingBoxTop
-            if draggedHandle.frame.origin.y < sprubixHandleBarSeperator2.frame.origin.y + dragLimit { // dragging up
-                draggedHandle.frame.origin.y = sprubixHandleBarSeperator2.frame.origin.y + dragLimit
-            }
-            
-            // boundingBoxBottom
-            if draggedHandle.frame.origin.y > sprubixHandleBarSeperator4.frame.origin.y - dragLimit { // dragging down
-                draggedHandle.frame.origin.y = sprubixHandleBarSeperator4.frame.origin.y - dragLimit
-            }
-            
-            // get latest heights
-            var boundingBoxTopHeight:CGFloat = draggedHandle.frame.origin.y - sprubixHandleBarSeperator2.frame.origin.y
-            var boundingBoxBottomHeight:CGFloat = sprubixHandleBarSeperator4.frame.origin.y - draggedHandle.frame.origin.y
-            
-            // min size of "top" section if dragLimit
-            if boundingBoxTopHeight < dragLimit {
-                boundingBoxTopHeight = dragLimit
-            }
-            
-            // min size of "bottom" section if dragLimit
-            if boundingBoxBottomHeight < dragLimit {
-                boundingBoxBottomHeight = dragLimit
-            }
-            
-            boundingBoxTop.frame.size.height = boundingBoxTopHeight
-            boundingBoxBottom.frame.origin.y = draggedHandle.frame.origin.y
-            boundingBoxBottom.frame.size.height = boundingBoxBottomHeight
-            
-        case sprubixHandleBarSeperator4:
-            //println("bottom and feet")
-            
-            // boundingBoxBottom
-            if draggedHandle.frame.origin.y < sprubixHandleBarSeperator3.frame.origin.y + dragLimit { // dragging up
-                draggedHandle.frame.origin.y = sprubixHandleBarSeperator3.frame.origin.y + dragLimit
-            }
-            
-            // boundingBoxFeet
-            if draggedHandle.frame.origin.y > sprubixHandleBarSeperator5.frame.origin.y - dragLimit { // dragging down
-                draggedHandle.frame.origin.y = sprubixHandleBarSeperator5.frame.origin.y - dragLimit
-            }
-            
-            // get latest heights
-            var boundingBoxBottomHeight:CGFloat = draggedHandle.frame.origin.y - sprubixHandleBarSeperator3.frame.origin.y
-            var boundingBoxFeetHeight:CGFloat = sprubixHandleBarSeperator5.frame.origin.y - draggedHandle.frame.origin.y
-            
-            // min size of "bottom" section if dragLimit
-            if boundingBoxBottomHeight < dragLimit {
-                boundingBoxBottomHeight = dragLimit
-            }
-            
-            // min size of "feet" section if dragLimit
-            if boundingBoxFeetHeight < dragLimit {
-                boundingBoxFeetHeight = dragLimit
-            }
-            
-            boundingBoxBottom.frame.size.height = boundingBoxBottomHeight
-            boundingBoxFeet.frame.origin.y = draggedHandle.frame.origin.y
-            boundingBoxFeet.frame.size.height = boundingBoxFeetHeight
-            
-        case sprubixHandleBarSeperator5:
-            //println("feet")
-            
-            // prevent going out of frame
-//            if draggedHandle.frame.origin.y > snapshot.frame.height {
-//                draggedHandle.frame.origin.y = snapshot.frame.height
-//            }
-            
-            if draggedHandle.frame.origin.y < sprubixHandleBarSeperator4.frame.origin.y + dragLimit { // dragging up
-                draggedHandle.frame.origin.y = sprubixHandleBarSeperator4.frame.origin.y + dragLimit
-            }
-            
-            var boundingBoxFeetHeight:CGFloat = draggedHandle.frame.origin.y - sprubixHandleBarSeperator4.frame.origin.y
-            
-            // min size of "feet" section is dragLimit
-            if boundingBoxFeetHeight < dragLimit {
-                boundingBoxFeetHeight = dragLimit
-            }
-            
-            boundingBoxFeet.frame.size.height = boundingBoxFeetHeight
-            
+        
         default:
-            fatalError("Unidentified SprubixHandleBarSeperator")
+            
+            if (draggedHandle as! SprubixHandleBarSeperator).draggable != false {
+                // boundingBox above current handlebar
+                if draggedHandle.frame.origin.y < sprubixHandleBars[pos + 1].frame.origin.y - sprubixImageViews[pos].frame.height { // dragging up
+                    draggedHandle.frame.origin.y = sprubixHandleBars[pos + 1].frame.origin.y - sprubixImageViews[pos].frame.height
+                } else if draggedHandle.frame.origin.y < sprubixHandleBars[pos - 1].frame.origin.y + dragLimit { // dragging up
+                    draggedHandle.frame.origin.y = dragLimit
+                }
+                
+                // boundingBox below current handlebar
+                else if draggedHandle.frame.origin.y > sprubixHandleBars[pos - 1].frame.origin.y + sprubixImageViews[pos - 1].frame.height { // dragging down
+                    draggedHandle.frame.origin.y = sprubixHandleBars[pos - 1].frame.origin.y + sprubixImageViews[pos - 1].frame.height
+                }
+                else if draggedHandle.frame.origin.y > sprubixHandleBars[pos + 1].frame.origin.y - dragLimit {
+                    draggedHandle.frame.origin.y = sprubixHandleBars[pos + 1].frame.origin.y - dragLimit
+                }
+                
+                // get latest heights
+                var boundingBoxAboveHeight:CGFloat = draggedHandle.frame.origin.y - sprubixHandleBars[pos - 1].frame.origin.y
+                var boundingBoxBelowHeight:CGFloat = sprubixHandleBars[pos + 1].frame.origin.y - draggedHandle.frame.origin.y
+                
+                // min size of above section if dragLimit
+                if boundingBoxAboveHeight < dragLimit {
+                    boundingBoxAboveHeight = dragLimit
+                }
+                
+                // min size of below section if dragLimit
+                if boundingBoxBelowHeight < dragLimit {
+                    boundingBoxBelowHeight = dragLimit
+                }
+                
+                sprubixBoundingBoxes[pos - 1].frame.size.height = boundingBoxAboveHeight
+                sprubixBoundingBoxes[pos].frame.origin.y = draggedHandle.frame.origin.y
+                sprubixBoundingBoxes[pos].frame.size.height = boundingBoxBelowHeight
+            }
+        }
+    }
+    
+    func checkCentered() {
+    
+        for var i = 0; i < sprubixImageViews.count; i++ {
+            
+            let imageView = sprubixImageViews[i]
+            let boundingBox = sprubixBoundingBoxes[i]
+            
+            // adjusts imageview center so imageview will always be centered
+            if oldBoxSizes.count > i {
+                var diff = (oldBoxSizes[i].height - boundingBox.frame.size.height) / 2
+                imageView.center.y = imageView.center.y - diff
+            }
+        }
+        
+        // update old box sizes
+        for var i = 0; i < sprubixBoundingBoxes.count; i++ {
+            oldBoxSizes[i] = sprubixBoundingBoxes[i].frame.size
         }
     }
     
     // Callback Handler: navigation bar back button
     func backTapped(sender: UIBarButtonItem) {
         self.navigationController?.popViewControllerAnimated(false)
+        
+        for subview in handleBarView.subviews {
+            subview.removeFromSuperview()
+        }
+        
+        for subview in boundingBoxView.subviews {
+            subview.removeFromSuperview()
+        }
+        
+        for subview in editScrollView.subviews {
+            subview.removeFromSuperview()
+        }
+        
+        sprubixBoundingBoxes.removeAll()
+        sprubixHandleBars.removeAll()
+        sprubixImageViews.removeAll()
+        oldBoxSizes.removeAll()
+        
+        scale = 1.0
+        previousScale = 1.0
     }
 }

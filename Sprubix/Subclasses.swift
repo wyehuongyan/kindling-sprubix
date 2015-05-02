@@ -126,6 +126,7 @@ class SprubixItemDescription: UILabel {
 class SprubixHandleBarSeperator: UIView {
     var seperatorLineTop: UIView!
     var handleBar: UIView!
+    var draggable: Bool!
     
     override init(frame: CGRect) {
         super.init(frame: frame)
