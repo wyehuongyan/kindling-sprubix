@@ -60,6 +60,12 @@
 #define COCOAPODS_VERSION_MINOR_CHTCollectionViewWaterfallLayout 8
 #define COCOAPODS_VERSION_PATCH_CHTCollectionViewWaterfallLayout 0
 
+// NYXImagesKit
+#define COCOAPODS_POD_AVAILABLE_NYXImagesKit
+#define COCOAPODS_VERSION_MAJOR_NYXImagesKit 2
+#define COCOAPODS_VERSION_MINOR_NYXImagesKit 3
+#define COCOAPODS_VERSION_PATCH_NYXImagesKit 0
+
 // TLYShyNavBar
 #define COCOAPODS_POD_AVAILABLE_TLYShyNavBar
 #define COCOAPODS_VERSION_MAJOR_TLYShyNavBar 0

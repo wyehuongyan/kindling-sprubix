@@ -6,9 +6,7 @@
 #import "AFNetworking/UIKit+AFNetworking.h"
 #import "AFNetworkActivityLogger/AFNetworkActivityLogger.h"
 #import "CHTCollectionViewWaterfallLayout.h"
-
 #import "TLYShyNavBarManager.h"
-//#import "TLYShyViewController.h"
-//#import "TLYDelegateProxy.h"
-//#import "NSObject+TLYSwizzlingHelpers.h"
-//#import "UIViewController+BetterLayoutGuides.h"
+
+#import "UIImage+Filtering.h"
+#import "UIImage+Rotating.h"

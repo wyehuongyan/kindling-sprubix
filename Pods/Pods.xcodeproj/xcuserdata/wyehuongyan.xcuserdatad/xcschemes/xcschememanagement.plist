@@ -19,6 +19,11 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
+		<key>Pods-Sprubix-NYXImagesKit.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
 		<key>Pods-Sprubix-TLYShyNavBar.xcscheme</key>
 		<dict>
 			<key>isShown</key>
@@ -32,27 +37,32 @@
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
-		<key>712BF3EABC2CA8EF3327AB85</key>
+		<key>9950151FA3EE9D1D1DF46C5F</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>9BB149E521439023BB6803FE</key>
+		<key>AB76608088C65BAECBF5D300</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>AEE65DC6AC327E7B2F871C17</key>
+		<key>AD7EB800AA724E60002EEFCD</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>F123C45EF66AF6E0D4D51DCB</key>
+		<key>C0F9187DEC6887DF1AE0DE31</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>FDF78223BBF7ADE893A68748</key>
+		<key>C60AA02E166DC216A0F4F3FC</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>EFFE1490415D44B6913ED5E4</key>
 		<dict>
 			<key>primary</key>
 			<true/>

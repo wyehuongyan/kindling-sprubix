@@ -111,7 +111,10 @@ class EditSnapshotViewController: UIViewController {
             
             var imageView: UIImageView = UIImageView(frame: CGRectMake(0, 0, screenWidth, screenWidth/0.75))
             imageView.contentMode = UIViewContentMode.ScaleAspectFill
-            imageView.image = previewStillImage.image
+            
+            var fixedImage = fixOrientation(previewStillImage.image!)
+            imageView.image = fixedImage//.sepia()
+            
             imageView.center.y = sprubixBoundingBoxes[i].frame.size.height / 2
             
             sprubixImageViews.append(imageView)
@@ -521,5 +524,22 @@ class EditSnapshotViewController: UIViewController {
         
         scale = 1.0
         previousScale = 1.0
+    }
+    
+    // fix image orientation
+    func fixOrientation(img: UIImage) -> UIImage {
+        
+        if (img.imageOrientation == UIImageOrientation.Up) {
+            return img;
+        }
+        
+        UIGraphicsBeginImageContextWithOptions(img.size, false, img.scale);
+        let rect = CGRect(x: 0, y: 0, width: img.size.width, height: img.size.height)
+        img.drawInRect(rect)
+        
+        var normalizedImage : UIImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext();
+        return normalizedImage;
+        
     }
 }
