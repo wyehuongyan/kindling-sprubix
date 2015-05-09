@@ -7,6 +7,4 @@
 #import "AFNetworkActivityLogger/AFNetworkActivityLogger.h"
 #import "CHTCollectionViewWaterfallLayout.h"
 #import "TLYShyNavBarManager.h"
-
-#import "UIImage+Filtering.h"
-#import "UIImage+Rotating.h"
+#import "GPUImage.h"

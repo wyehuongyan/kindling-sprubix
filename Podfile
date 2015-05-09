@@ -8,7 +8,7 @@ target "Sprubix" do
   pod 'AFNetworkActivityLogger', '~> 2.0'
   pod 'CHTCollectionViewWaterfallLayout', '~> 0.8'
   pod 'TLYShyNavBar', '~> 0.9.8'
-  pod 'NYXImagesKit', '~> 2.3'
+  pod 'GPUImage', '~> 0.1.4'
 end
 
 target "SprubixTests" do

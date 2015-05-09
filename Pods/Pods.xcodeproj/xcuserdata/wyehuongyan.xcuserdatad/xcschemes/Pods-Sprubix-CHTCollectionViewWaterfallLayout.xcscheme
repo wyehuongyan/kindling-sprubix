@@ -14,7 +14,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "9950151FA3EE9D1D1DF46C5F"
+               BlueprintIdentifier = "77756543DEFBB8DFB95DCE94"
                BuildableName = "libPods-Sprubix-CHTCollectionViewWaterfallLayout.a"
                BlueprintName = "Pods-Sprubix-CHTCollectionViewWaterfallLayout"
                ReferencedContainer = "container:Pods.xcodeproj">

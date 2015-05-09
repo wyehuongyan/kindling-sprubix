@@ -187,6 +187,8 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
     
     override func viewDidAppear(animated: Bool) {
         super.viewDidAppear(animated)
+
+        editSnapshotViewController = nil
         
         self.establishVideoPreviewArea()
     }

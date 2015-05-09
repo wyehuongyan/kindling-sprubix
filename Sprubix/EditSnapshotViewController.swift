@@ -8,9 +8,20 @@
 
 import UIKit
 
-class EditSnapshotViewController: UIViewController {
+enum EditMode {
+    case None
+    case Brightness
+    case Contrast
+    case Sharpness
+}
 
-    var snapshot: UIImageView = UIImageView()
+class EditSnapshotViewController: UIViewController {
+    var selectedEditingMode: EditMode = .None
+    
+    // custom nav bar
+    var newNavBar:UINavigationBar!
+    var newNavItem:UINavigationItem!
+    
     var handleBarView: UIView = UIView()
     var boundingBoxView: UIView = UIView()
 
@@ -29,28 +40,203 @@ class EditSnapshotViewController: UIViewController {
     var sprubixHandleBars: [SprubixHandleBarSeperator] = [SprubixHandleBarSeperator]()
     var sprubixBoundingBoxes: [UIView] = [UIView]()
     var sprubixImageViews: [UIImageView] = [UIImageView]()
+    var selectedImageView: UIImageView!
+    var selectedImagePos: Int!
+    var oldBoxSizes: [CGSize] = [CGSize]()
+    var imageCopies: [UIImage] = [UIImage]()
+    var brightnessValues: [Float] = [0, 0, 0, 0]
+    var contrastValues: [Float] = [25, 25, 25, 25]
+    var sharpnessValues: [Float] = [0, 0, 0, 0]
+    var sliderCurrentValue: Float!
     
     let dragLimit:CGFloat = 30
     
     var editScrollView: UIScrollView!
     var previewStillImages: [UIImageView]!
     
-    var oldBoxSizes: [CGSize] = [CGSize]()
+    // UI
+    var editControlsPanel: UIView!
+    var editControlsLabel: UILabel!
+    var brightnessBtn: UIButton!
+    var contrastBtn: UIButton!
+    var sharpenBtn: UIButton!
+    var editSlider: UISlider!
+    var editSliderLabel: UILabel!
+    
+    var editConfirmPanel: UIView!
+    var tickBtn: UIButton!
+    var crossBtn: UIButton!
+    
+    // filters
+    var gpuImageFilter: GPUImageFilter!
+    var quickFilteredImage: UIImage!
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        self.view.backgroundColor = UIColor.whiteColor()
+        
+        initView()
+        initBounds()
+        initPreviewImages()
+        saveImageCopies()
     }
     
-    func initScrollView() {
+    override func viewWillAppear(animated: Bool) {
+        // 1. hide existing nav bar
+        self.navigationController?.setNavigationBarHidden(true, animated: true)
+        
+        // 2. create new nav bar and style it
+        newNavBar = UINavigationBar(frame: CGRectMake(0, 0, self.view.bounds.width, navigationHeight))
+        newNavBar.barTintColor = UIColor.whiteColor()
+        
+        // 3. add a new navigation item w/title to the new nav bar
+        newNavItem = UINavigationItem()
+        newNavItem.title = "Edit"
+        
+        // 4. create a custom back button
+        var backButton:UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+        var image: UIImage = UIImage(named: "spruce-arrow-back")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
+        backButton.setImage(image, forState: UIControlState.Normal)
+        backButton.frame = CGRect(x: -10, y: 0, width: 20, height: 20)
+        backButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+        backButton.imageView?.tintColor = UIColor.lightGrayColor()
+        backButton.addTarget(self, action: "backTapped:", forControlEvents: UIControlEvents.TouchUpInside)
+        
+        var backBarButtonItem:UIBarButtonItem = UIBarButtonItem(customView: backButton)
+        backBarButtonItem.tintColor = UIColor(red: 170/255, green: 170/255, blue: 170/255, alpha: 1.0)
+        
+        newNavItem.leftBarButtonItem = backBarButtonItem
+        
+        // 5. create a next button
+        var nextButton:UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+        //nextButton.setImage(UIImage(named: "spruce-arrow-back"), forState: UIControlState.Normal)
+        nextButton.setTitle("next", forState: UIControlState.Normal)
+        nextButton.setTitleColor(sprubixColor, forState: UIControlState.Normal)
+        nextButton.frame = CGRect(x: 0, y: 0, width: 40, height: 20)
+        nextButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+        nextButton.addTarget(self, action: "nextTapped:", forControlEvents: UIControlEvents.TouchUpInside)
+        
+        var nextBarButtonItem:UIBarButtonItem = UIBarButtonItem(customView: nextButton)
+        newNavItem.rightBarButtonItem = nextBarButtonItem
+        
+        newNavBar.setItems([newNavItem], animated: false)
+        
+        // 6. add the nav bar to the main view
+        self.view.addSubview(newNavBar)
+    }
+    
+    func initView() {
+        // scroll view
         editScrollView = UIScrollView(frame: CGRectMake(0, navigationHeight, screenWidth, screenWidth / 0.75))
         editScrollView.scrollEnabled = true
         editScrollView.alwaysBounceVertical = true
         editScrollView.showsVerticalScrollIndicator = false
-        editScrollView.backgroundColor = UIColor.lightGrayColor()
+        editScrollView.backgroundColor = UIColor.grayColor()
         
         editScrollView.contentSize = CGSizeMake(screenWidth, CGFloat(previewStillImages.count) * screenWidth / 0.75)
         
         self.view.addSubview(editScrollView)
+        
+        // editConfirmPanel (tick and cross)
+        let editConfirmPanelHeight: CGFloat = 50
+        editConfirmPanel = UIView(frame: CGRectMake(0, navigationHeight + screenWidth / 0.75, screenWidth, editConfirmPanelHeight)) // behind editControlsPanel
+        editConfirmPanel.backgroundColor = UIColor.whiteColor().colorWithAlphaComponent(0.5)
+        
+        // buttons: tick and cross
+        // cross
+        crossBtn = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+        crossBtn.frame = CGRectMake(0, 0, screenWidth / 2, editConfirmPanelHeight)
+        var crossBtnImage: UIImage = UIImage(named: "spruce-arrow-left")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
+        crossBtn.setImage(crossBtnImage, forState: UIControlState.Normal)
+        crossBtn.imageView?.tintColor = UIColor.whiteColor()
+        Glow.addGlow(crossBtn)
+        crossBtn.addTarget(self, action: "editBtnConfirmed:", forControlEvents: UIControlEvents.TouchUpInside)
+        
+        editConfirmPanel.addSubview(crossBtn)
+        
+        // tick
+        tickBtn = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+        tickBtn.frame = CGRectMake(screenWidth / 2, 0, screenWidth / 2, editConfirmPanelHeight)
+        var tickBtnImage: UIImage = UIImage(named: "spruce-arrow-right")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
+        tickBtn.setImage(tickBtnImage, forState: UIControlState.Normal)
+        tickBtn.imageView?.tintColor = UIColor.whiteColor()
+        Glow.addGlow(tickBtn)
+        tickBtn.addTarget(self, action: "editBtnConfirmed:", forControlEvents: UIControlEvents.TouchUpInside)
+        
+        editConfirmPanel.addSubview(tickBtn)
+        
+        self.view.addSubview(editConfirmPanel)
+        
+        // editControlsPanel
+        let editControlsPanelHeight: CGFloat = screenHeight - (navigationHeight + screenWidth / 0.75)
+        
+        editControlsPanel = UIView(frame: CGRectMake(0, navigationHeight + screenWidth / 0.75, screenWidth, editControlsPanelHeight))
+        editControlsPanel.backgroundColor = UIColor.whiteColor()
+        
+        editControlsLabel = UILabel(frame: editControlsPanel.bounds)
+        editControlsLabel.lineBreakMode = NSLineBreakMode.ByWordWrapping
+        editControlsLabel.numberOfLines = 0
+        editControlsLabel.text = "Tap on an image toggle effects \n or Tap and Hold to drag"
+        editControlsLabel.textColor = UIColor.lightGrayColor()
+        editControlsLabel.textAlignment = NSTextAlignment.Center
+        
+        editControlsPanel.addSubview(editControlsLabel)
+        
+        // edit buttons: brightness, contrast and sharpen
+        // brightness
+        brightnessBtn = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+        brightnessBtn.frame = CGRectMake(0, 0, screenWidth / 3, editControlsPanelHeight)
+        brightnessBtn.setImage(UIImage(named: "view-item-cat-top"), forState: UIControlState.Normal)
+        brightnessBtn.addTarget(self, action: "editBtnSelected:", forControlEvents: UIControlEvents.TouchUpInside)
+        Glow.addGlow(brightnessBtn)
+        brightnessBtn.alpha = 0.0
+        
+        editControlsPanel.addSubview(brightnessBtn)
+        
+        // contrast
+        contrastBtn = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+        contrastBtn.frame = CGRectMake(screenWidth / 3, 0, screenWidth / 3, editControlsPanelHeight)
+        contrastBtn.setImage(UIImage(named: "view-item-cat-bot"), forState: UIControlState.Normal)
+        contrastBtn.addTarget(self, action: "editBtnSelected:", forControlEvents: UIControlEvents.TouchUpInside)
+        Glow.addGlow(contrastBtn)
+        contrastBtn.alpha = 0.0
+        
+        editControlsPanel.addSubview(contrastBtn)
+        
+        // sharpen
+        sharpenBtn = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+        sharpenBtn.frame = CGRectMake(2 * screenWidth / 3, 0, screenWidth / 3, editControlsPanelHeight)
+        sharpenBtn.setImage(UIImage(named: "view-item-cat-feet"), forState: UIControlState.Normal)
+        sharpenBtn.addTarget(self, action: "editBtnSelected:", forControlEvents: UIControlEvents.TouchUpInside)
+        Glow.addGlow(sharpenBtn)
+        sharpenBtn.alpha = 0.0
+        
+        editControlsPanel.addSubview(sharpenBtn)
+        
+        // slider
+        let editSliderWidth: CGFloat = 0.8 * screenWidth
+        
+        editSlider = UISlider(frame: CGRectMake(screenWidth / 2 - editSliderWidth / 2, 0, editSliderWidth, editControlsPanelHeight))
+        editSlider.minimumValue = -100
+        editSlider.maximumValue = 100
+        editSlider.continuous = true
+        editSlider.tintColor = sprubixColor
+        editSlider.value = 0
+        editSlider.addTarget(self, action: "editSliderValueChanged:", forControlEvents: UIControlEvents.ValueChanged)
+        editSlider.alpha = 0.0
+        
+        let editSliderLabelWidth: CGFloat = 60
+        editSliderLabel = UILabel(frame: CGRectMake(editSlider.center.x - editSliderLabelWidth / 2, editSlider.center.y - editSliderLabelWidth, editSliderLabelWidth, editSliderLabelWidth))
+        editSliderLabel.text = "0"
+        editSliderLabel.textColor = UIColor.lightGrayColor()
+        editSliderLabel.textAlignment = NSTextAlignment.Center
+        editSliderLabel.alpha = 0.0
+        
+        editControlsPanel.addSubview(editSliderLabel)
+        editControlsPanel.addSubview(editSlider)
+        
+        self.view.addSubview(editControlsPanel)
     }
     
     func initBounds() {
@@ -82,7 +268,6 @@ class EditSnapshotViewController: UIViewController {
             let boundingBoxHeight: CGFloat = sprubixHandleBars[i + 1].frame.origin.y - sprubixHandleBars[i].frame.origin.y
             
             var boundingBox = UIView(frame: CGRectMake(0, CGFloat(i) * screenWidth, screenWidth, boundingBoxHeight))
-            //boundingBox.backgroundColor = UIColor(red: CGFloat(i * 255)/255, green: 102/255, blue: 108/255, alpha: 1).colorWithAlphaComponent(0.5)
             
             oldBoxSizes.append(boundingBox.frame.size)
             
@@ -90,14 +275,17 @@ class EditSnapshotViewController: UIViewController {
             boundingBoxView.addSubview(boundingBox)
         }
         
-        // gesture recognizer to drag the handle bars
+        // gesture recognizers
         var longPressGestureRecognizer: UILongPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action: "handlePan:")
         longPressGestureRecognizer.minimumPressDuration = 0.2
         
         var pinchGestureRecognizer: UIPinchGestureRecognizer = UIPinchGestureRecognizer(target: self, action: "handlePinch:")
-
+        var singleTapGestureRecognizer: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: "handleTap:")
+        singleTapGestureRecognizer.numberOfTapsRequired = 1
+        
         editScrollView.addGestureRecognizer(pinchGestureRecognizer)
         editScrollView.addGestureRecognizer(longPressGestureRecognizer)
+        editScrollView.addGestureRecognizer(singleTapGestureRecognizer)
         
         editScrollView.addSubview(boundingBoxView)
         editScrollView.addSubview(handleBarView)
@@ -113,7 +301,7 @@ class EditSnapshotViewController: UIViewController {
             imageView.contentMode = UIViewContentMode.ScaleAspectFill
             
             var fixedImage = fixOrientation(previewStillImage.image!)
-            imageView.image = fixedImage//.sepia()
+            imageView.image = fixedImage
             
             imageView.center.y = sprubixBoundingBoxes[i].frame.size.height / 2
             
@@ -137,41 +325,6 @@ class EditSnapshotViewController: UIViewController {
             sprubixBoundingBoxes[i].frame.size.height = boundingBoxHeight
             sprubixBoundingBoxes[i].setNeedsDisplay()
         }
-    }
-    
-    override func viewWillAppear(animated: Bool) {
-        // 1. hide existing nav bar
-        self.navigationController?.setNavigationBarHidden(true, animated: true)
-        
-        // 2. create new nav bar and style it
-        var newNavBar:UINavigationBar = UINavigationBar(frame: CGRectMake(0, 0, self.view.bounds.width, navigationHeight))
-        newNavBar.barTintColor = UIColor.whiteColor()
-        
-        // 3. add a new navigation item w/title to the new nav bar
-        var newNavItem:UINavigationItem = UINavigationItem()
-        newNavItem.title = "Edit"
-        
-        // 4. create a custom back button
-        var backButton:UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
-        backButton.setImage(UIImage(named: "spruce-arrow-back"), forState: UIControlState.Normal)
-        backButton.frame = CGRect(x: -10, y: 0, width: 20, height: 20)
-        backButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
-        Glow.addGlow(backButton)
-        backButton.addTarget(self, action: "backTapped:", forControlEvents: UIControlEvents.TouchUpInside)
-        
-        var backBarButtonItem:UIBarButtonItem = UIBarButtonItem(customView: backButton)
-        backBarButtonItem.tintColor = UIColor(red: 170/255, green: 170/255, blue: 170/255, alpha: 1.0)
-        
-        newNavItem.leftBarButtonItem = backBarButtonItem
-        
-        newNavBar.setItems([newNavItem], animated: false)
-        
-        // 5. add the nav bar to the main view
-        self.view.addSubview(newNavBar)
-        
-        initScrollView()
-        initBounds()
-        initPreviewImages()
     }
     
     func handlePinch(gesture: UIPinchGestureRecognizer) {
@@ -232,6 +385,57 @@ class EditSnapshotViewController: UIViewController {
 
                         self.checkBoundaries(gesture)
                         scale = currentScale
+        }
+    }
+    
+    func handleTap(gesture: UITapGestureRecognizer) {
+        if selectedEditingMode == .None {
+            firstTouchPoint = gesture.locationInView(boundingBoxView)
+        
+            var tappedBox = findBoxBeingTouched(boundingBoxView, touchPoint: firstTouchPoint)
+            
+            if tappedBox != nil {
+                // selected for image filters
+                selectedImagePos = find(sprubixBoundingBoxes, tappedBox!)
+                
+                if selectedImageView != sprubixImageViews[selectedImagePos] {
+                    selectedImageView = sprubixImageViews[selectedImagePos]
+
+                    UIView.animateWithDuration(0.3, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .CurveEaseInOut, animations: {
+                        self.editControlsLabel.alpha = 0.0
+                        self.brightnessBtn.alpha = 1.0
+                        self.contrastBtn.alpha = 1.0
+                        self.sharpenBtn.alpha = 1.0
+                        }, completion: nil)
+                    
+                    // the image selected will be the one where filters are directed at
+                    // the other images are dimmed out temporarily
+                    
+                    for sprubixBoundingBox in sprubixBoundingBoxes {
+                        if sprubixBoundingBox != tappedBox {
+                            sprubixBoundingBox.alpha = 0.2
+                        } else {
+                            sprubixBoundingBox.alpha = 1.0
+                        }
+                    }
+                    
+                    editScrollView.scrollRectToVisible(tappedBox!.frame, animated: true)
+                } else {
+                    // tapped on the same image again
+                    selectedImageView = nil
+                    
+                    UIView.animateWithDuration(0.3, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .CurveEaseInOut, animations: {
+                        self.editControlsLabel.alpha = 1.0
+                        self.brightnessBtn.alpha = 0.0
+                        self.contrastBtn.alpha = 0.0
+                        self.sharpenBtn.alpha = 0.0
+                        }, completion: nil)
+                    
+                    for sprubixBoundingBox in sprubixBoundingBoxes {
+                        sprubixBoundingBox.alpha = 1.0
+                    }
+                }
+            }
         }
     }
     
@@ -482,7 +686,6 @@ class EditSnapshotViewController: UIViewController {
     }
     
     func checkCentered() {
-    
         for var i = 0; i < sprubixImageViews.count; i++ {
             
             let imageView = sprubixImageViews[i]
@@ -501,29 +704,163 @@ class EditSnapshotViewController: UIViewController {
         }
     }
     
-    // Callback Handler: navigation bar back button
-    func backTapped(sender: UIBarButtonItem) {
-        self.navigationController?.popViewControllerAnimated(false)
+    // edit button callbacks
+    func editBtnSelected(sender: UIButton) {
         
-        for subview in handleBarView.subviews {
-            subview.removeFromSuperview()
+        var emptyNavItem:UINavigationItem = UINavigationItem()
+        
+        switch sender {
+        case brightnessBtn:
+            gpuImageFilter = GPUImageBrightnessFilter()
+            
+            editSlider.minimumValue = -100
+            editSlider.maximumValue = 100
+            editSlider.value = brightnessValues[selectedImagePos]
+            
+            selectedEditingMode = .Brightness
+            
+            emptyNavItem.title = "Brightness"
+            
+        case contrastBtn:
+            
+            gpuImageFilter = GPUImageContrastFilter()
+            
+            editSlider.minimumValue = -100
+            editSlider.maximumValue = 100
+            editSlider.value = contrastValues[selectedImagePos]
+            
+            selectedEditingMode = .Contrast
+            
+            emptyNavItem.title = "Contrast"
+            
+        case sharpenBtn:
+            
+            gpuImageFilter = GPUImageSharpenFilter()
+            
+            // set slider settings
+            editSlider.minimumValue = -100
+            editSlider.maximumValue = 100
+            editSlider.value = sharpnessValues[selectedImagePos]
+            
+            selectedEditingMode = .Sharpness
+            
+            emptyNavItem.title = "Sharpen"
+            
+        default:
+            fatalError("Unknown edit button pressed")
         }
         
-        for subview in boundingBoxView.subviews {
-            subview.removeFromSuperview()
+        newNavBar.setItems([emptyNavItem], animated: false)
+        
+        // hide editControlsPanel
+        // show brightness slider and editConfirmPanel
+        UIView.animateWithDuration(0.3, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .CurveEaseInOut, animations: {
+            self.toggleEditSlider()
+            self.editConfirmPanel.frame.origin.y = self.editConfirmPanel.frame.origin.y - self.editConfirmPanel.frame.size.height
+            }, completion: nil)
+    }
+    
+    func editSliderValueChanged(sender: UISlider) {
+        var trackRect: CGRect = sender.trackRectForBounds(sender.bounds)
+        var thumbRect: CGRect = sender.thumbRectForBounds(sender.bounds, trackRect: trackRect, value: sender.value)
+        
+        sliderCurrentValue = sender.value
+        editSliderLabel.text = "\(Int(sender.value))"
+        editSliderLabel.center = CGPointMake(thumbRect.origin.x + thumbRect.width / 2 + 0.1 * screenWidth,  sender.center.y - editSliderLabel.frame.size.height / 2);
+        
+        switch (selectedEditingMode) {
+        case .Brightness:
+            // set brightness
+            (gpuImageFilter as! GPUImageBrightnessFilter).forceProcessingAtSizeRespectingAspectRatio(CGSizeMake(0.3 * imageCopies[selectedImagePos].size.width, 0.3 * imageCopies[selectedImagePos].size.height))
+            (gpuImageFilter as! GPUImageBrightnessFilter).brightness = CGFloat(sender.value / 100)
+            
+            quickFilteredImage = (gpuImageFilter as! GPUImageBrightnessFilter).imageByFilteringImage(imageCopies[selectedImagePos])
+                
+            selectedImageView.image = quickFilteredImage
+            
+        case .Contrast:
+            // set contrast
+            (gpuImageFilter as! GPUImageContrastFilter).forceProcessingAtSizeRespectingAspectRatio(CGSizeMake(0.3 * imageCopies[selectedImagePos].size.width, 0.3 * imageCopies[selectedImagePos].size.height))
+            (gpuImageFilter as! GPUImageContrastFilter).contrast = CGFloat(sender.value / 100 * 4)
+            
+            quickFilteredImage = (gpuImageFilter as! GPUImageContrastFilter).imageByFilteringImage(imageCopies[selectedImagePos])
+            
+            selectedImageView.image = quickFilteredImage
+            
+        case .Sharpness:
+            // set sharpness
+            (gpuImageFilter as! GPUImageSharpenFilter).forceProcessingAtSizeRespectingAspectRatio(CGSizeMake(0.3 * imageCopies[selectedImagePos].size.width, 0.3 * imageCopies[selectedImagePos].size.height))
+            (gpuImageFilter as! GPUImageSharpenFilter).sharpness = CGFloat(sender.value / 100 * 4)
+        
+            quickFilteredImage = (gpuImageFilter as! GPUImageSharpenFilter).imageByFilteringImage(imageCopies[selectedImagePos])
+            
+            selectedImageView.image = quickFilteredImage
+            
+        default:
+            fatalError("Unknown editing mode selected")
         }
         
-        for subview in editScrollView.subviews {
-            subview.removeFromSuperview()
+        quickFilteredImage = nil
+    }
+    
+    // save and restore of original images
+    func saveImageCopies() {
+        for sprubixImageView in sprubixImageViews {
+            imageCopies.append(sprubixImageView.image!)
+        }
+    }
+    
+    func restoreOriginalImages() {
+        selectedImageView.image = imageCopies[selectedImagePos]
+    }
+    
+    func editBtnConfirmed(sender: UIButton) {
+        switch sender {
+        case tickBtn:
+            switch (selectedEditingMode) {
+            case .Brightness:
+                brightnessValues[selectedImagePos] = sliderCurrentValue
+            case .Contrast:
+                contrastValues[selectedImagePos] = sliderCurrentValue
+            case .Sharpness:
+                sharpnessValues[selectedImagePos] = sliderCurrentValue
+            default:
+                fatalError("Unknown editing mode selected")
+            }
+            
+        case crossBtn:
+            restoreOriginalImages()
+            
+        default:
+            fatalError("Unknown edit confirm button pressed")
         }
         
-        sprubixBoundingBoxes.removeAll()
-        sprubixHandleBars.removeAll()
-        sprubixImageViews.removeAll()
-        oldBoxSizes.removeAll()
+        UIView.animateWithDuration(0.3, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .CurveEaseInOut, animations: {
+            self.toggleEditSlider()
+            self.editConfirmPanel.frame.origin.y = self.editConfirmPanel.frame.origin.y + self.editConfirmPanel.frame.size.height
+            }, completion: nil)
         
-        scale = 1.0
-        previousScale = 1.0
+        newNavBar.setItems([newNavItem], animated: true)
+        selectedEditingMode = .None
+    }
+    
+    func toggleEditSlider() {
+        if editSlider.alpha <= 0.0 {
+            // hide the main buttons and show slider
+            brightnessBtn.alpha = 0.0
+            contrastBtn.alpha = 0.0
+            sharpenBtn.alpha = 0.0
+            
+            editSlider.alpha = 1.0
+            editSliderLabel.alpha = 1.0
+        } else if editSlider.alpha >= 1 {
+            brightnessBtn.alpha = 1.0
+            contrastBtn.alpha = 1.0
+            sharpenBtn.alpha = 1.0
+            
+            editSlider.alpha = 0.0
+            editSliderLabel.alpha = 0.0
+        }
     }
     
     // fix image orientation
@@ -541,5 +878,76 @@ class EditSnapshotViewController: UIViewController {
         UIGraphicsEndImageContext();
         return normalizedImage;
         
+    }
+    
+    // Callback Handler: navigation bar back button
+    func backTapped(sender: UIBarButtonItem) {
+        for subview in handleBarView.subviews {
+            subview.removeFromSuperview()
+        }
+        
+        for subview in boundingBoxView.subviews {
+            subview.removeFromSuperview()
+        }
+        
+        for subview in editScrollView.subviews {
+            subview.removeFromSuperview()
+        }
+        
+        for boundingBox in sprubixBoundingBoxes {
+            for subview in boundingBox.subviews {
+                subview.removeFromSuperview()
+            }
+        }
+        
+        for subview in self.view.subviews {
+            subview.removeFromSuperview()
+        }
+        
+        sprubixBoundingBoxes.removeAll()
+        sprubixHandleBars.removeAll()
+        sprubixImageViews.removeAll()
+        oldBoxSizes.removeAll()
+        imageCopies.removeAll()
+        
+        brightnessValues = [0, 0, 0, 0]
+        contrastValues = [25, 25, 25, 25]
+        sharpnessValues = [0, 0, 0, 0]
+        
+        scale = 1.0
+        previousScale = 1.0
+        
+        self.navigationController?.popViewControllerAnimated(false)
+    }
+    
+    override func viewDidDisappear(animated: Bool) {
+        super.viewDidDisappear(animated)
+        
+        gpuImageFilter = nil
+        quickFilteredImage = nil
+    }
+    
+    func nextTapped(sender: UIBarButtonItem) {
+        var snapshotShareController = SnapshotShareController()
+        var totalHeight: CGFloat = 0
+        
+        // GPUImageCropFilter on each sprubixImageView
+        for var i = 0; i < sprubixImageViews.count; i++ {
+            
+            // normalize boundingBox on each sprubixImageView first
+            var normalizedCropRegion: CGRect = CGRectMake(abs(sprubixImageViews[i].frame.origin.x)/sprubixImageViews[i].frame.size.width, abs(sprubixImageViews[i].frame.origin.y)/sprubixImageViews[i].frame.size.height, sprubixBoundingBoxes[i].frame.size.width/sprubixImageViews[i].frame.size.width, sprubixBoundingBoxes[i].frame.size.height/sprubixImageViews[i].frame.size.height)
+            
+            gpuImageFilter = GPUImageCropFilter(cropRegion: normalizedCropRegion)
+            
+            quickFilteredImage = (gpuImageFilter as! GPUImageCropFilter).imageByFilteringImage(sprubixImageViews[i].image)
+        
+            snapshotShareController.images.append(quickFilteredImage)
+            
+            totalHeight += quickFilteredImage.size.height
+        }
+        
+        snapshotShareController.totalHeight = totalHeight
+        
+        self.navigationController?.pushViewController(snapshotShareController, animated: true)
     }
 }

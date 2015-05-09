@@ -60,10 +60,11 @@ class SpruceShareViewController: UIViewController, UITableViewDelegate, UITableV
         
         // 4. create a custom back button
         var backButton:UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
-        backButton.setImage(UIImage(named: "spruce-arrow-back"), forState: UIControlState.Normal)
+        var image: UIImage = UIImage(named: "spruce-arrow-back")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
+        backButton.setImage(image, forState: UIControlState.Normal)
         backButton.frame = CGRect(x: -10, y: 0, width: 20, height: 20)
         backButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
-        Glow.addGlow(backButton)
+        backButton.imageView?.tintColor = UIColor.lightGrayColor()
         backButton.addTarget(self, action: "backTapped:", forControlEvents: UIControlEvents.TouchUpInside)
         
         //var backButtonView:UIView = UIView(frame: CGRect(x: 0, y: 0, width: backButton.frame.width, height: backButton.frame.height))

@@ -19,7 +19,7 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
-		<key>Pods-Sprubix-NYXImagesKit.xcscheme</key>
+		<key>Pods-Sprubix-GPUImage.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
@@ -37,32 +37,32 @@
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
-		<key>9950151FA3EE9D1D1DF46C5F</key>
+		<key>7101FDCCA0FBE503696BD71E</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>AB76608088C65BAECBF5D300</key>
+		<key>77756543DEFBB8DFB95DCE94</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>AD7EB800AA724E60002EEFCD</key>
+		<key>888E7D369F3F516787C01968</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>C0F9187DEC6887DF1AE0DE31</key>
+		<key>A5AD8BF1AC999FD2B68E5823</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>C60AA02E166DC216A0F4F3FC</key>
+		<key>DA7C6E86F5491B29ED45B2DE</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>EFFE1490415D44B6913ED5E4</key>
+		<key>DEC6F4F63E57F1BCB152CAB8</key>
 		<dict>
 			<key>primary</key>
 			<true/>

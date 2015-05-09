@@ -17,3 +17,4 @@ let navigationHeight : CGFloat = 44.0
 let statusbarHeight : CGFloat = 20.0
 let navigationHeaderAndStatusbarHeight : CGFloat = navigationHeight + statusbarHeight
 let sprubixColor: UIColor = UIColor(red: 255/255, green: 102/255, blue: 108/255, alpha: 1)
+let sprubixGray: UIColor = UIColor(red: 229/255, green: 229/255, blue: 229/255, alpha: 1)
