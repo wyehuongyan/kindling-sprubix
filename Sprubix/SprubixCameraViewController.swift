@@ -252,58 +252,58 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
     
     // MARK: Button Actions
     @IBAction func captureFrame(sender: AnyObject) {
-            UIView.animateWithDuration(0.225, animations: { () -> Void in
-                self.cameraPreview.alpha = 0.0
-            })
-            
-            self.camera?.captureStillImage({ (image) -> Void in
-                if image != nil {
-                    
-                    // this is the part where image is captured successfully
-                    self.cameraCapture.enabled = false
-                    
-                    let selectedPiece = self.selectedPiecesOrdered[Int(self.snappedCount)]
+        // this is the part where image is captured successfully
+        self.cameraCapture.enabled = false
+        
+        UIView.animateWithDuration(0.225, animations: { () -> Void in
+            self.cameraPreview.alpha = 0.0
+        })
+        
+        self.camera?.captureStillImage({ (image) -> Void in
+            if image != nil {
                 
-                    // was selected by user
-                    var previewStillImageView: UIImageView = UIImageView(frame: CGRectMake(0, self.snappedCount * screenWidth / 0.75, screenWidth, screenWidth / 0.75))
-                    previewStillImageView.image = image
-                    
-                    // add this preview still into the storage array
-                    self.previewStillImages.append(previewStillImageView)
-                    
-                    self.cameraPreview.frame.origin.y = (self.snappedCount + 1) * screenWidth / 0.75
-                    self.cameraPreview.alpha = 1.0
-                    self.previewStillScrollView.addSubview(previewStillImageView)
-                    self.previewStillScrollView.contentSize = CGSize(width: screenWidth, height: self.pieceSelectorView.frame.size.height * (self.snappedCount + 2))
-                    
-                    self.snappedCount += 1
+                let selectedPiece = self.selectedPiecesOrdered[Int(self.snappedCount)]
+            
+                // was selected by user
+                var previewStillImageView: UIImageView = UIImageView(frame: CGRectMake(0, self.snappedCount * screenWidth / 0.75, screenWidth, screenWidth / 0.75))
+                previewStillImageView.image = image
+                
+                // add this preview still into the storage array
+                self.previewStillImages.append(previewStillImageView)
+                
+                self.cameraPreview.frame.origin.y = (self.snappedCount + 1) * screenWidth / 0.75
+                self.cameraPreview.alpha = 1.0
+                self.previewStillScrollView.addSubview(previewStillImageView)
+                self.previewStillScrollView.contentSize = CGSize(width: screenWidth, height: self.pieceSelectorView.frame.size.height * (self.snappedCount + 2))
+                
+                self.snappedCount += 1
 
-                    // the delay is for the cameraStill to remain on screen for a while before moving away
-                    self.delay(0.6) {
-                        if self.snappedCount == self.selectedCount {
-                            self.cameraCapture.alpha = 0.0
-                            
-                            // go to edit controller
-                            if self.editSnapshotViewController == nil {
-                                self.editSnapshotViewController = EditSnapshotViewController()
-                            }
-                            
-                            self.editSnapshotViewController.previewStillImages = self.previewStillImages
-                            
-                            self.navigationController?.pushViewController(self.editSnapshotViewController, animated: true)
-                        } else {
-                            // shift view to cameraPreview
-                            self.previewStillScrollView.scrollRectToVisible(self.cameraPreview.frame, animated: true)
-                            self.setSnapButtonIcon(self.selectedPiecesOrdered[Int(self.snappedCount)])
+                // the delay is for the cameraStill to remain on screen for a while before moving away
+                self.delay(0.6) {
+                    if self.snappedCount == self.selectedCount {
+                        self.cameraCapture.alpha = 0.0
+                        
+                        // go to edit controller
+                        if self.editSnapshotViewController == nil {
+                            self.editSnapshotViewController = EditSnapshotViewController()
                         }
                         
-                        self.cameraCapture.enabled = true
+                        self.editSnapshotViewController.previewStillImages = self.previewStillImages
+                        
+                        self.navigationController?.pushViewController(self.editSnapshotViewController, animated: true)
+                    } else {
+                        // shift view to cameraPreview
+                        self.previewStillScrollView.scrollRectToVisible(self.cameraPreview.frame, animated: true)
+                        self.setSnapButtonIcon(self.selectedPiecesOrdered[Int(self.snappedCount)])
                     }
                     
-                } else {
-                    NSLog("Uh oh! Something went wrong. Try it again.")
+                    self.cameraCapture.enabled = true
                 }
-            })
+                
+            } else {
+                NSLog("Uh oh! Something went wrong. Try it again.")
+            }
+        })
     }
     
     func setSnapButtonIcon(currentPiece: String) {
@@ -322,7 +322,6 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
     }
     
     // MARK: Camera Delegate
-    
     func cameraSessionConfigurationDidComplete() {
         self.camera?.startCamera()
     }

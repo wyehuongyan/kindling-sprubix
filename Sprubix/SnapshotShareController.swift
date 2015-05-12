@@ -121,14 +121,21 @@ class SnapshotShareController: UIViewController, UITableViewDelegate, UITableVie
         self.view.addSubview(newNavBar)
 
         var yPosition: CGFloat = 0
+        let pieceTagIconWidth: CGFloat = 50
         
         // add images to outfitView
         for var i = 0; i < images.count; i++ {
             var height = heightPercentages[i] * outfitImageView.frame.size.height
             var pieceView: UIImageView = UIImageView(frame: CGRectMake(0, yPosition, screenWidth, height))
             
+            // add the item tag icon
+            var pieceTagIcon: UIImageView = UIImageView(image: UIImage(named: "details-info-add"))
+            pieceTagIcon.frame = CGRectMake(screenWidth - pieceTagIconWidth, 0, pieceTagIconWidth, pieceTagIconWidth)
+            Glow.addGlow(pieceTagIcon)
+            
             pieceView.contentMode = UIViewContentMode.ScaleAspectFit
             pieceView.image = images[i]
+            pieceView.addSubview(pieceTagIcon)
             
             yPosition += height
             
@@ -307,14 +314,16 @@ class SnapshotShareController: UIViewController, UITableViewDelegate, UITableVie
         }
     }
     
-    // gestureRecognizer
+    // item image tapped
     func handleTap(gesture: UITapGestureRecognizer) {
         var pos = find(images, (gesture.view as! UIImageView).image!)
         
+        // pos is not enough, please pass from the beginning, the piece type array
         if pos != nil {
             println(pos!)
             
             var snapshotDetailsController = SnapshotDetailsController()
+            snapshotDetailsController.itemCoverImageView.image = (gesture.view as! UIImageView).image!
             
             self.navigationController?.pushViewController(snapshotDetailsController, animated: true)
         }
@@ -361,7 +370,7 @@ class SnapshotShareController: UIViewController, UITableViewDelegate, UITableVie
     
     func textViewDidEndEditing(textView: UITextView) {
         if textView.text == "" {
-            descriptionText.text = "Tell us more about this outfit!"
+            descriptionText.text = placeholderText
             descriptionText.textColor = UIColor.lightGrayColor()
             descriptionText.resignFirstResponder()
         }

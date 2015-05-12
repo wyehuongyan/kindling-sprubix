@@ -147,7 +147,7 @@ class EditSnapshotViewController: UIViewController {
         // cross
         crossBtn = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
         crossBtn.frame = CGRectMake(0, 0, screenWidth / 2, editConfirmPanelHeight)
-        var crossBtnImage: UIImage = UIImage(named: "spruce-arrow-left")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
+        var crossBtnImage: UIImage = UIImage(named: "filter-cross")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
         crossBtn.setImage(crossBtnImage, forState: UIControlState.Normal)
         crossBtn.imageView?.tintColor = UIColor.whiteColor()
         Glow.addGlow(crossBtn)
@@ -158,7 +158,7 @@ class EditSnapshotViewController: UIViewController {
         // tick
         tickBtn = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
         tickBtn.frame = CGRectMake(screenWidth / 2, 0, screenWidth / 2, editConfirmPanelHeight)
-        var tickBtnImage: UIImage = UIImage(named: "spruce-arrow-right")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
+        var tickBtnImage: UIImage = UIImage(named: "filter-check")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
         tickBtn.setImage(tickBtnImage, forState: UIControlState.Normal)
         tickBtn.imageView?.tintColor = UIColor.whiteColor()
         Glow.addGlow(tickBtn)
@@ -177,7 +177,7 @@ class EditSnapshotViewController: UIViewController {
         editControlsLabel = UILabel(frame: editControlsPanel.bounds)
         editControlsLabel.lineBreakMode = NSLineBreakMode.ByWordWrapping
         editControlsLabel.numberOfLines = 0
-        editControlsLabel.text = "Tap on an image toggle effects \n or Tap and Hold to drag"
+        editControlsLabel.text = "Tap on an image to toggle effects \n or Tap and Hold to drag"
         editControlsLabel.textColor = UIColor.lightGrayColor()
         editControlsLabel.textAlignment = NSTextAlignment.Center
         
@@ -187,7 +187,7 @@ class EditSnapshotViewController: UIViewController {
         // brightness
         brightnessBtn = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
         brightnessBtn.frame = CGRectMake(0, 0, screenWidth / 3, editControlsPanelHeight)
-        brightnessBtn.setImage(UIImage(named: "view-item-cat-top"), forState: UIControlState.Normal)
+        brightnessBtn.setImage(UIImage(named: "snapshot-brightness"), forState: UIControlState.Normal)
         brightnessBtn.addTarget(self, action: "editBtnSelected:", forControlEvents: UIControlEvents.TouchUpInside)
         Glow.addGlow(brightnessBtn)
         brightnessBtn.alpha = 0.0
@@ -197,7 +197,7 @@ class EditSnapshotViewController: UIViewController {
         // contrast
         contrastBtn = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
         contrastBtn.frame = CGRectMake(screenWidth / 3, 0, screenWidth / 3, editControlsPanelHeight)
-        contrastBtn.setImage(UIImage(named: "view-item-cat-bot"), forState: UIControlState.Normal)
+        contrastBtn.setImage(UIImage(named: "snapshot-contrast"), forState: UIControlState.Normal)
         contrastBtn.addTarget(self, action: "editBtnSelected:", forControlEvents: UIControlEvents.TouchUpInside)
         Glow.addGlow(contrastBtn)
         contrastBtn.alpha = 0.0
@@ -207,7 +207,7 @@ class EditSnapshotViewController: UIViewController {
         // sharpen
         sharpenBtn = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
         sharpenBtn.frame = CGRectMake(2 * screenWidth / 3, 0, screenWidth / 3, editControlsPanelHeight)
-        sharpenBtn.setImage(UIImage(named: "view-item-cat-feet"), forState: UIControlState.Normal)
+        sharpenBtn.setImage(UIImage(named: "snapshot-sharpen"), forState: UIControlState.Normal)
         sharpenBtn.addTarget(self, action: "editBtnSelected:", forControlEvents: UIControlEvents.TouchUpInside)
         Glow.addGlow(sharpenBtn)
         sharpenBtn.alpha = 0.0
