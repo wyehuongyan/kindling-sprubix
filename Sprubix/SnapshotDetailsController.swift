@@ -26,15 +26,24 @@ class SprubixItemThumbnail: UIButton {
     }
 }
 
-class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableViewDataSource, UITextViewDelegate, SprubixCameraDelegate {
+protocol SprubixPieceProtocol {
+    func setSprubixPiece(sprubixPiece: SprubixPiece, position: Int)
+}
 
+class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableViewDataSource, UITextViewDelegate, UITextFieldDelegate, SprubixCameraDelegate {
+    
+    var delegate: SnapshotShareController?
+    var pos: Int!
+    var sprubixPiece: SprubixPiece!
+    
     // custom nav bar
     var newNavBar:UINavigationBar!
     var newNavItem:UINavigationItem!
     
     // item
     var itemCoverImageView: UIImageView = UIImageView()
-
+    var itemCategory: String!
+    
     // camera
     var cameraCapture: UIButton!
     var cameraPreview: UIView?
@@ -293,7 +302,12 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
                     thumbnailView.setImage(itemCoverImageView.image, forState: UIControlState.Normal)
                     thumbnailView.hasThumbnail = true
                 } else {
-                    thumbnailView.setImage(UIImage(named: "details-thumbnail-add"), forState: UIControlState.Normal)
+                    if sprubixPiece.images.count > i {
+                        thumbnailView.setImage(sprubixPiece.images[i], forState: UIControlState.Normal)
+                        thumbnailView.hasThumbnail = true
+                    } else {
+                        thumbnailView.setImage(UIImage(named: "details-thumbnail-add"), forState: UIControlState.Normal)
+                    }
                 }
                 
                 // tap gesture recognizer
@@ -335,7 +349,13 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
             
             itemDetailsName = UITextField(frame: CGRectMake(itemImageViewWidth, 0, screenWidth - itemImageViewWidth, itemSpecHeight))
             itemDetailsName.tintColor = sprubixColor
-            itemDetailsName.placeholder = "What is your item's name?"
+            itemDetailsName.placeholder = "Name of your item?"
+            itemDetailsName.returnKeyType = UIReturnKeyType.Done
+            itemDetailsName.delegate = self
+
+            if sprubixPiece.name != nil {
+                itemDetailsName.text = sprubixPiece.name
+            }
             
             // category
             var itemCategoryImage = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
@@ -349,6 +369,10 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
             itemDetailsCategory = UITextField(frame: CGRectMake(itemImageViewWidth, itemSpecHeight, screenWidth - itemImageViewWidth, itemSpecHeight))
             itemDetailsCategory.tintColor = sprubixColor
             itemDetailsCategory.placeholder = "Which category is it from?" // user cannot enter, it will be decided by system
+            itemDetailsCategory.text = itemCategory.lowercaseString.capitalizeFirst
+            itemDetailsCategory.enabled = false
+            itemDetailsCategory.returnKeyType = UIReturnKeyType.Done
+            itemDetailsCategory.delegate = self
             
             // brand
             var itemBrandImage = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
@@ -362,6 +386,12 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
             itemDetailsBrand = UITextField(frame: CGRectMake(itemImageViewWidth, itemSpecHeight * 2, screenWidth - itemImageViewWidth, itemSpecHeight))
             itemDetailsBrand.tintColor = sprubixColor
             itemDetailsBrand.placeholder = "What brand is it?"
+            itemDetailsBrand.returnKeyType = UIReturnKeyType.Done
+            itemDetailsBrand.delegate = self
+            
+            if sprubixPiece.brand != nil {
+                itemDetailsBrand.text = sprubixPiece.brand
+            }
             
             // size
             var itemSizeImage = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
@@ -374,7 +404,13 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
             
             itemDetailsSize = UITextField(frame: CGRectMake(itemImageViewWidth, itemSpecHeight * 3, screenWidth - itemImageViewWidth, itemSpecHeight))
             itemDetailsSize.tintColor = sprubixColor
-            itemDetailsSize.placeholder = "How big is it?"
+            itemDetailsSize.placeholder = "What are the measurements?"
+            itemDetailsSize.returnKeyType = UIReturnKeyType.Done
+            itemDetailsSize.delegate = self
+            
+            if sprubixPiece.size != nil {
+                itemDetailsSize.text = sprubixPiece.size
+            }
             
             pieceSpecsView.addSubview(itemNameImage)
             pieceSpecsView.addSubview(itemDetailsName)
@@ -409,8 +445,14 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
             descriptionText = UITextView(frame: CGRectInset(CGRect(x: 0, y: 0, width: screenWidth, height: descriptionTextHeight), 15, 0))
             
             descriptionText.tintColor = sprubixColor
-            descriptionText.text = placeholderText
-            descriptionText.textColor = UIColor.lightGrayColor()
+            
+            if sprubixPiece.desc != nil {
+                descriptionText.text = sprubixPiece.desc
+            } else if descriptionText.text == "" {
+                descriptionText.text = placeholderText
+                descriptionText.textColor = UIColor.lightGrayColor()
+            }
+            
             descriptionText.font = UIFont(name: descriptionText.font.fontName, size: 16)
             descriptionText.delegate = self
             
@@ -437,22 +479,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
             cameraCapture.alpha = 1.0
             itemDescriptionCell.alpha = 0.0
             
-            // create a new navbar
-            var emptyNavItem:UINavigationItem = UINavigationItem()
-            emptyNavItem.title = "Add Image"
-            
-            var cancelButton:UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
-            cancelButton.setTitle("cancel", forState: UIControlState.Normal)
-            cancelButton.setTitleColor(UIColor.lightGrayColor(), forState: UIControlState.Normal)
-            cancelButton.frame = CGRect(x: 0, y: 0, width: 60, height: 20)
-            cancelButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
-            cancelButton.addTarget(self, action: "addImageCancelTapped:", forControlEvents: UIControlEvents.TouchUpInside)
-            
-            var cancelBarButtonItem:UIBarButtonItem = UIBarButtonItem(customView: cancelButton)
-            emptyNavItem.leftBarButtonItem = cancelBarButtonItem
-            
-            // set
-            newNavBar.setItems([emptyNavItem], animated: false)
+            setNavBar("Add Image", leftButtonTitle: "cancel", leftButtonCallback: "addImageCancelTapped:", rightButtonTitle: "", rightButtonCallback: nil)
             
             if camera == nil {
                 // activate camera mode (square)
@@ -462,6 +489,36 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
         } else {
             itemCoverImageView.image = selectedThumbnail.imageView?.image
         }
+    }
+    
+    func setNavBar(title: String, leftButtonTitle: String, leftButtonCallback: Selector, rightButtonTitle: String, rightButtonCallback: Selector) {
+        // create a new navbar
+        var emptyNavItem:UINavigationItem = UINavigationItem()
+        emptyNavItem.title = title
+        
+        var cancelButton:UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+        cancelButton.setTitle(leftButtonTitle, forState: UIControlState.Normal)
+        cancelButton.setTitleColor(UIColor.lightGrayColor(), forState: UIControlState.Normal)
+        cancelButton.frame = CGRect(x: 0, y: 0, width: 60, height: 20)
+        cancelButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+        cancelButton.addTarget(self, action: leftButtonCallback, forControlEvents: UIControlEvents.TouchUpInside)
+        
+        var cancelBarButtonItem:UIBarButtonItem = UIBarButtonItem(customView: cancelButton)
+        emptyNavItem.leftBarButtonItem = cancelBarButtonItem
+
+        var nextButton:UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+        nextButton.setTitle(rightButtonTitle, forState: UIControlState.Normal)
+        nextButton.setTitleColor(sprubixColor, forState: UIControlState.Normal)
+        nextButton.frame = CGRect(x: 0, y: 0, width: 50, height: 20)
+        nextButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+        nextButton.addTarget(self, action: rightButtonCallback, forControlEvents: UIControlEvents.TouchUpInside)
+        
+        var nextBarButtonItem:UIBarButtonItem = UIBarButtonItem(customView: nextButton)
+        emptyNavItem.rightBarButtonItem = nextBarButtonItem
+        
+        // set
+        newNavBar.setItems([emptyNavItem], animated: false)
+
     }
     
     func addImageCancelTapped(sender: UIButton) {
@@ -485,21 +542,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
             descriptionText.textColor = UIColor.blackColor()
         }
         
-        var emptyNavItem:UINavigationItem = UINavigationItem()
-        emptyNavItem.title = "Item Description"
-        
-        var nextButton:UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
-        nextButton.setTitle("done", forState: UIControlState.Normal)
-        nextButton.setTitleColor(sprubixColor, forState: UIControlState.Normal)
-        nextButton.frame = CGRect(x: 0, y: 0, width: 50, height: 20)
-        nextButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
-        nextButton.addTarget(self, action: "descriptionDoneTapped:", forControlEvents: UIControlEvents.TouchUpInside)
-        
-        var nextBarButtonItem:UIBarButtonItem = UIBarButtonItem(customView: nextButton)
-        emptyNavItem.rightBarButtonItem = nextBarButtonItem
-        
-        // set
-        newNavBar.setItems([emptyNavItem], animated: false)
+        setNavBar("Item Description", leftButtonTitle: "", leftButtonCallback: nil, rightButtonTitle: "done", rightButtonCallback: "descriptionDoneTapped:")
         
         return true
     }
@@ -570,10 +613,37 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
     
     // Callback Handler: navigation bar back button
     func cancelTapped(sender: UIBarButtonItem) {
-        self.navigationController?.popViewControllerAnimated(true)
+        var alert = UIAlertController(title: "Are you sure?", message: "Changes made to the current item will be lost", preferredStyle: UIAlertControllerStyle.Alert)
+        alert.view.tintColor = sprubixColor
+        
+        // Yes
+        alert.addAction(UIAlertAction(title: "Yes, I'm sure", style: UIAlertActionStyle.Default, handler: { action in
+            self.navigationController?.popViewControllerAnimated(true)
+        }))
+        
+        // No
+        alert.addAction(UIAlertAction(title: "No", style: UIAlertActionStyle.Cancel, handler: nil))
+        
+        self.presentViewController(alert, animated: true, completion: nil)
     }
     
     func doneTapped(sender: UIBarButtonItem) {
-        println("item details done")
+        sprubixPiece.images.removeAll()
+        
+        for thumbnail in thumbnails {
+            if thumbnail.hasThumbnail {
+                sprubixPiece.images.append(thumbnail.imageView!.image!)
+            }
+        }
+        
+        // item details
+        sprubixPiece.name = itemDetailsName.text
+        sprubixPiece.category = itemDetailsCategory.text
+        sprubixPiece.brand = itemDetailsBrand.text
+        sprubixPiece.size = itemDetailsSize.text
+        sprubixPiece.desc = descriptionText.text
+        
+        delegate?.setSprubixPiece(sprubixPiece, position: pos)
+        self.navigationController?.popViewControllerAnimated(true)
     }
 }

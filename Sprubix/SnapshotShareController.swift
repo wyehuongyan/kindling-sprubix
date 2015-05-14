@@ -8,9 +8,12 @@
 
 import UIKit
 
-class SnapshotShareController: UIViewController, UITableViewDelegate, UITableViewDataSource, UITextViewDelegate {
+class SnapshotShareController: UIViewController, UITableViewDelegate, UITableViewDataSource, UITextViewDelegate, SprubixPieceProtocol {
     
+    var sprubixPieces: [SprubixPiece] = [SprubixPiece]()
     var images: [UIImage]! = [UIImage]()
+    var imageViewHeights: [CGFloat] = [CGFloat]()
+    var selectedPiecesOrdered: [String] = [String]()
     var outfitImageView: UIImageView!
     var heightPercentages = [CGFloat]()
     let outfitViewHeight = screenWidth / 0.75
@@ -63,6 +66,7 @@ class SnapshotShareController: UIViewController, UITableViewDelegate, UITableVie
         shareButton = UIButton(frame: CGRect(x: 0, y: screenHeight - navigationHeight, width: screenWidth, height: navigationHeight))
         shareButton.backgroundColor = sprubixColor
         shareButton.setTitle("Share it!", forState: UIControlState.Normal)
+        shareButton.addTarget(self, action: "shareButtonPressed:", forControlEvents: UIControlEvents.TouchUpInside)
         
         self.view.addSubview(shareButton)
         
@@ -70,13 +74,11 @@ class SnapshotShareController: UIViewController, UITableViewDelegate, UITableVie
         var totalPieceHeight: CGFloat = 0
         
         // calculate % of height each piece takes
-        for image in images {
-            let pieceHeight:CGFloat = image.size.height * screenWidth / image.size.width
-            
-            var fraction = image.size.height / totalHeight
+        for imageViewHeight in imageViewHeights {
+            var fraction = imageViewHeight / totalHeight
             heightPercentages.append(fraction)
             
-            totalPieceHeight += pieceHeight
+            totalPieceHeight += imageViewHeight
         }
         
         if totalPieceHeight > outfitViewHeight {
@@ -148,6 +150,9 @@ class SnapshotShareController: UIViewController, UITableViewDelegate, UITableVie
             outfitImageView.userInteractionEnabled = true
             
             outfitImageView.addSubview(pieceView)
+            
+            // sprubixPieces
+            sprubixPieces.append(SprubixPiece())
         }
     }
     
@@ -320,10 +325,13 @@ class SnapshotShareController: UIViewController, UITableViewDelegate, UITableVie
         
         // pos is not enough, please pass from the beginning, the piece type array
         if pos != nil {
-            println(pos!)
             
             var snapshotDetailsController = SnapshotDetailsController()
             snapshotDetailsController.itemCoverImageView.image = (gesture.view as! UIImageView).image!
+            snapshotDetailsController.itemCategory = selectedPiecesOrdered[pos!]
+            snapshotDetailsController.delegate = self
+            snapshotDetailsController.pos = pos
+            snapshotDetailsController.sprubixPiece = sprubixPieces[pos!]
             
             self.navigationController?.pushViewController(snapshotDetailsController, animated: true)
         }
@@ -384,6 +392,18 @@ class SnapshotShareController: UIViewController, UITableViewDelegate, UITableVie
         self.view.endEditing(true)
     }
     
+    // SprubixPieceProtocol
+    func setSprubixPiece(sprubixPiece: SprubixPiece, position: Int) {
+        sprubixPieces[position] = sprubixPiece
+        
+        println((sprubixPieces[position].images).count)
+        println(sprubixPieces[position].name)
+        println(sprubixPieces[position].category)
+        println(sprubixPieces[position].brand)
+        println(sprubixPieces[position].size)
+        println(sprubixPieces[position].desc)
+    }
+    
     /**
     * Handler for keyboard show event
     */
@@ -436,6 +456,51 @@ class SnapshotShareController: UIViewController, UITableViewDelegate, UITableVie
     
     // Callback Handler: navigation bar back button
     func backTapped(sender: UIBarButtonItem) {
-        self.navigationController?.popViewControllerAnimated(true)
+        var alert = UIAlertController(title: "Are you sure?", message: "Changes made to the current outfit will be lost", preferredStyle: UIAlertControllerStyle.Alert)
+        alert.view.tintColor = sprubixColor
+        
+        // Yes
+        alert.addAction(UIAlertAction(title: "Yes, I'm sure", style: UIAlertActionStyle.Default, handler: { action in
+            self.navigationController?.popViewControllerAnimated(true)
+        }))
+        
+        // No
+        alert.addAction(UIAlertAction(title: "No", style: UIAlertActionStyle.Cancel, handler: nil))
+        
+        self.presentViewController(alert, animated: true, completion: nil)
+    }
+    
+    func shareButtonPressed(sender: UIButton) {
+        var width: CGFloat = 600
+        var totalHeight: CGFloat = 0
+        
+        // calculate totalHeight
+        for image in images {
+            var newImageHeight = image.size.height * width / image.size.width
+            
+            totalHeight += newImageHeight
+        }
+        
+        // create the merged outfit image (all pieces into one)
+        var size:CGSize = CGSizeMake(width, totalHeight)
+        var prevHeight:CGFloat = 0
+        
+        UIGraphicsBeginImageContextWithOptions(size, false, 0.0) // avoid image quality degrading
+        
+        for image in images {
+            var newImageHeight = image.size.height * width / image.size.width
+            
+            image.drawInRect(CGRectMake(0, prevHeight, size.width, newImageHeight))
+            
+            prevHeight += newImageHeight
+        }
+        
+        // final image
+        var finalImage:UIImage = UIGraphicsGetImageFromCurrentImageContext()
+        
+        UIGraphicsEndImageContext()
+        
+        println(finalImage)
+
     }
 }

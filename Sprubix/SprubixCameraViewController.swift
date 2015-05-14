@@ -288,6 +288,7 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
                             self.editSnapshotViewController = EditSnapshotViewController()
                         }
                         
+                        self.editSnapshotViewController.selectedPiecesOrdered = self.selectedPiecesOrdered
                         self.editSnapshotViewController.previewStillImages = self.previewStillImages
                         
                         self.navigationController?.pushViewController(self.editSnapshotViewController, animated: true)

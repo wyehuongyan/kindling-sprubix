@@ -41,6 +41,7 @@ class EditSnapshotViewController: UIViewController {
     var sprubixBoundingBoxes: [UIView] = [UIView]()
     var sprubixImageViews: [UIImageView] = [UIImageView]()
     var selectedImageView: UIImageView!
+    var selectedPiecesOrdered: [String] = [String]()
     var selectedImagePos: Int!
     var oldBoxSizes: [CGSize] = [CGSize]()
     var imageCopies: [UIImage] = [UIImage]()
@@ -938,14 +939,15 @@ class EditSnapshotViewController: UIViewController {
             var normalizedCropRegion: CGRect = CGRectMake(abs(sprubixImageViews[i].frame.origin.x)/sprubixImageViews[i].frame.size.width, abs(sprubixImageViews[i].frame.origin.y)/sprubixImageViews[i].frame.size.height, sprubixBoundingBoxes[i].frame.size.width/sprubixImageViews[i].frame.size.width, sprubixBoundingBoxes[i].frame.size.height/sprubixImageViews[i].frame.size.height)
             
             gpuImageFilter = GPUImageCropFilter(cropRegion: normalizedCropRegion)
-            
             quickFilteredImage = (gpuImageFilter as! GPUImageCropFilter).imageByFilteringImage(sprubixImageViews[i].image)
         
             snapshotShareController.images.append(quickFilteredImage)
+            snapshotShareController.imageViewHeights.append(sprubixBoundingBoxes[i].frame.size.height)
             
-            totalHeight += quickFilteredImage.size.height
+            totalHeight += sprubixBoundingBoxes[i].frame.size.height
         }
         
+        snapshotShareController.selectedPiecesOrdered = self.selectedPiecesOrdered
         snapshotShareController.totalHeight = totalHeight
         
         self.navigationController?.pushViewController(snapshotShareController, animated: true)
