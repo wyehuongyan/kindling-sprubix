@@ -178,7 +178,7 @@ class EditSnapshotViewController: UIViewController {
         editControlsLabel = UILabel(frame: editControlsPanel.bounds)
         editControlsLabel.lineBreakMode = NSLineBreakMode.ByWordWrapping
         editControlsLabel.numberOfLines = 0
-        editControlsLabel.text = "Tap on an image to toggle effects \n or Tap and Hold to drag"
+        editControlsLabel.text = "Tap on an image for effects \n or Tap and Hold to drag"
         editControlsLabel.textColor = UIColor.lightGrayColor()
         editControlsLabel.textAlignment = NSTextAlignment.Center
         
@@ -769,10 +769,12 @@ class EditSnapshotViewController: UIViewController {
         editSliderLabel.text = "\(Int(sender.value))"
         editSliderLabel.center = CGPointMake(thumbRect.origin.x + thumbRect.width / 2 + 0.1 * screenWidth,  sender.center.y - editSliderLabel.frame.size.height / 2);
         
+        var resizedHeight = imageCopies[selectedImagePos].size.height * screenWidth / imageCopies[selectedImagePos].size.width
+        
         switch (selectedEditingMode) {
         case .Brightness:
             // set brightness
-            (gpuImageFilter as! GPUImageBrightnessFilter).forceProcessingAtSizeRespectingAspectRatio(CGSizeMake(0.3 * imageCopies[selectedImagePos].size.width, 0.3 * imageCopies[selectedImagePos].size.height))
+            (gpuImageFilter as! GPUImageBrightnessFilter).forceProcessingAtSizeRespectingAspectRatio(CGSizeMake(screenWidth, resizedHeight))
             (gpuImageFilter as! GPUImageBrightnessFilter).brightness = CGFloat(sender.value / 100)
             
             quickFilteredImage = (gpuImageFilter as! GPUImageBrightnessFilter).imageByFilteringImage(imageCopies[selectedImagePos])
@@ -781,7 +783,7 @@ class EditSnapshotViewController: UIViewController {
             
         case .Contrast:
             // set contrast
-            (gpuImageFilter as! GPUImageContrastFilter).forceProcessingAtSizeRespectingAspectRatio(CGSizeMake(0.3 * imageCopies[selectedImagePos].size.width, 0.3 * imageCopies[selectedImagePos].size.height))
+            (gpuImageFilter as! GPUImageContrastFilter).forceProcessingAtSizeRespectingAspectRatio(CGSizeMake(screenWidth, resizedHeight))
             (gpuImageFilter as! GPUImageContrastFilter).contrast = CGFloat(sender.value / 100 * 4)
             
             quickFilteredImage = (gpuImageFilter as! GPUImageContrastFilter).imageByFilteringImage(imageCopies[selectedImagePos])
@@ -790,7 +792,7 @@ class EditSnapshotViewController: UIViewController {
             
         case .Sharpness:
             // set sharpness
-            (gpuImageFilter as! GPUImageSharpenFilter).forceProcessingAtSizeRespectingAspectRatio(CGSizeMake(0.3 * imageCopies[selectedImagePos].size.width, 0.3 * imageCopies[selectedImagePos].size.height))
+            (gpuImageFilter as! GPUImageSharpenFilter).forceProcessingAtSizeRespectingAspectRatio(CGSizeMake(screenWidth, resizedHeight))
             (gpuImageFilter as! GPUImageSharpenFilter).sharpness = CGFloat(sender.value / 100 * 4)
         
             quickFilteredImage = (gpuImageFilter as! GPUImageSharpenFilter).imageByFilteringImage(imageCopies[selectedImagePos])
@@ -932,6 +934,8 @@ class EditSnapshotViewController: UIViewController {
         var snapshotShareController = SnapshotShareController()
         var totalHeight: CGFloat = 0
         
+        var resizedHeight = imageCopies[0].size.height * screenWidth / imageCopies[0].size.width
+        
         // GPUImageCropFilter on each sprubixImageView
         for var i = 0; i < sprubixImageViews.count; i++ {
             
@@ -939,6 +943,7 @@ class EditSnapshotViewController: UIViewController {
             var normalizedCropRegion: CGRect = CGRectMake(abs(sprubixImageViews[i].frame.origin.x)/sprubixImageViews[i].frame.size.width, abs(sprubixImageViews[i].frame.origin.y)/sprubixImageViews[i].frame.size.height, sprubixBoundingBoxes[i].frame.size.width/sprubixImageViews[i].frame.size.width, sprubixBoundingBoxes[i].frame.size.height/sprubixImageViews[i].frame.size.height)
             
             gpuImageFilter = GPUImageCropFilter(cropRegion: normalizedCropRegion)
+            (gpuImageFilter as! GPUImageCropFilter).forceProcessingAtSizeRespectingAspectRatio(CGSizeMake(screenWidth, resizedHeight))
             quickFilteredImage = (gpuImageFilter as! GPUImageCropFilter).imageByFilteringImage(sprubixImageViews[i].image)
         
             snapshotShareController.images.append(quickFilteredImage)

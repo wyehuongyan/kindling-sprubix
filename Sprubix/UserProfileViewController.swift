@@ -185,8 +185,13 @@ class UserProfileViewController: UIViewController, UICollectionViewDataSource, C
             cell = collectionView.dequeueReusableCellWithReuseIdentifier(profileOutfitCellIdentifier, forIndexPath: indexPath) as! ProfileOutfitCell
             
             var outfit = outfits[indexPath.row] as NSDictionary
+            var outfitImagesString = outfit["images"] as! NSString
+            var outfitImagesData:NSData = outfitImagesString.dataUsingEncoding(NSUTF8StringEncoding)!
             
-            (cell as! ProfileOutfitCell).imageURLString = outfit["images"] as! String
+            var outfitImagesDict: NSDictionary = NSJSONSerialization.JSONObjectWithData(outfitImagesData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSDictionary
+            var outfitImageDict: NSDictionary = outfitImagesDict["images"] as! NSDictionary
+            
+            (cell as! ProfileOutfitCell).imageURLString = outfitImageDict["small"] as! String
 
         case .Pieces:
             cell = collectionView.dequeueReusableCellWithReuseIdentifier(profilePieceCellIdentifier, forIndexPath: indexPath) as! ProfilePieceCell
@@ -211,8 +216,13 @@ class UserProfileViewController: UIViewController, UICollectionViewDataSource, C
             cell = collectionView.dequeueReusableCellWithReuseIdentifier(profileOutfitCellIdentifier, forIndexPath: indexPath) as! ProfileOutfitCell
             
             var communityOutfit = communityOutfits[indexPath.row] as NSDictionary
+            var communityImagesString = communityOutfit["images"] as! NSString
+            var communityImagesData:NSData = communityImagesString.dataUsingEncoding(NSUTF8StringEncoding)!
             
-            (cell as! ProfileOutfitCell).imageURLString = communityOutfit["images"] as! String
+            var communityImagesDict: NSDictionary = NSJSONSerialization.JSONObjectWithData(communityImagesData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSDictionary
+            var communityImageDict: NSDictionary = communityImagesDict["images"] as! NSDictionary
+            
+            (cell as! ProfileOutfitCell).imageURLString = communityImageDict["small"] as! String
         default:
             break
         }

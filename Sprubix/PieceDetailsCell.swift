@@ -295,8 +295,13 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         var cell = collectionView.dequeueReusableCellWithReuseIdentifier(relatedOutfitCellIdentifier, forIndexPath: indexPath) as! ProfileOutfitCell
         
         var outfit = outfits[indexPath.row] as NSDictionary
+        var outfitImagesString = outfit["images"] as! NSString
+        var outfitImagesData:NSData = outfitImagesString.dataUsingEncoding(NSUTF8StringEncoding)!
         
-        (cell as ProfileOutfitCell).imageURLString = outfit["images"] as! String
+        var outfitImagesDict: NSDictionary = NSJSONSerialization.JSONObjectWithData(outfitImagesData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSDictionary
+        var outfitImageDict: NSDictionary = outfitImagesDict["images"] as! NSDictionary
+        
+        (cell as ProfileOutfitCell).imageURLString = outfitImageDict["small"] as! String
         
         cell.setNeedsLayout()
         cell.setNeedsDisplay()

@@ -25,6 +25,52 @@ PODS:
     - AFNetworking/NSURLSession
   - CHTCollectionViewWaterfallLayout (0.8)
   - GPUImage (0.1.6)
+  - MRProgress/ActivityIndicator (0.8.2):
+    - MRProgress/Stopable
+  - MRProgress/AFNetworking (0.8.2):
+    - MRProgress/AFNetworking/ActivityIndicator (= 0.8.2)
+    - MRProgress/AFNetworking/Base (= 0.8.2)
+    - MRProgress/AFNetworking/Circular (= 0.8.2)
+    - MRProgress/AFNetworking/NavigationBarProgress (= 0.8.2)
+    - MRProgress/AFNetworking/Overlay (= 0.8.2)
+    - MRProgress/AFNetworking/ProgressBaseClass (= 0.8.2)
+  - MRProgress/AFNetworking/ActivityIndicator (0.8.2):
+    - MRProgress/ActivityIndicator
+    - MRProgress/AFNetworking/Base
+  - MRProgress/AFNetworking/Base (0.8.2):
+    - AFNetworking (~> 2.5.2)
+    - AFNetworking/UIKit
+    - MRProgress/MethodCopier
+  - MRProgress/AFNetworking/Circular (0.8.2):
+    - MRProgress/AFNetworking/ProgressBaseClass
+  - MRProgress/AFNetworking/NavigationBarProgress (0.8.2):
+    - MRProgress/AFNetworking/ProgressBaseClass
+  - MRProgress/AFNetworking/Overlay (0.8.2):
+    - MRProgress/AFNetworking/ActivityIndicator
+    - MRProgress/AFNetworking/Base
+    - MRProgress/AFNetworking/Circular
+    - MRProgress/Overlay
+  - MRProgress/AFNetworking/ProgressBaseClass (0.8.2):
+    - MRProgress/AFNetworking/Base
+    - MRProgress/ProgressBaseClass
+  - MRProgress/Blur (0.8.2):
+    - MRProgress/Helper
+  - MRProgress/Circular (0.8.2):
+    - MRProgress/Helper
+    - MRProgress/ProgressBaseClass
+    - MRProgress/Stopable
+  - MRProgress/Helper (0.8.2)
+  - MRProgress/Icons (0.8.2)
+  - MRProgress/MethodCopier (0.8.2)
+  - MRProgress/Overlay (0.8.2):
+    - MRProgress/ActivityIndicator
+    - MRProgress/Blur
+    - MRProgress/Circular
+    - MRProgress/Helper
+    - MRProgress/Icons
+  - MRProgress/ProgressBaseClass (0.8.2)
+  - MRProgress/Stopable (0.8.2):
+    - MRProgress/Helper
   - TLYShyNavBar (0.9.10)
 
 DEPENDENCIES:
@@ -32,6 +78,7 @@ DEPENDENCIES:
   - AFNetworking (~> 2.5.3)
   - CHTCollectionViewWaterfallLayout (~> 0.8)
   - GPUImage (~> 0.1.4)
+  - MRProgress/AFNetworking (~> 0.8.2)
   - TLYShyNavBar (~> 0.9.8)
 
 SPEC CHECKSUMS:
@@ -39,6 +86,7 @@ SPEC CHECKSUMS:
   AFNetworking: e1d86c2a96bb5d2e7408da36149806706ee122fe
   CHTCollectionViewWaterfallLayout: 058823cc65c9d84e059b0a85eede517550da0334
   GPUImage: 4675ce4a5370ca92fcea8623b2a08b8f0c51b940
+  MRProgress: f4cfe862082418e8f542f077772283f425d6c699
   TLYShyNavBar: 297414e49b9f779655cbe128d167f8227a30bae8
 
 COCOAPODS: 0.37.0

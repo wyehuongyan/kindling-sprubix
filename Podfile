@@ -9,6 +9,7 @@ target "Sprubix" do
   pod 'CHTCollectionViewWaterfallLayout', '~> 0.8'
   pod 'TLYShyNavBar', '~> 0.9.8'
   pod 'GPUImage', '~> 0.1.4'
+  pod 'MRProgress/AFNetworking', '~> 0.8.2'
 end
 
 target "SprubixTests" do

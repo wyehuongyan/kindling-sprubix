@@ -11,16 +11,8 @@ import CoreData
 
 struct SprubixConfig {
     struct URL {
-        #if DEBUG
-        // debug
-        static let api: String = "http://192.168.1.19/~wyehuongyan/kindling-core/public/index.php" //"http://api.sprubix.localhost"
+        static let api: String = "http://192.168.1.5/~wyehuongyan/kindling-core/public/index.php" //"http://api.sprubix.localhost"
         //static let api: String = "http://api.sprubix.com"
-        
-        #else
-        // release
-        static let api: String = "http://api.sprubix.com"
-        
-        #endif
     }
 }
 
@@ -36,7 +28,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
         // Override point for customization after application launch.
-        //AFNetworkActivityLogger.sharedLogger().startLogging()
+        AFNetworkActivityLogger.sharedLogger().startLogging()
         
         window = UIWindow(frame: UIScreen.mainScreen().bounds)
         window!.rootViewController = containerViewController

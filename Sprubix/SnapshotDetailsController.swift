@@ -32,7 +32,7 @@ protocol SprubixPieceProtocol {
 
 class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableViewDataSource, UITextViewDelegate, UITextFieldDelegate, SprubixCameraDelegate {
     
-    var delegate: SnapshotShareController?
+    var delegate: SprubixPieceProtocol?
     var pos: Int!
     var sprubixPiece: SprubixPiece!
     
@@ -196,9 +196,13 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
                 let cropRef: CGImageRef = CGImageCreateWithImageInRect(fixedImage.CGImage, cropRect);
                 let cropImage: UIImage = UIImage(CGImage: cropRef)!
                 
-                self.selectedThumbnail.setImage(cropImage, forState: UIControlState.Normal)
+                var resizedImage = self.resizeImage(cropImage, width: screenWidth)
+                
+                println(resizedImage.size)
+                
+                self.selectedThumbnail.setImage(resizedImage, forState: UIControlState.Normal)
                 self.selectedThumbnail.hasThumbnail = true
-                self.itemCoverImageView.image = cropImage
+                self.itemCoverImageView.image = resizedImage
                 self.itemCoverImageView.alpha = 1.0
 
                 self.itemTableView.scrollEnabled = true
@@ -368,9 +372,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
             
             itemDetailsCategory = UITextField(frame: CGRectMake(itemImageViewWidth, itemSpecHeight, screenWidth - itemImageViewWidth, itemSpecHeight))
             itemDetailsCategory.tintColor = sprubixColor
-            itemDetailsCategory.placeholder = "Which category is it from?" // user cannot enter, it will be decided by system
-            itemDetailsCategory.text = itemCategory.lowercaseString.capitalizeFirst
-            itemDetailsCategory.enabled = false
+            itemDetailsCategory.placeholder = "Which category is it from?" 
             itemDetailsCategory.returnKeyType = UIReturnKeyType.Done
             itemDetailsCategory.delegate = self
             
@@ -446,7 +448,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
             
             descriptionText.tintColor = sprubixColor
             
-            if sprubixPiece.desc != nil {
+            if sprubixPiece.desc != nil && sprubixPiece.desc != "" {
                 descriptionText.text = sprubixPiece.desc
             } else if descriptionText.text == "" {
                 descriptionText.text = placeholderText
@@ -548,7 +550,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
     }
     
     func textViewDidEndEditing(textView: UITextView) {
-        if textView.text == "" {
+        if textView.text.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet()) == "" {
             descriptionText.text = placeholderText
             descriptionText.textColor = UIColor.lightGrayColor()
             descriptionText.resignFirstResponder()
@@ -637,13 +639,28 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
         }
         
         // item details
-        sprubixPiece.name = itemDetailsName.text
-        sprubixPiece.category = itemDetailsCategory.text
-        sprubixPiece.brand = itemDetailsBrand.text
-        sprubixPiece.size = itemDetailsSize.text
-        sprubixPiece.desc = descriptionText.text
+        sprubixPiece.name = (itemDetailsName != nil) ? itemDetailsName.text : ""
+        sprubixPiece.category = (itemDetailsCategory != nil) ? itemDetailsCategory.text : ""
+        sprubixPiece.brand = (itemDetailsBrand != nil) ? itemDetailsBrand.text : ""
+        sprubixPiece.size = (itemDetailsSize != nil) ? itemDetailsSize.text : ""
+        sprubixPiece.desc = (descriptionText != nil && descriptionText.text != placeholderText) ? descriptionText.text : ""
         
         delegate?.setSprubixPiece(sprubixPiece, position: pos)
         self.navigationController?.popViewControllerAnimated(true)
+    }
+    
+    func resizeImage(image: UIImage, width: CGFloat) -> UIImage {
+        var newImageHeight = image.size.height * width / image.size.width
+        
+        var size: CGSize = CGSizeMake(width, newImageHeight)
+        
+        UIGraphicsBeginImageContextWithOptions(size, false, 0.0) // avoid image quality degrading
+        
+        image.drawInRect(CGRectMake(0, 0, width, newImageHeight))
+        
+        // final image
+        let finalImage:UIImage = UIGraphicsGetImageFromCurrentImageContext()
+        
+        return finalImage
     }
 }

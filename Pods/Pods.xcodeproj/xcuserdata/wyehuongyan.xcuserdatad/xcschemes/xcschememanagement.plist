@@ -24,6 +24,11 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
+		<key>Pods-Sprubix-MRProgress.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
 		<key>Pods-Sprubix-TLYShyNavBar.xcscheme</key>
 		<dict>
 			<key>isShown</key>
@@ -37,32 +42,37 @@
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
-		<key>7101FDCCA0FBE503696BD71E</key>
+		<key>3E4DF5A339D2E834402C7144</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>77756543DEFBB8DFB95DCE94</key>
+		<key>57F9FE4947F2FCDC06742C19</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>888E7D369F3F516787C01968</key>
+		<key>5F7E79AD66CF984C24DF2F0E</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>A5AD8BF1AC999FD2B68E5823</key>
+		<key>75EDDEE0286AEF9959130AA1</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>DA7C6E86F5491B29ED45B2DE</key>
+		<key>B5AE41E43588A6C71E4C8C79</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>DEC6F4F63E57F1BCB152CAB8</key>
+		<key>BAF037AFAE213CAD939E9B15</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>F739343B97B8B699FC754F5E</key>
 		<dict>
 			<key>primary</key>
 			<true/>

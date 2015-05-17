@@ -13,6 +13,7 @@ class SprubixPiece: NSObject {
     
     var name: String!
     var category: String!
+    var type: String!
     var brand: String!
     var size: String!
     var desc: String!

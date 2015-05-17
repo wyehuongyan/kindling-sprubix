@@ -27,7 +27,6 @@
 		847D05871AD58DDA005E09AB /* user5-rika.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 847D05841AD58DDA005E09AB /* user5-rika.jpg */; };
 		847D05881AD58DDA005E09AB /* user6-melody.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 847D05851AD58DDA005E09AB /* user6-melody.jpg */; };
 		8486D4161B04774800ED31BA /* SprubixPiece.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8486D4151B04774800ED31BA /* SprubixPiece.swift */; };
-		8486D4181B04B12300ED31BA /* SprubixOutfit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8486D4171B04B12300ED31BA /* SprubixOutfit.swift */; };
 		849733371AA1B08300E5C750 /* SprubixFeedController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849733361AA1B08300E5C750 /* SprubixFeedController.swift */; };
 		849733411AA4561D00E5C750 /* SprubixFeedCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849733401AA4561D00E5C750 /* SprubixFeedCell.swift */; };
 		84ACA11E1AE78F250084D4CF /* SprubixCameraViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84ACA11D1AE78F250084D4CF /* SprubixCameraViewController.swift */; };
@@ -98,7 +97,6 @@
 		847D05841AD58DDA005E09AB /* user5-rika.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "user5-rika.jpg"; sourceTree = "<group>"; };
 		847D05851AD58DDA005E09AB /* user6-melody.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "user6-melody.jpg"; sourceTree = "<group>"; };
 		8486D4151B04774800ED31BA /* SprubixPiece.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SprubixPiece.swift; sourceTree = "<group>"; };
-		8486D4171B04B12300ED31BA /* SprubixOutfit.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SprubixOutfit.swift; sourceTree = "<group>"; };
 		849733361AA1B08300E5C750 /* SprubixFeedController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SprubixFeedController.swift; sourceTree = "<group>"; };
 		849733401AA4561D00E5C750 /* SprubixFeedCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SprubixFeedCell.swift; sourceTree = "<group>"; };
 		84ACA11D1AE78F250084D4CF /* SprubixCameraViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SprubixCameraViewController.swift; sourceTree = "<group>"; };
@@ -313,7 +311,6 @@
 			children = (
 				84ACA1201AE790020084D4CF /* SprubixCamera.swift */,
 				8486D4151B04774800ED31BA /* SprubixPiece.swift */,
-				8486D4171B04B12300ED31BA /* SprubixOutfit.swift */,
 			);
 			name = Create;
 			sourceTree = "<group>";
@@ -554,7 +551,6 @@
 				84D697271AC7E05800C676FD /* SpruceShareViewController.swift in Sources */,
 				84B335461AB2DA6F00B9707D /* OutfitDetailsViewController.swift in Sources */,
 				84ACA1231AE7B5C80084D4CF /* EditSnapshotViewController.swift in Sources */,
-				8486D4181B04B12300ED31BA /* SprubixOutfit.swift in Sources */,
 				84B335421AB2BC1400B9707D /* Macro.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

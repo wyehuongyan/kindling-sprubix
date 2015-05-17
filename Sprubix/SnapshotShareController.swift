@@ -81,6 +81,18 @@ class SnapshotShareController: UIViewController, UITableViewDelegate, UITableVie
             totalPieceHeight += imageViewHeight
         }
         
+        // instantiate sprubixPieces 
+        for var i = 0; i < images.count; i++ {
+            images[i] = resizeImage(images[i], width: screenWidth)
+            var type = selectedPiecesOrdered[i]
+            
+            var sprubixPiece = SprubixPiece()
+            sprubixPiece.images.append(images[i])
+            sprubixPiece.type = type
+            
+            sprubixPieces.append(sprubixPiece)
+        }
+        
         if totalPieceHeight > outfitViewHeight {
             totalPieceHeight = outfitViewHeight
         }
@@ -150,9 +162,6 @@ class SnapshotShareController: UIViewController, UITableViewDelegate, UITableVie
             outfitImageView.userInteractionEnabled = true
             
             outfitImageView.addSubview(pieceView)
-            
-            // sprubixPieces
-            sprubixPieces.append(SprubixPiece())
         }
     }
     
@@ -327,6 +336,7 @@ class SnapshotShareController: UIViewController, UITableViewDelegate, UITableVie
         if pos != nil {
             
             var snapshotDetailsController = SnapshotDetailsController()
+            
             snapshotDetailsController.itemCoverImageView.image = (gesture.view as! UIImageView).image!
             snapshotDetailsController.itemCategory = selectedPiecesOrdered[pos!]
             snapshotDetailsController.delegate = self
@@ -395,13 +405,6 @@ class SnapshotShareController: UIViewController, UITableViewDelegate, UITableVie
     // SprubixPieceProtocol
     func setSprubixPiece(sprubixPiece: SprubixPiece, position: Int) {
         sprubixPieces[position] = sprubixPiece
-        
-        println((sprubixPieces[position].images).count)
-        println(sprubixPieces[position].name)
-        println(sprubixPieces[position].category)
-        println(sprubixPieces[position].brand)
-        println(sprubixPieces[position].size)
-        println(sprubixPieces[position].desc)
     }
     
     /**
@@ -471,7 +474,7 @@ class SnapshotShareController: UIViewController, UITableViewDelegate, UITableVie
     }
     
     func shareButtonPressed(sender: UIButton) {
-        var width: CGFloat = 600
+        var width: CGFloat = screenWidth
         var totalHeight: CGFloat = 0
         
         // calculate totalHeight
@@ -496,11 +499,108 @@ class SnapshotShareController: UIViewController, UITableViewDelegate, UITableVie
         }
         
         // final image
-        var finalImage:UIImage = UIGraphicsGetImageFromCurrentImageContext()
+        var outfitImage:UIImage = UIGraphicsGetImageFromCurrentImageContext()
         
         UIGraphicsEndImageContext()
-        
-        println(finalImage)
 
+        // create SprubixOutfit
+        let userData:NSDictionary! = defaults.dictionaryForKey("userData")
+        
+        var sprubixOutfitDict: NSMutableDictionary = [
+            "num_pieces": sprubixPieces.count,
+            "description": descriptionText.text,
+            "created_by": userData["username"] as! String,
+            "from": userData["username"] as! String,
+            "user_id": userData["id"] as! Int,
+            "height": outfitImage.scale * outfitImage.size.height,
+            "width": outfitImage.scale * outfitImage.size.width
+        ]
+        
+        var pieces: NSMutableDictionary = NSMutableDictionary()
+        for sprubixPiece in sprubixPieces {
+            var piece: NSDictionary = [
+                "num_images": sprubixPiece.images.count,
+                "name": sprubixPiece.name != nil ? sprubixPiece.name : "",
+                "category": sprubixPiece.category != nil ? sprubixPiece.category : "",
+                "type": sprubixPiece.type, // type will never be nil
+                "brand": sprubixPiece.brand != nil ? sprubixPiece.brand : "",
+                "size": sprubixPiece.size != nil ? sprubixPiece.size : "",
+                "description": sprubixPiece.desc != nil ? sprubixPiece.desc : "",
+                "height": sprubixPiece.images[0].scale * sprubixPiece.images[0].size.height,
+                "width": sprubixPiece.images[0].scale * sprubixPiece.images[0].size.width
+            ]
+            
+            pieces.setObject(piece, forKey: sprubixPiece.type.lowercaseString)
+        }
+        
+        sprubixOutfitDict.setObject(pieces, forKey: "pieces")
+        
+        // upload:
+        // 1. outfit finalimage
+        // 2. piece images for each sprubixPiece
+        // 3. sprubixOutfit information (parameters)
+        // 4. sprubixPiece information (parameters)
+        
+        var outfitImageData: NSData = UIImageJPEGRepresentation(outfitImage, 0.5);
+        //NSDictionary *parameters = @{@"username": self.username, @"password" : self.password};
+        var requestOperation: AFHTTPRequestOperation = manager.POST(SprubixConfig.URL.api + "/upload", parameters: sprubixOutfitDict, constructingBodyWithBlock: { formData in
+            let data: AFMultipartFormData = formData
+            
+            // append outfit image
+            data.appendPartWithFileData(outfitImageData, name: "outfit", fileName: "outfit.jpg", mimeType: "image/jpeg")
+            
+            // append piece images
+            for var i = 0; i < self.sprubixPieces.count; i++ {
+                var sprubixPiece = self.sprubixPieces[i]
+                
+                for var j = 0; j < sprubixPiece.images.count; j++ {
+                    var pieceImage: UIImage = sprubixPiece.images[j]
+                    var pieceImageData: NSData = UIImageJPEGRepresentation(pieceImage, 0.5)
+                    
+                    var pieceImageName = "piece_\(sprubixPiece.type.lowercaseString)_\(j)"
+                    var pieceImageFileName = pieceImageName + ".jpg"
+                    
+                    data.appendPartWithFileData(pieceImageData, name: pieceImageName, fileName: pieceImageFileName, mimeType: "image/jpeg")
+                }
+            }
+            
+            }, success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                // success block
+                println("Upload Success")
+                
+                // go back to main feed
+                
+            }, failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                // failure block
+                println("Upload Fail")
+        })
+        
+        // upload progress
+        requestOperation.setUploadProgressBlock { (bytesWritten: UInt, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) -> Void in
+            var percentDone: Double = Double(totalBytesWritten) / Double(totalBytesExpectedToWrite)
+            
+            println("percentage done: \(percentDone)")
+        }
+        
+        // overlay indicator
+        var overlayView: MRProgressOverlayView = MRProgressOverlayView.showOverlayAddedTo(self.view, animated: true)
+        overlayView.setModeAndProgressWithStateOfOperation(requestOperation)
+        
+        overlayView.tintColor = sprubixColor
+    }
+    
+    func resizeImage(image: UIImage, width: CGFloat) -> UIImage {
+        var newImageHeight = image.size.height * width / image.size.width
+        
+        var size: CGSize = CGSizeMake(width, newImageHeight)
+        
+        UIGraphicsBeginImageContextWithOptions(size, false, 0.0) // avoid image quality degrading
+        
+        image.drawInRect(CGRectMake(0, 0, width, newImageHeight))
+        
+        // final image
+        let finalImage:UIImage = UIGraphicsGetImageFromCurrentImageContext()
+        
+        return finalImage
     }
 }
