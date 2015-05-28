@@ -11,14 +11,18 @@ import CoreData
 
 struct SprubixConfig {
     struct URL {
-        static let api: String = "http://192.168.1.5/~wyehuongyan/kindling-core/public/index.php" //"http://api.sprubix.localhost"
+        static let api: String = "http://192.168.1.6/~wyehuongyan/kindling-core/public/index.php"
         //static let api: String = "http://api.sprubix.com"
+        
+        static let firebase: String = "https://sprubixtest.firebaseio.com/"
+        //static let firebase: String = "https://sprubix.firebaseio.com/"
     }
 }
 
 let manager = AFHTTPRequestOperationManager()
 let containerViewController = ContainerViewController()
 let defaults = NSUserDefaults.standardUserDefaults()
+let firebaseRef = Firebase(url: SprubixConfig.URL.firebase)
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {

@@ -50,6 +50,9 @@ class UserProfileViewController: UIViewController, UICollectionViewDataSource, C
         super.viewDidLoad()
         
         initUserProfile()
+        
+        // call to servers
+        loadUserFollow()
         loadUserOutfits()
         
         self.navigationController!.delegate = transitionDelegateHolder
@@ -87,7 +90,7 @@ class UserProfileViewController: UIViewController, UICollectionViewDataSource, C
         userOutfitsLayout.footerHeight = 10
         userOutfitsLayout.minimumColumnSpacing = 10
         userOutfitsLayout.minimumInteritemSpacing = 10
-        userOutfitsLayout.columnCount = 2
+        userOutfitsLayout.columnCount = 3
         
         // layout for pieces tab
         userPiecesLayout = SprubixStretchyHeader()
@@ -111,10 +114,12 @@ class UserProfileViewController: UIViewController, UICollectionViewDataSource, C
         
         self.navigationController?.navigationBar.setBackgroundImage(UIImage(), forBarMetrics: UIBarMetrics.Default)
         self.navigationController?.navigationBar.shadowImage = UIImage()
-        self.navigationController?.navigationBar.translucent = true
     }
     
     override func viewWillDisappear(animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        self.navigationController?.setNavigationBarHidden(true, animated: true)
         self.navigationController?.navigationBar.setBackgroundImage(nil, forBarMetrics: UIBarMetrics.Default)
         self.navigationController?.navigationBar.shadowImage = nil
     }
@@ -290,6 +295,24 @@ class UserProfileViewController: UIViewController, UICollectionViewDataSource, C
         flowLayout.scrollDirection = .Horizontal
         
         return flowLayout
+    }
+    
+    func loadUserFollow() {
+        let targetUserId:Int? = user["id"] as? Int
+        let userId:Int? = defaults.objectForKey("userId") as? Int
+        
+        if targetUserId != nil && targetUserId != userId {
+            manager.GET(SprubixConfig.URL.api + "/user/\(userId!)/follow",
+                parameters: nil,
+                success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                    println(responseObject)
+                },
+                failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                    println("Error: " + error.localizedDescription)
+            })
+        } else {
+            // hide follow button
+        }
     }
     
     // UserProfileHeaderDelegate

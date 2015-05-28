@@ -10,6 +10,7 @@ import UIKit
 
 protocol SprucePieceFeedProtocol {
     func deleteSprucePieceFeed(sprucePieceFeedController: SprucePieceFeedController)
+    func resizeOutfit()
 }
 
 class SprucePieceFeedController: UICollectionViewController, UICollectionViewDelegateFlowLayout {
@@ -19,7 +20,7 @@ class SprucePieceFeedController: UICollectionViewController, UICollectionViewDel
     
     let sprucePieceFeedCellIdentifier = "sprucePieceFeedCell"
     
-    let arrowButtonHeight:CGFloat = 16
+    let arrowButtonHeight:CGFloat = 25
     let arrowButtonPadding:CGFloat = 10
     
     var pieceType: String!
@@ -49,7 +50,7 @@ class SprucePieceFeedController: UICollectionViewController, UICollectionViewDel
         let collectionView :UICollectionView = self.collectionView!;
         collectionView.pagingEnabled = true
         collectionView.showsHorizontalScrollIndicator = false
-        collectionView.backgroundColor = UIColor.whiteColor()
+        collectionView.backgroundColor = sprubixGray
         
         collectionView.registerClass(SprucePieceFeedCell.self, forCellWithReuseIdentifier: sprucePieceFeedCellIdentifier)
     }
@@ -178,15 +179,21 @@ class SprucePieceFeedController: UICollectionViewController, UICollectionViewDel
     }
 
     override func scrollViewDidEndDecelerating(scrollView: UIScrollView) {
+        // when pieces are swiped
         setCurrentVisibleCell()
+    
+        delegate?.resizeOutfit()
     }
     
     override func scrollViewDidEndScrollingAnimation(scrollView: UIScrollView) {
+        // when arrows are pressed
         let indexPath: NSIndexPath = NSIndexPath(forItem: index, inSection: 0)
         
         currentVisibleCell = self.collectionView?.cellForItemAtIndexPath(indexPath) as! SprucePieceFeedCell
         
         scrolling = false
+        
+        delegate?.resizeOutfit()
     }
     
     func setCurrentVisibleCell() {
@@ -231,13 +238,15 @@ class SprucePieceFeedController: UICollectionViewController, UICollectionViewDel
                     "type" : pieceType
                 ],
                 success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
-                    self.sprucePieces = responseObject["data"] as! [NSDictionary]
+                    var pieces = responseObject["data"] as! [NSDictionary]
                     
-                    if self.piece != nil {
-                        self.sprucePieces.insert(self.piece, atIndex: 0)
+                    for piece in pieces {
+                        self.sprucePieces.append(piece)
                     }
                     
                     self.collectionView?.reloadData()
+                    self.collectionView?.layoutIfNeeded()
+                    self.delegate?.resizeOutfit()
                 },
                 failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                     println("Error: " + error.localizedDescription)

@@ -27,8 +27,6 @@
 		847D05871AD58DDA005E09AB /* user5-rika.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 847D05841AD58DDA005E09AB /* user5-rika.jpg */; };
 		847D05881AD58DDA005E09AB /* user6-melody.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 847D05851AD58DDA005E09AB /* user6-melody.jpg */; };
 		8486D4161B04774800ED31BA /* SprubixPiece.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8486D4151B04774800ED31BA /* SprubixPiece.swift */; };
-		849733371AA1B08300E5C750 /* SprubixFeedController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849733361AA1B08300E5C750 /* SprubixFeedController.swift */; };
-		849733411AA4561D00E5C750 /* SprubixFeedCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849733401AA4561D00E5C750 /* SprubixFeedCell.swift */; };
 		84ACA11E1AE78F250084D4CF /* SprubixCameraViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84ACA11D1AE78F250084D4CF /* SprubixCameraViewController.swift */; };
 		84ACA1211AE790020084D4CF /* SprubixCamera.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84ACA1201AE790020084D4CF /* SprubixCamera.swift */; };
 		84ACA1231AE7B5C80084D4CF /* EditSnapshotViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84ACA1221AE7B5C80084D4CF /* EditSnapshotViewController.swift */; };
@@ -56,6 +54,8 @@
 		84C9AC3E1AA06041009ADF5C /* SignUpViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84C9AC3D1AA06041009ADF5C /* SignUpViewController.swift */; };
 		84D697271AC7E05800C676FD /* SpruceShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D697261AC7E05800C676FD /* SpruceShareViewController.swift */; };
 		84D697291AC922DA00C676FD /* logo-final-square.png in Resources */ = {isa = PBXBuildFile; fileRef = 84D697281AC922DA00C676FD /* logo-final-square.png */; };
+		84FDB9601B1595FA00E8D720 /* NotificationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FDB95F1B1595FA00E8D720 /* NotificationCell.swift */; };
+		84FDB9631B15A63700E8D720 /* NotificationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FDB9621B15A63700E8D720 /* NotificationViewController.swift */; };
 		85EF5C0437A8227915E7E498 /* libPods-Sprubix.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0682FA12E127785642AF2FF7 /* libPods-Sprubix.a */; };
 /* End PBXBuildFile section */
 
@@ -97,8 +97,6 @@
 		847D05841AD58DDA005E09AB /* user5-rika.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "user5-rika.jpg"; sourceTree = "<group>"; };
 		847D05851AD58DDA005E09AB /* user6-melody.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "user6-melody.jpg"; sourceTree = "<group>"; };
 		8486D4151B04774800ED31BA /* SprubixPiece.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SprubixPiece.swift; sourceTree = "<group>"; };
-		849733361AA1B08300E5C750 /* SprubixFeedController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SprubixFeedController.swift; sourceTree = "<group>"; };
-		849733401AA4561D00E5C750 /* SprubixFeedCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SprubixFeedCell.swift; sourceTree = "<group>"; };
 		84ACA11D1AE78F250084D4CF /* SprubixCameraViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SprubixCameraViewController.swift; sourceTree = "<group>"; };
 		84ACA1201AE790020084D4CF /* SprubixCamera.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SprubixCamera.swift; sourceTree = "<group>"; };
 		84ACA1221AE7B5C80084D4CF /* EditSnapshotViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EditSnapshotViewController.swift; sourceTree = "<group>"; };
@@ -126,6 +124,8 @@
 		84C9AC3D1AA06041009ADF5C /* SignUpViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignUpViewController.swift; sourceTree = "<group>"; };
 		84D697261AC7E05800C676FD /* SpruceShareViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpruceShareViewController.swift; sourceTree = "<group>"; };
 		84D697281AC922DA00C676FD /* logo-final-square.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "logo-final-square.png"; sourceTree = "<group>"; };
+		84FDB95F1B1595FA00E8D720 /* NotificationCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotificationCell.swift; sourceTree = "<group>"; };
+		84FDB9621B15A63700E8D720 /* NotificationViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotificationViewController.swift; sourceTree = "<group>"; };
 		9C19E471A8B7AC341F31C03D /* Pods-Sprubix.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Sprubix.release.xcconfig"; path = "Pods/Target Support Files/Pods-Sprubix/Pods-Sprubix.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -239,7 +239,7 @@
 		846C979B1ABD5BE50050D0BC /* Feed */ = {
 			isa = PBXGroup;
 			children = (
-				849733361AA1B08300E5C750 /* SprubixFeedController.swift */,
+				84B334E41AAB00DD00B9707D /* SidePanelViewController.swift */,
 				846C97961ABB2A8E0050D0BC /* SprubixFeedCommentsController.swift */,
 				84470D891AECC41B007E9A93 /* MainFeedController.swift */,
 			);
@@ -257,16 +257,14 @@
 		8497333E1AA4556200E5C750 /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
-				84B334EB1AAB1F9B00B9707D /* ContainerViewController.swift */,
-				84B334E41AAB00DD00B9707D /* SidePanelViewController.swift */,
-				84B335471AB2DBB800B9707D /* WaterFallNavigationController.swift */,
-				846C979B1ABD5BE50050D0BC /* Feed */,
-				846C979A1ABD5BCC0050D0BC /* Spruce */,
 				84FCCAC11AB56466009C10B2 /* Auth */,
+				84FDB95E1B15956100E8D720 /* Main */,
+				846C979B1ABD5BE50050D0BC /* Feed */,
+				84FDB95D1B15954400E8D720 /* Details */,
 				84ACA11B1AE78D920084D4CF /* Profile */,
+				846C979A1ABD5BCC0050D0BC /* Spruce */,
+				84FDB9611B15A5F900E8D720 /* Notifications */,
 				84ACA11C1AE78EBF0084D4CF /* Create */,
-				84B335451AB2DA6F00B9707D /* OutfitDetailsViewController.swift */,
-				84B3354B1AB449F500B9707D /* PieceDetailsViewController.swift */,
 			);
 			name = Controllers;
 			sourceTree = "<group>";
@@ -276,13 +274,11 @@
 			children = (
 				845048BA1A9ECC81008BDBAA /* Main.storyboard */,
 				845048BF1A9ECC81008BDBAA /* LaunchScreen.xib */,
+				84FDB95B1B1594FC00E8D720 /* Feed */,
+				84FDB95C1B15952A00E8D720 /* Details */,
 				84FCCABF1AB56422009C10B2 /* Profile */,
 				846C979E1ABDA5840050D0BC /* Spruce */,
-				849733401AA4561D00E5C750 /* SprubixFeedCell.swift */,
-				84470D8B1AED1847007E9A93 /* MainFeedCell.swift */,
-				84B334E91AAB0CC900B9707D /* SidePanelCell.swift */,
-				84B335491AB4035A00B9707D /* OutfitDetailsCell.swift */,
-				84B3354D1AB4520C00B9707D /* PieceDetailsCell.swift */,
+				84FDB95A1B1594E000E8D720 /* Notifications */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -361,6 +357,58 @@
 				84C9AC3D1AA06041009ADF5C /* SignUpViewController.swift */,
 			);
 			name = Auth;
+			sourceTree = "<group>";
+		};
+		84FDB95A1B1594E000E8D720 /* Notifications */ = {
+			isa = PBXGroup;
+			children = (
+				84FDB95F1B1595FA00E8D720 /* NotificationCell.swift */,
+			);
+			name = Notifications;
+			sourceTree = "<group>";
+		};
+		84FDB95B1B1594FC00E8D720 /* Feed */ = {
+			isa = PBXGroup;
+			children = (
+				84B334E91AAB0CC900B9707D /* SidePanelCell.swift */,
+				84470D8B1AED1847007E9A93 /* MainFeedCell.swift */,
+			);
+			name = Feed;
+			sourceTree = "<group>";
+		};
+		84FDB95C1B15952A00E8D720 /* Details */ = {
+			isa = PBXGroup;
+			children = (
+				84B335491AB4035A00B9707D /* OutfitDetailsCell.swift */,
+				84B3354D1AB4520C00B9707D /* PieceDetailsCell.swift */,
+			);
+			name = Details;
+			sourceTree = "<group>";
+		};
+		84FDB95D1B15954400E8D720 /* Details */ = {
+			isa = PBXGroup;
+			children = (
+				84B335451AB2DA6F00B9707D /* OutfitDetailsViewController.swift */,
+				84B3354B1AB449F500B9707D /* PieceDetailsViewController.swift */,
+			);
+			name = Details;
+			sourceTree = "<group>";
+		};
+		84FDB95E1B15956100E8D720 /* Main */ = {
+			isa = PBXGroup;
+			children = (
+				84B334EB1AAB1F9B00B9707D /* ContainerViewController.swift */,
+				84B335471AB2DBB800B9707D /* WaterFallNavigationController.swift */,
+			);
+			name = Main;
+			sourceTree = "<group>";
+		};
+		84FDB9611B15A5F900E8D720 /* Notifications */ = {
+			isa = PBXGroup;
+			children = (
+				84FDB9621B15A63700E8D720 /* NotificationViewController.swift */,
+			);
+			name = Notifications;
 			sourceTree = "<group>";
 		};
 		C8DB1F85BAB349ED9836B8C0 /* Frameworks */ = {
@@ -516,11 +564,11 @@
 				84B335401AB2BB9E00B9707D /* Transition.swift in Sources */,
 				84B3353E1AB2BA2000B9707D /* TransitionProtocol.swift in Sources */,
 				84B3352C1AAEE2EB00B9707D /* UserProfileHeader.swift in Sources */,
-				849733371AA1B08300E5C750 /* SprubixFeedController.swift in Sources */,
 				845048B91A9ECC81008BDBAA /* SignInViewController.swift in Sources */,
 				84B334EC1AAB1F9B00B9707D /* ContainerViewController.swift in Sources */,
 				84B334EA1AAB0CC900B9707D /* SidePanelCell.swift in Sources */,
 				845048B41A9ECC81008BDBAA /* AppDelegate.swift in Sources */,
+				84FDB9601B1595FA00E8D720 /* NotificationCell.swift in Sources */,
 				84470D8A1AECC41B007E9A93 /* MainFeedController.swift in Sources */,
 				84C9AC3E1AA06041009ADF5C /* SignUpViewController.swift in Sources */,
 				84B334E51AAB00DD00B9707D /* SidePanelViewController.swift in Sources */,
@@ -540,6 +588,7 @@
 				84ACA11E1AE78F250084D4CF /* SprubixCameraViewController.swift in Sources */,
 				845048B71A9ECC81008BDBAA /* Sprubix.xcdatamodeld in Sources */,
 				84470D8C1AED1847007E9A93 /* MainFeedCell.swift in Sources */,
+				84FDB9631B15A63700E8D720 /* NotificationViewController.swift in Sources */,
 				84B3354C1AB449F500B9707D /* PieceDetailsViewController.swift in Sources */,
 				84B3352E1AAEEA1000B9707D /* UserProfileFooter.swift in Sources */,
 				84B334E81AAB0C7D00B9707D /* SidePanelOption.swift in Sources */,
@@ -547,7 +596,6 @@
 				84B335441AB2BD0700B9707D /* Extension.swift in Sources */,
 				84B335281AADE1F600B9707D /* UserProfileViewController.swift in Sources */,
 				84B3352A1AAEBF8300B9707D /* ProfileOutfitCell.swift in Sources */,
-				849733411AA4561D00E5C750 /* SprubixFeedCell.swift in Sources */,
 				84D697271AC7E05800C676FD /* SpruceShareViewController.swift in Sources */,
 				84B335461AB2DA6F00B9707D /* OutfitDetailsViewController.swift in Sources */,
 				84ACA1231AE7B5C80084D4CF /* EditSnapshotViewController.swift in Sources */,

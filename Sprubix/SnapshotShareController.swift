@@ -220,8 +220,6 @@ class SnapshotShareController: UIViewController, UITableViewDelegate, UITableVie
         switch(indexPath.row)
         {
         case 0:
-            //outfitImageView = UIImageView(image: UIImage(named: "person-placeholder.jpg"))
-            //outfitImageView.frame = CGRect(x: 0, y: 0, width: screenWidth, height: 500)
             outfitImageView.clipsToBounds = true
             outfitImageView.backgroundColor = sprubixGray
             outfitImageView.contentMode = UIViewContentMode.ScaleAspectFill
@@ -345,16 +343,6 @@ class SnapshotShareController: UIViewController, UITableViewDelegate, UITableVie
             
             self.navigationController?.pushViewController(snapshotDetailsController, animated: true)
         }
-    }
-    
-    func heightForTextLabel(text:String, width:CGFloat, padding: CGFloat) -> CGFloat{
-        let label:UILabel = UILabel(frame: CGRectMake(0, 0, width, CGFloat.max))
-        label.numberOfLines = 0
-        label.lineBreakMode = NSLineBreakMode.ByWordWrapping
-        label.text = text
-        
-        label.sizeToFit()
-        return label.frame.height + padding
     }
     
     // UITextViewDelegate
@@ -518,7 +506,7 @@ class SnapshotShareController: UIViewController, UITableViewDelegate, UITableVie
         
         var pieces: NSMutableDictionary = NSMutableDictionary()
         for sprubixPiece in sprubixPieces {
-            var piece: NSDictionary = [
+            var tempPiece: NSDictionary = [
                 "num_images": sprubixPiece.images.count,
                 "name": sprubixPiece.name != nil ? sprubixPiece.name : "",
                 "category": sprubixPiece.category != nil ? sprubixPiece.category : "",
@@ -530,7 +518,7 @@ class SnapshotShareController: UIViewController, UITableViewDelegate, UITableVie
                 "width": sprubixPiece.images[0].scale * sprubixPiece.images[0].size.width
             ]
             
-            pieces.setObject(piece, forKey: sprubixPiece.type.lowercaseString)
+            pieces.setObject(tempPiece, forKey: sprubixPiece.type.lowercaseString)
         }
         
         sprubixOutfitDict.setObject(pieces, forKey: "pieces")
@@ -542,8 +530,8 @@ class SnapshotShareController: UIViewController, UITableViewDelegate, UITableVie
         // 4. sprubixPiece information (parameters)
         
         var outfitImageData: NSData = UIImageJPEGRepresentation(outfitImage, 0.5);
-        //NSDictionary *parameters = @{@"username": self.username, @"password" : self.password};
-        var requestOperation: AFHTTPRequestOperation = manager.POST(SprubixConfig.URL.api + "/upload", parameters: sprubixOutfitDict, constructingBodyWithBlock: { formData in
+        
+        var requestOperation: AFHTTPRequestOperation = manager.POST(SprubixConfig.URL.api + "/upload/outfit/create", parameters: sprubixOutfitDict, constructingBodyWithBlock: { formData in
             let data: AFMultipartFormData = formData
             
             // append outfit image
@@ -567,8 +555,21 @@ class SnapshotShareController: UIViewController, UITableViewDelegate, UITableVie
             }, success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
                 // success block
                 println("Upload Success")
+                //println(responseObject)
                 
-                // go back to main feed
+                self.delay(0.6) {
+                    // go back to main feed
+                    self.navigationController!.delegate = nil
+                    
+                    let transition = CATransition()
+                    transition.duration = 0.3
+                    transition.type = kCATransitionReveal
+                    transition.subtype = kCATransitionFromBottom
+                    transition.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
+                    
+                    self.navigationController!.view.layer.addAnimation(transition, forKey: kCATransition)
+                    self.navigationController?.popToViewController(self.navigationController?.viewControllers.first! as! UIViewController, animated: false)
+                }
                 
             }, failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                 // failure block
@@ -602,5 +603,14 @@ class SnapshotShareController: UIViewController, UITableViewDelegate, UITableVie
         let finalImage:UIImage = UIGraphicsGetImageFromCurrentImageContext()
         
         return finalImage
+    }
+    
+    func delay(delay:Double, closure:()->()) {
+        dispatch_after(
+            dispatch_time(
+                DISPATCH_TIME_NOW,
+                Int64(delay * Double(NSEC_PER_SEC))
+            ),
+            dispatch_get_main_queue(), closure)
     }
 }

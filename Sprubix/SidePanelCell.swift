@@ -17,7 +17,7 @@ class SidePanelCell: UITableViewCell {
     
     func configureForSidePanelOption(sidePanelOption: SidePanelOption) {
         sideIcon.image = sidePanelOption.image
-        sideLabel.text = sidePanelOption.title
+        sideLabel.text = sidePanelOption.option?.toString()
 
         viewControllerName = sidePanelOption.viewControllerName
     }

@@ -769,12 +769,13 @@ class EditSnapshotViewController: UIViewController {
         editSliderLabel.text = "\(Int(sender.value))"
         editSliderLabel.center = CGPointMake(thumbRect.origin.x + thumbRect.width / 2 + 0.1 * screenWidth,  sender.center.y - editSliderLabel.frame.size.height / 2);
         
-        var resizedHeight = imageCopies[selectedImagePos].size.height * screenWidth / imageCopies[selectedImagePos].size.width
+        var width = 0.5 * imageCopies[selectedImagePos].size.width
+        var resizedHeight = imageCopies[selectedImagePos].size.height * width / imageCopies[selectedImagePos].size.width
         
         switch (selectedEditingMode) {
         case .Brightness:
             // set brightness
-            (gpuImageFilter as! GPUImageBrightnessFilter).forceProcessingAtSizeRespectingAspectRatio(CGSizeMake(screenWidth, resizedHeight))
+            (gpuImageFilter as! GPUImageBrightnessFilter).forceProcessingAtSizeRespectingAspectRatio(CGSizeMake(width, resizedHeight))
             (gpuImageFilter as! GPUImageBrightnessFilter).brightness = CGFloat(sender.value / 100)
             
             quickFilteredImage = (gpuImageFilter as! GPUImageBrightnessFilter).imageByFilteringImage(imageCopies[selectedImagePos])
@@ -783,7 +784,7 @@ class EditSnapshotViewController: UIViewController {
             
         case .Contrast:
             // set contrast
-            (gpuImageFilter as! GPUImageContrastFilter).forceProcessingAtSizeRespectingAspectRatio(CGSizeMake(screenWidth, resizedHeight))
+            (gpuImageFilter as! GPUImageContrastFilter).forceProcessingAtSizeRespectingAspectRatio(CGSizeMake(width, resizedHeight))
             (gpuImageFilter as! GPUImageContrastFilter).contrast = CGFloat(sender.value / 100 * 4)
             
             quickFilteredImage = (gpuImageFilter as! GPUImageContrastFilter).imageByFilteringImage(imageCopies[selectedImagePos])
@@ -792,7 +793,7 @@ class EditSnapshotViewController: UIViewController {
             
         case .Sharpness:
             // set sharpness
-            (gpuImageFilter as! GPUImageSharpenFilter).forceProcessingAtSizeRespectingAspectRatio(CGSizeMake(screenWidth, resizedHeight))
+            (gpuImageFilter as! GPUImageSharpenFilter).forceProcessingAtSizeRespectingAspectRatio(CGSizeMake(width, resizedHeight))
             (gpuImageFilter as! GPUImageSharpenFilter).sharpness = CGFloat(sender.value / 100 * 4)
         
             quickFilteredImage = (gpuImageFilter as! GPUImageSharpenFilter).imageByFilteringImage(imageCopies[selectedImagePos])

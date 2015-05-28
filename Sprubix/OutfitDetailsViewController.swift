@@ -79,7 +79,7 @@ class OutfitDetailsViewController: UICollectionViewController, UICollectionViewD
         
         // return to main feed
         collectionCell.returnAction = { Void in
-            self.navigationController!.delegate = nil
+            self.navigationController!.delegate = transitionDelegateHolder
             
             let transition = CATransition()
             transition.duration = 0.3
@@ -89,7 +89,7 @@ class OutfitDetailsViewController: UICollectionViewController, UICollectionViewD
             
             self.navigationController!.view.layer.addAnimation(transition, forKey: kCATransition)
             
-            self.navigationController?.popToViewController(self.navigationController?.viewControllers.first! as! UIViewController, animated: false)
+            self.navigationController?.popToRootViewControllerAnimated(true)
             
             return
         }

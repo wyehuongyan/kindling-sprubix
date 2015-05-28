@@ -10,6 +10,8 @@ target "Sprubix" do
   pod 'TLYShyNavBar', '~> 0.9.8'
   pod 'GPUImage', '~> 0.1.4'
   pod 'MRProgress/AFNetworking', '~> 0.8.2'
+  pod 'Firebase', '>= 2.2.2'
+  pod 'SSKeychain', '~> 1.2.3'
 end
 
 target "SprubixTests" do

@@ -16,6 +16,7 @@ protocol SpruceViewProtocol {
 class SpruceViewController: UIViewController, UIScrollViewDelegate, UIActionSheetDelegate, UITextViewDelegate, SprucePieceFeedProtocol {
     var delegate: SpruceViewProtocol?
     
+    var userIdFrom: Int!
     var usernameFrom: String!
     var userThumbnailFrom: String!
     
@@ -26,21 +27,31 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, UIActionShee
     var scrollView: UIScrollView = UIScrollView()
     var creditsView:UIView!
     let creditsViewHeight:CGFloat = 80
-    
     let descriptionHeight:CGFloat = 50
+
+    let outfitHeight: CGFloat = screenWidth / 0.75
     
     var childControllers:[SprucePieceFeedController] = [SprucePieceFeedController]()
     
     var addRemovePieceActionSheet: UIActionSheet!
     var actionSheetButtonNames: [String]! = ["HEAD", "TOP", "BOTTOM", "FEET"] // contains the types of pieces NOT in the current outfit
     
-    var addPieceFeedButton: UIButton!
-    var removePieceFeedButton: UIButton!
     var toggleRemovePieceFeed: Bool = false
-    var confirmButton: UIButton!
-    var magicButton: UIButton!
     
-    var longPress:UILongPressGestureRecognizer!
+    @IBOutlet var trashPieceButton: UIBarButtonItem!
+    @IBOutlet var closetButton: UIBarButtonItem!
+    @IBOutlet var addPieceButton: UIBarButtonItem!
+    
+    @IBAction func trashPiece(sender: AnyObject) {
+        toggleDeletePieceCrosses()
+    }
+    
+    @IBAction func closetSelection(sender: AnyObject) {
+    }
+    
+    @IBAction func addPiece(sender: AnyObject) {
+        showAddPieceActionSheet()
+    }
     
     // custom nav bar
     var newNavBar:UINavigationBar!
@@ -61,12 +72,13 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, UIActionShee
         let tableTapGestureRecognizer:UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: "tableTapped:")
         self.view.addGestureRecognizer(tableTapGestureRecognizer)
         
+        view.backgroundColor = UIColor.whiteColor()
+        
         initSprucePieceFeeds()
-        initButtons()
     }
     
-    override func viewDidDisappear(animated: Bool) {
-        super.viewDidDisappear(animated)
+    override func viewWillDisappear(animated: Bool) {
+        super.viewWillDisappear(animated)
     }
     
     override func viewWillAppear(animated: Bool) {
@@ -76,22 +88,21 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, UIActionShee
     }
     
     func initSprucePieceFeeds() {
-        view.backgroundColor = UIColor.whiteColor()
-        
         scrollView.frame = CGRect(x: 0, y: 0, width: screenWidth, height: screenHeight)
         scrollView.showsVerticalScrollIndicator = false
         scrollView.bounces = true
+        scrollView.backgroundColor = sprubixGray
         scrollView.delegate = self
         
         // depending on piece type (HEAD, TOP, BOTTOM, FEET)
         // instantiate an instance of SprucePieceFeedController
         pieces = outfit["pieces"] as! [NSDictionary]
         
-        var prevPieceHeight:CGFloat = 0
+        let totalHeight: CGFloat = outfit["height"] as! CGFloat
+        var prevPieceHeight: CGFloat = 0
         
         for piece in pieces {
             var pieceType: String = piece["type"] as! String
-            
             var position = find(actionSheetButtonNames, pieceType)
             
             if position != nil {
@@ -100,14 +111,13 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, UIActionShee
             
             currentSprucePieceTypes.append(pieceType) // contains the types of pieces in the current outfit
             
-            // calculate piece UIImageView height
-            var itemHeight = piece["height"] as! CGFloat
-            var itemWidth = piece["width"] as! CGFloat
+            // calculate height percentages
+            var pieceHeight: CGFloat = piece["height"] as! CGFloat / totalHeight * outfitHeight
             
-            let pieceHeight:CGFloat = itemHeight * screenWidth / itemWidth
             let sprucePieceFeedController = SprucePieceFeedController(collectionViewLayout: sprucePieceFeedControllerLayout(pieceHeight), pieceType: pieceType, pieceHeight: pieceHeight)
-            
+
             sprucePieceFeedController.piece = piece
+            sprucePieceFeedController.sprucePieces.insert(piece, atIndex: 0)
             sprucePieceFeedController.delegate = self
             
             sprucePieceFeedController.willMoveToParentViewController(self)
@@ -134,7 +144,7 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, UIActionShee
         let userData:NSDictionary! = defaults.dictionaryForKey("userData")
         
         var postedByButton:SprubixCreditButton = SprubixCreditButton(frame: CGRect(x: 0, y: 0, width: screenWidth/2, height: creditsViewHeight), buttonLabel: "posted by", username: userData["username"] as! String, userThumbnail: userData["image"] as! String)
-        var fromButton:SprubixCreditButton = SprubixCreditButton(frame: CGRect(x: screenWidth/2, y: 0, width: screenWidth/2, height: creditsViewHeight), buttonLabel: "from", username: usernameFrom, userThumbnail: userThumbnailFrom)
+        var fromButton:SprubixCreditButton = SprubixCreditButton(frame: CGRect(x: screenWidth/2, y: 0, width: screenWidth/2, height: creditsViewHeight), buttonLabel: "inspired by", username: usernameFrom, userThumbnail: userThumbnailFrom)
         
         creditsView.addSubview(postedByButton)
         creditsView.addSubview(fromButton)
@@ -149,16 +159,16 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, UIActionShee
         descriptionText.font = UIFont(name: descriptionText.font.fontName, size: 16)
         descriptionText.delegate = self
         
-        scrollView.addSubview(descriptionText)
+        //scrollView.addSubview(descriptionText)
         
-        scrollView.contentSize = CGSize(width: screenWidth, height: navigationHeight + prevPieceHeight + creditsViewHeight + descriptionHeight + 100)
+        scrollView.contentSize = CGSize(width: screenWidth, height: navigationHeight + prevPieceHeight + creditsViewHeight)// + descriptionHeight + 100)
         
-        view.addSubview(scrollView)
+        view.insertSubview(scrollView, atIndex: 0)
     }
     
     func initNavBar() {
         // 1. hide existing nav bar
-        self.navigationController?.setNavigationBarHidden(true, animated: false)
+        self.navigationController?.setNavigationBarHidden(true, animated: true)
         
         // 2. create new nav bar and style it
         newNavBar = UINavigationBar(frame: CGRectMake(0, 0, self.view.bounds.width, navigationHeight))
@@ -185,61 +195,21 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, UIActionShee
         
         newNavItem.leftBarButtonItem = backBarButtonItem
         
+        // 5. create a done buton
+        var nextButton:UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+        nextButton.setTitle("next", forState: UIControlState.Normal)
+        nextButton.setTitleColor(sprubixColor, forState: UIControlState.Normal)
+        nextButton.frame = CGRect(x: 0, y: 0, width: 50, height: 20)
+        nextButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+        nextButton.addTarget(self, action: "nextTapped:", forControlEvents: UIControlEvents.TouchUpInside)
+        
+        var nextBarButtonItem:UIBarButtonItem = UIBarButtonItem(customView: nextButton)
+        newNavItem.rightBarButtonItem = nextBarButtonItem
+        
         newNavBar.setItems([newNavItem], animated: false)
         
-        // 5. add the nav bar to the main view
+        // 6. add the nav bar to the main view
         self.view.addSubview(newNavBar)
-        
-        //self.navigationController?.interactivePopGestureRecognizer.delegate = self
-    }
-    
-    func initButtons() {
-        // button for confirmation
-        confirmButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
-        confirmButton.frame = CGRect(x: screenWidth - 60, y: screenHeight - 60, width: 50, height: 50)
-        confirmButton.setImage(UIImage(named: "spruce-next"), forState: UIControlState.Normal)
-        
-        Glow.addGlow(confirmButton)
-        
-        confirmButton.addTarget(self, action: "spruceConfirmed", forControlEvents: UIControlEvents.TouchUpInside)
-        
-        self.view.addSubview(confirmButton)
-        
-        // magic button
-        magicButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
-        magicButton.frame = CGRect(x: screenWidth - 120, y: screenHeight - 60, width: 50, height: 50)
-        magicButton.setImage(UIImage(named: "spruce-original-size"), forState: UIControlState.Normal)
-        
-        // gesture recognizer
-        longPress = UILongPressGestureRecognizer(target: self, action: Selector("longPressed:"))
-        
-        Glow.addGlow(magicButton)
-        
-        magicButton.addGestureRecognizer(longPress)
-        
-        self.view.addSubview(magicButton)
-        
-        // removing an existing piece
-        removePieceFeedButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
-        removePieceFeedButton.setImage(UIImage(named: "spruce-piece-remove"), forState: UIControlState.Normal)
-        removePieceFeedButton.frame = CGRect(x: 10, y: screenHeight - 60, width: 50, height: 50)
-        
-        Glow.addGlow(removePieceFeedButton)
-        
-        removePieceFeedButton.addTarget(self, action: "toggleDeletePieceCrosses", forControlEvents: UIControlEvents.TouchUpInside)
-        
-        self.view.addSubview(removePieceFeedButton)
-        
-        // adding a new piece
-        addPieceFeedButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
-        addPieceFeedButton.setImage(UIImage(named: "spruce-piece-add"), forState: UIControlState.Normal)
-        addPieceFeedButton.frame = CGRect(x: 70, y: screenHeight - 60, width: 50, height: 50)
-
-        Glow.addGlow(addPieceFeedButton)
-        
-        addPieceFeedButton.addTarget(self, action: "showAddPieceActionSheet", forControlEvents: UIControlEvents.TouchUpInside)
-        
-        self.view.addSubview(addPieceFeedButton)
     }
     
     func toggleDeletePieceCrosses() {
@@ -249,10 +219,9 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, UIActionShee
                 childController.showDeletionCrosses()
             }
             
-            // disable all other buttons 
-            addPieceFeedButton.enabled = false
-            addPieceFeedButton.alpha = 0.5
-            confirmButton.enabled = false
+            // disable all other buttons
+            addPieceButton.enabled = false
+            closetButton.enabled = false
             
             var emptyNavItem:UINavigationItem = UINavigationItem()
             emptyNavItem.title = "Remove"
@@ -268,10 +237,9 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, UIActionShee
             }
             
             // enable all other buttons
-            addPieceFeedButton.enabled = true
-            addPieceFeedButton.alpha = 1.0
-            confirmButton.enabled = true
-           
+            addPieceButton.enabled = true
+            closetButton.enabled = true
+
             newNavBar.setItems([newNavItem], animated: true)
 
             // update toggleRemovePiece
@@ -390,6 +358,7 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, UIActionShee
             childControllers.insert(sprucePieceFeedController, atIndex: pieceIndex!)
             
             // shift the credits view
+            /*
             UIView.animateWithDuration(0.5, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .CurveEaseInOut, animations: {
                 
                 self.creditsView.frame = CGRect(x: self.creditsView.frame.origin.x, y: self.creditsView.frame.origin.y + newPieceHeight, width: self.creditsView.frame.width, height: self.creditsView.frame.height)
@@ -397,9 +366,7 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, UIActionShee
                 self.descriptionText.frame = CGRect(x: self.descriptionText.frame.origin.x, y: self.descriptionText.frame.origin.y + newPieceHeight, width: self.descriptionText.frame.width, height: self.descriptionText.frame.height)
                 
                 }, completion: nil)
-            
-            // increase height of scrollview
-            scrollView.contentSize.height = scrollView.contentSize.height + newPieceHeight
+            */
             
             // update actionSheetButtonNames
             var position = find(actionSheetButtonNames, buttonName.uppercaseString)
@@ -408,82 +375,38 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, UIActionShee
                 actionSheetButtonNames.removeAtIndex(position!)
                 
                 if actionSheetButtonNames.count <= 0 {
-                    // empty, hide add pieces button
-                    addPieceFeedButton.hidden = true
+                    // empty, disable add pieces button
+                    addPieceButton.enabled = false
                 }
             }
             
             // check if there are still childControllers
             if childControllers.count > 0 {
                 // as long as there is at least 1
-                removePieceFeedButton.hidden = false
+                trashPieceButton.enabled = true
             }
         }
     }
     
-    func spruceConfirmed() {
-        var images:[UIImage] = [UIImage]()
-        var totalHeight:CGFloat = 0
-        var width:CGFloat = screenWidth
+    func expandOutfit() {
+        var prevHeight: CGFloat = 0
+        var totalHeight: CGFloat = 0
         
-        for childController in childControllers {
+        // get total height of all current
+        for childController in self.childControllers {
             let currentVisibleCell = childController.currentVisibleCell as SprucePieceFeedCell
             
-            images.append(currentVisibleCell.pieceImageView.image!)
-            
-            totalHeight += currentVisibleCell.pieceHeight
+            totalHeight += currentVisibleCell.piece["height"] as! CGFloat
         }
-        
-        // create the merged image
-        var size:CGSize = CGSizeMake(width, totalHeight)
-        var prevHeight:CGFloat = 0
-        
-        UIGraphicsBeginImageContextWithOptions(size, false, 0.0) // avoid image quality degrading
-        
-        for image in images {
-            var pieceHeight = image.size.height * screenWidth / image.size.width
-            
-            image.drawInRect(CGRectMake(0, prevHeight, size.width, pieceHeight))
-            
-            prevHeight += pieceHeight
-        }
-        
-        // final image
-        var finalImage:UIImage = UIGraphicsGetImageFromCurrentImageContext()
-        
-        UIGraphicsEndImageContext()
-        
-        // set SpruceShareViewController's outfitImageView image to be finalImage
-        let spruceShareViewController = SpruceShareViewController()
-        
-        spruceShareViewController.outfitImageView.frame = CGRect(x: 0, y: 0, width: finalImage.size.width, height: finalImage.size.height)
-        spruceShareViewController.outfitImageView.image = finalImage
-        spruceShareViewController.usernameFrom = usernameFrom
-        spruceShareViewController.userThumbnailFrom = userThumbnailFrom
-        
-        if descriptionText.text != placeholderText {
-            spruceShareViewController.descriptionCellText = descriptionText.text
-        }
-        
-        self.navigationController?.pushViewController(spruceShareViewController, animated: true)
-    }
-    
-    func backTapped(sender: UIBarButtonItem) {
-        self.navigationController?.popViewControllerAnimated(true)
-        delegate?.dismissSpruceView()
-    }
-    
-    func expandOutfit() {
-        var prevHeight:CGFloat = 0
         
         // resize the heights of the viewcontrollers
         for childController in self.childControllers {
             let currentVisibleCell = childController.currentVisibleCell as SprucePieceFeedCell
             
-            let height:CGFloat = currentVisibleCell.pieceHeight
+            let height:CGFloat = currentVisibleCell.piece["height"] as! CGFloat / totalHeight * outfitHeight
             
             // smooth animation
-            UIView.animateWithDuration(0.5, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .CurveEaseInOut, animations: {
+            UIView.animateWithDuration(0, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .CurveEaseInOut, animations: {
                 
                 childController.pieceHeight = height
                 
@@ -491,6 +414,10 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, UIActionShee
                 childController.collectionView?.collectionViewLayout.invalidateLayout()
                 
                 childController.view.frame = CGRect(x: childController.view.frame.origin.x, y: prevHeight + navigationHeight, width: childController.view.frame.width, height: height)
+                
+                if childController.deleteOverlay != nil {
+                    childController.deleteOverlay.frame.size.height = height
+                }
                 
                 // moving the arrows to their new positions
                 childController.setLeftArrowButtonFrame(height)
@@ -501,78 +428,13 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, UIActionShee
                 }, completion:{ finished in
                 
                     if finished {
-                        childController.collectionView?.setCollectionViewLayout(self.sprucePieceFeedControllerLayout(height), animated: true)
+                        childController.collectionView?.setCollectionViewLayout(self.sprucePieceFeedControllerLayout(height), animated: false)
                     }
                 })
         }
-        
-        // shift the credits and description view
-        UIView.animateWithDuration(0.5, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .CurveEaseInOut, animations: {
-            
-            self.creditsView.frame = CGRect(x: self.creditsView.frame.origin.x, y: prevHeight + navigationHeight, width: self.creditsView.frame.width, height: self.creditsView.frame.height)
-            
-            self.descriptionText.frame = CGRect(x: self.descriptionText.frame.origin.x, y: prevHeight + navigationHeight + self.creditsViewHeight, width: self.descriptionText.frame.width, height: self.descriptionText.frame.height)
-            
-            }, completion: nil)
     }
     
-    func contractOutfit() {
-        // revert outfit back to the original height of selected outfit
-        // use startingPieceHeights
-        var prevHeight:CGFloat = 0
-        
-        // resize the heights of the viewcontrollers to the original height when spruce begun
-        for var i = 0; i < self.childControllers.count ; i++ {
-            let childController = self.childControllers[i]
-            let height:CGFloat = childController.startingPieceHeight
-            
-            // smooth animation
-            UIView.animateWithDuration(0.5, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .CurveEaseInOut, animations: {
-                
-                childController.pieceHeight = height
-                
-                // setting the new views
-                childController.collectionView?.collectionViewLayout.invalidateLayout()
-                
-                childController.view.frame = CGRect(x: childController.view.frame.origin.x, y: prevHeight + navigationHeight, width: childController.view.frame.width, height: height)
-                
-                // moving the arrows to their new positions
-                childController.setLeftArrowButtonFrame(height)
-                childController.setRightArrowButtonFrame(height)
-                
-                prevHeight += height
-                
-                }, completion:{ finished in
-                    
-                    if finished {
-                        childController.collectionView?.setCollectionViewLayout(self.sprucePieceFeedControllerLayout(height), animated: true)
-                    }
-            })
-            
-        }
-        
-        // shift the credits view
-        UIView.animateWithDuration(0.5, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .CurveEaseInOut, animations: {
-            
-            self.creditsView.frame = CGRect(x: self.creditsView.frame.origin.x, y: prevHeight + navigationHeight, width: self.creditsView.frame.width, height: self.creditsView.frame.height)
-            
-            self.descriptionText.frame = CGRect(x: self.descriptionText.frame.origin.x, y: prevHeight + navigationHeight + self.creditsViewHeight, width: self.descriptionText.frame.width, height: self.descriptionText.frame.height)
-            
-            }, completion: nil)
-    }
-    
-    func longPressed(gesture: UILongPressGestureRecognizer) {
-        if gesture.state == UIGestureRecognizerState.Began {
-            // held
-            expandOutfit()
-        }
-        
-        if gesture.state == UIGestureRecognizerState.Ended {
-            // released
-            contractOutfit()
-        }
-    }
-    
+    // SprucePieceFeedProtocol
     func deleteSprucePieceFeed(sprucePieceFeedController: SprucePieceFeedController) {
         var childPosition = find(childControllers, sprucePieceFeedController)
 
@@ -588,24 +450,14 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, UIActionShee
                 childController.view.frame = CGRect(x: 0, y: childController.view.frame.origin.y - deleteChildController.pieceHeight, width: childController.view.frame.width, height: childController.view.frame.height)
             }
             
-            // shift the credits view
-            UIView.animateWithDuration(0.5, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .CurveEaseInOut, animations: {
-                
-                self.creditsView.frame = CGRect(x: self.creditsView.frame.origin.x, y: self.creditsView.frame.origin.y - deleteChildController.pieceHeight, width: self.creditsView.frame.width, height: self.creditsView.frame.height)
-                
-                self.descriptionText.frame = CGRect(x: self.descriptionText.frame.origin.x, y: self.descriptionText.frame.origin.y - deleteChildController.pieceHeight, width: self.descriptionText.frame.width, height: self.descriptionText.frame.height)
-                
-                }, completion: nil)
-            
             // 2. add the removed childcontroller piecetype back to actionSheetButtonNames
             if childControllers.count <= 0 {
                 // empty, remove the removeSprucePieceFeed button
-                removePieceFeedButton.hidden = true
-                toggleDeletePieceCrosses()
+                trashPieceButton.enabled = false
             }
             
-            // decrease height of scrollview
-            scrollView.contentSize.height = scrollView.contentSize.height - deleteChildController.pieceHeight
+            toggleDeletePieceCrosses()
+            expandOutfit()
             
             // update the two arrays: currentSprucePieceTypes and actionSheetButtonNames
             var position = find(currentSprucePieceTypes, deleteChildController.pieceType)
@@ -661,7 +513,7 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, UIActionShee
                 
                 if actionSheetButtonNames.count > 0 {
                     // not empty, dont hide add pieces button
-                    addPieceFeedButton.hidden = false
+                    addPieceButton.enabled = true
                 }
             }
             
@@ -669,6 +521,10 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, UIActionShee
             deleteChildController.view = nil
             deleteChildController.removeFromParentViewController()
         }
+    }
+    
+    func resizeOutfit() {
+        expandOutfit()
     }
     
     func sprucePieceFeedControllerLayout (itemHeight: CGFloat) -> UICollectionViewFlowLayout {
@@ -754,6 +610,69 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, UIActionShee
         textField.resignFirstResponder()
         
         return true
+    }
+    
+    func backTapped(sender: UIBarButtonItem) {
+        self.navigationController?.popViewControllerAnimated(true)
+        delegate?.dismissSpruceView()
+    }
+    
+    func nextTapped(sender: UIBarButtonItem) {
+        var images: [UIImage] = [UIImage]()
+        var totalHeight: CGFloat = 0
+        var width: CGFloat = screenWidth
+        var sprucedPieces: [NSDictionary] = [NSDictionary]()
+        
+        // calculate totalHeight
+        for childController in childControllers {
+            let currentVisibleCell = childController.currentVisibleCell as SprucePieceFeedCell
+            
+            var image = currentVisibleCell.pieceImageView.image!
+            images.append(image)
+            
+            var piece = currentVisibleCell.piece
+            sprucedPieces.append(piece)
+            
+            var newImageHeight = image.size.height * width / image.size.width
+            totalHeight += newImageHeight
+        }
+        
+        // create the merged image
+        var size:CGSize = CGSizeMake(width, totalHeight)
+        var prevHeight:CGFloat = 0
+        
+        UIGraphicsBeginImageContextWithOptions(size, false, 0.0) // avoid image quality degrading
+        
+        for image in images {
+            var pieceHeight = image.size.height * screenWidth / image.size.width
+            
+            image.drawInRect(CGRectMake(0, prevHeight, size.width, pieceHeight))
+            
+            prevHeight += pieceHeight
+        }
+        
+        // final image
+        var finalImage:UIImage = UIGraphicsGetImageFromCurrentImageContext()
+        
+        UIGraphicsEndImageContext()
+        
+        // set SpruceShareViewController's outfitImageView image to be finalImage
+        let spruceShareViewController = SpruceShareViewController()
+        
+        spruceShareViewController.outfitImageView.frame = CGRect(x: 0, y: 0, width: screenWidth, height: screenWidth / 0.75)
+        spruceShareViewController.outfitImageView.image = finalImage
+        
+        spruceShareViewController.userIdFrom = userIdFrom
+        spruceShareViewController.usernameFrom = usernameFrom
+        spruceShareViewController.userThumbnailFrom = userThumbnailFrom
+        spruceShareViewController.pieces = sprucedPieces
+        spruceShareViewController.numPieces = images.count
+        
+        if descriptionText.text != placeholderText {
+            spruceShareViewController.descriptionCellText = descriptionText.text
+        }
+        
+        self.navigationController?.pushViewController(spruceShareViewController, animated: true)
     }
 }
 

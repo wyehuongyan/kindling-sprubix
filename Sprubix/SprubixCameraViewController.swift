@@ -180,7 +180,6 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
         self.navigationController?.setNavigationBarHidden(false, animated: true)
         self.navigationController?.navigationBar.setBackgroundImage(UIImage(), forBarMetrics: UIBarMetrics.Default)
         self.navigationController?.navigationBar.shadowImage = UIImage()
-        self.navigationController?.navigationBar.translucent = true
 
         self.initializeCamera()
     }
@@ -196,6 +195,7 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
     override func viewWillDisappear(animated: Bool) {
         super.viewWillDisappear(animated)
         
+        self.navigationController?.setNavigationBarHidden(true, animated: true)
         self.navigationController?.navigationBar.setBackgroundImage(nil, forBarMetrics: UIBarMetrics.Default)
         self.navigationController?.navigationBar.shadowImage = nil
         
@@ -291,6 +291,7 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
                         self.editSnapshotViewController.selectedPiecesOrdered = self.selectedPiecesOrdered
                         self.editSnapshotViewController.previewStillImages = self.previewStillImages
                         
+                        self.navigationController?.delegate = nil
                         self.navigationController?.pushViewController(self.editSnapshotViewController, animated: true)
                     } else {
                         // shift view to cameraPreview

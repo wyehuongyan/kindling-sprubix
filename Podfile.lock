@@ -24,6 +24,7 @@ PODS:
     - AFNetworking/NSURLConnection
     - AFNetworking/NSURLSession
   - CHTCollectionViewWaterfallLayout (0.8)
+  - Firebase (2.2.2)
   - GPUImage (0.1.6)
   - MRProgress/ActivityIndicator (0.8.2):
     - MRProgress/Stopable
@@ -71,22 +72,27 @@ PODS:
   - MRProgress/ProgressBaseClass (0.8.2)
   - MRProgress/Stopable (0.8.2):
     - MRProgress/Helper
+  - SSKeychain (1.2.3)
   - TLYShyNavBar (0.9.10)
 
 DEPENDENCIES:
   - AFNetworkActivityLogger (~> 2.0)
   - AFNetworking (~> 2.5.3)
   - CHTCollectionViewWaterfallLayout (~> 0.8)
+  - Firebase (>= 2.2.2)
   - GPUImage (~> 0.1.4)
   - MRProgress/AFNetworking (~> 0.8.2)
+  - SSKeychain (~> 1.2.3)
   - TLYShyNavBar (~> 0.9.8)
 
 SPEC CHECKSUMS:
   AFNetworkActivityLogger: 121486778117d53b3ab1c61d264b88081d0c3eee
   AFNetworking: e1d86c2a96bb5d2e7408da36149806706ee122fe
   CHTCollectionViewWaterfallLayout: 058823cc65c9d84e059b0a85eede517550da0334
+  Firebase: e35cdd2561bf4fea9c1e384e9400a9c173d19e47
   GPUImage: 4675ce4a5370ca92fcea8623b2a08b8f0c51b940
   MRProgress: f4cfe862082418e8f542f077772283f425d6c699
+  SSKeychain: 3f42991739c6c60a9cf1bbd4dff6c0d3694bcf3d
   TLYShyNavBar: 297414e49b9f779655cbe128d167f8227a30bae8
 
 COCOAPODS: 0.37.0

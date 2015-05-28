@@ -73,7 +73,7 @@ class PieceDetailsViewController: UICollectionViewController, UICollectionViewDe
             var prevChild: AnyObject = self.navigationController!.viewControllers[childrenCount-2]
             //println("prev child: \(prevChild)")
             
-            if prevChild.isKindOfClass(OutfitDetailsViewController) || prevChild.isKindOfClass(SprubixFeedController) {
+            if prevChild.isKindOfClass(OutfitDetailsViewController) {
                 //println("this is how we roll")
                 self.navigationController!.delegate = nil
                 
@@ -93,7 +93,7 @@ class PieceDetailsViewController: UICollectionViewController, UICollectionViewDe
         
         // return to main feed
         collectionCell.returnAction = { Void in
-            self.navigationController!.delegate = nil
+            self.navigationController!.delegate = transitionDelegateHolder
             
             let transition = CATransition()
             transition.duration = 0.3
@@ -103,7 +103,7 @@ class PieceDetailsViewController: UICollectionViewController, UICollectionViewDe
             
             self.navigationController!.view.layer.addAnimation(transition, forKey: kCATransition)
 
-            self.navigationController?.popToRootViewControllerAnimated(false)
+            self.navigationController?.popToRootViewControllerAnimated(true)
             
             return
         }

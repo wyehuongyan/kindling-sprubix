@@ -8,29 +8,49 @@
 
 import UIKit
 
-class SpruceShareViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
-    let creditsViewHeight:CGFloat = 80
+class SpruceShareViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UITextViewDelegate {
     
+    var pieces: [NSDictionary]!
+    var numPieces: Int!
+    
+    var userIdFrom: Int!
     var usernameFrom: String!
     var userThumbnailFrom: String!
     
-    var spruceShareTableView:UITableView!
     var outfitImageView:UIImageView! = UIImageView()
     var descriptionCellText: String = ""
     
+    // custom nav bar
+    var newNavBar:UINavigationBar!
+    var newNavItem:UINavigationItem!
+    
+    // table
+    var spruceShareTableView:UITableView!
     var outfitImageCell: UITableViewCell = UITableViewCell()
     var creditsCell: UITableViewCell = UITableViewCell()
     var descriptionCell: UITableViewCell = UITableViewCell()
     var socialCell: UITableViewCell = UITableViewCell()
     
     var shareButton: UIButton!
-    
+    let creditsViewHeight:CGFloat = 80
     var lastContentOffset:CGFloat = 0
+    
+    // description
+    let descriptionTextHeight: CGFloat = 100
+    var descriptionText: UITextView!
+    var placeholderText: String = "Tell us more about this outfit!"
+    var keyboardVisible = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        // listen to keyboard show/hide events
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("keyboardWillShow:"), name:UIKeyboardWillShowNotification, object: nil);
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("keyboardWillHide:"), name:UIKeyboardWillHideNotification, object: nil);
+        
         view.backgroundColor = UIColor.whiteColor()
         
+        // table view
         spruceShareTableView = UITableView(frame: CGRect(x: 0, y: navigationHeight, width: screenWidth, height: screenHeight - navigationHeight), style: UITableViewStyle.Plain)
         spruceShareTableView.delegate = self
         spruceShareTableView.dataSource = self
@@ -42,6 +62,7 @@ class SpruceShareViewController: UIViewController, UITableViewDelegate, UITableV
         shareButton = UIButton(frame: CGRect(x: 0, y: screenHeight - navigationHeight, width: screenWidth, height: navigationHeight))
         shareButton.backgroundColor = sprubixColor
         shareButton.setTitle("Spruce it!", forState: UIControlState.Normal)
+        shareButton.addTarget(self, action: "spruceConfirmed:", forControlEvents: UIControlEvents.TouchUpInside)
         
         view.addSubview(shareButton)
     }
@@ -51,11 +72,11 @@ class SpruceShareViewController: UIViewController, UITableViewDelegate, UITableV
         self.navigationController?.setNavigationBarHidden(true, animated: false)
         
         // 2. create new nav bar and style it
-        var newNavBar = UINavigationBar(frame: CGRectMake(0, 0, self.view.bounds.width, navigationHeight))
+        newNavBar = UINavigationBar(frame: CGRectMake(0, 0, self.view.bounds.width, navigationHeight))
         newNavBar.barTintColor = UIColor.whiteColor()
         
         // 3. add a new navigation item w/title to the new nav bar
-        var newNavItem = UINavigationItem()
+        newNavItem = UINavigationItem()
         newNavItem.title = "Good to go?"
         
         // 4. create a custom back button
@@ -121,11 +142,7 @@ class SpruceShareViewController: UIViewController, UITableViewDelegate, UITableV
         case 1:
             cellHeight = creditsViewHeight // creditsViewHeight
         case 2:
-            if descriptionCellText != "" {
-                cellHeight = heightForTextLabel(descriptionCellText, width: screenWidth, padding: 20) // description height
-            } else {
-                cellHeight = 0
-            }
+            cellHeight = descriptionTextHeight
         case 3:
             cellHeight = 200 // social share
         default:
@@ -139,11 +156,9 @@ class SpruceShareViewController: UIViewController, UITableViewDelegate, UITableV
         switch(indexPath.row)
         {
         case 0:
-            //outfitImageView = UIImageView(image: UIImage(named: "person-placeholder.jpg"))
-            //outfitImageView.frame = CGRect(x: 0, y: 0, width: screenWidth, height: 500)
             outfitImageView.clipsToBounds = true
-            outfitImageView.backgroundColor = UIColor.whiteColor()
-            outfitImageView.contentMode = UIViewContentMode.ScaleAspectFill
+            outfitImageView.backgroundColor = sprubixGray
+            outfitImageView.contentMode = UIViewContentMode.ScaleAspectFit
             
             outfitImageCell.addSubview(outfitImageView)
             outfitImageCell.clipsToBounds = true
@@ -156,7 +171,7 @@ class SpruceShareViewController: UIViewController, UITableViewDelegate, UITableV
             var creditsView:UIView = UIView(frame: CGRect(x: 0, y: 0, width: screenWidth, height: creditsViewHeight))
             
             var postedByButton:SprubixCreditButton = SprubixCreditButton(frame: CGRect(x: 0, y: 0, width: screenWidth/2, height: creditsViewHeight), buttonLabel: "posted by", username: userData["username"] as! String, userThumbnail: userData["image"] as! String)
-            var fromButton:SprubixCreditButton = SprubixCreditButton(frame: CGRect(x: screenWidth/2, y: 0, width: screenWidth/2, height: creditsViewHeight), buttonLabel: "from", username: usernameFrom, userThumbnail: userThumbnailFrom)
+            var fromButton:SprubixCreditButton = SprubixCreditButton(frame: CGRect(x: screenWidth/2, y: 0, width: screenWidth/2, height: creditsViewHeight), buttonLabel: "inspired by", username: usernameFrom, userThumbnail: userThumbnailFrom)
             
             creditsView.addSubview(postedByButton)
             creditsView.addSubview(fromButton)
@@ -165,11 +180,15 @@ class SpruceShareViewController: UIViewController, UITableViewDelegate, UITableV
             
             return creditsCell
         case 2:
-            descriptionCell.textLabel?.text = descriptionCellText
+            descriptionText = UITextView(frame: CGRectInset(CGRect(x: 0, y: 0, width: screenWidth, height: descriptionTextHeight), 15, 0))
             
-            descriptionCell.textLabel?.lineBreakMode = NSLineBreakMode.ByWordWrapping
-            descriptionCell.textLabel?.numberOfLines = 0
-            descriptionCell.userInteractionEnabled = false
+            descriptionText.tintColor = sprubixColor
+            descriptionText.text = placeholderText
+            descriptionText.textColor = UIColor.lightGrayColor()
+            descriptionText.font = UIFont(name: descriptionText.font.fontName, size: 16)
+            descriptionText.delegate = self
+            
+            descriptionCell.addSubview(descriptionText)
             
             return descriptionCell
         case 3:
@@ -243,18 +262,173 @@ class SpruceShareViewController: UIViewController, UITableViewDelegate, UITableV
         }
     }
     
+    /**
+    * Handler for keyboard show event
+    */
+    func keyboardWillShow(notification: NSNotification) {
+        if !keyboardVisible {
+            var info = notification.userInfo!
+            var keyboardFrame: CGRect = (info[UIKeyboardFrameEndUserInfoKey] as! NSValue).CGRectValue()
+            
+            UIView.animateWithDuration(0.2, delay: 0.1, options: UIViewAnimationOptions.CurveEaseInOut, animations: { () -> Void in
+                
+                self.spruceShareTableView.frame.origin.y -= keyboardFrame.height
+                self.keyboardVisible = true
+                
+                }, completion: nil)
+        }
+    }
+    
+    /**
+    * Handler for keyboard hide event
+    */
+    func keyboardWillHide(notification: NSNotification) {
+        if keyboardVisible {
+            var info = notification.userInfo!
+            var keyboardFrame: CGRect = (info[UIKeyboardFrameEndUserInfoKey] as! NSValue).CGRectValue()
+            
+            UIView.animateWithDuration(0.2, delay: 0.1, options: UIViewAnimationOptions.CurveEaseInOut, animations: { () -> Void in
+                
+                self.spruceShareTableView.frame.origin.y += keyboardFrame.height
+                self.keyboardVisible = false
+                
+                }, completion: nil)
+        }
+    }
+    
+    // UITextViewDelegate
+    func textViewShouldBeginEditing(textView: UITextView) -> Bool {
+        if textView.text == placeholderText {
+            descriptionText.text = ""
+            descriptionText.textColor = UIColor.blackColor()
+        }
+        
+        // stop receiving gestures for outfitImageView
+        outfitImageView.userInteractionEnabled = false
+        
+        var emptyNavItem:UINavigationItem = UINavigationItem()
+        emptyNavItem.title = "Outfit Description"
+        
+        var nextButton:UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+        nextButton.setTitle("done", forState: UIControlState.Normal)
+        nextButton.setTitleColor(sprubixColor, forState: UIControlState.Normal)
+        nextButton.frame = CGRect(x: 0, y: 0, width: 50, height: 20)
+        nextButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+        nextButton.addTarget(self, action: "descriptionDoneTapped:", forControlEvents: UIControlEvents.TouchUpInside)
+        
+        var nextBarButtonItem:UIBarButtonItem = UIBarButtonItem(customView: nextButton)
+        emptyNavItem.rightBarButtonItem = nextBarButtonItem
+        
+        // set
+        newNavBar.setItems([emptyNavItem], animated: false)
+        
+        return true
+    }
+    
+    func textViewDidEndEditing(textView: UITextView) {
+        if textView.text == "" {
+            descriptionText.text = placeholderText
+            descriptionText.textColor = UIColor.lightGrayColor()
+            descriptionText.resignFirstResponder()
+        }
+        
+        outfitImageView.userInteractionEnabled = true
+        
+        newNavBar.setItems([newNavItem], animated: true)
+    }
+    
+    func descriptionDoneTapped(sender: UIButton) {
+        self.view.endEditing(true)
+    }
+
+    func spruceConfirmed(sender: UIButton) {
+        println("spruce confirmed")
+        
+        // sprubix outfit dictionary with each piece id
+        // new outfit will be created but pieces will be reused
+        
+        // what we need
+        // 1. piece ids
+        // 2. outfit image
+        // 3. outfit description
+        // 4. outfit from (immediate prev person)
+        // 5. current user's id (this will be the new posted by)
+        
+        // create SprubixOutfit
+        let userData:NSDictionary! = defaults.dictionaryForKey("userData")
+        
+        var spruceOutfitDict: NSMutableDictionary = [
+            "num_pieces": numPieces,
+            "description": descriptionText.text,
+            "created_by": userData["id"] as! Int,
+            "from": userIdFrom,
+            "height": outfitImageView.image!.scale * outfitImageView.image!.size.height,
+            "width": outfitImageView.image!.scale * outfitImageView.image!.size.width,
+        ]
+        
+        var pieceArr: [Int] = [Int]()
+        for piece in pieces {
+            pieceArr.append(piece["id"] as! Int)
+        }
+        
+        spruceOutfitDict.setObject(pieceArr, forKey: "pieces")
+        
+        // upload
+        var outfitImageData: NSData = UIImageJPEGRepresentation(outfitImageView.image, 0.5);
+        
+        var requestOperation: AFHTTPRequestOperation = manager.POST(SprubixConfig.URL.api + "/upload/outfit/spruce", parameters: spruceOutfitDict, constructingBodyWithBlock: { formData in
+            let data: AFMultipartFormData = formData
+            
+            // append outfit image
+            data.appendPartWithFileData(outfitImageData, name: "outfit", fileName: "outfit.jpg", mimeType: "image/jpeg")
+        }, success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+            // success block
+            println("Upload Success")
+
+            self.delay(0.6) {
+                // go back to main feed
+                self.navigationController!.delegate = nil
+                
+                let transition = CATransition()
+                transition.duration = 0.3
+                transition.type = kCATransitionReveal
+                transition.subtype = kCATransitionFromBottom
+                transition.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
+                
+                self.navigationController!.view.layer.addAnimation(transition, forKey: kCATransition)
+                self.navigationController?.popToViewController(self.navigationController?.viewControllers.first! as! UIViewController, animated: false)
+            }
+
+        }, failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+            // failure block
+            println("Upload Fail")
+        })
+        
+        // upload progress
+        requestOperation.setUploadProgressBlock { (bytesWritten: UInt, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) -> Void in
+            var percentDone: Double = Double(totalBytesWritten) / Double(totalBytesExpectedToWrite)
+            
+            println("percentage done: \(percentDone)")
+        }
+        
+        // overlay indicator
+        var overlayView: MRProgressOverlayView = MRProgressOverlayView.showOverlayAddedTo(self.view, animated: true)
+        overlayView.setModeAndProgressWithStateOfOperation(requestOperation)
+        
+        overlayView.tintColor = sprubixColor
+    }
+
+    func delay(delay:Double, closure:()->()) {
+        dispatch_after(
+            dispatch_time(
+                DISPATCH_TIME_NOW,
+                Int64(delay * Double(NSEC_PER_SEC))
+            ),
+            dispatch_get_main_queue(), closure)
+    }
+    
     func backTapped(sender: UIBarButtonItem) {
         self.navigationController?.popViewControllerAnimated(true)
         //delegate?.dismissSpruceView()
-    }
-    
-    func heightForTextLabel(text:String, width:CGFloat, padding: CGFloat) -> CGFloat{
-        let label:UILabel = UILabel(frame: CGRectMake(0, 0, width, CGFloat.max))
-        label.numberOfLines = 0
-        label.lineBreakMode = NSLineBreakMode.ByWordWrapping
-        label.text = text
-        
-        label.sizeToFit()
-        return label.frame.height + padding
     }
 }

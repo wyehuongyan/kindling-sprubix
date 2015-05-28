@@ -13,11 +13,7 @@ enum SlideOutState {
     case SidePanelExpanded
 }
 
-class ContainerViewController: UIViewController, SprubixFeedControllerDelegate, SidePanelViewControllerDelegate {
-    
-    var sprubixNavigationController: UINavigationController!
-    var sprubixFeedController: SprubixFeedController!
-    //var mainFeedController: MainFeedController!
+class ContainerViewController: UIViewController, MainFeedControllerDelegate, SidePanelViewControllerDelegate {
     
     var currentState: SlideOutState = .Collapsed {
         didSet {
@@ -26,6 +22,9 @@ class ContainerViewController: UIViewController, SprubixFeedControllerDelegate, 
         }
     }
     
+    // main feed
+    var sprubixNavigationController: UINavigationController!
+    var mainFeedController: MainFeedController!
     var sidePanelViewController: SidePanelViewController? // optional as it will be added/removed at times
     var darkenedOverlay:UIView? // darkened overlay over the view when sidemenu is toggled on
     
@@ -34,31 +33,27 @@ class ContainerViewController: UIViewController, SprubixFeedControllerDelegate, 
     // side panel
     var userProfileViewController: UserProfileViewController?
     var sprubixCameraViewController: SprubixCameraViewController?
+    var notificationViewController: NotificationViewController?
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        sprubixFeedController = UIStoryboard.sprubixFeedController()
-        sprubixFeedController.delegate = self
-        
-        // wrap the sprubixFeedController in a navigation controller, so we can push views to it
-        // and display bar button items in the navigation bar
-        sprubixNavigationController = UINavigationController(rootViewController: sprubixFeedController)
-        
-        //mainFeedController = MainFeedController()
-        //mainFeedController.delegate = self
-        
-        //sprubixNavigationController = UINavigationController(rootViewController: mainFeedController)
-        view.addSubview(sprubixNavigationController.view)
-        
+        // main feed
+        mainFeedController = MainFeedController()
+        mainFeedController.delegate = self
+        sprubixNavigationController = UINavigationController(rootViewController: mainFeedController)
         sprubixNavigationController.view.backgroundColor = UIColor.whiteColor()
         
+        view.addSubview(sprubixNavigationController.view)
         addChildViewController(sprubixNavigationController)
         
         sprubixNavigationController.didMoveToParentViewController(self)
         
-        let panGestureRecognizer = UIPanGestureRecognizer(target: self, action: "handlePanGesture:")
+        //let panGestureRecognizer = UIPanGestureRecognizer(target: self, action: "handlePanGesture:")
         //sprubixNavigationController.view.addGestureRecognizer(panGestureRecognizer)
+        
+        // notifications
+        notificationViewController = UIStoryboard.notificationViewController()
     }
     
     override func prefersStatusBarHidden() -> Bool {
@@ -67,10 +62,14 @@ class ContainerViewController: UIViewController, SprubixFeedControllerDelegate, 
     
     // SidePanelViewControllerDelegate
     func showUserProfile(user: NSDictionary) {
-        userProfileViewController = UIStoryboard.userProfileViewController()
-        userProfileViewController?.user = user
-
+        if userProfileViewController == nil {
+            userProfileViewController = UIStoryboard.userProfileViewController()
+            userProfileViewController?.user = user
+        }
+        
         self.closeSidePanel()
+        
+        sprubixNavigationController.delegate = nil
         sprubixNavigationController.pushViewController(userProfileViewController!, animated: true)
     }
     
@@ -80,6 +79,17 @@ class ContainerViewController: UIViewController, SprubixFeedControllerDelegate, 
         self.closeSidePanel()
         
         sprubixNavigationController.pushViewController(sprubixCameraViewController!, animated: false)
+    }
+    
+    func showNotifications() {
+        if notificationViewController == nil {
+            notificationViewController = UIStoryboard.notificationViewController()
+        }
+        
+        self.closeSidePanel()
+        
+        sprubixNavigationController.delegate = nil
+        sprubixNavigationController.pushViewController(notificationViewController!, animated: true)
     }
     
     // SprubixFeedControllerDelegate
@@ -97,10 +107,10 @@ class ContainerViewController: UIViewController, SprubixFeedControllerDelegate, 
     func addSidePanelViewController() {
         if sidePanelViewController == nil {
             // close any comment viewcontroller in sprubixFeedController (if it's opened)
-            var rootViewController = (sprubixNavigationController.viewControllers.first) as! SprubixFeedController
-            rootViewController.dismissCommentsView()
+            //var rootViewController = (sprubixNavigationController.viewControllers.first) as! SprubixFeedController
+            //rootViewController.dismissCommentsView()
             
-            //var rootViewController = (sprubixNavigationController.viewControllers.first) as! MainFeedController
+            var rootViewController = (sprubixNavigationController.viewControllers.first) as! MainFeedController
             
             sidePanelViewController = UIStoryboard.sidePanelViewController()
             sidePanelViewController!.sidePanelOptions = SidePanelOption.userOptions()
@@ -219,9 +229,9 @@ class ContainerViewController: UIViewController, SprubixFeedControllerDelegate, 
 private extension UIStoryboard {
     class func mainStoryboard() -> UIStoryboard { return UIStoryboard(name: "Main", bundle: NSBundle.mainBundle()) }
 
-    class func sprubixFeedController() -> SprubixFeedController? {
-        return mainStoryboard().instantiateViewControllerWithIdentifier("SprubixFeed") as? SprubixFeedController
-    }
+//    class func sprubixFeedController() -> SprubixFeedController? {
+//        return mainStoryboard().instantiateViewControllerWithIdentifier("SprubixFeed") as? SprubixFeedController
+//    }
     
     class func sidePanelViewController() -> SidePanelViewController? {
         return mainStoryboard().instantiateViewControllerWithIdentifier("SidePanel") as? SidePanelViewController
@@ -233,5 +243,9 @@ private extension UIStoryboard {
     
     class func sprubixCameraViewController() -> SprubixCameraViewController? {
         return mainStoryboard().instantiateViewControllerWithIdentifier("SprubixCamera") as? SprubixCameraViewController
+    }
+    
+    class func notificationViewController() -> NotificationViewController? {
+        return mainStoryboard().instantiateViewControllerWithIdentifier("NotificationView") as? NotificationViewController
     }
 }

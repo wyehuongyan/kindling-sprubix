@@ -41,7 +41,7 @@ class Transition: NSObject, UIViewControllerAnimatedTransitioning {
             
             snapShot.transform = CGAffineTransformMakeScale(animationScale, animationScale)
             let pullOffsetY = (fromViewController as! HorizontalPageViewControllerProtocol).pageViewCellScrollViewContentOffset().y
-            let offsetY : CGFloat = fromViewController.navigationController!.navigationBarHidden ? 0.0 : navigationHeaderAndStatusbarHeight
+            let offsetY : CGFloat = fromViewController.navigationController?.navigationBarHidden != false ? 0.0 : navigationHeaderAndStatusbarHeight
             
             snapShot.origin(CGPointMake(0, -pullOffsetY+offsetY))
             containerView.addSubview(snapShot)
@@ -56,7 +56,7 @@ class Transition: NSObject, UIViewControllerAnimatedTransitioning {
             containerView.addSubview(snapShot)
             containerView.insertSubview(whiteViewContainer, belowSubview: toView)
             
-            UIView.animateWithDuration(animationDuration, animations: {
+            UIView.animateWithDuration(fromViewController.navigationController != nil ? animationDuration : 0, animations: {
                 snapShot.transform = CGAffineTransformIdentity
                 snapShot.frame = CGRectMake(leftUpperPoint.x, leftUpperPoint.y, snapShot.frame.size.width, snapShot.frame.size.height)
                 toView.transform = CGAffineTransformIdentity

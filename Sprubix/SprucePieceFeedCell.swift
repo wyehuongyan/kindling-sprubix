@@ -12,8 +12,6 @@ class SprucePieceFeedCell: UICollectionViewCell {
     var pieceImageView: UIImageView = UIImageView()
     var piece: NSDictionary!
     
-    var pieceHeight: CGFloat!
-    
     override init(frame: CGRect) {
         super.init(frame: frame)
         
@@ -29,20 +27,14 @@ class SprucePieceFeedCell: UICollectionViewCell {
     override func layoutSubviews() {
         super.layoutSubviews()
         
-        // calculate piece UIImageView height
-        var itemHeight = piece["height"] as! CGFloat
-        var itemWidth = piece["width"] as! CGFloat
-        
-        pieceHeight = itemHeight * screenWidth / itemWidth
-        
         var pieceImagesString = piece["images"] as! String
         var pieceImagesData:NSData = pieceImagesString.dataUsingEncoding(NSUTF8StringEncoding)!
         
         pieceImageView.image = nil
         pieceImageView.autoresizingMask = UIViewAutoresizing.FlexibleWidth
         pieceImageView.clipsToBounds = true
-        pieceImageView.contentMode = UIViewContentMode.ScaleAspectFill
-        //pieceImageView.userInteractionEnabled = true
+        pieceImageView.contentMode = UIViewContentMode.ScaleAspectFit
+        pieceImageView.backgroundColor = sprubixGray
         pieceImageView.frame = CGRect(x:0, y: 0, width: frame.size.width, height: frame.size.height)
         
         var pieceImagesDict: NSDictionary = NSJSONSerialization.JSONObjectWithData(pieceImagesData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSDictionary
