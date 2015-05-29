@@ -57,16 +57,32 @@ class SidePanelViewController: UIViewController, UITableViewDataSource, UITableV
             // create username UILabel
             let profileNameLength:CGFloat = 200
             profileName.frame = CGRect(x: (view.bounds.width / 2) - (profileNameLength / 2) - 30, y: profileImage.center.y + 60, width: profileNameLength, height: 21)
+            //profileName.font = UIFont(name: profileName.font.fontName, size: 17)
+            profileName.textColor = UIColor.darkGrayColor()
             profileName.text = userData!["username"] as? String
             profileName.textAlignment = NSTextAlignment.Center
+            profileName.userInteractionEnabled = true
+            
+            let viewProfileLabel = UILabel(frame: CGRectMake(0, 20, profileName.frame.size.width, profileName.frame.size.height))
+            
+            viewProfileLabel.font = UIFont(name: viewProfileLabel.font.fontName, size: 12)
+            viewProfileLabel.textColor = UIColor.grayColor()
+            viewProfileLabel.text = "View Profile"
+            viewProfileLabel.textAlignment = NSTextAlignment.Center
+            
+            profileName.addSubview(viewProfileLabel)
             
             view.addSubview(profileImage)
-            //view.addSubview(profileName)
+            view.addSubview(profileName)
             
             // add gesture recognizers
-            var singleTap = UITapGestureRecognizer(target: self, action: Selector("wasSingleTapped:"))
-            singleTap.numberOfTapsRequired = 1
-            profileImage.addGestureRecognizer(singleTap)
+            var profileImageTap = UITapGestureRecognizer(target: self, action: Selector("wasSingleTapped:"))
+            profileImageTap.numberOfTapsRequired = 1
+            profileImage.addGestureRecognizer(profileImageTap)
+            
+            var profileNameTap = UITapGestureRecognizer(target: self, action: Selector("wasSingleTapped:"))
+            profileNameTap.numberOfTapsRequired = 1
+            profileName.addGestureRecognizer(profileNameTap)
         }
     }
     
@@ -87,28 +103,15 @@ class SidePanelViewController: UIViewController, UITableViewDataSource, UITableV
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier("SidePanelCell", forIndexPath: indexPath) as! SidePanelCell
+        
         cell.configureForSidePanelOption(sidePanelOptions[indexPath.row])
-        
-        let badgeWidth: CGFloat = 20
-        //var badge: UILabel = UILabel(frame: CGRectMake(2 * screenWidth / 3, cell.frame.size.height / 2 - badgeWidth / 2, badgeWidth, badgeWidth))
-        var badge: UILabel = UILabel(frame: CGRectMake(10, 5, badgeWidth, badgeWidth))
-        badge.backgroundColor = sprubixColor
-        badge.layer.cornerRadius = badgeWidth / 2
-        badge.layer.borderWidth = 1.0
-        badge.layer.borderColor = sprubixGray.CGColor
-        badge.clipsToBounds = true
-        badge.textColor = UIColor.whiteColor()
-        badge.textAlignment = NSTextAlignment.Center
-        badge.font = UIFont(name: mainBadge.font.fontName, size: 10)
-        badge.text = "\(sprubixNotificationsCount)"
-        
-        cell.contentView.addSubview(badge)
         
         return cell
     }
     
     // Mark: Table View Delegate
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+        
         let option = sidePanelOptions[indexPath.row].option!
         
         switch option {
@@ -123,8 +126,6 @@ class SidePanelViewController: UIViewController, UITableViewDataSource, UITableV
         case .Settings:
             break
         }
-        
-        println(option.toString())
     }
     
 }

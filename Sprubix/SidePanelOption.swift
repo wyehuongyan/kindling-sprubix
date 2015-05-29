@@ -42,6 +42,37 @@ class SidePanelOption {
         }
     }
     
+    // notifications for each side menu option
+    struct alerts {
+        static var counter:[String:Int] = [
+            SidePanelOption.Option.Messages.toString(): 0,
+            SidePanelOption.Option.Notifications.toString(): 0,
+            SidePanelOption.Option.Settings.toString(): 0
+        ]
+        
+        subscript(type: String) -> Int? {
+            get {
+                return alerts.counter[type]
+            }
+            set(value) {
+                alerts.counter[type] = value
+            }
+        }
+        
+        // get total number of alerts for all options
+        static var total: Int? {
+            get {
+                var totalAlerts = 0
+                
+                for (alert, counter) in SidePanelOption.alerts.counter {
+                    totalAlerts = totalAlerts + counter
+                }
+                
+                return totalAlerts
+            }
+        }
+    }
+    
     // create customized option list here
     class func userOptions() -> Array<SidePanelOption> {
         return [

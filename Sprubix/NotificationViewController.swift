@@ -18,6 +18,7 @@ class NotificationViewController: UIViewController, UITableViewDataSource, UITab
     
     let notificationCellIdentifier = "NotificationCell"
     var notifications: [NSDictionary] = [NSDictionary]()
+    var notificationKeyPositions: [String] = [String]()
     
     required init(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
@@ -30,7 +31,7 @@ class NotificationViewController: UIViewController, UITableViewDataSource, UITab
             
             let userNotificationRef = firebaseRef.childByAppendingPath("users/\(username)/notifications")
             
-            // child added listener
+            // Firebase Listener: child added
             userNotificationRef.queryOrderedByChild("created_at").queryLimitedToLast(50).observeEventType(.ChildAdded, withBlock: {
                 snapshot in
                 
@@ -38,14 +39,14 @@ class NotificationViewController: UIViewController, UITableViewDataSource, UITab
                 //println(snapshot.value.objectForKey("created_at"))
                 //println(snapshot.value.objectForKey("unread"))
                 
-                sprubixNotificationsCount = sprubixNotificationsCount + 1
+                SidePanelOption.alerts.counter[SidePanelOption.Option.Notifications.toString()] = SidePanelOption.alerts.counter[SidePanelOption.Option.Notifications.toString()]! + 1
                 
                 // update mainBadge
-                if sprubixNotificationsCount > 0 {
+                if SidePanelOption.alerts.total > 0 {
                     mainBadge.alpha = 1.0
                 }
                 
-                mainBadge.text = "\(sprubixNotificationsCount)"
+                mainBadge.text = "\(SidePanelOption.alerts.total!)"
                 
                 // retrieve notifications data
                 let notificationsRef = firebaseRef.childByAppendingPath("notifications/\(snapshot.key)")
@@ -60,6 +61,7 @@ class NotificationViewController: UIViewController, UITableViewDataSource, UITab
                         
                         // snapshot queryOrderedByChild is returned in ascending order
                         self.notifications.insert(notificationDict, atIndex: 0)
+                        self.notificationKeyPositions.insert(snapshot.key as String, atIndex: 0)
                         
                         // reload table
                         if self.notificationTableView != nil {
@@ -69,7 +71,7 @@ class NotificationViewController: UIViewController, UITableViewDataSource, UITab
                 })
             })
             
-            // child removed listener
+            // Firebase Listener: child removed
             userNotificationRef.observeEventType(.ChildRemoved, withBlock: {
                 snapshot in
                 println("\(snapshot.key) was removed from user notifications.")
@@ -78,14 +80,22 @@ class NotificationViewController: UIViewController, UITableViewDataSource, UITab
                 
                 // only update badge count if its unread
                 if(unread == true) {
-                    sprubixNotificationsCount = sprubixNotificationsCount - 1
+                    SidePanelOption.alerts.counter[SidePanelOption.Option.Notifications.toString()] = SidePanelOption.alerts.counter[SidePanelOption.Option.Notifications.toString()]! - 1
                     
                     // update mainBadge
-                    if sprubixNotificationsCount <= 0 {
+                    if SidePanelOption.alerts.total <= 0 {
                         mainBadge.alpha = 0
                     }
                     
-                    mainBadge.text = "\(sprubixNotificationsCount)"
+                    mainBadge.text = "\(SidePanelOption.alerts.total!)"
+                }
+                
+                // remove from self.notifications
+                let pos: Int? = find(self.notificationKeyPositions, snapshot.key as String)
+                
+                if pos != nil && pos < self.notifications.count {
+                    self.notifications.removeAtIndex(pos!)
+                    self.notificationKeyPositions.removeAtIndex(pos!)
                 }
                 
                 // reload table
@@ -181,14 +191,12 @@ class NotificationViewController: UIViewController, UITableViewDataSource, UITab
         var notificationMessage = ""
         
         switch type {
-            case "like":
-                notificationMessage = "\(senderUsername) liked your item. \(duration)"
-
-            case "comment":
-                notificationMessage = "\(senderUsername) left a comment on your item. \(duration)"
-            
-            default:
-                fatalError("Error: Unknown notification type")
+        case "like":
+            notificationMessage = "\(senderUsername) liked your item. \(duration) "
+        case "comment":
+            notificationMessage = "\(senderUsername) left a comment on your item. \(duration)"
+        default:
+            fatalError("Error: Unknown notification type")
         }
         
         cell.notificationLabel.text = notificationMessage

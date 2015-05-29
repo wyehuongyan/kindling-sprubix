@@ -26,5 +26,5 @@ var timestamp: String {
     }
 }
 
+// notifications
 var mainBadge: UILabel = UILabel()
-var sprubixNotificationsCount: Int = 0

@@ -66,6 +66,7 @@ class MainFeedController: UIViewController, UICollectionViewDataSource, OutfitIn
         // drawer navbar
         self.shyNavBarManager.expansionResistance = 20
         self.shyNavBarManager.contractionResistance = 0
+        self.shyNavBarManager.alphaFadeEnabled = true
         
         // refresh control
         refreshControl = UIRefreshControl()
@@ -106,9 +107,9 @@ class MainFeedController: UIViewController, UICollectionViewDataSource, OutfitIn
         mainBadge.textColor = UIColor.whiteColor()
         mainBadge.textAlignment = NSTextAlignment.Center
         mainBadge.font = UIFont(name: mainBadge.font.fontName, size: 10)
-        mainBadge.text = "\(sprubixNotificationsCount)"
+        mainBadge.text = "\(SidePanelOption.alerts.total!)"
         
-        if sprubixNotificationsCount <= 0 {
+        if SidePanelOption.alerts.total <= 0 {
             mainBadge.alpha = 0
         }
         
