@@ -18,6 +18,8 @@
 		845048BE1A9ECC81008BDBAA /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 845048BD1A9ECC81008BDBAA /* Images.xcassets */; };
 		845048C11A9ECC81008BDBAA /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 845048BF1A9ECC81008BDBAA /* LaunchScreen.xib */; };
 		845048CD1A9ECC81008BDBAA /* SprubixTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 845048CC1A9ECC81008BDBAA /* SprubixTests.swift */; };
+		846027A31B18B17B00A28C78 /* CommentsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846027A21B18B17B00A28C78 /* CommentsViewController.swift */; };
+		846027A51B18B71900A28C78 /* CommentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846027A41B18B71900A28C78 /* CommentCell.swift */; };
 		846C97931ABAB11F0050D0BC /* Subclasses.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846C97921ABAB11F0050D0BC /* Subclasses.swift */; };
 		846C97971ABB2A8E0050D0BC /* SprubixFeedCommentsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846C97961ABB2A8E0050D0BC /* SprubixFeedCommentsController.swift */; };
 		846C97991ABD545A0050D0BC /* SpruceViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846C97981ABD545A0050D0BC /* SpruceViewController.swift */; };
@@ -47,7 +49,6 @@
 		84B335421AB2BC1400B9707D /* Macro.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B335411AB2BC1400B9707D /* Macro.swift */; };
 		84B335441AB2BD0700B9707D /* Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B335431AB2BD0700B9707D /* Extension.swift */; };
 		84B335461AB2DA6F00B9707D /* OutfitDetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B335451AB2DA6F00B9707D /* OutfitDetailsViewController.swift */; };
-		84B335481AB2DBB800B9707D /* WaterFallNavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B335471AB2DBB800B9707D /* WaterFallNavigationController.swift */; };
 		84B3354A1AB4035A00B9707D /* OutfitDetailsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B335491AB4035A00B9707D /* OutfitDetailsCell.swift */; };
 		84B3354C1AB449F500B9707D /* PieceDetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B3354B1AB449F500B9707D /* PieceDetailsViewController.swift */; };
 		84B3354E1AB4520C00B9707D /* PieceDetailsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B3354D1AB4520C00B9707D /* PieceDetailsCell.swift */; };
@@ -88,6 +89,8 @@
 		845048CB1A9ECC81008BDBAA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		845048CC1A9ECC81008BDBAA /* SprubixTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SprubixTests.swift; sourceTree = "<group>"; };
 		845048D61A9ECFE2008BDBAA /* Sprubix-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Sprubix-Bridging-Header.h"; sourceTree = SOURCE_ROOT; };
+		846027A21B18B17B00A28C78 /* CommentsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommentsViewController.swift; sourceTree = "<group>"; };
+		846027A41B18B71900A28C78 /* CommentCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommentCell.swift; sourceTree = "<group>"; };
 		846C97921ABAB11F0050D0BC /* Subclasses.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Subclasses.swift; sourceTree = "<group>"; };
 		846C97961ABB2A8E0050D0BC /* SprubixFeedCommentsController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SprubixFeedCommentsController.swift; sourceTree = "<group>"; };
 		846C97981ABD545A0050D0BC /* SpruceViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpruceViewController.swift; sourceTree = "<group>"; };
@@ -117,7 +120,6 @@
 		84B335411AB2BC1400B9707D /* Macro.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Macro.swift; sourceTree = "<group>"; };
 		84B335431AB2BD0700B9707D /* Extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Extension.swift; sourceTree = "<group>"; };
 		84B335451AB2DA6F00B9707D /* OutfitDetailsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutfitDetailsViewController.swift; sourceTree = "<group>"; };
-		84B335471AB2DBB800B9707D /* WaterFallNavigationController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WaterFallNavigationController.swift; sourceTree = "<group>"; };
 		84B335491AB4035A00B9707D /* OutfitDetailsCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutfitDetailsCell.swift; sourceTree = "<group>"; };
 		84B3354B1AB449F500B9707D /* PieceDetailsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PieceDetailsViewController.swift; sourceTree = "<group>"; };
 		84B3354D1AB4520C00B9707D /* PieceDetailsCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PieceDetailsCell.swift; sourceTree = "<group>"; };
@@ -242,6 +244,7 @@
 				84B334E41AAB00DD00B9707D /* SidePanelViewController.swift */,
 				846C97961ABB2A8E0050D0BC /* SprubixFeedCommentsController.swift */,
 				84470D891AECC41B007E9A93 /* MainFeedController.swift */,
+				846027A21B18B17B00A28C78 /* CommentsViewController.swift */,
 			);
 			name = Feed;
 			sourceTree = "<group>";
@@ -372,6 +375,7 @@
 			children = (
 				84B334E91AAB0CC900B9707D /* SidePanelCell.swift */,
 				84470D8B1AED1847007E9A93 /* MainFeedCell.swift */,
+				846027A41B18B71900A28C78 /* CommentCell.swift */,
 			);
 			name = Feed;
 			sourceTree = "<group>";
@@ -398,7 +402,6 @@
 			isa = PBXGroup;
 			children = (
 				84B334EB1AAB1F9B00B9707D /* ContainerViewController.swift */,
-				84B335471AB2DBB800B9707D /* WaterFallNavigationController.swift */,
 			);
 			name = Main;
 			sourceTree = "<group>";
@@ -561,6 +564,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				846027A31B18B17B00A28C78 /* CommentsViewController.swift in Sources */,
 				84B335401AB2BB9E00B9707D /* Transition.swift in Sources */,
 				84B3353E1AB2BA2000B9707D /* TransitionProtocol.swift in Sources */,
 				84B3352C1AAEE2EB00B9707D /* UserProfileHeader.swift in Sources */,
@@ -575,6 +579,7 @@
 				843B81A11AFCB71900FA2DD2 /* SnapshotShareController.swift in Sources */,
 				846C97991ABD545A0050D0BC /* SpruceViewController.swift in Sources */,
 				84B335361AB1ADBD00B9707D /* ProfilePieceCell.swift in Sources */,
+				846027A51B18B71900A28C78 /* CommentCell.swift in Sources */,
 				846C97971ABB2A8E0050D0BC /* SprubixFeedCommentsController.swift in Sources */,
 				84B3354E1AB4520C00B9707D /* PieceDetailsCell.swift in Sources */,
 				8486D4161B04774800ED31BA /* SprubixPiece.swift in Sources */,
@@ -584,7 +589,6 @@
 				84ACA1211AE790020084D4CF /* SprubixCamera.swift in Sources */,
 				846C97A01ABDA6F00050D0BC /* SprucePieceFeedCell.swift in Sources */,
 				846C97931ABAB11F0050D0BC /* Subclasses.swift in Sources */,
-				84B335481AB2DBB800B9707D /* WaterFallNavigationController.swift in Sources */,
 				84ACA11E1AE78F250084D4CF /* SprubixCameraViewController.swift in Sources */,
 				845048B71A9ECC81008BDBAA /* Sprubix.xcdatamodeld in Sources */,
 				84470D8C1AED1847007E9A93 /* MainFeedCell.swift in Sources */,

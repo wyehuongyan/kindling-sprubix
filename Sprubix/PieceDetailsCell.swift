@@ -31,6 +31,7 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
     var singlePieceCollectionView: UICollectionView!
     
     var navController:UINavigationController?
+    var commentsViewController: CommentsViewController?
     var delegate:PieceDetailsOutfitProtocol?
     
     // piece detail info
@@ -251,7 +252,7 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         // add a comment button
         var commentRowButton:SprubixItemCommentRow = SprubixItemCommentRow(username: "", commentString: "", y: commentYPos + commentRowView1.commentRowHeight + commentRowView2.commentRowHeight + commentRowView3.commentRowHeight, button: true, userThumbnail: "sprubix-user")
         
-        commentRowButton.postCommentButton.addTarget(self, action: "addCommentPressed:", forControlEvents: UIControlEvents.TouchUpInside)
+        commentRowButton.postCommentButton.addTarget(self, action: "addComments:", forControlEvents: UIControlEvents.TouchUpInside)
         
         pieceDetailInfoView.addSubview(commentRowButton)
         
@@ -399,8 +400,13 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         return hasInsets ? label.frame.height + 70 : label.frame.height // + 70 because of the custom insets from SprubixItemDescription
     }
     
-    // selectors
-    func addCommentPressed(sender: UIButton) {
-        println("comment button pressed")
+    // button callbacks
+    func addComments(sender: UIButton) {
+        if commentsViewController == nil {
+            commentsViewController = UIStoryboard(name: "Main", bundle: NSBundle.mainBundle()).instantiateViewControllerWithIdentifier("CommentsView") as? CommentsViewController
+        }
+        
+        navController!.delegate = nil
+        navController!.pushViewController(commentsViewController!, animated: true)
     }
 }

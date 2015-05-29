@@ -12,6 +12,7 @@ import UIKit
 protocol MainFeedControllerDelegate {
     optional func toggleSidePanel()
     func showUserProfile(user: NSDictionary)
+    func showCreateOutfit()
 }
 
 class MainFeedController: UIViewController, UICollectionViewDataSource, OutfitInteractionProtocol, CHTCollectionViewDelegateWaterfallLayout, TransitionProtocol {
@@ -227,6 +228,7 @@ class MainFeedController: UIViewController, UICollectionViewDataSource, OutfitIn
         var outfitImageDict: NSDictionary = outfitImagesDict["images"] as! NSDictionary
         
         cell.imageURLString = outfitImageDict["small"] as! String
+        cell.thumbnailURLString = outfitImageDict["thumbnail"] as! String
         
         // assign height
         let itemHeight = outfit["height"] as! CGFloat
@@ -548,6 +550,6 @@ class MainFeedController: UIViewController, UICollectionViewDataSource, OutfitIn
     
     // button callbacks
     func createOutfit(sender: UIButton) {
-        println("create button CTA")
+        delegate?.showCreateOutfit()
     }
 }

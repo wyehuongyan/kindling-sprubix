@@ -9,13 +9,14 @@
 import UIKit
 
 class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewDataSource {
-    var navController:UINavigationController?
+    var navController: UINavigationController?
+    var commentsViewController: CommentsViewController?
     
-    var imageName : String?
+    var imageName: String?
 
-    var pullAction : ((offset : CGPoint) -> Void)?
-    var returnAction : (() -> Void)?
-    var tappedAction : (() -> Void)?
+    var pullAction: ((offset : CGPoint) -> Void)?
+    var returnAction: (() -> Void)?
+    var tappedAction: (() -> Void)?
     
     let tableView = UITableView(frame: screenBounds, style: UITableViewStyle.Plain)
     
@@ -24,7 +25,7 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
     var user: NSDictionary!
     var inspiredBy: NSDictionary!
     
-    var pieceImageView:UIImageView!
+    var pieceImageView: UIImageView!
     var pieceImages: [UIImageView] = [UIImageView]()
 
     var pullLabel:UILabel!
@@ -72,6 +73,7 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
     override func prepareForReuse() {
         super.prepareForReuse()
         
+        pullLabel.removeFromSuperview()
         pieceImageView.removeFromSuperview()
     }
     
@@ -207,6 +209,8 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
             // add a comment button
             var commentRowButton:SprubixItemCommentRow = SprubixItemCommentRow(username: "", commentString: "", y: viewAllCommentsHeight + commentRowView1.commentRowHeight + commentRowView2.commentRowHeight + commentRowView3.commentRowHeight, button: true, userThumbnail: "sprubix-user")
             
+            commentRowButton.postCommentButton.addTarget(self, action: "addComments:", forControlEvents: UIControlEvents.TouchUpInside)
+            
             commentsCell.addSubview(commentRowButton)
             
             // get rid of the gray bg when cell is selected
@@ -328,5 +332,17 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
         } else if scrollView.contentOffset.y < -80 {
             pullAction?(offset: scrollView.contentOffset)
         }
+    }
+    
+    // button callbacks
+    func addComments(sender: UIButton) {
+        if commentsViewController == nil {
+            commentsViewController = UIStoryboard(name: "Main", bundle: NSBundle.mainBundle()).instantiateViewControllerWithIdentifier("CommentsView") as? CommentsViewController
+        }
+        
+        commentsViewController?.prevViewIsOutfit = true
+        
+        navController!.delegate = nil
+        navController!.pushViewController(commentsViewController!, animated: true)
     }
 }

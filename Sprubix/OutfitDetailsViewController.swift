@@ -73,6 +73,9 @@ class OutfitDetailsViewController: UICollectionViewController, UICollectionViewD
         collectionCell.pullAction = { offset in
             self.pullOffset = offset
             
+            // reset to nil
+            collectionCell.commentsViewController = nil
+            
             self.navigationController!.delegate = transitionDelegateHolder
             self.navigationController!.popViewControllerAnimated(true)
         }

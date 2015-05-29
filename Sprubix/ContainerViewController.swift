@@ -60,7 +60,7 @@ class ContainerViewController: UIViewController, MainFeedControllerDelegate, Sid
         return true
     }
     
-    // SidePanelViewControllerDelegate
+    // MainFeedControllerDelegate
     func showUserProfile(user: NSDictionary) {
         if userProfileViewController == nil {
             userProfileViewController = UIStoryboard.userProfileViewController()

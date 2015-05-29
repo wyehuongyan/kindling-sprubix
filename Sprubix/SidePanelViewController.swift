@@ -12,7 +12,6 @@ protocol SidePanelViewControllerDelegate {
     func showUserProfile(user: NSDictionary)
     func showCreateOutfit()
     func showNotifications()
-    //func sidePanelCellSelected(sidePanelOption: SidePanelOption)
 }
 
 class SidePanelViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {

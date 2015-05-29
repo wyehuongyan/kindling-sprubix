@@ -36,7 +36,7 @@ class SprubixItemCommentRow: UIView {
         var commentRowView = self
         
         self.backgroundColor = UIColor.whiteColor()
-        let commentImageViewWidth:CGFloat = 35
+        let commentImageViewWidth:CGFloat = 40
         
         // commenter's image
         var commentImageView:UIImageView = UIImageView(frame: CGRect(x: 20, y: 0, width: commentImageViewWidth, height: commentImageViewWidth))

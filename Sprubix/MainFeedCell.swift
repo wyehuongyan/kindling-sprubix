@@ -25,8 +25,9 @@ class MainFeedCell: UICollectionViewCell, TransitionWaterfallGridViewProtocol {
     var indexPath: NSIndexPath!
     var itemIdentifier: String!
     
-    var imageURLString : String!
-    var imageViewContent : UIImageView = UIImageView()
+    var imageURLString: String!
+    var thumbnailURLString: String!
+    var imageViewContent: UIImageView = UIImageView()
     var imageHeight: CGFloat!
     
     // user info and buttons
@@ -270,7 +271,7 @@ class MainFeedCell: UICollectionViewCell, TransitionWaterfallGridViewProtocol {
     }
     
     func outfitLiked(gesture: UITapGestureRecognizer) {
-        delegate?.likedOutfit(outfitId, outfitImageURL: imageURLString, itemIdentifier: itemIdentifier, user: user)
+        delegate?.likedOutfit(outfitId, outfitImageURL: thumbnailURLString, itemIdentifier: itemIdentifier, user: user)
         
         UIView.animateWithDuration(0.3, delay: 0.2, usingSpringWithDamping: 0.9, initialSpringVelocity: 0, options: .CurveEaseInOut, animations: {
             self.likeImageView.alpha = 1.0

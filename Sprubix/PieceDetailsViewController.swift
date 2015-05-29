@@ -71,7 +71,9 @@ class PieceDetailsViewController: UICollectionViewController, UICollectionViewDe
             
             var childrenCount = self.navigationController!.viewControllers.count
             var prevChild: AnyObject = self.navigationController!.viewControllers[childrenCount-2]
-            //println("prev child: \(prevChild)")
+            
+            // reset to nil
+            collectionCell.commentsViewController = nil
             
             if prevChild.isKindOfClass(OutfitDetailsViewController) {
                 //println("this is how we roll")
