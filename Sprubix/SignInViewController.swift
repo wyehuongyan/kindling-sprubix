@@ -36,9 +36,6 @@ class SignInViewController: UIViewController, UITextFieldDelegate, UITableViewDa
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         
-        // keyboard notifications
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("keyboardWillChange:"), name:UIKeyboardWillChangeFrameNotification, object: nil);
-        
         signInView = UIView(frame: CGRect(x: screenWidth / 2 - signInTableWidth / 2, y: screenHeight / 2 - signInTableHeight / 2, width: signInTableWidth, height: signInTableHeight + signInButtonHeight))
         
         signInTable = UITableView(frame: CGRect(x: 0, y: 0, width: signInTableWidth , height: signInTableHeight), style: UITableViewStyle.Plain)
@@ -100,7 +97,18 @@ class SignInViewController: UIViewController, UITextFieldDelegate, UITableViewDa
     }
     
     override func viewWillAppear(animated: Bool) {
+        super.viewWillAppear(animated)
+        
         self.navigationController?.navigationBarHidden = true
+        
+        // keyboard notifications
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("keyboardWillChange:"), name:UIKeyboardWillChangeFrameNotification, object: nil);
+    }
+    
+    override func viewWillDisappear(animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardWillChangeFrameNotification, object: nil)
     }
 
     override func didReceiveMemoryWarning() {

@@ -47,9 +47,6 @@ class SpruceShareViewController: UIViewController, UITableViewDelegate, UITableV
         
         view.backgroundColor = UIColor.whiteColor()
         
-        // listen to keyboard show/hide events
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("keyboardWillChange:"), name:UIKeyboardWillChangeFrameNotification, object: nil);
-        
         // table view
         spruceShareTableView = UITableView(frame: CGRect(x: 0, y: navigationHeight, width: screenWidth, height: screenHeight - navigationHeight), style: UITableViewStyle.Plain)
         spruceShareTableView.delegate = self
@@ -70,6 +67,11 @@ class SpruceShareViewController: UIViewController, UITableViewDelegate, UITableV
     }
     
     override func viewWillAppear(animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        // listen to keyboard show/hide events
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("keyboardWillChange:"), name:UIKeyboardWillChangeFrameNotification, object: nil);
+        
         // 1. hide existing nav bar
         self.navigationController?.setNavigationBarHidden(true, animated: false)
         
@@ -102,6 +104,13 @@ class SpruceShareViewController: UIViewController, UITableViewDelegate, UITableV
         
         // 5. add the nav bar to the main view
         self.view.addSubview(newNavBar)
+    }
+    
+    override func viewWillDisappear(animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        // listen to keyboard show/hide events
+        NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardWillChangeFrameNotification, object: nil)
     }
     
     func scrollViewDidScroll(scrollView: UIScrollView) {
@@ -331,7 +340,7 @@ class SpruceShareViewController: UIViewController, UITableViewDelegate, UITableV
     }
     
     func textViewDidEndEditing(textView: UITextView) {
-        if textView.text == "" {
+        if textView.text.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet()) == "" {
             descriptionText.text = placeholderText
             descriptionText.textColor = UIColor.lightGrayColor()
             descriptionText.resignFirstResponder()

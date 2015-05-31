@@ -46,9 +46,6 @@ class SnapshotShareController: UIViewController, UITableViewDelegate, UITableVie
         
         view.backgroundColor = UIColor.whiteColor()
         
-        // listen to keyboard show/hide events
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("keyboardWillChange:"), name:UIKeyboardWillChangeFrameNotification, object: nil);
-        
         // tableview
         shareTableView = UITableView(frame: CGRect(x: 0, y: navigationHeight, width: screenWidth, height: screenHeight - navigationHeight), style: UITableViewStyle.Plain)
         shareTableView.delegate = self
@@ -105,6 +102,9 @@ class SnapshotShareController: UIViewController, UITableViewDelegate, UITableVie
     
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
+        
+        // listen to keyboard show/hide events
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("keyboardWillChange:"), name:UIKeyboardWillChangeFrameNotification, object: nil);
         
         // 1. hide existing nav bar
         self.navigationController?.setNavigationBarHidden(true, animated: true)
@@ -165,6 +165,12 @@ class SnapshotShareController: UIViewController, UITableViewDelegate, UITableVie
             
             outfitImageView.addSubview(pieceView)
         }
+    }
+    
+    override func viewWillDisappear(animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardWillChangeFrameNotification, object: nil)
     }
     
     // tableViewDelegate
@@ -377,7 +383,7 @@ class SnapshotShareController: UIViewController, UITableViewDelegate, UITableVie
     }
     
     func textViewDidEndEditing(textView: UITextView) {
-        if textView.text == "" {
+        if textView.text.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet()) == "" {
             descriptionText.text = placeholderText
             descriptionText.textColor = UIColor.lightGrayColor()
             descriptionText.resignFirstResponder()

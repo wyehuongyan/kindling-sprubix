@@ -53,15 +53,22 @@ class CommentsViewController: UIViewController, UITextViewDelegate, UITableViewD
         dismissKeyboardTap.cancelsTouchesInView = false
         
         commentsTableView.addGestureRecognizer(dismissKeyboardTap)
-        
-        // keyboard notifications
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("keyboardWillChange:"), name:UIKeyboardWillChangeFrameNotification, object: nil);
     }
     
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
         
+        // keyboard notifications
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("keyboardWillChange:"), name:UIKeyboardWillChangeFrameNotification, object: nil);
+
+        
         initNavBar()
+    }
+    
+    override func viewWillDisappear(animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardWillChangeFrameNotification, object: nil)
     }
     
     override func viewDidAppear(animated: Bool) {
@@ -139,8 +146,6 @@ class CommentsViewController: UIViewController, UITextViewDelegate, UITableViewD
         var keyboardFrame: CGRect = (info[UIKeyboardFrameEndUserInfoKey] as! NSValue).CGRectValue()
         
         if makeKeyboardVisible {
-            println("keyboard will change \(keyboardFrame.height)")
-            
             commentsTableViewBottomConstraint.constant = keyboardFrame.height
             commentViewBottomConstraint.constant = keyboardFrame.height
             
@@ -153,8 +158,6 @@ class CommentsViewController: UIViewController, UITextViewDelegate, UITableViewD
                     }
             })
         } else {
-            println("keyboard will hide")
-            
             commentsTableViewBottomConstraint.constant -= keyboardFrame.height
             commentViewBottomConstraint.constant -= keyboardFrame.height
             
@@ -188,7 +191,7 @@ class CommentsViewController: UIViewController, UITextViewDelegate, UITableViewD
     }
     
     func textViewDidEndEditing(textView: UITextView) {
-        if textView.text == "" {
+        if textView.text.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet()) == "" {
             commentTextView.text = placeholderText
             commentTextView.textColor = UIColor.lightGrayColor()
             commentTextView.resignFirstResponder()

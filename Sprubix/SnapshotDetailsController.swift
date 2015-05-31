@@ -61,7 +61,8 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
     let descriptionTextHeight: CGFloat = 100
     var descriptionText: UITextView!
     var placeholderText: String = "Tell us more about this item!"
-    var keyboardVisible = false
+    var makeKeyboardVisible = true
+    var oldFrameRect: CGRect!
     
     // thumbnails
     var thumbnails: [SprubixItemThumbnail] = [SprubixItemThumbnail]()
@@ -81,10 +82,6 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
         
         self.view.backgroundColor = UIColor.whiteColor()
         
-        // listen to keyboard show/hide events
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("keyboardWillShow:"), name:UIKeyboardWillShowNotification, object: nil);
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("keyboardWillHide:"), name:UIKeyboardWillHideNotification, object: nil);
-        
         // table
         itemTableView = UITableView(frame: CGRectMake(0, navigationHeight, screenWidth, screenHeight - navigationHeight))
         itemTableView.delegate = self
@@ -98,10 +95,15 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
         self.view.addGestureRecognizer(tableTapGestureRecognizer)
         
         self.view.addSubview(itemTableView)
+        
+        oldFrameRect = itemTableView.frame
     }
     
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
+        
+        // listen to keyboard show/hide events
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("keyboardWillChange:"), name:UIKeyboardWillChangeFrameNotification, object: nil)
         
         // 1. hide existing nav bar
         self.navigationController?.setNavigationBarHidden(true, animated: true)
@@ -146,6 +148,9 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
     
     override func viewWillDisappear(animated: Bool) {
         super.viewWillDisappear(animated)
+        
+        // listen to keyboard show/hide events
+        NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardWillChangeFrameNotification, object: nil)
         
         self.camera?.stopCamera()
     }
@@ -560,40 +565,45 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
     }
     
     func descriptionDoneTapped(sender: UIButton) {
+        makeKeyboardVisible = false
+        
         self.view.endEditing(true)
     }
     
     /**
-    * Handler for keyboard show event
+    * Handler for keyboard change event
     */
-    func keyboardWillShow(notification: NSNotification) {
-        if !keyboardVisible {
-            var info = notification.userInfo!
-            var keyboardFrame: CGRect = (info[UIKeyboardFrameEndUserInfoKey] as! NSValue).CGRectValue()
+    func keyboardWillChange(notification: NSNotification) {
+        var info = notification.userInfo!
+        var keyboardFrame: CGRect = (info[UIKeyboardFrameEndUserInfoKey] as! NSValue).CGRectValue()
+        
+        if makeKeyboardVisible {
+            view.layoutIfNeeded()
             
             UIView.animateWithDuration(0.2, delay: 0.1, options: UIViewAnimationOptions.CurveEaseInOut, animations: { () -> Void in
                 
-                self.itemTableView.frame.origin.y -= keyboardFrame.height
-                self.keyboardVisible = true
+                self.itemTableView.frame.origin.y = self.oldFrameRect.origin.y - keyboardFrame.height
                 
-                }, completion: nil)
-        }
-    }
-    
-    /**
-    * Handler for keyboard hide event
-    */
-    func keyboardWillHide(notification: NSNotification) {
-        if keyboardVisible {
-            var info = notification.userInfo!
-            var keyboardFrame: CGRect = (info[UIKeyboardFrameEndUserInfoKey] as! NSValue).CGRectValue()
+                self.view.layoutIfNeeded()
+                
+                }, completion: { finished in
+                    if finished {
+                    }
+            })
+        } else {
+            view.layoutIfNeeded()
             
             UIView.animateWithDuration(0.2, delay: 0.1, options: UIViewAnimationOptions.CurveEaseInOut, animations: { () -> Void in
                 
-                self.itemTableView.frame.origin.y += keyboardFrame.height
-                self.keyboardVisible = false
+                self.itemTableView.frame.origin.y = self.oldFrameRect.origin.y
                 
-                }, completion: nil)
+                self.view.layoutIfNeeded()
+                
+                }, completion: { finished in
+                    if finished {
+                        self.makeKeyboardVisible = true
+                    }
+            })
         }
     }
     
@@ -601,6 +611,8 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
     * Called when the user click on the view (outside the UITextField).
     */
     func tableTapped(gesture: UITapGestureRecognizer) {
+        makeKeyboardVisible = false
+        
         self.view.endEditing(true)
     }
     
@@ -608,6 +620,8 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
     * Called when 'return' key pressed. return NO to ignore.
     */
     func textFieldShouldReturn(textField: UITextField) -> Bool {
+        makeKeyboardVisible = false
+        
         textField.resignFirstResponder()
         
         return true
