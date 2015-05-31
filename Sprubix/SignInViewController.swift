@@ -11,7 +11,7 @@ import CoreData
 
 class SignInViewController: UIViewController, UITextFieldDelegate, UITableViewDataSource, UITableViewDelegate {
     
-    var keyboardVisible = false
+    var makeKeyboardVisible = true
     
     let signInTableHeight:CGFloat! = 100
     let signInTableWidth:CGFloat! = screenWidth * 0.9
@@ -30,14 +30,14 @@ class SignInViewController: UIViewController, UITextFieldDelegate, UITableViewDa
     let sprubixLogoWidth:CGFloat! = 150
     var sprubixLogoView:UIImageView!
     
+    var oldFrameRect: CGRect!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
-        println("Sign in or Sign up")
         
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("keyboardWillShow:"), name:UIKeyboardWillShowNotification, object: nil);
-        
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("keyboardWillHide:"), name:UIKeyboardWillHideNotification, object: nil);
+        // keyboard notifications
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("keyboardWillChange:"), name:UIKeyboardWillChangeFrameNotification, object: nil);
         
         signInView = UIView(frame: CGRect(x: screenWidth / 2 - signInTableWidth / 2, y: screenHeight / 2 - signInTableHeight / 2, width: signInTableWidth, height: signInTableHeight + signInButtonHeight))
         
@@ -65,6 +65,8 @@ class SignInViewController: UIViewController, UITextFieldDelegate, UITableViewDa
         sprubixLogoView.frame = CGRect(x: screenWidth / 2 - sprubixLogoWidth / 2, y: signInView.frame.origin.y - sprubixLogoWidth, width: sprubixLogoWidth, height: sprubixLogoWidth)
         
         view.addSubview(sprubixLogoView)
+        
+        oldFrameRect = signInView.frame
     }
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
@@ -264,36 +266,37 @@ class SignInViewController: UIViewController, UITextFieldDelegate, UITableViewDa
     }
     
     /**
-    * Handler for keyboard show event
+    * Handler for keyboard change event
     */
-    func keyboardWillShow(notification: NSNotification) {
-        if !keyboardVisible {
-            var info = notification.userInfo!
-            var keyboardFrame: CGRect = (info[UIKeyboardFrameEndUserInfoKey] as! NSValue).CGRectValue()
-            
-            UIView.animateWithDuration(0.2, delay: 0.1, options: UIViewAnimationOptions.CurveEaseInOut, animations: { () -> Void in
-                    self.signInView.frame.origin.y -= 0.2 * keyboardFrame.height
-                    self.sprubixLogoView.frame.origin.y -= 0.2 * keyboardFrame.height
-                    self.keyboardVisible = true
-                }, completion: nil)
-        }
-    }
-    
-    /**
-    * Handler for keyboard hide event
-    */
-    func keyboardWillHide(notification: NSNotification) {
-        if keyboardVisible {
-            var info = notification.userInfo!
-            var keyboardFrame: CGRect = (info[UIKeyboardFrameEndUserInfoKey] as! NSValue).CGRectValue()
+    func keyboardWillChange(notification: NSNotification) {
+        var info = notification.userInfo!
+        var keyboardFrame: CGRect = (info[UIKeyboardFrameEndUserInfoKey] as! NSValue).CGRectValue()
+        
+        if makeKeyboardVisible {
+            view.layoutIfNeeded()
             
             UIView.animateWithDuration(0.2, delay: 0.1, options: UIViewAnimationOptions.CurveEaseInOut, animations: { () -> Void in
                 
-                self.signInView.frame.origin.y += 0.2 * keyboardFrame.height
-                self.sprubixLogoView.frame.origin.y += 0.2 * keyboardFrame.height
+                self.signInView.frame.origin.y = self.oldFrameRect.origin.y - 0.2 * keyboardFrame.height
+                self.sprubixLogoView.frame.origin.y = self.signInView.frame.origin.y - self.sprubixLogoWidth
                 
-                self.keyboardVisible = false
-                }, completion: nil)
+                }, completion: { finished in
+                    if finished {
+                    }
+            })
+        } else {
+            view.layoutIfNeeded()
+            
+            UIView.animateWithDuration(0.2, delay: 0.1, options: UIViewAnimationOptions.CurveEaseInOut, animations: { () -> Void in
+                
+                self.signInView.frame.origin.y = self.oldFrameRect.origin.y
+                self.sprubixLogoView.frame.origin.y = self.signInView.frame.origin.y - self.sprubixLogoWidth
+                
+                }, completion: { finished in
+                    if finished {
+                        self.makeKeyboardVisible = true
+                    }
+            })
         }
     }
     
@@ -310,6 +313,8 @@ class SignInViewController: UIViewController, UITextFieldDelegate, UITableViewDa
     * Called when the user click on the view (outside the UITextField).
     */
     override func touchesBegan(touches: Set<NSObject>, withEvent event: UIEvent) {
+        makeKeyboardVisible = false
+        
         self.view.endEditing(true)
     }
     

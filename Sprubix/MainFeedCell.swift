@@ -221,6 +221,7 @@ class MainFeedCell: UICollectionViewCell, TransitionWaterfallGridViewProtocol {
         commentsButton.backgroundColor = sprubixLightGray
         commentsButton.frame = CGRectMake(5 * likeButtonWidth, 0, likeButtonWidth, infoViewBottom.frame.size.height)
         commentsButton.imageEdgeInsets = UIEdgeInsetsMake(5, 5, 5, 5)
+        commentsButton.addTarget(self, action: "commentOutfit:", forControlEvents: UIControlEvents.TouchUpInside)
         
         infoViewBottom.addSubview(commentsButton)
         
@@ -259,6 +260,10 @@ class MainFeedCell: UICollectionViewCell, TransitionWaterfallGridViewProtocol {
             
             delegate?.unlikedOutfit(outfitId, itemIdentifier: itemIdentifier, user: user)
         }
+    }
+    
+    func commentOutfit(sender: UIButton) {
+        delegate?.commentOutfit()
     }
     
     func spruceOutfit(sender: UIButton) {

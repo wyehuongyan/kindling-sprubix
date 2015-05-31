@@ -59,14 +59,9 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, UIActionShee
     
     var descriptionText:UITextView!
     var placeholderText:String = "Tell us more about this outfit!"
-    var keyboardVisible = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        // listen to keyboard show/hide events
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("keyboardWillShow:"), name:UIKeyboardWillShowNotification, object: nil);
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("keyboardWillHide:"), name:UIKeyboardWillHideNotification, object: nil);
         
         // register method when tapped to hide keyboard
         let tableTapGestureRecognizer:UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: "tableTapped:")
@@ -559,40 +554,6 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, UIActionShee
             descriptionText.text = "Tell us more about this outfit!"
             descriptionText.textColor = UIColor.lightGrayColor()
             descriptionText.resignFirstResponder()
-        }
-    }
-    
-    /**
-    * Handler for keyboard show event
-    */
-    func keyboardWillShow(notification: NSNotification) {
-        if !keyboardVisible {
-            var info = notification.userInfo!
-            var keyboardFrame: CGRect = (info[UIKeyboardFrameEndUserInfoKey] as! NSValue).CGRectValue()
-            
-            UIView.animateWithDuration(0.2, delay: 0.1, options: UIViewAnimationOptions.CurveEaseInOut, animations: { () -> Void in
-
-                self.scrollView.frame.origin.y -= keyboardFrame.height
-                self.keyboardVisible = true
-                
-                }, completion: nil)
-        }
-    }
-    
-    /**
-    * Handler for keyboard hide event
-    */
-    func keyboardWillHide(notification: NSNotification) {
-        if keyboardVisible {
-            var info = notification.userInfo!
-            var keyboardFrame: CGRect = (info[UIKeyboardFrameEndUserInfoKey] as! NSValue).CGRectValue()
-            
-            UIView.animateWithDuration(0.2, delay: 0.1, options: UIViewAnimationOptions.CurveEaseInOut, animations: { () -> Void in
-                
-                self.scrollView.frame.origin.y += keyboardFrame.height
-                self.keyboardVisible = false
-                
-                }, completion: nil)
         }
     }
     

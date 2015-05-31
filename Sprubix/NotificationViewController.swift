@@ -164,7 +164,7 @@ class NotificationViewController: UIViewController, UITableViewDataSource, UITab
     
     // MARK: UITableViewDelegate
     func tableView(tableView: UITableView, estimatedHeightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
-        return 60
+        return 61
     }
     
     // MARK: UITableViewDataSource

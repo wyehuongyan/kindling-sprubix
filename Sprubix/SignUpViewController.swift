@@ -48,7 +48,20 @@ class SignUpViewController: UIViewController, UITableViewDataSource, UITableView
         newNavItem.title = "Create an Account"
         
         // 4. create a custom back button
-        var backBarButtonItem:UIBarButtonItem = UIBarButtonItem(title: "Back", style: UIBarButtonItemStyle.Plain, target: self, action: "backTapped:")
+        var backButton:UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+        var image: UIImage = UIImage(named: "spruce-arrow-back")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
+        backButton.setImage(image, forState: UIControlState.Normal)
+        backButton.frame = CGRect(x: -10, y: 0, width: 20, height: 20)
+        backButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+        backButton.imageView?.tintColor = UIColor.lightGrayColor()
+        backButton.addTarget(self, action: "backTapped:", forControlEvents: UIControlEvents.TouchUpInside)
+        
+        //var backButtonView:UIView = UIView(frame: CGRect(x: 0, y: 0, width: backButton.frame.width, height: backButton.frame.height))
+        //backButtonView.addSubview(backButton)
+        
+        var backBarButtonItem:UIBarButtonItem = UIBarButtonItem(customView: backButton)
+        backBarButtonItem.tintColor = UIColor(red: 170/255, green: 170/255, blue: 170/255, alpha: 1.0)
+
         
         newNavItem.leftBarButtonItem = backBarButtonItem
 

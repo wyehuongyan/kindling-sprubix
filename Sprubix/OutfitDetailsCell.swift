@@ -35,6 +35,8 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
     var descriptionCell: UITableViewCell!
     var commentsCell: UITableViewCell!
     
+    var commentRowButton: SprubixItemCommentRow!
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         //tableView.backgroundColor = UIColor(red: 229/255, green: 229/255, blue: 229/255, alpha: 1)
@@ -185,6 +187,7 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
             viewAllComments.setTitle("View all comments (\(numComments))", forState: UIControlState.Normal)
             viewAllComments.setTitleColor(UIColor.lightGrayColor(), forState: UIControlState.Normal)
             viewAllComments.backgroundColor = UIColor.whiteColor()
+            viewAllComments.addTarget(self, action: "addComments:", forControlEvents: UIControlEvents.TouchUpInside)
             
             var viewAllCommentsBG:UIView = UIView(frame: CGRect(x: 0, y: 0, width: screenWidth, height: viewAllCommentsHeight))
             viewAllCommentsBG.backgroundColor = UIColor.whiteColor()
@@ -207,7 +210,7 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
             commentsCell.addSubview(commentRowView3)
             
             // add a comment button
-            var commentRowButton:SprubixItemCommentRow = SprubixItemCommentRow(username: "", commentString: "", y: viewAllCommentsHeight + commentRowView1.commentRowHeight + commentRowView2.commentRowHeight + commentRowView3.commentRowHeight, button: true, userThumbnail: "sprubix-user")
+            commentRowButton = SprubixItemCommentRow(username: "", commentString: "", y: viewAllCommentsHeight + commentRowView1.commentRowHeight + commentRowView2.commentRowHeight + commentRowView3.commentRowHeight, button: true, userThumbnail: "sprubix-user")
             
             commentRowButton.postCommentButton.addTarget(self, action: "addComments:", forControlEvents: UIControlEvents.TouchUpInside)
             
@@ -338,6 +341,10 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
     func addComments(sender: UIButton) {
         if commentsViewController == nil {
             commentsViewController = UIStoryboard(name: "Main", bundle: NSBundle.mainBundle()).instantiateViewControllerWithIdentifier("CommentsView") as? CommentsViewController
+        }
+        
+        if sender == commentRowButton.postCommentButton {
+            commentsViewController?.showKeyboard = true
         }
         
         commentsViewController?.prevViewIsOutfit = true

@@ -10,4 +10,8 @@ import UIKit
 
 class CommentCell: UITableViewCell {
 
+    @IBOutlet var userImageView: UIImageView!
+    @IBOutlet var userNameLabel: UILabel!
+    @IBOutlet var userComment: UILabel!
+    @IBOutlet var timeAgo: UILabel!
 }

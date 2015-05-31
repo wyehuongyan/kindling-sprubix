@@ -33,6 +33,7 @@ class MainFeedController: UIViewController, UICollectionViewDataSource, OutfitIn
     let cellInfoViewHeight: CGFloat = 80
     
     var spruceViewController: SpruceViewController?
+    var commentsViewController: CommentsViewController?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -125,6 +126,7 @@ class MainFeedController: UIViewController, UICollectionViewDataSource, OutfitIn
             refreshControl.endRefreshing()
         }
         
+        // reset
         spruceViewController?.view.removeFromSuperview()
         spruceViewController = nil
         
@@ -132,6 +134,10 @@ class MainFeedController: UIViewController, UICollectionViewDataSource, OutfitIn
             self.shyNavBarManager.scrollView = self.mainCollectionView
         }
         
+        commentsViewController?.view.removeFromSuperview()
+        commentsViewController = nil
+        
+        // retrieve following outfits
         retrieveOutfits()
     }
     
@@ -515,6 +521,14 @@ class MainFeedController: UIViewController, UICollectionViewDataSource, OutfitIn
     }
     
     func commentOutfit() {
+        if commentsViewController == nil {
+            commentsViewController = UIStoryboard(name: "Main", bundle: NSBundle.mainBundle()).instantiateViewControllerWithIdentifier("CommentsView") as? CommentsViewController
+        }
+        
+        commentsViewController?.prevViewIsOutfit = true
+        
+        navigationController!.delegate = nil
+        navigationController!.pushViewController(commentsViewController!, animated: true)
     }
     
     func showProfile(user: NSDictionary) {

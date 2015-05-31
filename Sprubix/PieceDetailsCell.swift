@@ -40,6 +40,8 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
     var pieceImageView: UIImageView = UIImageView()
     var totalHeaderHeight: CGFloat!
     
+    var commentRowButton: SprubixItemCommentRow!
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         
@@ -228,6 +230,7 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         viewAllComments.setTitle("View all comments (\(numComments))", forState: UIControlState.Normal)
         viewAllComments.setTitleColor(UIColor.lightGrayColor(), forState: UIControlState.Normal)
         viewAllComments.backgroundColor = UIColor.whiteColor()
+        viewAllComments.addTarget(self, action: "addComments:", forControlEvents: UIControlEvents.TouchUpInside)
         
         var viewAllCommentsBG:UIView = UIView(frame: CGRect(x: 0, y: screenWidth + creditsViewHeight + itemSpecHeightTotal + itemDescriptionHeight, width: screenWidth, height: viewAllCommentsHeight))
         viewAllCommentsBG.backgroundColor = UIColor.whiteColor()
@@ -250,7 +253,7 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         pieceDetailInfoView.addSubview(commentRowView3)
         
         // add a comment button
-        var commentRowButton:SprubixItemCommentRow = SprubixItemCommentRow(username: "", commentString: "", y: commentYPos + commentRowView1.commentRowHeight + commentRowView2.commentRowHeight + commentRowView3.commentRowHeight, button: true, userThumbnail: "sprubix-user")
+        commentRowButton = SprubixItemCommentRow(username: "", commentString: "", y: commentYPos + commentRowView1.commentRowHeight + commentRowView2.commentRowHeight + commentRowView3.commentRowHeight, button: true, userThumbnail: "sprubix-user")
         
         commentRowButton.postCommentButton.addTarget(self, action: "addComments:", forControlEvents: UIControlEvents.TouchUpInside)
         
@@ -404,6 +407,10 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
     func addComments(sender: UIButton) {
         if commentsViewController == nil {
             commentsViewController = UIStoryboard(name: "Main", bundle: NSBundle.mainBundle()).instantiateViewControllerWithIdentifier("CommentsView") as? CommentsViewController
+        }
+        
+        if sender == commentRowButton.postCommentButton {
+            commentsViewController?.showKeyboard = true
         }
         
         navController!.delegate = nil

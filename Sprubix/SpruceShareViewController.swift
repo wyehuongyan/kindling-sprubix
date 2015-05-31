@@ -39,16 +39,16 @@ class SpruceShareViewController: UIViewController, UITableViewDelegate, UITableV
     let descriptionTextHeight: CGFloat = 100
     var descriptionText: UITextView!
     var placeholderText: String = "Tell us more about this outfit!"
-    var keyboardVisible = false
+    var makeKeyboardVisible = true
+    var oldFrameRect: CGRect!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        // listen to keyboard show/hide events
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("keyboardWillShow:"), name:UIKeyboardWillShowNotification, object: nil);
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("keyboardWillHide:"), name:UIKeyboardWillHideNotification, object: nil);
-        
         view.backgroundColor = UIColor.whiteColor()
+        
+        // listen to keyboard show/hide events
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("keyboardWillChange:"), name:UIKeyboardWillChangeFrameNotification, object: nil);
         
         // table view
         spruceShareTableView = UITableView(frame: CGRect(x: 0, y: navigationHeight, width: screenWidth, height: screenHeight - navigationHeight), style: UITableViewStyle.Plain)
@@ -65,6 +65,8 @@ class SpruceShareViewController: UIViewController, UITableViewDelegate, UITableV
         shareButton.addTarget(self, action: "spruceConfirmed:", forControlEvents: UIControlEvents.TouchUpInside)
         
         view.addSubview(shareButton)
+        
+        oldFrameRect = spruceShareTableView.frame
     }
     
     override func viewWillAppear(animated: Bool) {
@@ -263,36 +265,39 @@ class SpruceShareViewController: UIViewController, UITableViewDelegate, UITableV
     }
     
     /**
-    * Handler for keyboard show event
+    * Handler for keyboard change event
     */
-    func keyboardWillShow(notification: NSNotification) {
-        if !keyboardVisible {
-            var info = notification.userInfo!
-            var keyboardFrame: CGRect = (info[UIKeyboardFrameEndUserInfoKey] as! NSValue).CGRectValue()
+    func keyboardWillChange(notification: NSNotification) {
+        var info = notification.userInfo!
+        var keyboardFrame: CGRect = (info[UIKeyboardFrameEndUserInfoKey] as! NSValue).CGRectValue()
+        
+        if makeKeyboardVisible {
+            view.layoutIfNeeded()
             
             UIView.animateWithDuration(0.2, delay: 0.1, options: UIViewAnimationOptions.CurveEaseInOut, animations: { () -> Void in
                 
-                self.spruceShareTableView.frame.origin.y -= keyboardFrame.height
-                self.keyboardVisible = true
+                self.spruceShareTableView.frame.origin.y = self.oldFrameRect.origin.y - keyboardFrame.height
+
+                self.view.layoutIfNeeded()
                 
-                }, completion: nil)
-        }
-    }
-    
-    /**
-    * Handler for keyboard hide event
-    */
-    func keyboardWillHide(notification: NSNotification) {
-        if keyboardVisible {
-            var info = notification.userInfo!
-            var keyboardFrame: CGRect = (info[UIKeyboardFrameEndUserInfoKey] as! NSValue).CGRectValue()
+                }, completion: { finished in
+                    if finished {
+                    }
+            })
+        } else {
+            view.layoutIfNeeded()
             
             UIView.animateWithDuration(0.2, delay: 0.1, options: UIViewAnimationOptions.CurveEaseInOut, animations: { () -> Void in
                 
-                self.spruceShareTableView.frame.origin.y += keyboardFrame.height
-                self.keyboardVisible = false
+                self.spruceShareTableView.frame.origin.y = self.oldFrameRect.origin.y
                 
-                }, completion: nil)
+                self.view.layoutIfNeeded()
+                
+                }, completion: { finished in
+                    if finished {
+                        self.makeKeyboardVisible = true
+                    }
+            })
         }
     }
     
@@ -338,6 +343,8 @@ class SpruceShareViewController: UIViewController, UITableViewDelegate, UITableV
     }
     
     func descriptionDoneTapped(sender: UIButton) {
+        makeKeyboardVisible = false
+        
         self.view.endEditing(true)
     }
 
