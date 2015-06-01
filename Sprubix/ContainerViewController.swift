@@ -33,7 +33,6 @@ class ContainerViewController: UIViewController, MainFeedControllerDelegate, Sid
     // side panel
     var userProfileViewController: UserProfileViewController?
     var sprubixCameraViewController: SprubixCameraViewController?
-    var notificationViewController: NotificationViewController?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -53,7 +52,7 @@ class ContainerViewController: UIViewController, MainFeedControllerDelegate, Sid
         //sprubixNavigationController.view.addGestureRecognizer(panGestureRecognizer)
         
         // notifications
-        notificationViewController = UIStoryboard.notificationViewController()
+        //notificationViewController = UIStoryboard.notificationViewController()
     }
     
     override func prefersStatusBarHidden() -> Bool {
@@ -82,14 +81,14 @@ class ContainerViewController: UIViewController, MainFeedControllerDelegate, Sid
     }
     
     func showNotifications() {
-        if notificationViewController == nil {
-            notificationViewController = UIStoryboard.notificationViewController()
+        if sprubixNotificationViewController == nil {
+            sprubixNotificationViewController = UIStoryboard.notificationViewController()
         }
         
         self.closeSidePanel()
         
         sprubixNavigationController.delegate = nil
-        sprubixNavigationController.pushViewController(notificationViewController!, animated: true)
+        sprubixNavigationController.pushViewController(sprubixNotificationViewController!, animated: true)
     }
     
     // SprubixFeedControllerDelegate
@@ -222,12 +221,8 @@ class ContainerViewController: UIViewController, MainFeedControllerDelegate, Sid
     }
 }
 
-private extension UIStoryboard {
+extension UIStoryboard {
     class func mainStoryboard() -> UIStoryboard { return UIStoryboard(name: "Main", bundle: NSBundle.mainBundle()) }
-
-//    class func sprubixFeedController() -> SprubixFeedController? {
-//        return mainStoryboard().instantiateViewControllerWithIdentifier("SprubixFeed") as? SprubixFeedController
-//    }
     
     class func sidePanelViewController() -> SidePanelViewController? {
         return mainStoryboard().instantiateViewControllerWithIdentifier("SidePanel") as? SidePanelViewController

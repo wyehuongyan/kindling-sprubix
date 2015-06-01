@@ -34,6 +34,11 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
+		<key>Pods-Sprubix-SVPullToRefresh.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
 		<key>Pods-Sprubix-TLYShyNavBar.xcscheme</key>
 		<dict>
 			<key>isShown</key>
@@ -47,42 +52,47 @@
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
-		<key>04F9EDB972F0D357E78CA97C</key>
+		<key>028C2FA7AD21D45F8FB92331</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>0EA1CA3EBD4BFAE4D7523F13</key>
+		<key>12DB58D5A8D9170E194E9D3D</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>295048362F551EB9B8E350F5</key>
+		<key>16A6D1134563734E69AB9424</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>335B49928F5BBBEA43E0053C</key>
+		<key>2A770F568E36524399B905F8</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>4A86D1C8045CD178F62FDFC9</key>
+		<key>589C2F6204AB153F73F0E083</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>7D5CEC9D71C3189EC70F6326</key>
+		<key>81662374FC587E53381B8B62</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>7F0C5D68F84A330FB1DC0B52</key>
+		<key>8A8A2DE002ADA794CE21478D</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>92795F5A1BE15AEC25E3C8AD</key>
+		<key>A428510C5E5A0F5B1383437A</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>DA23B5323743C5AA6BC2A6E1</key>
 		<dict>
 			<key>primary</key>
 			<true/>

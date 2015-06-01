@@ -405,9 +405,7 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
     
     // button callbacks
     func addComments(sender: UIButton) {
-        if commentsViewController == nil {
-            commentsViewController = UIStoryboard(name: "Main", bundle: NSBundle.mainBundle()).instantiateViewControllerWithIdentifier("CommentsView") as? CommentsViewController
-        }
+        commentsViewController = UIStoryboard(name: "Main", bundle: NSBundle.mainBundle()).instantiateViewControllerWithIdentifier("CommentsView") as? CommentsViewController
         
         if sender == commentRowButton.postCommentButton {
             commentsViewController?.showKeyboard = true

@@ -11,10 +11,11 @@ import CoreData
 
 struct SprubixConfig {
     struct URL {
+        // test
         static let api: String = "http://192.168.1.6/~wyehuongyan/kindling-core/public/index.php"
-        //static let api: String = "http://api.sprubix.com"
-        
         static let firebase: String = "https://sprubixtest.firebaseio.com/"
+        
+        //static let api: String = "http://api.sprubix.com"
         //static let firebase: String = "https://sprubix.firebaseio.com/"
     }
 }

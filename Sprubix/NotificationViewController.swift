@@ -23,6 +23,8 @@ class NotificationViewController: UIViewController, UITableViewDataSource, UITab
     required init(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
         
+        println("sprubix notifications initialized!")
+        
         // firebase user notifications
         let userData: NSDictionary? = defaults.dictionaryForKey("userData")
         
@@ -48,10 +50,10 @@ class NotificationViewController: UIViewController, UITableViewDataSource, UITab
                 
                 mainBadge.text = "\(SidePanelOption.alerts.total!)"
                 
-                // retrieve notifications data
-                let notificationsRef = firebaseRef.childByAppendingPath("notifications/\(snapshot.key)")
+                // retrieve notification data
+                let notificationRef = firebaseRef.childByAppendingPath("notifications/\(snapshot.key)")
                 
-                notificationsRef.observeSingleEventOfType(.Value, withBlock: { snapshot in
+                notificationRef.observeSingleEventOfType(.Value, withBlock: { snapshot in
                     // do some stuff once
                     
                     if (snapshot.value as? NSNull) != nil {
@@ -194,7 +196,10 @@ class NotificationViewController: UIViewController, UITableViewDataSource, UITab
         case "like":
             notificationMessage = "\(senderUsername) liked your item. \(duration) "
         case "comment":
-            notificationMessage = "\(senderUsername) left a comment on your item. \(duration)"
+            let comment = notification["comment"] as! NSDictionary
+            let commentBody = comment["body"] as! String
+            
+            notificationMessage = "\(senderUsername) left a comment on your item: \(commentBody) \(duration)"
         default:
             fatalError("Error: Unknown notification type")
         }

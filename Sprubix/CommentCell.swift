@@ -14,4 +14,16 @@ class CommentCell: UITableViewCell {
     @IBOutlet var userNameLabel: UILabel!
     @IBOutlet var userComment: UILabel!
     @IBOutlet var timeAgo: UILabel!
+    
+    override func awakeFromNib() {
+        super.awakeFromNib()
+        
+        // Initialization code
+        userImageView.backgroundColor = sprubixGray
+        userImageView.contentMode = UIViewContentMode.ScaleAspectFit
+        userImageView.layer.cornerRadius = userImageView.frame.size.width / 2
+        userImageView.clipsToBounds = true
+        userImageView.layer.borderWidth = 0.5
+        userImageView.layer.borderColor = UIColor.lightGrayColor().CGColor
+    }
 }

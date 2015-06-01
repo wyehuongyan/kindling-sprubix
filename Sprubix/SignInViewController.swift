@@ -165,7 +165,7 @@ class SignInViewController: UIViewController, UITextFieldDelegate, UITableViewDa
                         defaults.synchronize()
                         
                         //self.saveCookies(userId);
-                        self.retrieveFirebaseToken()
+                        FirebaseAuth.retrieveFirebaseToken()
                         
                         // redirect to containerViewController (not sprubixFeedController)
                         self.dismissViewControllerAnimated(true, completion: nil)
@@ -189,89 +189,6 @@ class SignInViewController: UIViewController, UITextFieldDelegate, UITableViewDa
         
     }
     
-    // Firebase
-    func retrieveFirebaseToken() {
-        let userData: NSDictionary? = defaults.dictionaryForKey("userData")
-        
-        if userData != nil {
-            let username = userData!["username"] as! String
-            let firebaseToken: String? = SSKeychain.passwordForService("firebase", account: username)
-            
-            if firebaseToken != nil {
-                authenticateFirebase()
-            } else {
-                manager.GET(SprubixConfig.URL.api + "/auth/firebase/token",
-                    parameters: nil,
-                    success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
-                        
-                        var data = responseObject as! NSDictionary
-                        let token = data["token"] as! String
-                        
-                        SSKeychain.setPassword(token, forService: "firebase", account: username)
-                        
-                        //println(SSKeychain.passwordForService("firebase", account: username))
-                        
-                        self.authenticateFirebase()
-                    },
-                    failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
-                        println("Error: " + error.localizedDescription)
-                })
-            }
-            
-        } else {
-            println("userData not found, please login or create an account")
-        }
-    }
-    
-    func authenticateFirebase() {
-        // handle token expiration gracefully
-        let handle = firebaseRef.observeAuthEventWithBlock { authData in
-            if authData != nil {
-                // user authenticated with Firebase
-                println("User already authenticated with Firebase! \(authData)")
-            } else {
-                let userData: NSDictionary? = defaults.dictionaryForKey("userData")
-                
-                // user is logged in
-                if userData != nil {
-                    let username = userData!["username"] as! String
-                    let firebaseToken: String? = SSKeychain.passwordForService("firebase", account: username)
-                    
-                    // auth with firebase
-                    firebaseRef.authWithCustomToken(firebaseToken, withCompletionBlock: { error, authData in
-                        if error != nil {
-                            println("Firebase Login failed! \(error)")
-                        } else {
-                            println("Firebase Login succeeded! \(authData)")
-                            
-                            // check if firebase has user data, if not, write it to firebase
-                            var userRef = firebaseRef.childByAppendingPath("users/\(username)")
-                            
-                            userRef.observeSingleEventOfType(.Value, withBlock: {
-                                snapshot in
-                                
-                                var result = ((snapshot.value as? NSNull) != nil) ? "is not" : "is"
-                                println("\(username.capitalizeFirst) \(result) an entry in Users firebase.")
-                                
-                                if (snapshot.value as? NSNull) != nil {
-                                    // does not exist, add it
-                                    var userInfo = ["username": userData!["username"] as! String,
-                                        "id": userData!["id"] as! Int,
-                                        "image": userData!["image"] as! String]
-                                    
-                                    userRef.setValue(userInfo)
-                                    println("userInfo added to firebase")
-                                }
-                            })
-                        }
-                    })
-                    
-                } else {
-                    println("userData not found, please login or create an account")
-                }
-            }
-        }
-    }
     
     /**
     * Handler for keyboard change event

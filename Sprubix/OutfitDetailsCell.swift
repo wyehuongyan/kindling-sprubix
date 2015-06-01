@@ -339,14 +339,25 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
     
     // button callbacks
     func addComments(sender: UIButton) {
-        if commentsViewController == nil {
-            commentsViewController = UIStoryboard(name: "Main", bundle: NSBundle.mainBundle()).instantiateViewControllerWithIdentifier("CommentsView") as? CommentsViewController
-        }
+        commentsViewController = UIStoryboard(name: "Main", bundle: NSBundle.mainBundle()).instantiateViewControllerWithIdentifier("CommentsView") as? CommentsViewController
         
         if sender == commentRowButton.postCommentButton {
             commentsViewController?.showKeyboard = true
         }
         
+        // init
+        let outfitId = outfit["id"] as! Int
+        let outfitImagesString = outfit["images"] as! NSString
+        let outfitImagesData:NSData = outfitImagesString.dataUsingEncoding(NSUTF8StringEncoding)!
+        
+        let outfitImagesDict: NSDictionary = NSJSONSerialization.JSONObjectWithData(outfitImagesData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSDictionary
+        let outfitImageDict: NSDictionary = outfitImagesDict["images"] as! NSDictionary
+        
+        let thumbnailURLString = outfitImageDict["thumbnail"] as! String
+        
+        commentsViewController?.poutfitImageURL = thumbnailURLString
+        commentsViewController?.receiverUsername = user["username"] as! String
+        commentsViewController?.poutfitIdentifier = "outfit_\(outfitId)"
         commentsViewController?.prevViewIsOutfit = true
         
         navController!.delegate = nil

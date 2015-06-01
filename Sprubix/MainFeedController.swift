@@ -77,6 +77,9 @@ class MainFeedController: UIViewController, UICollectionViewDataSource, OutfitIn
         mainCollectionView.insertSubview(refreshControl, atIndex: 0)
         refreshControl.endRefreshing()
         
+        // if sign in view doesnt appear due to cookies
+        FirebaseAuth.retrieveFirebaseToken()
+        
         initButtons()
     }
     
@@ -177,6 +180,8 @@ class MainFeedController: UIViewController, UICollectionViewDataSource, OutfitIn
             })
         } else {
             println("userId not found, please login or create an account")
+            
+            
         }
     }
     
@@ -431,7 +436,7 @@ class MainFeedController: UIViewController, UICollectionViewDataSource, OutfitIn
                     
                     let like = [
                         "author": senderUsername, // yourself
-                        "created_at": timestamp,
+                        "created_at": createdAt,
                         "poutfit": itemIdentifier
                     ]
                     
@@ -520,12 +525,14 @@ class MainFeedController: UIViewController, UICollectionViewDataSource, OutfitIn
         }
     }
     
-    func commentOutfit() {
-        if commentsViewController == nil {
-            commentsViewController = UIStoryboard(name: "Main", bundle: NSBundle.mainBundle()).instantiateViewControllerWithIdentifier("CommentsView") as? CommentsViewController
-        }
+    func commentOutfit(poutfitIdentifier: String, thumbnailURLString: String, receiverUsername: String) {
+        commentsViewController = UIStoryboard(name: "Main", bundle: NSBundle.mainBundle()).instantiateViewControllerWithIdentifier("CommentsView") as? CommentsViewController
         
+        // init
         commentsViewController?.prevViewIsOutfit = true
+        commentsViewController?.poutfitImageURL = thumbnailURLString
+        commentsViewController?.receiverUsername = receiverUsername
+        commentsViewController?.poutfitIdentifier = poutfitIdentifier
         
         navigationController!.delegate = nil
         navigationController!.pushViewController(commentsViewController!, animated: true)

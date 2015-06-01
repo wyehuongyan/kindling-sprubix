@@ -27,4 +27,11 @@ var timestamp: String {
 }
 
 // notifications
+var sprubixNotificationViewController: NotificationViewController?
 var mainBadge: UILabel = UILabel()
+
+// there are 3 places where sprubixNotificationViewController is init
+// 1. after signing in to sprubix and logging into firebase when retrieve a new token (SignInViewController)
+// 2. when clicking on notifications option in side panel (ContainerViewController)
+// 3. when mainfeed's viewDidAppear (MainFeedController)
+// reasons: 1 happens when token expires and new token is retrieve, and a relogin is done. 3 happens when there's no sign in (due to cookies). 2 is incase 1 and 3 fails.

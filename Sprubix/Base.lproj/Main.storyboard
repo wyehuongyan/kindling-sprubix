@@ -653,6 +653,9 @@
                                         <state key="normal" title="Send">
                                             <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                         </state>
+                                        <state key="disabled" title="Send">
+                                            <color key="titleColor" red="0.89803921568627454" green="0.89803921568627454" blue="0.89803921568627454" alpha="1" colorSpace="calibratedRGB"/>
+                                        </state>
                                         <userDefinedRuntimeAttributes>
                                             <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
                                                 <integer key="value" value="3"/>
@@ -693,6 +696,7 @@
                         <outlet property="commentViewBottomConstraint" destination="bsq-IG-KUo" id="ziQ-zc-diw"/>
                         <outlet property="commentsTableView" destination="yas-Qy-z2O" id="lWJ-l5-4Dq"/>
                         <outlet property="commentsTableViewBottomConstraint" destination="QLZ-fg-wNo" id="iF2-0N-Nzx"/>
+                        <outlet property="sendCommentButton" destination="Q7M-0t-VSP" id="ufO-w1-mmO"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="X0M-R4-a7n" userLabel="First Responder" sceneMemberID="firstResponder"/>

@@ -12,6 +12,7 @@ target "Sprubix" do
   pod 'MRProgress/AFNetworking', '~> 0.8.2'
   pod 'Firebase', '>= 2.2.2'
   pod 'SSKeychain', '~> 1.2.3'
+  pod 'SVPullToRefresh', '~> 0.4.1'
 end
 
 target "SprubixTests" do

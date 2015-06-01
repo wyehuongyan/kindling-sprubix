@@ -243,3 +243,112 @@ class Glow {
         item.layer.masksToBounds = false
     }
 }
+
+// Firebase
+class FirebaseAuth {
+    class func retrieveFirebaseToken() {
+        let userData: NSDictionary? = defaults.dictionaryForKey("userData")
+        
+        if userData != nil {
+            let username = userData!["username"] as! String
+            let firebaseToken: String? = SSKeychain.passwordForService("firebase", account: username)
+            
+            if firebaseToken != nil {
+                authenticateFirebase()
+            } else {
+                // retrieving token from kindling core
+                println("Retrieving Firebase token from server...")
+                manager.GET(SprubixConfig.URL.api + "/auth/firebase/token",
+                    parameters: nil,
+                    success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                        
+                        var data = responseObject as! NSDictionary
+                        let token = data["token"] as! String
+                        
+                        SSKeychain.setPassword(token, forService: "firebase", account: username)
+                        
+                        //println(SSKeychain.passwordForService("firebase", account: username))
+                        
+                        self.authenticateFirebase()
+                    },
+                    failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                        println("Error: " + error.localizedDescription)
+                })
+            }
+            
+        } else {
+            println("FirebaseAuth.retrieveFirebaseToken: userData not found, please login or create an account")
+        }
+    }
+
+    class func authenticateFirebase() {
+        // handle token expiration gracefully
+        let handle = firebaseRef.observeAuthEventWithBlock { authData in
+            if authData != nil {
+                // user authenticated with Firebase
+                println("User already authenticated with Firebase! \(authData)")
+                
+                if sprubixNotificationViewController == nil {
+                    sprubixNotificationViewController = UIStoryboard.notificationViewController()
+                }
+            } else {
+                // user is logged out, need to reauthenticate
+                let userData: NSDictionary? = defaults.dictionaryForKey("userData")
+                
+                // user is logged in
+                if userData != nil {
+                    let username = userData!["username"] as! String
+                    let firebaseToken: String? = SSKeychain.passwordForService("firebase", account: username)
+                    
+                    // auth with firebase
+                    firebaseRef.authWithCustomToken(firebaseToken, withCompletionBlock: { error, authData in
+                        if error != nil {
+                            var description = (error.userInfo! as NSDictionary)["NSLocalizedDescription"] as! String
+                            
+                            println("Firebase Login failed!\n\(error.code)\n\(description)")
+                            
+                            // if code=9999 expired_token
+                            if (error.code == 9999 && description == "expired_token") {
+                                // remove token from SSKeychain and retrieve firebase token from server again
+                                SSKeychain.deletePasswordForService("firebase", account: username)
+                                
+                                self.retrieveFirebaseToken()
+                            }
+                            
+                        } else {
+                            println("Firebase Login succeeded! \(authData)")
+                            
+                            // check if firebase has user data, if not, write it to firebase
+                            var userRef = firebaseRef.childByAppendingPath("users/\(username)")
+                            
+                            userRef.observeSingleEventOfType(.Value, withBlock: {
+                                snapshot in
+                                
+                                var result = ((snapshot.value as? NSNull) != nil) ? "is not" : "is"
+                                println("\(username.capitalizeFirst) \(result) an entry in Users firebase.")
+                                
+                                if (snapshot.value as? NSNull) != nil {
+                                    // does not exist, add it
+                                    var userInfo = ["username": userData!["username"] as! String,
+                                        "id": userData!["id"] as! Int,
+                                        "image": userData!["image"] as! String]
+                                    
+                                    userRef.setValue(userInfo)
+                                    println("userInfo added to firebase")
+                                }
+                                
+                                // finally, init notificationViewController
+                                if sprubixNotificationViewController == nil {
+                                    sprubixNotificationViewController = UIStoryboard.notificationViewController()
+                                }
+                            })
+                        }
+                    })
+                    
+                } else {
+                    println("FirebaseAuth.authenticateFirebase: userData not found, please login or create an account")
+                }
+            }
+        }
+    }
+}
