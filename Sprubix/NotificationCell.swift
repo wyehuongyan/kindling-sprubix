@@ -12,8 +12,12 @@ class NotificationCell: UITableViewCell {
     
     @IBOutlet var userImageView: UIImageView!
     @IBOutlet var itemImageView: UIImageView!
-    @IBOutlet var notificationLabel: UILabel!
+    @IBOutlet var notificationLabel: SprubixTweetLabel!
 
+    var senderUsername: String?
+    var itemType: String?
+    var itemId: Int?
+    
     override func awakeFromNib() {
         super.awakeFromNib()
         

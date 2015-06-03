@@ -234,6 +234,14 @@ class SprubixCreditButton: UIButton {
     }
 }
 
+class SprubixTweetLabel: STTweetLabel {
+    override func intrinsicContentSize() -> CGSize {
+        var size: CGSize = self.suggestedFrameSizeToFitEntireStringConstrainedToWidth(screenWidth - 120)
+        
+        return CGSizeMake(size.width, size.height)
+    }
+}
+
 class Glow {
     class func addGlow(item: AnyObject) {
         item.layer.shadowColor = UIColor.blackColor().CGColor

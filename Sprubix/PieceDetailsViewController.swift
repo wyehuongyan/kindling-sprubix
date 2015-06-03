@@ -75,7 +75,7 @@ class PieceDetailsViewController: UICollectionViewController, UICollectionViewDe
             // reset to nil
             collectionCell.commentsViewController = nil
             
-            if prevChild.isKindOfClass(OutfitDetailsViewController) {
+            if prevChild.isKindOfClass(OutfitDetailsViewController) || prevChild.isKindOfClass(NotificationViewController) {
                 //println("this is how we roll")
                 self.navigationController!.delegate = nil
                 

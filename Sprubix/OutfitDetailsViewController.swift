@@ -73,11 +73,27 @@ class OutfitDetailsViewController: UICollectionViewController, UICollectionViewD
         collectionCell.pullAction = { offset in
             self.pullOffset = offset
             
+            var childrenCount = self.navigationController!.viewControllers.count
+            var prevChild: AnyObject = self.navigationController!.viewControllers[childrenCount-2]
+            
             // reset to nil
             collectionCell.commentsViewController = nil
             
-            self.navigationController!.delegate = transitionDelegateHolder
-            self.navigationController!.popViewControllerAnimated(true)
+            if prevChild.isKindOfClass(NotificationViewController) {
+                self.navigationController!.delegate = nil
+                
+                let transition = CATransition()
+                transition.duration = 0.3
+                transition.type = kCATransitionReveal
+                transition.subtype = kCATransitionFromBottom
+                transition.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
+                
+                self.navigationController!.view.layer.addAnimation(transition, forKey: kCATransition)
+                self.navigationController!.popViewControllerAnimated(false)
+            } else {
+                self.navigationController!.delegate = transitionDelegateHolder
+                self.navigationController!.popViewControllerAnimated(true)
+            }
         }
         
         // return to main feed

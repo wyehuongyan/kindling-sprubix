@@ -33,42 +33,52 @@ class Transition: NSObject, UIViewControllerAnimatedTransitioning {
             waterFallView.layoutIfNeeded()
             let indexPath = pageView.fromPageIndexPath()
             let gridView = waterFallView.cellForItemAtIndexPath(indexPath)
-            let leftUpperPoint = gridView!.convertPoint(CGPointZero, toView: nil)
             
-            let snapShot = (gridView as! TransitionWaterfallGridViewProtocol).snapShotForTransition()
+            if gridView != nil {
+                let leftUpperPoint = gridView != nil ? gridView!.convertPoint(CGPointZero, toView: nil) : CGPointZero
+                
+                let snapShot = (gridView as! TransitionWaterfallGridViewProtocol).snapShotForTransition()
 
-            let animationScale = screenWidth/(snapShot.frame.width)
-            
-            snapShot.transform = CGAffineTransformMakeScale(animationScale, animationScale)
-            let pullOffsetY = (fromViewController as! HorizontalPageViewControllerProtocol).pageViewCellScrollViewContentOffset().y
-            let offsetY : CGFloat = fromViewController.navigationController?.navigationBarHidden != false ? 0.0 : navigationHeaderAndStatusbarHeight
-            
-            snapShot.origin(CGPointMake(0, -pullOffsetY+offsetY))
-            containerView.addSubview(snapShot)
-            
-            toView.hidden = false
-            toView.alpha = 0
-            toView.transform = snapShot.transform
-            toView.frame = CGRectMake(-(leftUpperPoint.x * animationScale),-((leftUpperPoint.y-offsetY) * animationScale+pullOffsetY+offsetY),
-                toView.frame.size.width, toView.frame.size.height)
-            let whiteViewContainer = UIView(frame: screenBounds)
-            whiteViewContainer.backgroundColor = UIColor.whiteColor()
-            containerView.addSubview(snapShot)
-            containerView.insertSubview(whiteViewContainer, belowSubview: toView)
-            
-            UIView.animateWithDuration(fromViewController.navigationController != nil ? animationDuration : 0, animations: {
-                snapShot.transform = CGAffineTransformIdentity
-                snapShot.frame = CGRectMake(leftUpperPoint.x, leftUpperPoint.y, snapShot.frame.size.width, snapShot.frame.size.height)
-                toView.transform = CGAffineTransformIdentity
+                let animationScale = screenWidth/(snapShot.frame.width)
+                
+                snapShot.transform = CGAffineTransformMakeScale(animationScale, animationScale)
+                let pullOffsetY = (fromViewController as! HorizontalPageViewControllerProtocol).pageViewCellScrollViewContentOffset().y
+                let offsetY : CGFloat = fromViewController.navigationController?.navigationBarHidden != false ? 0.0 : navigationHeaderAndStatusbarHeight
+                
+                snapShot.origin(CGPointMake(0, -pullOffsetY+offsetY))
+                containerView.addSubview(snapShot)
+                
+                toView.hidden = false
+                toView.alpha = 0
+                toView.transform = snapShot.transform
+                toView.frame = CGRectMake(-(leftUpperPoint.x * animationScale),-((leftUpperPoint.y-offsetY) * animationScale+pullOffsetY+offsetY),
+                    toView.frame.size.width, toView.frame.size.height)
+                let whiteViewContainer = UIView(frame: screenBounds)
+                whiteViewContainer.backgroundColor = UIColor.whiteColor()
+                containerView.addSubview(snapShot)
+                containerView.insertSubview(whiteViewContainer, belowSubview: toView)
+                
+                UIView.animateWithDuration(fromViewController.navigationController != nil ? animationDuration : 0, animations: {
+                    snapShot.transform = CGAffineTransformIdentity
+                    snapShot.frame = CGRectMake(leftUpperPoint.x, leftUpperPoint.y, snapShot.frame.size.width, snapShot.frame.size.height)
+                    toView.transform = CGAffineTransformIdentity
+                    toView.frame = CGRectMake(0, 0, toView.frame.size.width, toView.frame.size.height);
+                    toView.alpha = 1
+                    }, completion:{finished in
+                        if finished {
+                            snapShot.removeFromSuperview()
+                            whiteViewContainer.removeFromSuperview()
+                            transitionContext.completeTransition(true)
+                        }
+                })
+            } else {
+                // due to PieceDetailsViewController's return to main feed
+                toView.hidden = false
                 toView.frame = CGRectMake(0, 0, toView.frame.size.width, toView.frame.size.height);
                 toView.alpha = 1
-                }, completion:{finished in
-                    if finished {
-                        snapShot.removeFromSuperview()
-                        whiteViewContainer.removeFromSuperview()
-                        transitionContext.completeTransition(true)
-                    }
-            })
+                
+                transitionContext.completeTransition(true)
+            }
         }else{
             let fromView = fromViewController.view
             let toView = toViewController.view

@@ -8,15 +8,8 @@
 
 import UIKit
 
-@objc
-protocol MainFeedControllerDelegate {
-    optional func toggleSidePanel()
-    func showUserProfile(user: NSDictionary)
-    func showCreateOutfit()
-}
-
 class MainFeedController: UIViewController, UICollectionViewDataSource, OutfitInteractionProtocol, CHTCollectionViewDelegateWaterfallLayout, TransitionProtocol {
-    var delegate: MainFeedControllerDelegate?
+    var delegate: SidePanelViewControllerDelegate?
     
     let mainFeedCellIdentifier = "MainFeedCell"
     var mainCollectionView: UICollectionView!
@@ -529,6 +522,7 @@ class MainFeedController: UIViewController, UICollectionViewDataSource, OutfitIn
         commentsViewController = UIStoryboard(name: "Main", bundle: NSBundle.mainBundle()).instantiateViewControllerWithIdentifier("CommentsView") as? CommentsViewController
         
         // init
+        commentsViewController?.delegate = containerViewController
         commentsViewController?.prevViewIsOutfit = true
         commentsViewController?.poutfitImageURL = thumbnailURLString
         commentsViewController?.receiverUsername = receiverUsername
@@ -539,7 +533,7 @@ class MainFeedController: UIViewController, UICollectionViewDataSource, OutfitIn
     }
     
     func showProfile(user: NSDictionary) {
-        delegate?.showUserProfile(user)
+        delegate?.showUserProfile(user, userName: "")
     }
     
     func tappedOutfit(indexPath: NSIndexPath) {

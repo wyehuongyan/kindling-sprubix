@@ -10,6 +10,8 @@ import UIKit
 
 class NotificationViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
 
+    var delegate: SidePanelViewControllerDelegate?
+    
     @IBOutlet var notificationTableView: UITableView!
     
     // custom nav bar
@@ -119,6 +121,9 @@ class NotificationViewController: UIViewController, UITableViewDataSource, UITab
         notificationTableView.delegate = self
         notificationTableView.dataSource = self
         notificationTableView.rowHeight = UITableViewAutomaticDimension
+        
+        // get rid of line seperator for empty cells
+        notificationTableView.tableFooterView = UIView(frame: CGRectZero)
     }
     
     override func viewWillAppear(animated: Bool) {
@@ -190,24 +195,78 @@ class NotificationViewController: UIViewController, UITableViewDataSource, UITab
         let createdAt = notification["created_at"] as! String
         let duration = calculateDuration(createdAt)
         
-        var notificationMessage = ""
+        cell.selectionStyle = UITableViewCellSelectionStyle.None
+        
+        var notificationMessage: String?
         
         switch type {
         case "like":
-            notificationMessage = "\(senderUsername) liked your item. \(duration) "
+            notificationMessage = "@\(senderUsername) liked your item. \(duration)"
         case "comment":
             let comment = notification["comment"] as! NSDictionary
             let commentBody = comment["body"] as! String
             
-            notificationMessage = "\(senderUsername) left a comment on your item: \(commentBody) \(duration)"
+            notificationMessage = "@\(senderUsername) left a comment on your item: \(commentBody) \(duration)"
         default:
             fatalError("Error: Unknown notification type")
         }
         
-        cell.notificationLabel.text = notificationMessage
+        if notificationMessage != nil {
+            cell.notificationLabel.text = notificationMessage
+            cell.notificationLabel.setAttributes([
+                NSForegroundColorAttributeName: sprubixColor
+                ], hotWord: STTweetHotWord.Handle)
+            
+            cell.notificationLabel.detectionBlock = { (hotWord: STTweetHotWord, string: String!, prot: String!, range: NSRange) in
+            
+                let hotWords: NSArray = ["Handle", "Hashtag", "Link"]
+                let hotWordType: String = hotWords[hotWord.hashValue] as! String
+                
+                println("hotWord type: \(hotWordType)")
+                println("string: \(string)")
+                
+                switch hotWordType {
+                case "Handle":
+                    // go to user profile
+                    self.delegate?.showUserProfile(NSDictionary(), userName: string.stringByReplacingOccurrencesOfString("@", withString: ""))
+                case "HashTag":
+                    // do a search on this hashtag
+                    println("search hashtag")
+                case "Link":
+                    // webview to this link
+                    println("webview to link")
+                default:
+                    fatalError("Error: Invalid STTweetHotWord type.")
+                }
+            }
+        }
+        
+        // user image view
         cell.userImageView.setImageWithURL(senderImageURL)
+        cell.senderUsername = senderUsername
+        
+        let goToUserProfileGestureRecognizer: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: "goToUserProfile:")
+        goToUserProfileGestureRecognizer.numberOfTapsRequired = 1
+        
+        cell.userImageView.addGestureRecognizer(goToUserProfileGestureRecognizer)
+        cell.userImageView.userInteractionEnabled = true
+        
+        // item image view
         cell.itemImageView.setImageWithURL(poutfitImageURL)
-        cell.userInteractionEnabled = false
+        
+        let poutfitKey = poutfit["key"] as! String
+        var poutfitData = split(poutfitKey) {$0 == "_"}
+        var itemType = poutfitData[0]
+        var itemId = poutfitData[1].toInt()
+        
+        cell.itemType = itemType
+        cell.itemId = itemId
+        
+        let goToItemTypeDetailsGestureRecognizer: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: "goToItemTypeDetails:")
+        goToItemTypeDetailsGestureRecognizer.numberOfTapsRequired = 1
+        
+        cell.itemImageView.addGestureRecognizer(goToItemTypeDetailsGestureRecognizer)
+        cell.itemImageView.userInteractionEnabled = true
         
         return cell
     }
@@ -227,6 +286,102 @@ class NotificationViewController: UIViewController, UITableViewDataSource, UITab
         var result = weeks > 0 ? "\(weeks)w" : days > 0 ? "\(days)d" : hours > 0 ? "\(hours)h" : minutes > 0 ? "\(minutes)m" : seconds > 0 ? "\(seconds)s" : "error"
         
         return result
+    }
+    
+    func detailsViewControllerLayout () -> UICollectionViewFlowLayout {
+        let flowLayout = UICollectionViewFlowLayout()
+        
+        let itemSize = CGSizeMake(screenWidth, screenHeight)
+        
+        flowLayout.itemSize = itemSize
+        flowLayout.minimumLineSpacing = 0
+        flowLayout.minimumInteritemSpacing = 0
+        flowLayout.scrollDirection = .Horizontal
+        
+        return flowLayout
+    }
+    
+    // gesture recognizer callbacks
+    func goToUserProfile(gesture: UITapGestureRecognizer) {
+        let parentView = gesture.view?.superview
+        
+        if parentView != nil {
+            var notificationCell = parentView?.superview as! NotificationCell
+            
+            delegate?.showUserProfile(NSDictionary(), userName: notificationCell.senderUsername!)
+        }
+    }
+    
+    func goToItemTypeDetails(gesture: UITapGestureRecognizer) {
+        let parentView = gesture.view?.superview
+        
+        if parentView != nil {
+            var notificationCell = parentView?.superview as! NotificationCell
+            
+            var itemType = notificationCell.itemType
+            var itemId = notificationCell.itemId
+            
+            switch itemType! {
+            case "outfit":
+                // REST call to server to retrieve outfit
+                manager.POST(SprubixConfig.URL.api + "/outfits",
+                    parameters: [
+                        "id": itemId!
+                    ],
+                    success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                        
+                        var outfit = (responseObject["data"] as! NSArray)[0] as! NSDictionary
+                        
+                        let outfitDetailsViewController = OutfitDetailsViewController(collectionViewLayout: self.detailsViewControllerLayout(), currentIndexPath: NSIndexPath(forRow: 0, inSection: 0))
+                        
+                        outfitDetailsViewController.outfits = [outfit]
+                        
+                        // push outfitDetailsViewController onto navigation stack
+                        let transition = CATransition()
+                        transition.duration = 0.3
+                        transition.type = kCATransitionMoveIn
+                        transition.subtype = kCATransitionFromTop
+                        transition.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
+                        
+                        self.navigationController?.view.layer.addAnimation(transition, forKey: kCATransition)
+                        self.navigationController!.pushViewController(outfitDetailsViewController, animated: false)
+                    },
+                    failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                        println("Error: " + error.localizedDescription)
+                })
+                
+            case "piece":
+                // REST call to server to retrieve piece
+                manager.POST(SprubixConfig.URL.api + "/pieces",
+                    parameters: [
+                        "id": itemId!
+                    ],
+                    success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                        
+                        var piece = (responseObject["data"] as! NSArray)[0] as! NSDictionary
+                        
+                        let pieceDetailsViewController = PieceDetailsViewController(collectionViewLayout: self.detailsViewControllerLayout(), currentIndexPath: NSIndexPath(forRow: 0, inSection: 0))
+                        
+                        pieceDetailsViewController.pieces = [piece]
+                        pieceDetailsViewController.user = piece["user"] as! NSDictionary
+                        
+                        // push outfitDetailsViewController onto navigation stack
+                        let transition = CATransition()
+                        transition.duration = 0.3
+                        transition.type = kCATransitionMoveIn
+                        transition.subtype = kCATransitionFromTop
+                        transition.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
+                        
+                        self.navigationController?.view.layer.addAnimation(transition, forKey: kCATransition)
+                        self.navigationController!.pushViewController(pieceDetailsViewController, animated: false)
+                    },
+                    failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                        println("Error: " + error.localizedDescription)
+                })
+            default:
+                fatalError("Error: Invalid notification cell item type.")
+            }
+        }
     }
     
     func backTapped(sender: UIBarButtonItem) {

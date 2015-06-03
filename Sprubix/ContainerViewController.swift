@@ -13,7 +13,7 @@ enum SlideOutState {
     case SidePanelExpanded
 }
 
-class ContainerViewController: UIViewController, MainFeedControllerDelegate, SidePanelViewControllerDelegate {
+class ContainerViewController: UIViewController, SidePanelViewControllerDelegate {
     
     var currentState: SlideOutState = .Collapsed {
         didSet {
@@ -50,9 +50,6 @@ class ContainerViewController: UIViewController, MainFeedControllerDelegate, Sid
         
         //let panGestureRecognizer = UIPanGestureRecognizer(target: self, action: "handlePanGesture:")
         //sprubixNavigationController.view.addGestureRecognizer(panGestureRecognizer)
-        
-        // notifications
-        //notificationViewController = UIStoryboard.notificationViewController()
     }
     
     override func prefersStatusBarHidden() -> Bool {
@@ -60,9 +57,12 @@ class ContainerViewController: UIViewController, MainFeedControllerDelegate, Sid
     }
     
     // MainFeedControllerDelegate
-    func showUserProfile(user: NSDictionary) {
-        if userProfileViewController == nil {
-            userProfileViewController = UIStoryboard.userProfileViewController()
+    func showUserProfile(user: NSDictionary, userName: String = "") {
+        userProfileViewController = UIStoryboard.userProfileViewController()
+        
+        if userName != "" {
+            userProfileViewController?.userName = userName
+        } else {
             userProfileViewController?.user = user
         }
         
@@ -87,6 +87,7 @@ class ContainerViewController: UIViewController, MainFeedControllerDelegate, Sid
         
         self.closeSidePanel()
         
+        sprubixNotificationViewController?.delegate = self
         sprubixNavigationController.delegate = nil
         sprubixNavigationController.pushViewController(sprubixNotificationViewController!, animated: true)
     }

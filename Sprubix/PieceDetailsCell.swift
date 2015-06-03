@@ -411,6 +411,21 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
             commentsViewController?.showKeyboard = true
         }
         
+        // init
+        let pieceId = piece["id"] as! Int
+        let pieceImagesString = piece["images"] as! NSString
+        let pieceImagesData:NSData = pieceImagesString.dataUsingEncoding(NSUTF8StringEncoding)!
+        
+        let pieceImagesDict: NSDictionary = NSJSONSerialization.JSONObjectWithData(pieceImagesData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSDictionary
+        let pieceImageDict: NSDictionary = (pieceImagesDict["images"] as! NSArray)[0] as! NSDictionary // position 0 is the cover
+        
+        let thumbnailURLString = pieceImageDict["thumbnail"] as! String
+        
+        commentsViewController?.delegate = containerViewController
+        commentsViewController?.poutfitImageURL = thumbnailURLString
+        commentsViewController?.receiverUsername = user["username"] as! String
+        commentsViewController?.poutfitIdentifier = "piece_\(pieceId)"
+        
         navController!.delegate = nil
         navController!.pushViewController(commentsViewController!, animated: true)
     }

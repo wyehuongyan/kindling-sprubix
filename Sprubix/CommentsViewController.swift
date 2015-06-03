@@ -10,6 +10,8 @@ import UIKit
 
 class CommentsViewController: UIViewController, UITextViewDelegate, UITableViewDataSource, UITableViewDelegate {
     
+    var delegate: SidePanelViewControllerDelegate?
+    
     var poutfitIdentifier: String!
     var poutfitImageURL: String!
     var receiverUsername: String!
@@ -102,6 +104,10 @@ class CommentsViewController: UIViewController, UITextViewDelegate, UITableViewD
                         "unread": true
                     ]
                     
+                    // check if commentTextView contains mentions
+                    // // for each mention, create a new notification for the receiver
+                    
+                    
                     self.commentTextView.text = ""
                     self.sendCommentButton.enabled = false
                     
@@ -171,6 +177,9 @@ class CommentsViewController: UIViewController, UITextViewDelegate, UITableViewD
         commentsTableView.delegate = self
         commentsTableView.dataSource = self
         commentsTableView.rowHeight = UITableViewAutomaticDimension
+        
+        // get rid of line seperator for empty cells
+        commentsTableView.tableFooterView = UIView(frame: CGRectZero)
         
         // gesture recognizer on tableview to dismiss keyboard on tap
         dismissKeyboardTap = UITapGestureRecognizer(target: self, action: "dismissKeyboard:")
@@ -309,10 +318,47 @@ class CommentsViewController: UIViewController, UITextViewDelegate, UITableViewD
         let createAt = comment["created_at"] as! String
         let duration = calculateDuration(createAt)
         
+        cell.selectionStyle = UITableViewCellSelectionStyle.None
         cell.userNameLabel.text = author["username"] as? String
-        cell.userImageView.setImageWithURL(authorImageURL)
-        cell.userComment.text = comment["body"] as? String
         cell.timeAgo.text = duration
+        
+        // userComment actions
+        cell.userComment.text = comment["body"] as? String
+        cell.userComment.setAttributes([
+            NSForegroundColorAttributeName: sprubixColor
+            ], hotWord: STTweetHotWord.Handle)
+        cell.userComment.detectionBlock = { (hotWord: STTweetHotWord, string: String!, prot: String!, range: NSRange) in
+            
+            let hotWords: NSArray = ["Handle", "Hashtag", "Link"]
+            let hotWordType: String = hotWords[hotWord.hashValue] as! String
+            
+            println("hotWord type: \(hotWordType)")
+            println("string: \(string)")
+            
+            switch hotWordType {
+            case "Handle":
+                // go to user profile
+                self.delegate?.showUserProfile(NSDictionary(), userName: string.stringByReplacingOccurrencesOfString("@", withString: ""))
+            case "HashTag":
+                // do a search on this hashtag
+                println("search hashtag")
+            case "Link":
+                // webview to this link
+                println("webview to link")
+            default:
+                fatalError("Error: Invalid STTweetHotWord type.")
+            }
+        }
+        
+        // user image view
+        cell.userImageView.setImageWithURL(authorImageURL)
+        cell.authorName = author["username"] as? String
+        
+        let goToUserProfileGestureRecognizer: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: "goToUserProfile:")
+        goToUserProfileGestureRecognizer.numberOfTapsRequired = 1
+    
+        cell.userImageView.addGestureRecognizer(goToUserProfileGestureRecognizer)
+        cell.userImageView.userInteractionEnabled = true
         
         return cell
     }
@@ -416,6 +462,17 @@ class CommentsViewController: UIViewController, UITextViewDelegate, UITableViewD
             sendCommentButton.enabled = false
         } else {
             sendCommentButton.enabled = true
+        }
+    }
+    
+    // gesture recognizer callbacks
+    func goToUserProfile(gesture: UITapGestureRecognizer) {
+        let parentView = gesture.view?.superview
+        
+        if parentView != nil {
+            var commentCell = parentView?.superview as! CommentCell
+            
+            delegate?.showUserProfile(NSDictionary(), userName: commentCell.authorName!)
         }
     }
 

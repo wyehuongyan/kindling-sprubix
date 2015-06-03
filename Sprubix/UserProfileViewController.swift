@@ -16,11 +16,12 @@ enum ProfileState {
 
 class UserProfileViewController: UIViewController, UICollectionViewDataSource, CHTCollectionViewDelegateWaterfallLayout, TransitionProtocol, UserProfileHeaderDelegate {
     
-    var user:NSDictionary!
+    var user: NSDictionary?
+    var userName: String?
     
-    var outfitsLoaded:Bool = false
-    var piecesLoaded:Bool = false
-    var communityLoaded:Bool = false
+    var outfitsLoaded: Bool = false
+    var piecesLoaded: Bool = false
+    var communityLoaded: Bool = false
     
     let profileOutfitCellIdentifier = "ProfileOutfitCell"
     let profilePieceCellIdentifier = "ProfilePieceCell"
@@ -49,11 +50,33 @@ class UserProfileViewController: UIViewController, UICollectionViewDataSource, C
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        initUserProfile()
-        
-        // call to servers
-        loadUserFollow()
-        loadUserOutfits()
+        if user != nil {
+            initUserProfile()
+            
+            // call to servers
+            loadUserFollow()
+            loadUserOutfits()
+        } else {
+            // REST call to server to retrieve user details
+            manager.POST(SprubixConfig.URL.api + "/users",
+                parameters: [
+                    "username": userName!
+                ],
+                success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                    
+                    var user = (responseObject["data"] as! NSArray)[0] as! NSDictionary
+                    self.user = user
+                    
+                    self.initUserProfile()
+                    
+                    // call to servers
+                    self.loadUserFollow()
+                    self.loadUserOutfits()
+                },
+                failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                    println("Error: " + error.localizedDescription)
+            })
+        }
         
         self.navigationController!.delegate = transitionDelegateHolder
     }
@@ -105,12 +128,8 @@ class UserProfileViewController: UIViewController, UICollectionViewDataSource, C
     
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
-
-        if profileCollectionView.contentOffset.y > 22 {
-            self.navigationController?.setNavigationBarHidden(true, animated: true)
-        } else {
-            self.navigationController?.setNavigationBarHidden(false, animated: true)
-        }
+        
+        self.navigationController?.setNavigationBarHidden(false, animated: true)
         
         self.navigationController?.navigationBar.setBackgroundImage(UIImage(), forBarMetrics: UIBarMetrics.Default)
         self.navigationController?.navigationBar.shadowImage = UIImage()
@@ -244,7 +263,11 @@ class UserProfileViewController: UIViewController, UICollectionViewDataSource, C
         if kind == CHTCollectionElementKindSectionHeader {
             reusableView = collectionView.dequeueReusableSupplementaryViewOfKind(kind, withReuseIdentifier: userProfileHeaderIdentifier, forIndexPath: indexPath) as! UserProfileHeader
             
-            (reusableView as! UserProfileHeader).user = user
+            if user != nil {
+                (reusableView as! UserProfileHeader).user = user
+            } else {
+                
+            }
             (reusableView as! UserProfileHeader).setProfileInfo()
             (reusableView as! UserProfileHeader).delegate = self
             
@@ -298,7 +321,7 @@ class UserProfileViewController: UIViewController, UICollectionViewDataSource, C
     }
     
     func loadUserFollow() {
-        let targetUserId:Int? = user["id"] as? Int
+        let targetUserId:Int? = user!["id"] as? Int
         let userId:Int? = defaults.objectForKey("userId") as? Int
         
         if targetUserId != nil && targetUserId != userId {
@@ -318,7 +341,7 @@ class UserProfileViewController: UIViewController, UICollectionViewDataSource, C
     // UserProfileHeaderDelegate
     func loadUserOutfits() {
         if outfitsLoaded != true {
-            var userId:Int? = user["id"] as? Int
+            var userId:Int? = user!["id"] as? Int
             
             if userId != nil {
                 manager.GET(SprubixConfig.URL.api + "/user/\(userId!)/outfits",
@@ -353,7 +376,7 @@ class UserProfileViewController: UIViewController, UICollectionViewDataSource, C
     
     func loadUserPieces() {
         if piecesLoaded != true {
-            var userId:Int? = user["id"] as? Int
+            var userId:Int? = user!["id"] as? Int
             
             if userId != nil {
                 manager.GET(SprubixConfig.URL.api + "/user/\(userId!)/pieces",
@@ -386,7 +409,7 @@ class UserProfileViewController: UIViewController, UICollectionViewDataSource, C
     
     func loadCommunityOutfits() {
         if communityLoaded != true {
-            var userId:Int? = user["id"] as? Int
+            var userId:Int? = user!["id"] as? Int
             
             if userId != nil {
                 manager.GET(SprubixConfig.URL.api + "/user/\(userId!)/outfits/community",

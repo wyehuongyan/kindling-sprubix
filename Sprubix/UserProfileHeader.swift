@@ -33,7 +33,8 @@ class UserProfileHeader: UICollectionReusableView, UIScrollViewDelegate {
     var userInfoScrollView:UIScrollView!
     
     var delegate: UserProfileHeaderDelegate?
-    var user: NSDictionary!
+    var user: NSDictionary?
+    var userName: String?
     
     var profileImage:UIImageView!
     var profileRealName:UILabel!
@@ -212,17 +213,19 @@ class UserProfileHeader: UICollectionReusableView, UIScrollViewDelegate {
     }
     
     func setProfileInfo() {
-        let userThumbnailURL = NSURL(string: user["image"] as! String)
-        let userCoverURL = NSURL(string: user["cover"] as! String)
-        let username = user["username"] as! String!
-        let name = user["name"] as! String!
+        if user != nil {
+            let userThumbnailURL = NSURL(string: user!["image"] as! String)
+            let userCoverURL = NSURL(string: user!["cover"] as! String)
+            let username = user!["username"] as! String!
+            let name = user!["name"] as! String!
 
-        profileImage.setImageWithURL(userThumbnailURL)
-        coverImageContent.setImageWithURL(userCoverURL)
-        
-        profileRealName.text = name
-        profileName.text = "@\(username)"
-        profileDescription.text = user["description"] as? String
+            profileImage.setImageWithURL(userThumbnailURL)
+            coverImageContent.setImageWithURL(userCoverURL)
+            
+            profileRealName.text = name
+            profileName.text = "@\(username)"
+            profileDescription.text = user!["description"] as? String
+        }
     }
     
     func scrollViewDidScroll(scrollView: UIScrollView) {

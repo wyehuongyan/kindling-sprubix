@@ -12,8 +12,10 @@ class CommentCell: UITableViewCell {
 
     @IBOutlet var userImageView: UIImageView!
     @IBOutlet var userNameLabel: UILabel!
-    @IBOutlet var userComment: UILabel!
+    @IBOutlet var userComment: SprubixTweetLabel!
     @IBOutlet var timeAgo: UILabel!
+    
+    var authorName: String?
     
     override func awakeFromNib() {
         super.awakeFromNib()

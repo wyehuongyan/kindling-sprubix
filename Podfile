@@ -13,6 +13,7 @@ target "Sprubix" do
   pod 'Firebase', '>= 2.2.2'
   pod 'SSKeychain', '~> 1.2.3'
   pod 'SVPullToRefresh', '~> 0.4.1'
+  pod 'STTweetLabel', '~> 3.1.2'
 end
 
 target "SprubixTests" do

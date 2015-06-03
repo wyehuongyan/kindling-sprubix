@@ -355,6 +355,7 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
         
         let thumbnailURLString = outfitImageDict["thumbnail"] as! String
         
+        commentsViewController?.delegate = containerViewController
         commentsViewController?.poutfitImageURL = thumbnailURLString
         commentsViewController?.receiverUsername = user["username"] as! String
         commentsViewController?.poutfitIdentifier = "outfit_\(outfitId)"
