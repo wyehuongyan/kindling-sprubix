@@ -465,7 +465,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="60" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="IXI-Tp-YWd">
-                                <rect key="frame" x="0.0" y="44" width="600" height="556"/>
+                                <rect key="frame" x="0.0" y="64" width="600" height="536"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <prototypes>
                                     <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="NotificationCell" rowHeight="61" id="LNk-PH-asS" customClass="NotificationCell" customModule="Sprubix" customModuleProvider="target">
@@ -527,8 +527,8 @@
                         <constraints>
                             <constraint firstAttribute="trailing" secondItem="IXI-Tp-YWd" secondAttribute="trailing" id="C5n-oQ-qJY"/>
                             <constraint firstItem="IXI-Tp-YWd" firstAttribute="leading" secondItem="lff-C3-6mU" secondAttribute="leading" id="DMb-n2-Ou7"/>
+                            <constraint firstItem="IXI-Tp-YWd" firstAttribute="top" secondItem="ofI-NR-gVO" secondAttribute="bottom" constant="44" id="YQZ-J3-Ogk"/>
                             <constraint firstItem="oXa-4q-bkw" firstAttribute="top" secondItem="IXI-Tp-YWd" secondAttribute="bottom" id="nyO-AC-GKZ"/>
-                            <constraint firstItem="IXI-Tp-YWd" firstAttribute="top" secondItem="lff-C3-6mU" secondAttribute="top" constant="44" id="wOQ-ep-4U1"/>
                         </constraints>
                     </view>
                     <nil key="simulatedTopBarMetrics"/>
@@ -577,7 +577,7 @@
                                                 </imageView>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="751" verticalHuggingPriority="751" horizontalCompressionResistancePriority="751" verticalCompressionResistancePriority="751" placeholderIntrinsicWidth="480" placeholderIntrinsicHeight="17" text="User Name" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="480" translatesAutoresizingMaskIntoConstraints="NO" id="2Rb-OZ-vrS">
                                                     <rect key="frame" x="60" y="10" width="480" height="17"/>
-                                                    <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                                                    <fontDescription key="fontDescription" type="system" weight="medium" pointSize="15"/>
                                                     <color key="textColor" red="1" green="0.40000000000000002" blue="0.42352941179999998" alpha="1" colorSpace="calibratedRGB"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>

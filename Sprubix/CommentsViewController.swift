@@ -8,6 +8,12 @@
 
 import UIKit
 
+enum CommentTableState {
+    case Comments
+    case Handles
+    case Hashtags
+}
+
 class CommentsViewController: UIViewController, UITextViewDelegate, UITableViewDataSource, UITableViewDelegate {
     
     var delegate: SidePanelViewControllerDelegate?
@@ -32,6 +38,10 @@ class CommentsViewController: UIViewController, UITextViewDelegate, UITableViewD
     
     let commentCellIdentifier: String = "CommentCell"
     var comments: [NSDictionary] = [NSDictionary]()
+    var following: [NSDictionary] = [NSDictionary]()
+    
+    var currentCommentTableState: CommentTableState = .Comments
+    var currentlyTypedHandle: String!
     
     @IBOutlet var sendCommentButton: UIButton!
     @IBAction func sendComment(sender: AnyObject) {
@@ -53,6 +63,7 @@ class CommentsViewController: UIViewController, UITextViewDelegate, UITableViewD
             let senderUsername = userData!["username"] as! String
             let senderImage = userData!["image"] as! String
             let createdAt = timestamp
+            let commentBody = commentTextView.text
             
             // add a new comment
             let commentRef = commentsRef.childByAutoId()
@@ -99,15 +110,122 @@ class CommentsViewController: UIViewController, UITextViewDelegate, UITableViewD
                         "type": "comment",
                         "comment": [
                             "key": commentRef.key,
-                            "body": self.commentTextView.text
+                            "body": commentBody
                         ],
                         "unread": true
                     ]
                     
                     // check if commentTextView contains mentions
                     // // for each mention, create a new notification for the receiver
+                    let handleMatches = self.matchesForRegexInText("((?:^|\\s)(?:@){1}[0-9a-zA-Z_]{1,15})", text: self.commentTextView.text)
                     
+                    var trimmedHandleMatches = [String]()
+                    for handleMatch in handleMatches {
+                        trimmedHandleMatches.append(handleMatch.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet()))
+                    }
                     
+                    var orderedSet: NSOrderedSet = NSOrderedSet(array: trimmedHandleMatches)
+                    var trimmedHandleMatchesWithoutDuplicates: NSArray = orderedSet.array
+                    
+                    for handleMatch in trimmedHandleMatchesWithoutDuplicates {
+                        var match = handleMatch.stringByReplacingOccurrencesOfString("@", withString: "").stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet())
+                        
+                        // REST call to followingUser to check if you are following this person
+                        // // if true, notify him/her through firebase
+                        manager.POST(SprubixConfig.URL.api + "/user/followed",
+                            parameters: [
+                                "username": match
+                            ],
+                            success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                                
+                                let status = responseObject["status"] as! String
+                                
+                                if status.toInt() == 200 {
+                                    var alreadyFollowed = responseObject["already_followed"] as? Bool
+                                    
+                                    if alreadyFollowed != nil && alreadyFollowed == true {
+                                        // firebase notification
+                                        println("Verified: \(match)")
+                                        
+                                        let mentionedUser = responseObject["followed_user"] as! NSDictionary
+                                        
+                                        let mentionedUserName = mentionedUser["username"] as! String
+                                        
+                                        // create a new notification for this mention
+                                        // // mention is a subclass of comments
+                                        let mentionNotificationRef = notificationsRef.childByAutoId()
+                                        
+                                        let mentionNotification = [
+                                            "poutfit": [
+                                                "key": self.poutfitIdentifier,
+                                                "image": self.poutfitImageURL
+                                            ],
+                                            "created_at": createdAt,
+                                            "sender": [
+                                                "username": senderUsername, // yourself
+                                                "image": senderImage
+                                            ],
+                                            "receiver": self.receiverUsername, // person who posted the outfit
+                                            "mention": mentionedUserName, // person who was mentioned
+                                            "type": "mention",
+                                            "comment": [
+                                                "key": commentRef.key,
+                                                "body": commentBody
+                                            ],
+                                            "unread": true
+                                        ]
+                                        
+                                        mentionNotificationRef.setValue(mentionNotification, withCompletionBlock: {
+                                            (error:NSError?, ref:Firebase!) in
+                                            
+                                            if (error != nil) {
+                                                println("Error: Mention Notification could not be added.")
+                                            } else {
+                                                // update mentioned user notifications
+                                                let mentionedUserNotificationsRef = firebaseRef.childByAppendingPath("users/\(mentionedUserName)/notifications")
+                                                let mentionedUserNotificationRef = mentionedUserNotificationsRef.childByAppendingPath(mentionNotificationRef.key)
+                                                
+                                                mentionedUserNotificationRef.updateChildValues([
+                                                    "created_at": createdAt
+                                                    ], withCompletionBlock: {
+                                                        
+                                                        (error:NSError?, ref:Firebase!) in
+                                                        
+                                                        if (error != nil) {
+                                                            println("Error: Mention Notification Key could not be added to Users.")
+                                                        }
+                                                })
+                                                
+                                                // update comments with mentioned notification key
+                                                let commentMentionNotificationRef = commentRef.childByAppendingPath("mention_notifications/\(mentionNotificationRef.key)")
+                                                
+                                                commentMentionNotificationRef.updateChildValues([
+                                                    "created_at": createdAt,
+                                                    "unread": true
+                                                    ], withCompletionBlock: {
+                                                        
+                                                        (error:NSError?, ref:Firebase!) in
+                                                        
+                                                        if (error != nil) {
+                                                            println("Error: Mention Notification Key could not be added to Comment.")
+                                                        } else {
+                                                            println("Comment Mention Notification added successfully!")
+                                                        }
+                                                })
+                                            }
+                                        })
+                                        
+                                    }
+                                } else {
+                                    println(responseObject["message"])
+                                }
+                            },
+                            failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                                println("Error: " + error.localizedDescription)
+                        })
+                    }
+                    
+                    // clear the textview and disable the button
                     self.commentTextView.text = ""
                     self.sendCommentButton.enabled = false
                     
@@ -140,7 +258,7 @@ class CommentsViewController: UIViewController, UITextViewDelegate, UITableViewD
                                     (error:NSError?, ref:Firebase!) in
                                     
                                     if (error != nil) {
-                                        println("Error: Notification Key could not be added to Likes.")
+                                        println("Error: Notification Key could not be added to Comment.")
                                     } else {
                                         println("Comment sent successfully!")
                                     }
@@ -289,6 +407,7 @@ class CommentsViewController: UIViewController, UITextViewDelegate, UITableViewD
     }
     
     func insertRowAtBottom(newComment: NSDictionary) {
+        commentsTableView.layoutIfNeeded()
         commentsTableView.beginUpdates()
         comments.append(newComment)
         var nsPath = NSIndexPath(forRow: comments.count - 1, inSection: 0)
@@ -306,59 +425,133 @@ class CommentsViewController: UIViewController, UITextViewDelegate, UITableViewD
     
     // MARK: UITableViewDataSource
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return comments.count
+        var count = 0
+        
+        switch(currentCommentTableState) {
+        case .Comments:
+            count = comments.count
+        case .Handles:
+            count = following.count
+        case .Hashtags:
+            break // tentative
+        }
+        
+        return count
+    }
+    
+    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+        switch(currentCommentTableState) {
+        case .Comments:
+            break
+        case .Handles:
+            if self.following.count > 0 {
+                var followingUser = self.following[indexPath.row]
+
+                var username = followingUser["username"] as! String
+                
+                // replace and autocomplete
+                // cut away the halfway typed handle, and append the full lengthed one
+                var commentString = commentTextView.text
+                commentString = commentString.substringWithRange(Range<String.Index>(start: commentString.startIndex, end: advance(commentString.endIndex, -count(currentlyTypedHandle))))
+                
+                commentString = "\(commentString)@\(username)"
+                
+                commentTextView.text = commentString
+                
+                // switch back to comments state
+                returnToCommentsState()
+            }
+        case .Hashtags:
+            break // tentative
+        }
     }
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+        
         let cell = tableView.dequeueReusableCellWithIdentifier(commentCellIdentifier, forIndexPath: indexPath) as! CommentCell
         
-        let comment = comments[indexPath.row]
-        let author = comment["author"] as! NSDictionary
-        let authorImageURL = NSURL(string: author["image"] as! String)
-        let createAt = comment["created_at"] as! String
-        let duration = calculateDuration(createAt)
-        
-        cell.selectionStyle = UITableViewCellSelectionStyle.None
-        cell.userNameLabel.text = author["username"] as? String
-        cell.timeAgo.text = duration
-        
-        // userComment actions
-        cell.userComment.text = comment["body"] as? String
-        cell.userComment.setAttributes([
-            NSForegroundColorAttributeName: sprubixColor
-            ], hotWord: STTweetHotWord.Handle)
-        cell.userComment.detectionBlock = { (hotWord: STTweetHotWord, string: String!, prot: String!, range: NSRange) in
+        switch(currentCommentTableState) {
+        case .Comments:
+            let comment = comments[indexPath.row]
+            let author = comment["author"] as! NSDictionary
+            let authorImageURL = NSURL(string: author["image"] as! String)
+            let createAt = comment["created_at"] as! String
+            let duration = calculateDuration(createAt)
             
-            let hotWords: NSArray = ["Handle", "Hashtag", "Link"]
-            let hotWordType: String = hotWords[hotWord.hashValue] as! String
+            cell.selectionStyle = UITableViewCellSelectionStyle.None
+            cell.userNameLabel.text = author["username"] as? String
+            cell.timeAgo.text = duration
             
-            println("hotWord type: \(hotWordType)")
-            println("string: \(string)")
-            
-            switch hotWordType {
-            case "Handle":
-                // go to user profile
-                self.delegate?.showUserProfile(NSDictionary(), userName: string.stringByReplacingOccurrencesOfString("@", withString: ""))
-            case "HashTag":
-                // do a search on this hashtag
-                println("search hashtag")
-            case "Link":
-                // webview to this link
-                println("webview to link")
-            default:
-                fatalError("Error: Invalid STTweetHotWord type.")
+            // userComment actions
+            cell.userComment.text = comment["body"] as? String
+            cell.userComment.setAttributes([
+                NSForegroundColorAttributeName: sprubixColor
+                ], hotWord: STTweetHotWord.Handle)
+            cell.userComment.detectionBlock = { (hotWord: STTweetHotWord, string: String!, prot: String!, range: NSRange) in
+                
+                let hotWords: NSArray = ["Handle", "Hashtag", "Link"]
+                let hotWordType: String = hotWords[hotWord.hashValue] as! String
+                
+                println("hotWord type: \(hotWordType)")
+                println("string: \(string)")
+                
+                switch hotWordType {
+                case "Handle":
+                    // REST call to server to retrieve user details
+                    manager.POST(SprubixConfig.URL.api + "/users",
+                        parameters: [
+                            "username": string.stringByReplacingOccurrencesOfString("@", withString: "")
+                        ],
+                        success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                            
+                            var data = responseObject["data"] as? NSArray
+                            
+                            if data?.count > 0 {
+                                var user = data![0] as! NSDictionary
+
+                                // go to user profile
+                                self.delegate?.showUserProfile(user)
+                            } else {
+                                println("Error: User Profile cannot load user.")
+                            }
+                        },
+                        failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                            println("Error: " + error.localizedDescription)
+                    })
+                case "HashTag":
+                    // do a search on this hashtag
+                    println("search hashtag")
+                case "Link":
+                    // webview to this link
+                    println("webview to link")
+                default:
+                    fatalError("Error: Invalid STTweetHotWord type.")
+                }
             }
+            
+            // user image view
+            cell.userImageView.setImageWithURL(authorImageURL)
+            cell.authorName = author["username"] as? String
+            
+            let goToUserProfileGestureRecognizer: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: "goToUserProfile:")
+            goToUserProfileGestureRecognizer.numberOfTapsRequired = 1
+            
+            cell.userImageView.addGestureRecognizer(goToUserProfileGestureRecognizer)
+            cell.userImageView.userInteractionEnabled = true
+
+        case .Handles:
+            var followingUser = following[indexPath.row]
+            
+            cell.selectionStyle = UITableViewCellSelectionStyle.Default
+            cell.userImageView.setImageWithURL(NSURL(string: followingUser["image"] as! String))
+            
+            cell.userNameLabel.text = followingUser["username"] as? String
+            cell.userComment.text = followingUser["name"] as? String
+            cell.timeAgo.text = ""
+            
+        case .Hashtags:
+            break
         }
-        
-        // user image view
-        cell.userImageView.setImageWithURL(authorImageURL)
-        cell.authorName = author["username"] as? String
-        
-        let goToUserProfileGestureRecognizer: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: "goToUserProfile:")
-        goToUserProfileGestureRecognizer.numberOfTapsRequired = 1
-    
-        cell.userImageView.addGestureRecognizer(goToUserProfileGestureRecognizer)
-        cell.userImageView.userInteractionEnabled = true
         
         return cell
     }
@@ -396,11 +589,11 @@ class CommentsViewController: UIViewController, UITextViewDelegate, UITableViewD
             UIView.animateWithDuration(0.2, delay: 0.1, options: UIViewAnimationOptions.CurveEaseInOut, animations: { () -> Void in
                 self.view.layoutIfNeeded()
               
-                if self.comments.count > 0 {
-                    // scroll to bottom
-                    var nsPath = NSIndexPath(forRow: self.comments.count - 1, inSection: 0)
-                    self.commentsTableView.scrollToRowAtIndexPath(nsPath, atScrollPosition: UITableViewScrollPosition.Bottom, animated: true)
-                }
+                    if self.comments.count > 0 {
+                        // scroll to bottom
+                        var nsPath = NSIndexPath(forRow: self.comments.count - 1, inSection: 0)
+                        self.commentsTableView.scrollToRowAtIndexPath(nsPath, atScrollPosition: UITableViewScrollPosition.Bottom, animated: true)
+                    }
                 
                 }, completion: { finished in
                     if finished {
@@ -429,9 +622,11 @@ class CommentsViewController: UIViewController, UITextViewDelegate, UITableViewD
     
     // gesture recognizer callbacks
     func dismissKeyboard(gesture: UITapGestureRecognizer) {
-        makeKeyboardVisible = false
-        
-        self.view.endEditing(true)
+        if currentCommentTableState == CommentTableState.Comments {
+            makeKeyboardVisible = false
+            
+            self.view.endEditing(true)
+        }
     }
     
     // UITextViewDelegate
@@ -451,6 +646,82 @@ class CommentsViewController: UIViewController, UITextViewDelegate, UITableViewD
         } else {
             sendCommentButton.enabled = true
         }
+        
+        /*
+        let range = commentTextView.text.rangeOfString("\\b(?<=@)[^ @]+\\b", options: NSStringCompareOptions.RegularExpressionSearch)
+        
+        if range != nil {
+            let found = commentTextView.text.substringWithRange(range!)
+            println("found: \(found)") // found @username
+        }
+        */
+        
+        //let matches = matchesForRegexInText("\\b(?<=@)[^ @]+$\\b", text: commentTextView.text)
+        
+        let matches = matchesForRegexInText("((?:^|\\s)(?:@){1}[0-9a-zA-Z_]{1,15}$)", text: commentTextView.text)
+        
+        if matches.last != nil {
+            currentlyTypedHandle = matches.last!.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet())
+            
+            // REST call to server to retrieve related user
+            manager.POST(SprubixConfig.URL.api + "/user/following",
+                parameters: [
+                    "initials": matches.last!.stringByReplacingOccurrencesOfString("@", withString: "").stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet())
+                ],
+                success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                    
+                    self.following.removeAll()
+                    self.following = responseObject as! [NSDictionary]
+                    
+                    var firstFollowingUser: NSDictionary? = self.following.first
+                    var firstFollowingUserName = firstFollowingUser?["username"] as? String
+                    
+                    if self.following.count > 0 && self.commentTextView.text != "" && firstFollowingUserName != self.currentlyTypedHandle.stringByReplacingOccurrencesOfString("@", withString: "") {
+                        self.currentCommentTableState = CommentTableState.Handles
+                        self.commentsTableView.reloadData()
+                    } else {
+                        self.currentCommentTableState = CommentTableState.Comments
+                        self.commentsTableView.reloadData()
+                        self.commentsTableView.alpha = 0
+                        
+                        self.returnToCommentsState()
+                    }
+
+                },
+                failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                    println("Error: " + error.localizedDescription)
+            })
+        } else {
+            if currentCommentTableState != CommentTableState.Comments {
+                returnToCommentsState()
+            }
+        }
+    }
+    
+    private func returnToCommentsState() {
+        currentCommentTableState = CommentTableState.Comments
+        self.commentsTableView.reloadData()
+
+        self.commentsTableView.alpha = 0
+        
+        if self.comments.count > 0 {
+            // scroll to bottom
+            self.commentsTableView.layoutIfNeeded()
+            var nsPath = NSIndexPath(forRow: self.comments.count - 1, inSection: 0)
+            self.commentsTableView.scrollToRowAtIndexPath(nsPath, atScrollPosition: UITableViewScrollPosition.Bottom, animated: false)
+        }
+        
+        self.commentsTableView.alpha = 1
+    }
+    
+    func matchesForRegexInText(regex: String!, text: String!) -> [String] {
+        let regex = NSRegularExpression(pattern: regex,
+            options: nil, error: nil)!
+        let nsString = text as NSString
+        let results = regex.matchesInString(text,
+            options: nil, range: NSMakeRange(0, nsString.length))
+            as! [NSTextCheckingResult]
+        return map(results) { nsString.substringWithRange($0.range)}
     }
     
     func textViewDidEndEditing(textView: UITextView) {
@@ -472,10 +743,39 @@ class CommentsViewController: UIViewController, UITextViewDelegate, UITableViewD
         if parentView != nil {
             var commentCell = parentView?.superview as! CommentCell
             
-            delegate?.showUserProfile(NSDictionary(), userName: commentCell.authorName!)
+            // REST call to server to retrieve user details
+            manager.POST(SprubixConfig.URL.api + "/users",
+                parameters: [
+                    "username": commentCell.authorName!
+                ],
+                success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                    
+                    var data = responseObject["data"] as? NSArray
+                    
+                    if data?.count > 0 {
+                        var user = data![0] as! NSDictionary
+                        
+                        // go to user profile
+                        self.delegate?.showUserProfile(user)
+                    } else {
+                        println("Error: User Profile cannot load user.")
+                    }
+                },
+                failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                    println("Error: " + error.localizedDescription)
+            })
         }
     }
 
+    func delay(delay:Double, closure:()->()) {
+        dispatch_after(
+            dispatch_time(
+                DISPATCH_TIME_NOW,
+                Int64(delay * Double(NSEC_PER_SEC))
+            ),
+            dispatch_get_main_queue(), closure)
+    }
+    
     // button callbacks
     func backTapped(sender: UIBarButtonItem) {
         self.navigationController?.popViewControllerAnimated(true)

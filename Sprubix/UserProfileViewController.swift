@@ -57,25 +57,7 @@ class UserProfileViewController: UIViewController, UICollectionViewDataSource, C
             loadUserFollow()
             loadUserOutfits()
         } else {
-            // REST call to server to retrieve user details
-            manager.POST(SprubixConfig.URL.api + "/users",
-                parameters: [
-                    "username": userName!
-                ],
-                success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
-                    
-                    var user = (responseObject["data"] as! NSArray)[0] as! NSDictionary
-                    self.user = user
-                    
-                    self.initUserProfile()
-                    
-                    // call to servers
-                    self.loadUserFollow()
-                    self.loadUserOutfits()
-                },
-                failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
-                    println("Error: " + error.localizedDescription)
-            })
+            fatalError("User Profile user is nil.")
         }
         
         self.navigationController!.delegate = transitionDelegateHolder

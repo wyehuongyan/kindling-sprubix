@@ -57,14 +57,10 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
     }
     
     // MainFeedControllerDelegate
-    func showUserProfile(user: NSDictionary, userName: String = "") {
+    func showUserProfile(user: NSDictionary) {
         userProfileViewController = UIStoryboard.userProfileViewController()
         
-        if userName != "" {
-            userProfileViewController?.userName = userName
-        } else {
-            userProfileViewController?.user = user
-        }
+        userProfileViewController?.user = user
         
         self.closeSidePanel()
         

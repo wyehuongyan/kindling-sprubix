@@ -80,10 +80,10 @@ class NotificationViewController: UIViewController, UITableViewDataSource, UITab
                 snapshot in
                 println("\(snapshot.key) was removed from user notifications.")
                 
-                let unread = snapshot.value.objectForKey("unread") as! Bool
+                let unread = snapshot.value.objectForKey("unread") as? Bool
                 
                 // only update badge count if its unread
-                if(unread == true) {
+                if unread == true {
                     SidePanelOption.alerts.counter[SidePanelOption.Option.Notifications.toString()] = SidePanelOption.alerts.counter[SidePanelOption.Option.Notifications.toString()]! - 1
                     
                     // update mainBadge
@@ -207,6 +207,11 @@ class NotificationViewController: UIViewController, UITableViewDataSource, UITab
             let commentBody = comment["body"] as! String
             
             notificationMessage = "@\(senderUsername) left a comment on your item: \(commentBody) \(duration)"
+        case "mention":
+            let comment = notification["comment"] as! NSDictionary
+            let commentBody = comment["body"] as! String
+            
+            notificationMessage = "@\(senderUsername) mentioned you in a comment: \(commentBody) \(duration)"
         default:
             fatalError("Error: Unknown notification type")
         }
@@ -227,8 +232,27 @@ class NotificationViewController: UIViewController, UITableViewDataSource, UITab
                 
                 switch hotWordType {
                 case "Handle":
-                    // go to user profile
-                    self.delegate?.showUserProfile(NSDictionary(), userName: string.stringByReplacingOccurrencesOfString("@", withString: ""))
+                    let username = string.stringByReplacingOccurrencesOfString("@", withString: "")
+                    
+                    // REST call to server to retrieve user details
+                    manager.POST(SprubixConfig.URL.api + "/users",
+                        parameters: [
+                            "username": username
+                        ],
+                        success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                            
+                            var data = responseObject["data"] as? NSArray
+                            
+                            if data?.count > 0 {
+                                var user = data![0] as! NSDictionary
+                                self.delegate?.showUserProfile(user)
+                            } else {
+                                println("Error: User Profile cannot load user: \(username)")
+                            }
+                        },
+                        failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                            println("Error: " + error.localizedDescription)
+                    })
                 case "HashTag":
                     // do a search on this hashtag
                     println("search hashtag")
@@ -308,11 +332,31 @@ class NotificationViewController: UIViewController, UITableViewDataSource, UITab
         if parentView != nil {
             var notificationCell = parentView?.superview as! NotificationCell
             
-            delegate?.showUserProfile(NSDictionary(), userName: notificationCell.senderUsername!)
+            // REST call to server to retrieve user details
+            manager.POST(SprubixConfig.URL.api + "/users",
+                parameters: [
+                    "username": notificationCell.senderUsername!
+                ],
+                success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                    
+                    var data = responseObject["data"] as? NSArray
+                    
+                    if data?.count > 0 {
+                        var user = data![0] as! NSDictionary
+                        self.delegate?.showUserProfile(user)
+                    } else {
+                        println("Error: User Profile cannot load user: \(notificationCell.senderUsername!)")
+                    }
+                },
+                failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                    println("Error: " + error.localizedDescription)
+            })
         }
     }
     
     func goToItemTypeDetails(gesture: UITapGestureRecognizer) {
+        println("go to item type details")
+        
         let parentView = gesture.view?.superview
         
         if parentView != nil {

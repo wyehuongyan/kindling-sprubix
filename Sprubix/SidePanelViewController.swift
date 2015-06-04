@@ -11,7 +11,7 @@ import UIKit
 @objc
 protocol SidePanelViewControllerDelegate {
     optional func toggleSidePanel()
-    func showUserProfile(user: NSDictionary, userName: String)
+    func showUserProfile(user: NSDictionary)
     func showCreateOutfit()
     func showNotifications()
 }
@@ -90,7 +90,7 @@ class SidePanelViewController: UIViewController, UITableViewDataSource, UITableV
     func wasSingleTapped(gesture: UITapGestureRecognizer) {
         let userData:NSDictionary! = defaults.dictionaryForKey("userData")
         
-        delegate?.showUserProfile(userData, userName: "")
+        delegate?.showUserProfile(userData)
     }
     
     // MARK: Table View Data Source

@@ -533,7 +533,7 @@ class MainFeedController: UIViewController, UICollectionViewDataSource, OutfitIn
     }
     
     func showProfile(user: NSDictionary) {
-        delegate?.showUserProfile(user, userName: "")
+        delegate?.showUserProfile(user)
     }
     
     func tappedOutfit(indexPath: NSIndexPath) {
