@@ -22,12 +22,16 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
     
     var outfit: NSDictionary!
     var pieces: [NSDictionary]!
+    var piecesLiked: NSMutableDictionary = NSMutableDictionary()
     var user: NSDictionary!
     var inspiredBy: NSDictionary!
     
     var pieceImageView: UIImageView!
     var pieceImages: [UIImageView] = [UIImageView]()
-
+    var likeButton: UIButton!
+    var likeButtonsDict: NSMutableDictionary = NSMutableDictionary()
+    var commentsButton: UIButton!
+    
     var pullLabel:UILabel!
     
     var outfitImageCell: UITableViewCell!
@@ -141,6 +145,65 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
                 
                 prevPieceHeight += pieceHeight // to offset 2nd piece image's height with first image's height
                 outfitHeight += pieceHeight // accumulate height of all pieces
+                
+                // like button
+                let likeButtonWidth = frame.size.width / 10
+                likeButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+                var image = UIImage(named: "main-like")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
+                likeButton.setImage(image, forState: UIControlState.Normal)
+                likeButton.setImage(UIImage(named: "main-like-filled"), forState: UIControlState.Selected)
+                likeButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+                likeButton.imageView?.tintColor = sprubixGray
+                likeButton.backgroundColor = UIColor.clearColor()
+                likeButton.frame = CGRectMake(8 * likeButtonWidth, pieceHeight - likeButtonWidth, likeButtonWidth, likeButtonWidth)
+                likeButton.imageEdgeInsets = UIEdgeInsetsMake(5, 5, 5, 5)
+                likeButton.addTarget(self, action: "togglePieceLike:", forControlEvents: UIControlEvents.TouchUpInside)
+
+                let pieceId = piece["id"] as! Int
+                likeButtonsDict.setObject(likeButton, forKey: piece)
+                
+                // very first time: check likebutton selected
+                let userData: NSDictionary? = defaults.dictionaryForKey("userData")
+                let username = userData!["username"] as! String
+
+                let poutfitLikesUserRef = firebaseRef.childByAppendingPath("poutfits/piece_\(pieceId)/likes/\(username)")
+                
+                var liked: Bool? = piecesLiked[pieceId] as? Bool
+                
+                if liked != nil {
+                    likeButton.selected = liked!
+                } else {
+                    // check if user has already liked this outfit
+                    poutfitLikesUserRef.observeSingleEventOfType(.Value, withBlock: {
+                        snapshot in
+                        
+                        if (snapshot.value as? NSNull) != nil {
+                            // not yet liked
+                            liked = false
+                        } else {
+                            liked = true
+                        }
+                        
+                        (self.likeButtonsDict[piece] as! UIButton).selected = liked!
+                        self.piecesLiked.setObject(liked!, forKey: pieceId)
+                    })
+                }
+                
+                pieceImageView.addSubview(likeButton)
+                Glow.addGlow(likeButton)
+                
+                // comment button
+                commentsButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+                image = UIImage(named: "main-comments")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
+                commentsButton.setImage(image, forState: UIControlState.Normal)
+                commentsButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+                commentsButton.imageView?.tintColor = sprubixGray
+                commentsButton.backgroundColor = UIColor.clearColor()
+                commentsButton.frame = CGRectMake(9 * likeButtonWidth, pieceHeight - likeButtonWidth, likeButtonWidth, likeButtonWidth)
+                commentsButton.imageEdgeInsets = UIEdgeInsetsMake(5, 5, 5, 5)
+                commentsButton.addTarget(self, action: "addCommentsPiece:", forControlEvents: UIControlEvents.TouchUpInside)
+                pieceImageView.addSubview(commentsButton)
+                Glow.addGlow(commentsButton)
             }
             
             return outfitImageCell
@@ -257,8 +320,254 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
     }
     
     func wasDoubleTapped(gesture: UITapGestureRecognizer) {
+        // like Piece
         println("double tapped!")
-        println(gesture.view)
+        
+        let parentView = gesture.view
+        
+        if parentView != nil {
+            let pos: Int? = find(pieceImages, (parentView as! UIImageView))
+            
+            if pos != nil {
+                let piece = pieces[pos!]
+
+                likedPiece(piece)
+            }
+        }
+    }
+    
+    func likedPiece(piece: NSDictionary) {
+        // needed:
+        // // pieceId, thumbnailURLString, itemIdentifier, receiver
+        
+        let userData: NSDictionary? = defaults.dictionaryForKey("userData")
+        
+        if userData != nil {
+            let pieceId = piece["id"] as! Int
+            let receiver = piece["user"] as! NSDictionary
+            let pieceImagesString = piece["images"] as! NSString
+            let pieceImagesData:NSData = pieceImagesString.dataUsingEncoding(NSUTF8StringEncoding)!
+            
+            let pieceImagesDict: NSDictionary = NSJSONSerialization.JSONObjectWithData(pieceImagesData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSDictionary
+            let pieceImageDict: NSDictionary = (pieceImagesDict["images"] as! NSArray)[0] as! NSDictionary // position 0 is the cover
+            
+            let thumbnailURLString = pieceImageDict["thumbnail"] as! String
+            let itemIdentifier = "piece_\(pieceId)"
+            
+            // firebase collections: users, likes, poutfits and notifications
+            let likesRef = firebaseRef.childByAppendingPath("likes")
+            let notificationsRef = firebaseRef.childByAppendingPath("notifications")
+            let poutfitsRef = firebaseRef.childByAppendingPath("poutfits")
+            let poutfitLikesRef = poutfitsRef.childByAppendingPath("\(itemIdentifier)/likes")
+            
+            let senderUsername = userData!["username"] as! String
+            let senderImage = userData!["image"] as! String
+            let receiverUsername = receiver["username"] as! String
+            let poutfitLikesUserRef = poutfitLikesRef.childByAppendingPath(senderUsername)
+            
+            let receiverUserNotificationsRef = firebaseRef.childByAppendingPath("users/\(receiverUsername)/notifications")
+            let senderLikesRef = firebaseRef.childByAppendingPath("users/\(senderUsername)/likes")
+            
+            let createdAt = timestamp
+            
+            // check if user has already liked this outfit
+            poutfitLikesUserRef.observeSingleEventOfType(.Value, withBlock: {
+                snapshot in
+                
+                if (snapshot.value as? NSNull) != nil {
+                    // does not exist, add it
+                    let likeRef = likesRef.childByAutoId()
+                    
+                    let like = [
+                        "author": senderUsername, // yourself
+                        "created_at": createdAt,
+                        "poutfit": itemIdentifier
+                    ]
+                    
+                    likeRef.setValue(like, withCompletionBlock: {
+                        (error:NSError?, ref:Firebase!) in
+                        
+                        if (error != nil) {
+                            println("Error: Like could not be added.")
+                        } else {
+                            // update child values: poutfits
+                            poutfitLikesRef.updateChildValues([
+                                userData!["username"] as! String: likeRef.key
+                                ])
+                            
+                            // update child values: user
+                            let senderLikeRef = senderLikesRef.childByAppendingPath(likeRef.key)
+                            
+                            senderLikeRef.updateChildValues([
+                                "created_at": createdAt,
+                                "poutfit": itemIdentifier
+                                ], withCompletionBlock: {
+                                    
+                                    (error:NSError?, ref:Firebase!) in
+                                    
+                                    if (error != nil) {
+                                        println("Error: Like Key could not be added to User Likes.")
+                                    }
+                            })
+                            
+                            // push new notifications
+                            let notificationRef = notificationsRef.childByAutoId()
+                            
+                            let notification = [
+                                "poutfit": [
+                                    "key": itemIdentifier,
+                                    "image": thumbnailURLString
+                                ],
+                                "created_at": createdAt,
+                                "sender": [
+                                    "username": senderUsername, // yourself
+                                    "image": senderImage
+                                ],
+                                "receiver": receiverUsername,
+                                "type": "like",
+                                "like": likeRef.key,
+                                "unread": true
+                            ]
+                            
+                            notificationRef.setValue(notification, withCompletionBlock: {
+                                
+                                (error:NSError?, ref:Firebase!) in
+                                
+                                if (error != nil) {
+                                    println("Error: Notification could not be added.")
+                                } else {
+                                    // update target user notifications
+                                    let receiverUserNotificationRef = receiverUserNotificationsRef.childByAppendingPath(notificationRef.key)
+                                    
+                                    receiverUserNotificationRef.updateChildValues([
+                                        "created_at": createdAt,
+                                        "unread": true
+                                        ], withCompletionBlock: {
+                                            
+                                            (error:NSError?, ref:Firebase!) in
+                                            
+                                            if (error != nil) {
+                                                println("Error: Notification Key could not be added to Users.")
+                                            }
+                                    })
+                                    
+                                    // update likes with notification key
+                                    likeRef.updateChildValues([
+                                        "notification": notificationRef.key
+                                        ], withCompletionBlock: {
+                                            
+                                            (error:NSError?, ref:Firebase!) in
+                                            
+                                            if (error != nil) {
+                                                println("Error: Notification Key could not be added to Likes.")
+                                            } else {
+                                                println("Piece liked successfully!")
+                                                // add to piecesLiked dictionary
+                                                self.piecesLiked.setObject(true, forKey: pieceId)
+                                                (self.likeButtonsDict[piece] as! UIButton).selected = true
+                                            }
+                                    })
+                                }
+                            })
+                        }
+                    })
+                    
+                } else {
+                    println("You have already liked this piece")
+                    
+                    // add to piecesLiked dictionary
+                    self.piecesLiked.setObject(true, forKey: pieceId)
+                    (self.likeButtonsDict[piece] as! UIButton).selected = true
+                }
+            })
+        } else {
+            println("userData not found, please login or create an account")
+        }
+    }
+    
+    func unlikedPiece(piece: NSDictionary) {
+        // needed:
+        // // pieceId, itemIdentifier, receiver
+        
+        let userData: NSDictionary? = defaults.dictionaryForKey("userData")
+        
+        if userData != nil {
+            let pieceId = piece["id"] as! Int
+            let receiver = piece["user"] as! NSDictionary
+            let itemIdentifier = "piece_\(pieceId)"
+            
+            // firebase collections: users, likes, poutfits and notifications
+            let likesRef = firebaseRef.childByAppendingPath("likes")
+            let notificationsRef = firebaseRef.childByAppendingPath("notifications")
+            let poutfitsRef = firebaseRef.childByAppendingPath("poutfits")
+            let poutfitLikesRef = poutfitsRef.childByAppendingPath("\(itemIdentifier)/likes")
+            
+            let senderUsername = userData!["username"] as! String
+            let receiverUsername = receiver["username"] as! String
+            let poutfitLikesUserRef = poutfitLikesRef.childByAppendingPath(senderUsername) // to be removed
+            
+            let receiverUserNotificationsRef = firebaseRef.childByAppendingPath("users/\(receiverUsername)/notifications")
+            let senderLikesRef = firebaseRef.childByAppendingPath("users/\(senderUsername)/likes")
+            
+            // check if user has already liked this outfit
+            poutfitLikesUserRef.observeSingleEventOfType(.Value, withBlock: {
+                snapshot in
+                
+                if (snapshot.value as? NSNull) != nil {
+                    // does not exist, already unliked
+                    println("You have already unliked this piece")
+                    
+                    self.piecesLiked.setObject(false, forKey: pieceId)
+                } else {
+                    // was liked, set it to unliked here
+                    poutfitLikesUserRef.observeSingleEventOfType(.Value, withBlock: {
+                        snapshot in
+                        
+                        if (snapshot.value as? NSNull) != nil {
+                            // does not exist
+                            println("Error: Like key in Poutfits could not be found.")
+                        } else {
+                            // exists
+                            var likeRefKey = snapshot.value as! String
+                            
+                            let likeRef = likesRef.childByAppendingPath(likeRefKey) // to be removed
+                            
+                            let likeRefNotificationKey = likeRef.childByAppendingPath("notification")
+                            
+                            likeRefNotificationKey.observeSingleEventOfType(.Value, withBlock: { snapshot in
+                                
+                                if (snapshot.value as? NSNull) != nil {
+                                    // does not exist
+                                    println("Error: Notification key in Likes could not be found.")
+                                } else {
+                                    var notificationRefKey = snapshot.value as! String
+                                    
+                                    let notificationRef = notificationsRef.childByAppendingPath(notificationRefKey) // to be removed
+                                    
+                                    let receiverUserNotificationRef = receiverUserNotificationsRef.childByAppendingPath(notificationRefKey) // to be removed
+                                    
+                                    let senderLikeRef = senderLikesRef.childByAppendingPath(likeRefKey) // to be removed
+                                    
+                                    // remove all values
+                                    senderLikeRef.removeValue()
+                                    notificationRef.removeValue()
+                                    receiverUserNotificationRef.removeValue()
+                                    likeRef.removeValue()
+                                    poutfitLikesUserRef.removeValue()
+                                    
+                                    self.piecesLiked.setObject(false, forKey: pieceId)
+                                    
+                                    println("Piece unliked successfully!")
+                                }
+                            })
+                            
+                        }
+                    })
+                }
+            })
+        } else {
+            println("userData not found, please login or create an account")
+        }
     }
     
     func heightForTextLabel(text:String, width:CGFloat, padding: CGFloat) -> CGFloat{
@@ -364,4 +673,60 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
         navController!.delegate = nil
         navController!.pushViewController(commentsViewController!, animated: true)
     }
+    
+    // piece button callbacks
+    func addCommentsPiece(sender: UIButton) {
+        var parentView: UIView? = sender.superview
+        
+        if parentView != nil {
+            let pos: Int? = find(pieceImages, (parentView as! UIImageView))
+            
+            if pos != nil {
+                println(pieces[pos!])
+                
+                let piece = pieces[pos!]
+                
+                // init
+                let pieceId = piece["id"] as! Int
+                let pieceUser = piece["user"] as! NSDictionary
+                let pieceImagesString = piece["images"] as! NSString
+                let pieceImagesData:NSData = pieceImagesString.dataUsingEncoding(NSUTF8StringEncoding)!
+                
+                let pieceImagesDict: NSDictionary = NSJSONSerialization.JSONObjectWithData(pieceImagesData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSDictionary
+                let pieceImageDict: NSDictionary = (pieceImagesDict["images"] as! NSArray)[0] as! NSDictionary // position 0 is the cover
+                
+                let thumbnailURLString = pieceImageDict["thumbnail"] as! String
+
+                commentsViewController = UIStoryboard(name: "Main", bundle: NSBundle.mainBundle()).instantiateViewControllerWithIdentifier("CommentsView") as? CommentsViewController
+                
+                commentsViewController?.delegate = containerViewController
+                commentsViewController?.poutfitImageURL = thumbnailURLString
+                commentsViewController?.receiverUsername = pieceUser["username"] as! String
+                commentsViewController?.poutfitIdentifier = "piece_\(pieceId)"
+                
+                navController!.delegate = nil
+                navController!.pushViewController(commentsViewController!, animated: true)
+            }
+        }
+    }
+    
+    func togglePieceLike(sender: UIButton) {
+        var keys = likeButtonsDict.allKeysForObject(sender)
+        
+        if keys.count > 0 {
+            let piece: NSDictionary = keys.first as! NSDictionary
+            let pieceId = piece["id"] as! Int
+            
+            if sender.selected != true {
+                sender.selected = true
+                
+                likedPiece(piece)
+            } else {
+                sender.selected = false
+                
+                unlikedPiece(piece)
+            }
+        }
+    }
+
 }

@@ -22,6 +22,8 @@ class UserProfileViewController: UIViewController, UICollectionViewDataSource, C
     var outfitsLoaded: Bool = false
     var piecesLoaded: Bool = false
     var communityLoaded: Bool = false
+    var ownProfile: Bool = false
+    var alreadyFollowed: Bool?
     
     let profileOutfitCellIdentifier = "ProfileOutfitCell"
     let profilePieceCellIdentifier = "ProfilePieceCell"
@@ -40,16 +42,32 @@ class UserProfileViewController: UIViewController, UICollectionViewDataSource, C
     var profileCollectionView: UICollectionView!
     var currentProfileState: ProfileState = .Outfits
     
+    @IBOutlet var closeUserProfileButton: UIBarButtonItem!
     @IBAction func closeUserProfile(sender: UIBarButtonItem) {
-        //self.navigationController?.dismissViewControllerAnimated(true, completion: nil)
-        
         self.navigationController!.delegate = nil
         self.navigationController!.popViewControllerAnimated(true)
     }
     
+    @IBOutlet var followUserButton: UIButton!
+    @IBAction func followUser(sender: AnyObject) {
+        if ownProfile == true {
+            // followUserButton is now an edit profile button
+            println("edit profile")
+        } else {
+            // follow user
+            if alreadyFollowed != true {
+                println("follow user")
+            } else {
+                println("unfollow user")
+            }
+            
+        }
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        // initialization
         if user != nil {
             initUserProfile()
             
@@ -60,7 +78,28 @@ class UserProfileViewController: UIViewController, UICollectionViewDataSource, C
             fatalError("User Profile user is nil.")
         }
         
+        Glow.addGlow(followUserButton)
+        
+        // barbuttons title text color
+        var shadow = NSShadow()
+        shadow.shadowColor = UIColor.lightGrayColor()
+        shadow.shadowOffset = CGSizeMake(1.0, 1.0)
+        shadow.shadowBlurRadius = 100.0
+        
+        var color: UIColor = sprubixColor
+        var titleFont: UIFont = UIFont.boldSystemFontOfSize(17)
+        
+        closeUserProfileButton.setTitleTextAttributes([
+            NSFontAttributeName: titleFont,
+            NSForegroundColorAttributeName: color,
+            NSShadowAttributeName: shadow
+            ], forState: UIControlState.Normal)
+        
         self.navigationController!.delegate = transitionDelegateHolder
+    }
+    
+    override func prefersStatusBarHidden() -> Bool {
+        return true
     }
     
     func initUserProfile() {
@@ -131,10 +170,6 @@ class UserProfileViewController: UIViewController, UICollectionViewDataSource, C
         } else {
             self.navigationController?.setNavigationBarHidden(false, animated: true)
         }
-    }
-    
-    override func prefersStatusBarHidden() -> Bool {
-        return true
     }
     
     // CHTCollectionViewDelegateWaterfallLayout
@@ -307,16 +342,28 @@ class UserProfileViewController: UIViewController, UICollectionViewDataSource, C
         let userId:Int? = defaults.objectForKey("userId") as? Int
         
         if targetUserId != nil && targetUserId != userId {
-            manager.GET(SprubixConfig.URL.api + "/user/\(userId!)/follow",
-                parameters: nil,
+            manager.POST(SprubixConfig.URL.api + "/user/followed",
+                parameters: [
+                    "id": userId!
+                ],
                 success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
-                    println(responseObject)
+                    
+                    self.alreadyFollowed = responseObject["already_followed"] as? Bool
+                    
+                    if self.alreadyFollowed != nil {
+                        if self.alreadyFollowed == true {
+                            // already followed
+                            self.followUserButton.setTitle("Unfollow", forState: UIControlState.Normal)
+                        }
+                    }
                 },
                 failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                     println("Error: " + error.localizedDescription)
             })
         } else {
-            // hide follow button
+            //println("this is your own profile")
+            ownProfile = true
+            self.followUserButton.setTitle("Edit Profile", forState: UIControlState.Normal)
         }
     }
     

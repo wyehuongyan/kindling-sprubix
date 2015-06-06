@@ -12,8 +12,8 @@ protocol OutfitInteractionProtocol {
     func tappedOutfit(indexPath: NSIndexPath)
     
     func setOutfitsLiked(outfitId: Int, liked: Bool)
-    func likedOutfit(outfitId: Int, outfitImageURL: String, itemIdentifier: String, user: NSDictionary)
-    func unlikedOutfit(outfitId: Int, itemIdentifier: String, user: NSDictionary)
+    func likedOutfit(outfitId: Int, thumbnailURLString: String, itemIdentifier: String, receiver: NSDictionary)
+    func unlikedOutfit(outfitId: Int, itemIdentifier: String, receiver: NSDictionary)
     
     func commentOutfit(poutfitIdentifier: String, thumbnailURLString: String, receiverUsername: String)
     func spruceOutfit(indexPath: NSIndexPath)
@@ -169,7 +169,7 @@ class MainFeedCell: UICollectionViewCell, TransitionWaterfallGridViewProtocol {
         likeButton.imageEdgeInsets = UIEdgeInsetsMake(5, 5, 5, 5)
         likeButton.addTarget(self, action: "toggleOutfitLike:", forControlEvents: UIControlEvents.TouchUpInside)
         
-        // check likebutton selected
+        // very first time: check likebutton selected
         let userData: NSDictionary? = defaults.dictionaryForKey("userData")
         let username = userData!["username"] as! String
         
@@ -258,7 +258,7 @@ class MainFeedCell: UICollectionViewCell, TransitionWaterfallGridViewProtocol {
             sender.selected = false
             liked = false
             
-            delegate?.unlikedOutfit(outfitId, itemIdentifier: itemIdentifier, user: user)
+            delegate?.unlikedOutfit(outfitId, itemIdentifier: itemIdentifier, receiver: user)
         }
     }
     
@@ -276,7 +276,7 @@ class MainFeedCell: UICollectionViewCell, TransitionWaterfallGridViewProtocol {
     }
     
     func outfitLiked(gesture: UITapGestureRecognizer) {
-        delegate?.likedOutfit(outfitId, outfitImageURL: thumbnailURLString, itemIdentifier: itemIdentifier, user: user)
+        delegate?.likedOutfit(outfitId, thumbnailURLString: thumbnailURLString, itemIdentifier: itemIdentifier, receiver: user)
         
         UIView.animateWithDuration(0.3, delay: 0.2, usingSpringWithDamping: 0.9, initialSpringVelocity: 0, options: .CurveEaseInOut, animations: {
             self.likeImageView.alpha = 1.0

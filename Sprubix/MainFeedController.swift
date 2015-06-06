@@ -326,7 +326,7 @@ class MainFeedController: UIViewController, UICollectionViewDataSource, OutfitIn
         outfitsLiked.setObject(liked, forKey: outfitId)
     }
     
-    func unlikedOutfit(outfitId: Int, itemIdentifier: String, user receiver: NSDictionary) {
+    func unlikedOutfit(outfitId: Int, itemIdentifier: String, receiver: NSDictionary) {
         let userData: NSDictionary? = defaults.dictionaryForKey("userData")
         
         if userData != nil {
@@ -341,6 +341,7 @@ class MainFeedController: UIViewController, UICollectionViewDataSource, OutfitIn
             let poutfitLikesUserRef = poutfitLikesRef.childByAppendingPath(senderUsername) // to be removed
             
             let receiverUserNotificationsRef = firebaseRef.childByAppendingPath("users/\(receiverUsername)/notifications")
+            let senderLikesRef = firebaseRef.childByAppendingPath("users/\(senderUsername)/likes")
             
             // check if user has already liked this outfit
             poutfitLikesUserRef.observeSingleEventOfType(.Value, withBlock: {
@@ -377,11 +378,14 @@ class MainFeedController: UIViewController, UICollectionViewDataSource, OutfitIn
                                     
                                     let notificationRef = notificationsRef.childByAppendingPath(notificationRefKey) // to be removed
                                     
-                                    let userNotificationRef = receiverUserNotificationsRef.childByAppendingPath(notificationRefKey) // to be removed
+                                    let receiverUserNotificationRef = receiverUserNotificationsRef.childByAppendingPath(notificationRefKey) // to be removed
+                                    
+                                    let senderLikeRef = senderLikesRef.childByAppendingPath(likeRefKey) // to be removed
                                     
                                     // remove all values
+                                    senderLikeRef.removeValue()
                                     notificationRef.removeValue()
-                                    userNotificationRef.removeValue()
+                                    receiverUserNotificationRef.removeValue()
                                     likeRef.removeValue()
                                     poutfitLikesUserRef.removeValue()
                                     
@@ -400,7 +404,7 @@ class MainFeedController: UIViewController, UICollectionViewDataSource, OutfitIn
         }
     }
     
-    func likedOutfit(outfitId: Int, outfitImageURL: String, itemIdentifier: String, user receiver: NSDictionary) {
+    func likedOutfit(outfitId: Int, thumbnailURLString: String, itemIdentifier: String, receiver: NSDictionary) {
         let userData: NSDictionary? = defaults.dictionaryForKey("userData")
         
         if userData != nil {
@@ -416,6 +420,7 @@ class MainFeedController: UIViewController, UICollectionViewDataSource, OutfitIn
             let poutfitLikesUserRef = poutfitLikesRef.childByAppendingPath(senderUsername)
             
             let receiverUserNotificationsRef = firebaseRef.childByAppendingPath("users/\(receiverUsername)/notifications")
+            let senderLikesRef = firebaseRef.childByAppendingPath("users/\(senderUsername)/likes")
             
             let createdAt = timestamp
             
@@ -444,13 +449,28 @@ class MainFeedController: UIViewController, UICollectionViewDataSource, OutfitIn
                                 userData!["username"] as! String: likeRef.key
                                 ])
                             
+                            // update child values: user
+                            let senderLikeRef = senderLikesRef.childByAppendingPath(likeRef.key)
+                            
+                            senderLikeRef.updateChildValues([
+                                "created_at": createdAt,
+                                "poutfit": itemIdentifier
+                                ], withCompletionBlock: {
+                                    
+                                    (error:NSError?, ref:Firebase!) in
+                                    
+                                    if (error != nil) {
+                                        println("Error: Like Key could not be added to User Likes.")
+                                    }
+                            })
+                            
                             // push new notifications
                             let notificationRef = notificationsRef.childByAutoId()
                             
                             let notification = [
                                 "poutfit": [
                                     "key": itemIdentifier,
-                                    "image": outfitImageURL
+                                    "image": thumbnailURLString
                                 ],
                                 "created_at": createdAt,
                                 "sender": [

@@ -66,11 +66,12 @@ class NotificationViewController: UIViewController, UITableViewDataSource, UITab
                         // snapshot queryOrderedByChild is returned in ascending order
                         self.notifications.insert(notificationDict, atIndex: 0)
                         self.notificationKeyPositions.insert(snapshot.key as String, atIndex: 0)
+                        self.insertRowAtTop(notificationDict)
                         
                         // reload table
-                        if self.notificationTableView != nil {
-                            self.notificationTableView.reloadData()
-                        }
+//                        if self.notificationTableView != nil {
+//                            self.notificationTableView.reloadData() // change it to insertRow
+//                        }
                     }
                 })
             })
@@ -100,12 +101,13 @@ class NotificationViewController: UIViewController, UITableViewDataSource, UITab
                 if pos != nil && pos < self.notifications.count {
                     self.notifications.removeAtIndex(pos!)
                     self.notificationKeyPositions.removeAtIndex(pos!)
+                    self.deleteRow(pos!)
                 }
                 
-                // reload table
-                if self.notificationTableView != nil {
-                    self.notificationTableView.reloadData()
-                }
+//                // reload table
+//                if self.notificationTableView != nil {
+//                    self.notificationTableView.reloadData() // change it to deleteRow
+//                }
             })
             
         } else {
@@ -117,7 +119,9 @@ class NotificationViewController: UIViewController, UITableViewDataSource, UITab
         super.viewDidLoad()
         
         view.backgroundColor = UIColor.whiteColor()
-
+        
+        initNavBar()
+        
         notificationTableView.delegate = self
         notificationTableView.dataSource = self
         notificationTableView.rowHeight = UITableViewAutomaticDimension
@@ -128,8 +132,6 @@ class NotificationViewController: UIViewController, UITableViewDataSource, UITab
     
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
-        
-        initNavBar()
         
         notificationTableView.reloadData()
     }
@@ -154,6 +156,7 @@ class NotificationViewController: UIViewController, UITableViewDataSource, UITab
         backButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
         backButton.imageView?.tintColor = UIColor.lightGrayColor()
         backButton.addTarget(self, action: "backTapped:", forControlEvents: UIControlEvents.TouchUpInside)
+        backButton.exclusiveTouch = true
         
         //var backButtonView:UIView = UIView(frame: CGRect(x: 0, y: 0, width: backButton.frame.width, height: backButton.frame.height))
         //backButtonView.addSubview(backButton)
@@ -167,6 +170,32 @@ class NotificationViewController: UIViewController, UITableViewDataSource, UITab
         
         // 5. add the nav bar to the main view
         self.view.addSubview(newNavBar)
+    }
+    
+    func insertRowAtTop(newNotification: NSDictionary) {
+        if self.notificationTableView != nil {
+            notificationTableView.layoutIfNeeded()
+            
+            notificationTableView.beginUpdates()
+            
+            var nsPath = NSIndexPath(forRow: 0, inSection: 0)
+            notificationTableView.insertRowsAtIndexPaths([nsPath], withRowAnimation: UITableViewRowAnimation.Fade)
+            
+            notificationTableView.endUpdates()
+        }
+    }
+    
+    func deleteRow(rowIndex: Int) {
+        if self.notificationTableView != nil {
+            notificationTableView.layoutIfNeeded()
+            
+            notificationTableView.beginUpdates()
+            
+            var nsPath = NSIndexPath(forRow: rowIndex, inSection: 0)
+            notificationTableView.deleteRowsAtIndexPaths([nsPath], withRowAnimation: UITableViewRowAnimation.Fade)
+            
+            notificationTableView.endUpdates()
+        }
     }
     
     // MARK: UITableViewDelegate
@@ -270,7 +299,7 @@ class NotificationViewController: UIViewController, UITableViewDataSource, UITab
         cell.senderUsername = senderUsername
         
         let goToUserProfileGestureRecognizer: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: "goToUserProfile:")
-        goToUserProfileGestureRecognizer.numberOfTapsRequired = 1
+        goToUserProfileGestureRecognizer.cancelsTouchesInView = true
         
         cell.userImageView.addGestureRecognizer(goToUserProfileGestureRecognizer)
         cell.userImageView.userInteractionEnabled = true
@@ -287,7 +316,7 @@ class NotificationViewController: UIViewController, UITableViewDataSource, UITab
         cell.itemId = itemId
         
         let goToItemTypeDetailsGestureRecognizer: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: "goToItemTypeDetails:")
-        goToItemTypeDetailsGestureRecognizer.numberOfTapsRequired = 1
+        goToItemTypeDetailsGestureRecognizer.cancelsTouchesInView = true
         
         cell.itemImageView.addGestureRecognizer(goToItemTypeDetailsGestureRecognizer)
         cell.itemImageView.userInteractionEnabled = true
@@ -355,8 +384,6 @@ class NotificationViewController: UIViewController, UITableViewDataSource, UITab
     }
     
     func goToItemTypeDetails(gesture: UITapGestureRecognizer) {
-        println("go to item type details")
-        
         let parentView = gesture.view?.superview
         
         if parentView != nil {

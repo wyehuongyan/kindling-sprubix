@@ -160,8 +160,10 @@ class SignInViewController: UIViewController, UITextFieldDelegate, UITableViewDa
                         println(message)
                         println(data)
                         
-                        defaults.setObject(data["id"], forKey: "userId")
-                        defaults.setObject(data, forKey: "userData")
+                        var cleanData = self.cleanDictionary(data as! NSMutableDictionary)
+                        
+                        defaults.setObject(cleanData["id"], forKey: "userId")
+                        defaults.setObject(cleanData, forKey: "userData")
                         defaults.synchronize()
                         
                         //self.saveCookies(userId);
@@ -176,6 +178,18 @@ class SignInViewController: UIViewController, UITextFieldDelegate, UITableViewDa
             })
             
         }
+    }
+    
+    func cleanDictionary(dict: NSMutableDictionary)->NSMutableDictionary {
+        var mutableDict: NSMutableDictionary = dict.mutableCopy() as! NSMutableDictionary
+        mutableDict.enumerateKeysAndObjectsUsingBlock { (key, obj, stop) -> Void in
+            if (obj.isKindOfClass(NSNull.classForCoder())) {
+                mutableDict.setObject("", forKey: (key as! NSString))
+            } else if (obj.isKindOfClass(NSDictionary.classForCoder())) {
+                mutableDict.setObject(self.cleanDictionary(obj as! NSMutableDictionary), forKey: (key as! NSString))
+            }
+        }
+        return mutableDict
     }
     
     func saveCookies(userId: Int) {

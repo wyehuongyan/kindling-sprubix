@@ -242,6 +242,17 @@ class SprubixTweetLabel: STTweetLabel {
     }
 }
 
+class SprubixNotificationItemImageView: UIImageView {
+    override func hitTest(point: CGPoint, withEvent event: UIEvent?) -> UIView? {
+        var frame:CGRect = CGRectInset(self.bounds, -20, -20)
+        
+        println(CGRectContainsPoint(frame, point))
+        println(event)
+        
+        return CGRectContainsPoint(frame, point) ? self : nil
+    }
+}
+
 class Glow {
     class func addGlow(item: AnyObject) {
         item.layer.shadowColor = UIColor.blackColor().CGColor
