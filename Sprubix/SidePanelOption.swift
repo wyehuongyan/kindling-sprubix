@@ -23,7 +23,7 @@ class SidePanelOption {
         case Messages
         case Notifications
         case CreateOutfit
-        case LikedOutfits
+        case Favorites
         case Settings
         
         func toString()->String {
@@ -34,8 +34,8 @@ class SidePanelOption {
                 return "Notifications"
             case .CreateOutfit:
                 return "Create Outfit"
-            case .LikedOutfits:
-                return "Liked Outfits"
+            case .Favorites:
+                return "Favorites"
             case .Settings:
                 return "Settings"
             }
@@ -79,7 +79,7 @@ class SidePanelOption {
             //SidePanelOption(option: Option.Messages, image: UIImage(named: "sidemenu-messages")),
             SidePanelOption(option: Option.Notifications, image: UIImage(named: "sidemenu-notifications")),
             SidePanelOption(option: Option.CreateOutfit, image: UIImage(named: "sidemenu-create")),
-            SidePanelOption(option: Option.LikedOutfits, image: UIImage(named: "sidemenu-likes")),
+            SidePanelOption(option: Option.Favorites, image: UIImage(named: "sidemenu-likes")),
             SidePanelOption(option: Option.Settings, image: UIImage(named: "sidemenu-settings"))
         ]
     }

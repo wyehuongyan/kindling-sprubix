@@ -41,7 +41,7 @@ class MainFeedController: UIViewController, UICollectionViewDataSource, OutfitIn
         mainCollectionView.registerClass(MainFeedCell.self, forCellWithReuseIdentifier: mainFeedCellIdentifier)
         
         mainCollectionView.alwaysBounceVertical = true
-        mainCollectionView.backgroundColor = UIColor(red: 229/255, green: 229/255, blue: 229/255, alpha: 1)
+        mainCollectionView.backgroundColor = sprubixGray
         
         mainCollectionView.dataSource = self;
         mainCollectionView.delegate = self;

@@ -298,7 +298,7 @@ class EditSnapshotViewController: UIViewController {
             
             sprubixBoundingBoxes[i].contentMode = UIViewContentMode.ScaleAspectFill
             
-            var imageView: UIImageView = UIImageView(frame: CGRectMake(0, 0, screenWidth, screenWidth/0.75))
+            var imageView: UIImageView = UIImageView(frame: CGRectMake(0, 0, previewStillImage.frame.width, previewStillImage.frame.height))
             imageView.contentMode = UIViewContentMode.ScaleAspectFill
             
             var fixedImage = fixOrientation(previewStillImage.image!)

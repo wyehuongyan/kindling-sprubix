@@ -14,6 +14,8 @@ protocol SidePanelViewControllerDelegate {
     func showUserProfile(user: NSDictionary)
     func showCreateOutfit()
     func showNotifications()
+    func showFavorites()
+    func showSettingsView()
 }
 
 class SidePanelViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
@@ -122,9 +124,11 @@ class SidePanelViewController: UIViewController, UITableViewDataSource, UITableV
             delegate?.showNotifications()
         case .CreateOutfit:
             delegate?.showCreateOutfit()
-        case .LikedOutfits:
+        case .Favorites:
+            delegate?.showFavorites()
             break
         case .Settings:
+            delegate?.showSettingsView()
             break
         }
     }

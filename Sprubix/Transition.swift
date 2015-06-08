@@ -99,6 +99,7 @@ class Transition: NSObject, UIViewControllerAnimatedTransitioning {
             let leftUpperPoint = gridView!.convertPoint(CGPointZero, toView: nil)
             
             pageView.hidden = true
+            
             pageView.scrollToItemAtIndexPath(indexPath, atScrollPosition:.CenteredHorizontally, animated: false)
             
             let offsetY : CGFloat = fromViewController.navigationController!.navigationBarHidden ? 0.0 : navigationHeaderAndStatusbarHeight

@@ -28,6 +28,8 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
     
     var pieceImageView: UIImageView!
     var pieceImages: [UIImageView] = [UIImageView]()
+    var likeImageView: UIImageView!
+    var likeImagesDict: NSMutableDictionary = NSMutableDictionary()
     var likeButton: UIButton!
     var likeButtonsDict: NSMutableDictionary = NSMutableDictionary()
     var commentsButton: UIButton!
@@ -139,9 +141,19 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
                 
                 singleTap.requireGestureRecognizerToFail(doubleTap) // so that single tap will not be called during a double tap
                 
-                outfitImageCell.addSubview(pieceImageView)
+                // like heart image
+                let likeImageViewWidth:CGFloat = 75
+                likeImageView = UIImageView(image: UIImage(named: "main-like-filled-large"))
+                likeImageView.frame = CGRect(x: frame.size.width / 2 - likeImageViewWidth / 2, y: 0, width: likeImageViewWidth, height: pieceHeight)
+                likeImageView.contentMode = UIViewContentMode.ScaleAspectFit
+                likeImageView.alpha = 0
                 
+                pieceImageView.addSubview(likeImageView)
+                
+                likeImagesDict.setObject(likeImageView, forKey: piece)
                 pieceImages.append(pieceImageView)
+                
+                outfitImageCell.addSubview(pieceImageView)
                 
                 prevPieceHeight += pieceHeight // to offset 2nd piece image's height with first image's height
                 outfitHeight += pieceHeight // accumulate height of all pieces
@@ -330,9 +342,25 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
             
             if pos != nil {
                 let piece = pieces[pos!]
-
+               
                 likedPiece(piece)
             }
+        }
+    }
+    
+    func animateHeart(piece: NSDictionary) {
+        var likeImageView = likeImagesDict[piece] as? UIImageView
+        
+        if likeImageView != nil {
+            UIView.animateWithDuration(0.3, delay: 0.2, usingSpringWithDamping: 0.9, initialSpringVelocity: 0, options: .CurveEaseInOut, animations: {
+                likeImageView!.alpha = 1.0
+                }, completion: { finished in
+                    if finished {
+                        UIView.animateWithDuration(0.3, delay: 0.2, usingSpringWithDamping: 0.9, initialSpringVelocity: 0, options: .CurveEaseInOut, animations: {
+                            likeImageView!.alpha = 0.0
+                            }, completion: nil)
+                    }
+            })
         }
     }
     
@@ -343,6 +371,8 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
         let userData: NSDictionary? = defaults.dictionaryForKey("userData")
         
         if userData != nil {
+            animateHeart(piece)
+            
             let pieceId = piece["id"] as! Int
             let receiver = piece["user"] as! NSDictionary
             let pieceImagesString = piece["images"] as! NSString
@@ -375,6 +405,9 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
                 snapshot in
                 
                 if (snapshot.value as? NSNull) != nil {
+                    self.piecesLiked.setObject(true, forKey: pieceId)
+                    (self.likeButtonsDict[piece] as! UIButton).selected = true
+                    
                     // does not exist, add it
                     let likeRef = likesRef.childByAutoId()
                     
@@ -460,6 +493,10 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
                                             
                                             if (error != nil) {
                                                 println("Error: Notification Key could not be added to Likes.")
+                                                
+                                                self.piecesLiked.setObject(false, forKey: pieceId)
+                                                (self.likeButtonsDict[piece] as! UIButton).selected = false
+                                                
                                             } else {
                                                 println("Piece liked successfully!")
                                                 // add to piecesLiked dictionary

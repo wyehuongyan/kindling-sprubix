@@ -33,10 +33,10 @@ class NotificationViewController: UIViewController, UITableViewDataSource, UITab
         if userData != nil {
             let username = userData!["username"] as! String
             
-            let userNotificationRef = firebaseRef.childByAppendingPath("users/\(username)/notifications")
+            let userNotificationsRef = firebaseRef.childByAppendingPath("users/\(username)/notifications")
             
             // Firebase Listener: child added
-            userNotificationRef.queryOrderedByChild("created_at").queryLimitedToLast(50).observeEventType(.ChildAdded, withBlock: {
+            userNotificationsRef.queryOrderedByChild("created_at").queryLimitedToLast(50).observeEventType(.ChildAdded, withBlock: {
                 snapshot in
                 
                 //println("key: \(snapshot.key)")
@@ -77,7 +77,7 @@ class NotificationViewController: UIViewController, UITableViewDataSource, UITab
             })
             
             // Firebase Listener: child removed
-            userNotificationRef.observeEventType(.ChildRemoved, withBlock: {
+            userNotificationsRef.observeEventType(.ChildRemoved, withBlock: {
                 snapshot in
                 println("\(snapshot.key) was removed from user notifications.")
                 

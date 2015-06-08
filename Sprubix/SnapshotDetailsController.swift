@@ -30,11 +30,14 @@ protocol SprubixPieceProtocol {
     func setSprubixPiece(sprubixPiece: SprubixPiece, position: Int)
 }
 
-class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableViewDataSource, UITextViewDelegate, UITextFieldDelegate, SprubixCameraDelegate {
+class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableViewDataSource, UITextViewDelegate, UITextFieldDelegate, SprubixCameraDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
     var delegate: SprubixPieceProtocol?
     var pos: Int!
     var sprubixPiece: SprubixPiece!
+    
+    let imagePicker = UIImagePickerController()
+    var photoLibraryButton: UIButton!
     
     // custom nav bar
     var newNavBar:UINavigationBar!
@@ -151,8 +154,6 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
         
         // listen to keyboard show/hide events
         NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardWillChangeFrameNotification, object: nil)
-        
-        self.camera?.stopCamera()
     }
     
     // camera
@@ -180,6 +181,41 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
         self.camera?.focus(touchPoint, preview: self.preview!)
     }
     
+    func setPreviewStillImage(image: UIImage?) {
+        if image != nil {
+            // crop image to square
+            var fixedImage: UIImage = self.fixOrientation(image!)
+            
+            var cropCenter: CGPoint = CGPointMake((fixedImage.size.width / 2), (fixedImage.size.height / 2));
+            var cropStart: CGPoint = CGPointMake((cropCenter.x - fixedImage.size.width / 2), (cropCenter.y - fixedImage.size.height / 2));
+            let cropRect: CGRect = CGRectMake(cropStart.x, cropStart.y, fixedImage.size.width, fixedImage.size.height);
+            
+            let cropRef: CGImageRef = CGImageCreateWithImageInRect(fixedImage.CGImage, cropRect);
+            let cropImage: UIImage = UIImage(CGImage: cropRef)!
+            
+            var resizedImage = self.resizeImage(cropImage, width: screenWidth)
+            
+            println(resizedImage.size)
+            
+            self.selectedThumbnail.setImage(resizedImage, forState: UIControlState.Normal)
+            self.selectedThumbnail.hasThumbnail = true
+            self.itemCoverImageView.image = resizedImage
+            self.itemCoverImageView.alpha = 1.0
+            
+            self.itemTableView.scrollEnabled = true
+            self.pieceSpecsView.alpha = 1.0
+            self.cameraCapture.alpha = 0.0
+            self.itemDescriptionCell.alpha = 1.0
+            self.photoLibraryButton.alpha = 0.0
+            
+            self.cameraCapture.enabled = true
+            
+            self.newNavBar.setItems([self.newNavItem], animated: true)
+        } else {
+            NSLog("Uh oh! Something went wrong. Try it again.")
+        }
+    }
+    
     func captureFrame(sender: AnyObject) {
         // this is the part where image is captured successfully
         self.cameraCapture.enabled = false
@@ -190,37 +226,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
         })
         
         self.camera?.captureStillImage({ (image) -> Void in
-            if image != nil {
-                // crop image to square
-                var fixedImage: UIImage = self.fixOrientation(image!)
-                
-                var cropCenter: CGPoint = CGPointMake((fixedImage.size.width / 2), (fixedImage.size.height / 2));
-                var cropStart: CGPoint = CGPointMake((cropCenter.x - fixedImage.size.width / 2), (cropCenter.y - fixedImage.size.width / 2));
-                let cropRect: CGRect = CGRectMake(cropStart.x, cropStart.y, fixedImage.size.width, fixedImage.size.width);
-                
-                let cropRef: CGImageRef = CGImageCreateWithImageInRect(fixedImage.CGImage, cropRect);
-                let cropImage: UIImage = UIImage(CGImage: cropRef)!
-                
-                var resizedImage = self.resizeImage(cropImage, width: screenWidth)
-                
-                //println(resizedImage.size)
-                
-                self.selectedThumbnail.setImage(resizedImage, forState: UIControlState.Normal)
-                self.selectedThumbnail.hasThumbnail = true
-                self.itemCoverImageView.image = resizedImage
-                self.itemCoverImageView.alpha = 1.0
-
-                self.itemTableView.scrollEnabled = true
-                self.pieceSpecsView.alpha = 1.0
-                self.cameraCapture.alpha = 0.0
-                self.itemDescriptionCell.alpha = 1.0
-                
-                self.cameraCapture.enabled = true
-                
-                self.newNavBar.setItems([self.newNavItem], animated: true)
-            } else {
-                NSLog("Uh oh! Something went wrong. Try it again.")
-            }
+            self.setPreviewStillImage(image)
         })
     }
     
@@ -446,6 +452,8 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
             
             itemDetailsCell.addSubview(cameraCapture)
             
+            initPhotoLibrary()
+            
             return itemDetailsCell
             
         case 3:
@@ -484,9 +492,12 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
             itemTableView.scrollEnabled = false
             pieceSpecsView.alpha = 0.0
             cameraCapture.alpha = 1.0
+            photoLibraryButton.alpha = 1.0
             itemDescriptionCell.alpha = 0.0
             
             setNavBar("Add Image", leftButtonTitle: "cancel", leftButtonCallback: "addImageCancelTapped:", rightButtonTitle: "", rightButtonCallback: nil)
+            
+            println(camera)
             
             if camera == nil {
                 // activate camera mode (square)
@@ -496,6 +507,52 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
         } else {
             itemCoverImageView.image = selectedThumbnail.imageView?.image
         }
+    }
+    
+    //MARK: PhotoLibrary Delegates
+    func imagePickerController(picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [NSObject : AnyObject]) {
+        
+        var chosenImage = info[UIImagePickerControllerOriginalImage] as! UIImage
+        dismissViewControllerAnimated(true, completion: nil)
+        
+        // this is the part where image is captured successfully
+        self.cameraCapture.enabled = false
+        self.itemCoverImageView.alpha = 0.0
+        
+        UIView.animateWithDuration(0.225, animations: { () -> Void in
+            self.cameraPreview!.alpha = 0.0
+        })
+        
+        self.setPreviewStillImage(chosenImage)
+    }
+    
+    func imagePickerControllerDidCancel(picker: UIImagePickerController) {
+        addImageCancelTapped(UIButton())
+        
+        dismissViewControllerAnimated(true, completion: nil)
+    }
+    
+    func initPhotoLibrary() {
+        let photoLibraryButtonWidth: CGFloat = 40
+        
+        photoLibraryButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+        
+        photoLibraryButton.frame = CGRectMake(cameraCapture.frame.origin.x / 2 - photoLibraryButtonWidth / 2, cameraCapture.frame.origin.y + (cameraCapture.frame.height / 2 - photoLibraryButtonWidth / 2), photoLibraryButtonWidth, photoLibraryButtonWidth)
+        
+        var image: UIImage = UIImage(named: "camera-roll")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
+        
+        photoLibraryButton.setImage(image, forState: UIControlState.Normal)
+        photoLibraryButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+        photoLibraryButton.imageView?.tintColor = UIColor.lightGrayColor()
+        photoLibraryButton.addTarget(self, action: "photoFromLibrary:", forControlEvents: UIControlEvents.TouchUpInside)
+        photoLibraryButton.layer.cornerRadius = 5
+        photoLibraryButton.alpha = 0.0
+        
+        itemDetailsCell.addSubview(photoLibraryButton)
+        
+        imagePicker.delegate = self
+        imagePicker.navigationBar.translucent = false
+        imagePicker.navigationBar.barTintColor = sprubixColor
     }
     
     func setNavBar(title: String, leftButtonTitle: String, leftButtonCallback: Selector, rightButtonTitle: String, rightButtonCallback: Selector) {
@@ -536,6 +593,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
         cameraPreview!.alpha = 0.0
         cameraCapture.alpha = 0.0
         itemDescriptionCell.alpha = 1.0
+        photoLibraryButton.alpha = 0.0
         
         cameraCapture.enabled = true
         
@@ -634,6 +692,8 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
         
         // Yes
         alert.addAction(UIAlertAction(title: "Yes, I'm sure", style: UIAlertActionStyle.Default, handler: { action in
+            
+            self.camera?.stopCamera()
             self.navigationController?.popViewControllerAnimated(true)
         }))
         
@@ -660,6 +720,8 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
         sprubixPiece.desc = (descriptionText != nil && descriptionText.text != placeholderText) ? descriptionText.text : ""
         
         delegate?.setSprubixPiece(sprubixPiece, position: pos)
+        
+        self.camera?.stopCamera()
         self.navigationController?.popViewControllerAnimated(true)
     }
     
@@ -678,5 +740,11 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
         UIGraphicsEndImageContext()
         
         return finalImage
+    }
+    
+    func photoFromLibrary(sender: UIButton) {
+        imagePicker.allowsEditing = false
+        imagePicker.sourceType = UIImagePickerControllerSourceType.PhotoLibrary
+        presentViewController(imagePicker, animated: true, completion: nil)
     }
 }

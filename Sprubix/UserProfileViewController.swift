@@ -17,7 +17,6 @@ enum ProfileState {
 class UserProfileViewController: UIViewController, UICollectionViewDataSource, CHTCollectionViewDelegateWaterfallLayout, TransitionProtocol, UserProfileHeaderDelegate {
     
     var user: NSDictionary?
-    var userName: String?
     
     var outfitsLoaded: Bool = false
     var piecesLoaded: Bool = false
@@ -115,7 +114,7 @@ class UserProfileViewController: UIViewController, UICollectionViewDataSource, C
         profileCollectionView.registerClass(UserProfileFooter.self, forSupplementaryViewOfKind: CHTCollectionElementKindSectionFooter, withReuseIdentifier: userProfileFooterIdentifier)
         
         profileCollectionView.alwaysBounceVertical = true
-        profileCollectionView.backgroundColor = UIColor(red: 229/255, green: 229/255, blue: 229/255, alpha: 1)
+        profileCollectionView.backgroundColor = sprubixGray
         
         profileCollectionView.dataSource = self;
         profileCollectionView.delegate = self;
@@ -337,6 +336,7 @@ class UserProfileViewController: UIViewController, UICollectionViewDataSource, C
         return flowLayout
     }
     
+    // determine if this user can be followed or not
     func loadUserFollow() {
         let targetUserId:Int? = user!["id"] as? Int
         let userId:Int? = defaults.objectForKey("userId") as? Int

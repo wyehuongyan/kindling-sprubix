@@ -28,6 +28,8 @@ class PieceDetailsViewController: UICollectionViewController, UICollectionViewDe
         collectionView.registerClass(PieceDetailsCell.self, forCellWithReuseIdentifier: pieceDetailsCellIdentifier)
         collectionView.setToIndexPath(indexPath)
         
+        println(indexPath)
+        
         collectionView.performBatchUpdates({collectionView.reloadData()}, completion: { finished in
             if finished {
                 collectionView.scrollToItemAtIndexPath(indexPath,atScrollPosition:.CenteredHorizontally, animated: false)
@@ -61,8 +63,8 @@ class PieceDetailsViewController: UICollectionViewController, UICollectionViewDe
         
         collectionCell.piece = piece
         
-        collectionCell.user = user
-        collectionCell.inspiredBy = piece["user"] as! NSDictionary
+        collectionCell.user = piece["user"] as! NSDictionary
+        collectionCell.inspiredBy = piece["inspired_by"] as? NSDictionary // supposed to be previous
         collectionCell.tappedAction = {}
         
         // return to previous

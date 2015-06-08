@@ -33,7 +33,7 @@ extension UICollectionView{
     
     func toIndexPath () -> NSIndexPath {
         let index = self.contentOffset.x/self.frame.size.width
-        if index > 0{
+        if index > 0 {
             return NSIndexPath(forRow: Int(index), inSection: 0)
         }else if let indexPath = objc_getAssociatedObject(self,&kIndexPathPointer) as? NSIndexPath {
             return indexPath
@@ -42,7 +42,7 @@ extension UICollectionView{
         }
     }
     
-    func fromPageIndexPath () -> NSIndexPath{
+    func fromPageIndexPath () -> NSIndexPath {
         let index : Int = Int(self.contentOffset.x/self.frame.size.width)
         return NSIndexPath(forRow: index, inSection: 0)
     }

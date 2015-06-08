@@ -33,6 +33,8 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
     // side panel
     var userProfileViewController: UserProfileViewController?
     var sprubixCameraViewController: SprubixCameraViewController?
+    var favoritesViewController: FavoritesViewController?
+    var settingsViewController: SettingsViewController?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -86,6 +88,24 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
         sprubixNotificationViewController?.delegate = self
         sprubixNavigationController.delegate = nil
         sprubixNavigationController.pushViewController(sprubixNotificationViewController!, animated: true)
+    }
+    
+    func showFavorites() {
+        favoritesViewController = FavoritesViewController()
+        
+        self.closeSidePanel()
+        
+        sprubixNavigationController.delegate = nil
+        sprubixNavigationController.pushViewController(favoritesViewController!, animated: true)
+    }
+    
+    func showSettingsView() {
+        settingsViewController = UIStoryboard.settingsViewController()
+        
+        self.closeSidePanel()
+        
+        sprubixNavigationController.delegate = nil
+        sprubixNavigationController.pushViewController(settingsViewController!, animated: true)
     }
     
     // SprubixFeedControllerDelegate
@@ -235,5 +255,9 @@ extension UIStoryboard {
     
     class func notificationViewController() -> NotificationViewController? {
         return mainStoryboard().instantiateViewControllerWithIdentifier("NotificationView") as? NotificationViewController
+    }
+    
+    class func settingsViewController() -> SettingsViewController? {
+        return mainStoryboard().instantiateViewControllerWithIdentifier("SettingsView") as? SettingsViewController
     }
 }

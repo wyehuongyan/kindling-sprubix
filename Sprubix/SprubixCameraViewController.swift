@@ -9,9 +9,12 @@
 import UIKit
 import AVFoundation
 
-class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, SprubixCameraDelegate {
+class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, SprubixCameraDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
     var editSnapshotViewController: EditSnapshotViewController!
+    
+    let imagePicker = UIImagePickerController()
+    var photoLibraryButton: UIButton!
     
     var headButton: UIButton!
     var topButton: UIButton!
@@ -52,6 +55,38 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
         initPieceSelector()
     }
     
+    override func viewWillAppear(animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        self.navigationController?.setNavigationBarHidden(false, animated: true)
+        self.navigationController?.navigationBar.setBackgroundImage(UIImage(), forBarMetrics: UIBarMetrics.Default)
+        self.navigationController?.navigationBar.shadowImage = UIImage()
+
+        self.initializeCamera()
+    }
+    
+    override func viewDidAppear(animated: Bool) {
+        super.viewDidAppear(animated)
+
+        editSnapshotViewController = nil
+        
+        self.establishVideoPreviewArea()
+    }
+    
+    override func viewWillDisappear(animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        self.navigationController?.setNavigationBarHidden(true, animated: true)
+        self.navigationController?.navigationBar.setBackgroundImage(nil, forBarMetrics: UIBarMetrics.Default)
+        self.navigationController?.navigationBar.shadowImage = nil
+        
+        self.camera?.stopCamera()
+    }
+    
+    override func viewDidDisappear(animated: Bool) {
+        super.viewDidDisappear(animated)
+    }
+    
     func initPieceSelector() {
         pieceSelectorView = UIView(frame: CGRectMake(0, 0, screenWidth, screenWidth / 0.75))
         pieceSelectorView.backgroundColor = UIColor.whiteColor().colorWithAlphaComponent(0.75)
@@ -60,7 +95,7 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
         previewStillScrollView = UIScrollView(frame: CGRectMake(0, navigationHeight, screenWidth, screenWidth / 0.75))
         previewStillScrollView.contentSize = CGSize(width: screenWidth, height: pieceSelectorView.frame.size.height)
         previewStillScrollView.scrollEnabled = true
-        previewStillScrollView.pagingEnabled = true
+        previewStillScrollView.pagingEnabled = false
         previewStillScrollView.alwaysBounceVertical = true
         previewStillScrollView.showsVerticalScrollIndicator = false
         previewStillScrollView.delegate = self
@@ -153,6 +188,7 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
         pieceSelectorlabel.alpha = 1.0
         snappedCount = 0.0
         selectedCount = 0.0
+        photoLibraryButton.removeFromSuperview()
         
         for (key, value) in selectedPieces {
             selectedPieces[key] = false
@@ -174,38 +210,26 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
         feetButton.backgroundColor = UIColor.lightGrayColor()
     }
     
-    override func viewWillAppear(animated: Bool) {
-        super.viewWillAppear(animated)
+    func initPhotoLibrary() {
+        let photoLibraryButtonWidth: CGFloat = 40
         
-        self.navigationController?.setNavigationBarHidden(false, animated: true)
-        self.navigationController?.navigationBar.setBackgroundImage(UIImage(), forBarMetrics: UIBarMetrics.Default)
-        self.navigationController?.navigationBar.shadowImage = UIImage()
+        photoLibraryButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
 
-        self.initializeCamera()
-    }
-    
-    override func viewDidAppear(animated: Bool) {
-        super.viewDidAppear(animated)
-
-        editSnapshotViewController = nil
+        photoLibraryButton.frame = CGRectMake(okButton.frame.origin.x / 2 - photoLibraryButtonWidth / 2, okButton.frame.origin.y + (cameraCapture.frame.height / 2 - photoLibraryButtonWidth / 2), photoLibraryButtonWidth, photoLibraryButtonWidth)
         
-        self.establishVideoPreviewArea()
-    }
-    
-    override func viewWillDisappear(animated: Bool) {
-        super.viewWillDisappear(animated)
+        var image: UIImage = UIImage(named: "camera-roll")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
         
-        self.navigationController?.setNavigationBarHidden(true, animated: true)
-        self.navigationController?.navigationBar.setBackgroundImage(nil, forBarMetrics: UIBarMetrics.Default)
-        self.navigationController?.navigationBar.shadowImage = nil
+        photoLibraryButton.setImage(image, forState: UIControlState.Normal)
+        photoLibraryButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+        photoLibraryButton.imageView?.tintColor = UIColor.lightGrayColor()
+        photoLibraryButton.addTarget(self, action: "photoFromLibrary:", forControlEvents: UIControlEvents.TouchUpInside)
+        photoLibraryButton.layer.cornerRadius = 5
         
-        self.camera?.stopCamera()
-    }
-    
-    override func viewDidDisappear(animated: Bool) {
-        super.viewDidDisappear(animated)
+        view.addSubview(photoLibraryButton)
         
-        self.resetPieceSelector()
+        imagePicker.delegate = self
+        imagePicker.navigationBar.translucent = false
+        imagePicker.navigationBar.barTintColor = sprubixColor
     }
     
     func initializeCamera() {
@@ -246,8 +270,68 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
     }
     
     // ScrollViewDelegate
-    func scrollViewDidScroll(scrollView: UIScrollView) {
-        calculatePage()
+    private func calculatePage(scrollView: UIScrollView) {
+        let currentOffset = scrollView.contentOffset
+        
+        var nearestPoint: CGPoint?
+        var page: Int?
+        var prevDistance: Float = 0
+        var points: [CGPoint] = [CGPoint]()
+        
+        for stillImage in previewStillImages {
+            points.append(stillImage.frame.origin)
+        }
+        
+        points.append(cameraPreview.frame.origin)
+        
+        for var i = 0; i < points.count; i++ {
+            // see which stillImage's offset Y is currentOffsetY closest to
+            var point = points[i]
+            
+            if nearestPoint == nil {
+                nearestPoint = point
+                page = i
+            }
+            
+            let distance = hypotf(Float(currentOffset.x - point.x), Float(currentOffset.y - point.y))
+            
+            if distance < prevDistance {
+                nearestPoint = point
+                page = i
+            }
+            
+            prevDistance = distance
+        }
+        
+        if nearestPoint != nil && page != nil {
+            scrollView.setContentOffset(nearestPoint!, animated: true)
+            
+            if page > selectedPiecesOrdered.count {
+                setSnapButtonIcon(selectedPiecesOrdered[page!])
+            }
+        }
+    }
+    
+    func scrollViewDidEndDragging(scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        
+        calculatePage(scrollView)
+    }
+    
+    func scrollViewWillBeginDecelerating(scrollView: UIScrollView) {
+        calculatePage(scrollView)
+    }
+    
+    //MARK: PhotoLibrary Delegates
+    func imagePickerController(picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [NSObject : AnyObject]) {
+
+        var chosenImage = info[UIImagePickerControllerOriginalImage] as! UIImage
+        dismissViewControllerAnimated(true, completion: nil)
+
+        setPreviewStillImage(chosenImage)
+    }
+    
+    func imagePickerControllerDidCancel(picker: UIImagePickerController) {
+        dismissViewControllerAnimated(true, completion: nil)
     }
     
     // MARK: Button Actions
@@ -260,52 +344,71 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
         })
         
         self.camera?.captureStillImage({ (image) -> Void in
-            if image != nil {
-                
-                let selectedPiece = self.selectedPiecesOrdered[Int(self.snappedCount)]
+            self.setPreviewStillImage(image)
+        })
+    }
+    
+    func setPreviewStillImage(image: UIImage?) {
+        if image != nil {
+            // was selected by user
+            let selectedPiece = self.selectedPiecesOrdered[Int(self.snappedCount)]
             
-                // was selected by user
-                var previewStillImageView: UIImageView = UIImageView(frame: CGRectMake(0, self.snappedCount * screenWidth / 0.75, screenWidth, screenWidth / 0.75))
-                previewStillImageView.image = image
-                
-                // add this preview still into the storage array
-                self.previewStillImages.append(previewStillImageView)
-                
-                self.cameraPreview.frame.origin.y = (self.snappedCount + 1) * screenWidth / 0.75
-                self.cameraPreview.alpha = 1.0
-                self.previewStillScrollView.addSubview(previewStillImageView)
-                self.previewStillScrollView.contentSize = CGSize(width: screenWidth, height: self.pieceSelectorView.frame.size.height * (self.snappedCount + 2))
-                
-                self.snappedCount += 1
-
-                // the delay is for the cameraStill to remain on screen for a while before moving away
-                self.delay(0.6) {
-                    if self.snappedCount == self.selectedCount {
-                        self.cameraCapture.alpha = 0.0
-                        
-                        // go to edit controller
-                        if self.editSnapshotViewController == nil {
-                            self.editSnapshotViewController = EditSnapshotViewController()
-                        }
-                        
-                        self.editSnapshotViewController.selectedPiecesOrdered = self.selectedPiecesOrdered
-                        self.editSnapshotViewController.previewStillImages = self.previewStillImages
-                        
-                        self.navigationController?.delegate = nil
-                        self.navigationController?.pushViewController(self.editSnapshotViewController, animated: true)
-                    } else {
-                        // shift view to cameraPreview
-                        self.previewStillScrollView.scrollRectToVisible(self.cameraPreview.frame, animated: true)
-                        self.setSnapButtonIcon(self.selectedPiecesOrdered[Int(self.snappedCount)])
+            let scale = image!.size.width / screenWidth
+            let previewStillWidth = image!.size.width / scale
+            let previewStillHeight = image!.size.height / scale
+            
+            var totalPrevHeights: CGFloat = 0
+            
+            for stillImage in self.previewStillImages {
+                totalPrevHeights += stillImage.frame.height
+            }
+            
+            var previewStillImageView: UIImageView = UIImageView(frame: CGRectMake(0, totalPrevHeights, previewStillWidth, previewStillHeight))
+            previewStillImageView.contentMode = UIViewContentMode.ScaleAspectFit
+            previewStillImageView.image = image
+            
+            // add this preview still into the storage array
+            self.previewStillImages.append(previewStillImageView)
+            
+            self.cameraPreview.frame.origin.y = self.cameraPreview.frame.origin.y + previewStillImageView.frame.height
+            self.cameraPreview.alpha = 1.0
+            self.previewStillScrollView.addSubview(previewStillImageView)
+            //self.previewStillScrollView.contentSize = CGSize(width: screenWidth, height: self.pieceSelectorView.frame.size.height * (self.snappedCount + 2))
+            self.previewStillScrollView.contentSize = CGSize(width: screenWidth, height: totalPrevHeights + previewStillImageView.frame.height + self.pieceSelectorView.frame.size.height)
+            
+            self.snappedCount += 1
+            
+            // the delay is for the cameraStill to remain on screen for a while before moving away
+            self.delay(0.6) {
+                if self.snappedCount == self.selectedCount {
+                    self.cameraCapture.alpha = 0.0
+                    
+                    // go to edit controller
+                    if self.editSnapshotViewController == nil {
+                        self.editSnapshotViewController = EditSnapshotViewController()
                     }
                     
-                    self.cameraCapture.enabled = true
+                    self.editSnapshotViewController.selectedPiecesOrdered = self.selectedPiecesOrdered
+                    self.editSnapshotViewController.previewStillImages = self.previewStillImages
+                    
+                    self.navigationController?.delegate = nil
+                    self.navigationController?.pushViewController(self.editSnapshotViewController, animated: true) {
+                        // Animation done
+                        self.resetPieceSelector()
+                    }
+                    
+                } else {
+                    // shift view to cameraPreview
+                    self.previewStillScrollView.scrollRectToVisible(self.cameraPreview.frame, animated: true)
+                    self.setSnapButtonIcon(self.selectedPiecesOrdered[Int(self.snappedCount)])
                 }
                 
-            } else {
-                NSLog("Uh oh! Something went wrong. Try it again.")
+                self.cameraCapture.enabled = true
             }
-        })
+            
+        } else {
+            NSLog("Uh oh! Something went wrong. Try it again.")
+        }
     }
     
     func setSnapButtonIcon(currentPiece: String) {
@@ -342,6 +445,12 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
     }
     
     // Button Callbacks
+    func photoFromLibrary(sender: UIButton) {
+        imagePicker.allowsEditing = false
+        imagePicker.sourceType = UIImagePickerControllerSourceType.PhotoLibrary
+        presentViewController(imagePicker, animated: true, completion: nil)
+    }
+    
     func headPieceSelected(sender: UIButton) {
         if sender.selected != true {
             sender.backgroundColor = sprubixColor
@@ -414,6 +523,9 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
                 }
             }
             
+            // enable image picker 
+            initPhotoLibrary()
+            
             // first one
             setSnapButtonIcon(selectedPiecesOrdered[0])
         }
@@ -426,5 +538,16 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
                 Int64(delay * Double(NSEC_PER_SEC))
             ),
             dispatch_get_main_queue(), closure)
+    }
+}
+
+extension UINavigationController {
+    func pushViewController(viewController: UIViewController,
+        animated: Bool, completion: Void -> Void) {
+            
+            CATransaction.begin()
+            CATransaction.setCompletionBlock(completion)
+            pushViewController(viewController, animated: animated)
+            CATransaction.commit()
     }
 }
