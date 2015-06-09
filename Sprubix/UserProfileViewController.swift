@@ -40,6 +40,7 @@ class UserProfileViewController: UIViewController, UICollectionViewDataSource, C
     
     var profileCollectionView: UICollectionView!
     var currentProfileState: ProfileState = .Outfits
+    var activityView: UIActivityIndicatorView!
     
     @IBOutlet var closeUserProfileButton: UIBarButtonItem!
     @IBAction func closeUserProfile(sender: UIBarButtonItem) {
@@ -120,6 +121,14 @@ class UserProfileViewController: UIViewController, UICollectionViewDataSource, C
         profileCollectionView.delegate = self;
         
         view.addSubview(profileCollectionView)
+        
+        // here the spinner is initialized
+        let activityViewWidth: CGFloat = 50
+        activityView = UIActivityIndicatorView(activityIndicatorStyle: UIActivityIndicatorViewStyle.White)
+        activityView.color = sprubixColor
+        activityView.frame = CGRect(x: screenWidth / 2 - activityViewWidth / 2, y: ((screenHeight - userProfileHeaderHeight) / 2 - activityViewWidth / 2) + userProfileHeaderHeight, width: activityViewWidth, height: activityViewWidth)
+        
+        profileCollectionView.addSubview(activityView)
     }
     
     func initCollectionViewLayouts() {
@@ -373,6 +382,10 @@ class UserProfileViewController: UIViewController, UICollectionViewDataSource, C
             var userId:Int? = user!["id"] as? Int
             
             if userId != nil {
+                self.currentProfileState = .Outfits
+                self.profileCollectionView.reloadData()
+                activityView.startAnimating()
+                
                 manager.GET(SprubixConfig.URL.api + "/user/\(userId!)/outfits",
                     parameters: nil,
                     success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
@@ -380,6 +393,7 @@ class UserProfileViewController: UIViewController, UICollectionViewDataSource, C
                         
                         self.outfitsLoaded = true
                         self.currentProfileState = .Outfits
+                        self.activityView.stopAnimating()
                         self.profileCollectionView.reloadData()
                         
                         // set layout
@@ -408,6 +422,10 @@ class UserProfileViewController: UIViewController, UICollectionViewDataSource, C
             var userId:Int? = user!["id"] as? Int
             
             if userId != nil {
+                self.currentProfileState = .Pieces
+                self.profileCollectionView.reloadData()
+                activityView.startAnimating()
+                
                 manager.GET(SprubixConfig.URL.api + "/user/\(userId!)/pieces",
                     parameters: nil,
                     success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
@@ -415,6 +433,7 @@ class UserProfileViewController: UIViewController, UICollectionViewDataSource, C
                         
                         self.piecesLoaded = true
                         self.currentProfileState = .Pieces
+                        self.activityView.stopAnimating()
                         self.profileCollectionView.reloadData()
                         
                         // set layout
@@ -441,6 +460,10 @@ class UserProfileViewController: UIViewController, UICollectionViewDataSource, C
             var userId:Int? = user!["id"] as? Int
             
             if userId != nil {
+                self.currentProfileState = .Community
+                self.profileCollectionView.reloadData()
+                activityView.startAnimating()
+                
                 manager.GET(SprubixConfig.URL.api + "/user/\(userId!)/outfits/community",
                     parameters: nil,
                     success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
@@ -448,6 +471,7 @@ class UserProfileViewController: UIViewController, UICollectionViewDataSource, C
                         
                         self.communityLoaded = true
                         self.currentProfileState = .Community
+                        self.activityView.stopAnimating()
                         self.profileCollectionView.reloadData()
                         
                         // set layout

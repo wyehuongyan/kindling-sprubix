@@ -20,10 +20,11 @@ class FavoritesViewController: UIViewController, UICollectionViewDataSource, CHT
     let profilePieceCellIdentifier = "ProfilePieceCell"
     
     let toolbarHeight:CGFloat = 50
-    var button1:UIButton!
-    var button2:UIButton!
-    var buttonLine:UIView!
-    var currentChoice:UIButton!
+    var button1: UIButton!
+    var button2: UIButton!
+    var buttonLine: UIView!
+    var currentChoice: UIButton!
+    var activityView: UIActivityIndicatorView!
     
     // liked
     var likedOutfits:[NSDictionary] = [NSDictionary]()
@@ -176,6 +177,14 @@ class FavoritesViewController: UIViewController, UICollectionViewDataSource, CHT
         likedCollectionView.backgroundColor = sprubixGray
         
         view.addSubview(likedCollectionView)
+        
+        // here the spinner is initialized
+        let activityViewWidth: CGFloat = 50
+        activityView = UIActivityIndicatorView(activityIndicatorStyle: UIActivityIndicatorViewStyle.White)
+        activityView.color = sprubixColor
+        activityView.frame = CGRect(x: screenWidth / 2 - activityViewWidth / 2, y: screenHeight / 2 - activityViewWidth / 2, width: activityViewWidth, height: activityViewWidth)
+        
+        view.addSubview(activityView)
     }
     
     func retrieveLikedOutfits() {
@@ -184,6 +193,8 @@ class FavoritesViewController: UIViewController, UICollectionViewDataSource, CHT
         let userData: NSDictionary? = defaults.dictionaryForKey("userData")
         
         if userData != nil {
+            activityView.startAnimating()
+            
             let username = userData!["username"] as! String
             let userLikesRef = firebaseRef.childByAppendingPath("users/\(username)/likes")
             
@@ -224,6 +235,7 @@ class FavoritesViewController: UIViewController, UICollectionViewDataSource, CHT
                                 
                                 self.likedOutfits = responseObject["data"] as! [NSDictionary]
                                 
+                                self.activityView.stopAnimating()
                                 self.likedCollectionView.reloadData()
                             },
                             failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
@@ -384,6 +396,8 @@ class FavoritesViewController: UIViewController, UICollectionViewDataSource, CHT
             
             // // pieces
             if likedPieces.count <= 0 {
+                activityView.startAnimating()
+                
                 manager.POST(SprubixConfig.URL.api + "/pieces/ids",
                     parameters: [
                         "ids": likedPieceIds
@@ -393,6 +407,7 @@ class FavoritesViewController: UIViewController, UICollectionViewDataSource, CHT
 
                         self.likedPieces = responseObject["data"] as! [NSDictionary]
                         self.currentFavoriteState = FavoriteState.Pieces
+                        self.activityView.stopAnimating()
                         self.likedCollectionView.reloadData()
                         
                         self.likedCollectionView.collectionViewLayout.invalidateLayout()
