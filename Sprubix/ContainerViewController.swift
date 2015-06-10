@@ -108,23 +108,6 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
         sprubixNavigationController.pushViewController(settingsViewController!, animated: true)
     }
     
-    func showRecentComments(poutfitIdentifier: String) {
-        // firebase retrieve 3 most recent comments
-        let poutfitCommentsRef = firebaseRef.childByAppendingPath("poutfits/\(poutfitIdentifier)/comments")
-        
-        poutfitCommentsRef.queryOrderedByChild("created_at").queryLimitedToLast(3).observeSingleEventOfType(.Value, withBlock: { snapshot in
-            // do some stuff once
-            
-            if (snapshot.value as? NSNull) != nil {
-                // does not exist
-            } else {
-                println(snapshot.value)
-                
-                var commentDict = snapshot.value as! NSDictionary
-            }
-        })
-    }
-    
     // SprubixFeedControllerDelegate
     func toggleSidePanel() {
         let notAlreadyExpanded = (currentState != .SidePanelExpanded)

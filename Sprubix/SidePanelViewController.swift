@@ -16,7 +16,6 @@ protocol SidePanelViewControllerDelegate {
     func showNotifications()
     func showFavorites()
     func showSettingsView()
-    func showRecentComments(poutfitIdentifier: String)
 }
 
 class SidePanelViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
