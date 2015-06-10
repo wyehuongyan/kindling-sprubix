@@ -202,6 +202,9 @@ class FavoritesViewController: UIViewController, UICollectionViewDataSource, CHT
             userLikesRef.queryOrderedByChild("created_at").observeSingleEventOfType(.Value, withBlock: { snapshot in
                 if (snapshot.value as? NSNull) != nil {
                     // does not exist
+                    println("Firebase snapshot for \'users/\(username)/likes\' does not exist")
+                    
+                    self.activityView.stopAnimating()
                 } else {
                     let likedItems = snapshot.value as! NSDictionary
                     

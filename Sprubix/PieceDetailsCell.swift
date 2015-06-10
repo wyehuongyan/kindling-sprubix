@@ -12,7 +12,7 @@ protocol PieceDetailsOutfitProtocol {
     func relevantOutfitSelected(collectionView: UICollectionView, index: NSIndexPath)
 }
 
-class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UICollectionViewDelegate, CHTCollectionViewDelegateWaterfallLayout {
+class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UICollectionViewDelegate, CHTCollectionViewDelegateWaterfallLayout, UIScrollViewDelegate {
 
     var outfits: [NSDictionary] = [NSDictionary]()
     
@@ -20,24 +20,25 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
     var user: NSDictionary!
     var inspiredBy: NSDictionary!
     
-    var pullAction : ((offset : CGPoint) -> Void)?
-    var returnAction : (() -> Void)?
-    var tappedAction : (() -> Void)?
+    var pullAction: ((offset : CGPoint) -> Void)?
+    var returnAction: (() -> Void)?
+    var tappedAction: (() -> Void)?
     
     let relatedOutfitCellIdentifier = "ProfileOutfitCell"
     
-    var pieceDetailsHeaderHeight:CGFloat = 800
+    var pieceDetailsHeaderHeight: CGFloat = 800
     
     var singlePieceCollectionView: UICollectionView!
     
-    var navController:UINavigationController?
+    var navController: UINavigationController?
     var commentsViewController: CommentsViewController?
-    var delegate:PieceDetailsOutfitProtocol?
+    var delegate: PieceDetailsOutfitProtocol?
     
     // piece detail info
-    var pieceDetailInfoView:UIView!
-    var pullLabel:UILabel!
-    var pieceImageView: UIImageView = UIImageView()
+    var pieceDetailInfoView: UIView!
+    var pullLabel: UILabel!
+    var pieceImagesScrollView: UIScrollView!
+    var pageControl:UIPageControl!
     var totalHeaderHeight: CGFloat!
     
     var commentRowButton: SprubixItemCommentRow!
@@ -84,6 +85,9 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         
         pieceDetailInfoView.removeFromSuperview()
         pieceDetailInfoView = nil
+        
+        pageControl.removeFromSuperview()
+        pageControl = nil
     }
     
     override func layoutSubviews() {
@@ -99,8 +103,6 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         
         pieceDetailInfoView.addSubview(pullLabel)
         
-        pieceDetailInfoView.addSubview(pieceImageView)
-        
         // init horizontal scrollview
         var pieceImagesString = piece["images"] as! String
         var pieceImagesData:NSData = pieceImagesString.dataUsingEncoding(NSUTF8StringEncoding)!
@@ -108,10 +110,40 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         var pieceImagesDict: NSDictionary = NSJSONSerialization.JSONObjectWithData(pieceImagesData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSDictionary
         
         var pieceImageURL = NSURL(string: pieceImagesDict["cover"] as! String)
+    
+        // piece images horizontal scroll view
+        pieceImagesScrollView = UIScrollView(frame: CGRectMake(0, 0, screenWidth, screenWidth))
+        pieceImagesScrollView.pagingEnabled = true
+        pieceImagesScrollView.scrollEnabled = true
+        pieceImagesScrollView.showsHorizontalScrollIndicator = false
+        pieceImagesScrollView.alwaysBounceHorizontal = true
+        pieceImagesScrollView.delegate = self
         
-        pieceImageView.setImageWithURL(pieceImageURL)
-        pieceImageView.frame = CGRect(x: 0, y: 0, width: screenWidth, height: screenWidth)
-        pieceImageView.contentMode = UIViewContentMode.ScaleAspectFit
+        let pieceImagesArray = pieceImagesDict["images"] as! NSArray
+        
+        for var i = 0; i < pieceImagesArray.count ; i++ {
+            var imageDict = pieceImagesArray[i] as! NSDictionary
+            let imageURL = NSURL(string: imageDict["medium"] as! String)
+            
+            var pieceImageView: UIImageView = UIImageView()
+            pieceImageView.setImageWithURL(imageURL)
+            pieceImageView.frame = CGRect(x: CGFloat(i) * screenWidth, y: 0, width: screenWidth, height: screenWidth)
+            pieceImageView.contentMode = UIViewContentMode.ScaleAspectFit
+            
+            pieceImagesScrollView.addSubview(pieceImageView)
+        }
+        
+        pieceImagesScrollView.contentSize = CGSize(width: screenWidth * CGFloat(pieceImagesArray.count), height: pieceImagesScrollView.frame.size.height)
+        
+        pieceDetailInfoView.addSubview(pieceImagesScrollView)
+        
+        // create a page control to show paging indicators
+        pageControl = UIPageControl(frame: CGRect(x: 0, y: screenWidth - 40, width: bounds.width, height: 21))
+        pageControl.numberOfPages = pieceImagesArray.count
+        pageControl.currentPage = 0
+        pageControl.clipsToBounds = true
+        
+        Glow.addGlow(pageControl)
         
         // init 'posted by' and 'from' credits
         let creditsViewHeight:CGFloat = 80
@@ -274,6 +306,10 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         
         singlePieceCollectionView.addSubview(pieceDetailInfoView)
         
+        if pieceImagesArray.count > 1 {
+            singlePieceCollectionView.addSubview(pageControl)
+        }
+        
         resetHeaderHeight(totalHeaderHeight, padding: 60.0)
         
         retrieveOutfits()
@@ -332,6 +368,13 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         })
     }
     
+    func calculatePageIndicator() {
+        let pageWidth = pieceImagesScrollView.frame.size.width
+        let page = Int(floor((pieceImagesScrollView.contentOffset.x * 2.0 + pageWidth) / (pageWidth * 2.0)))
+        
+        pageControl.currentPage = page
+    }
+    
     // ResetHeaderHeight protocol
     func resetHeaderHeight(headerHeight: CGFloat, padding: CGFloat) {
         var relatedOutfitsLayout = CHTCollectionViewWaterfallLayout()
@@ -346,23 +389,30 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         singlePieceCollectionView.setCollectionViewLayout(relatedOutfitsLayout, animated: false)
     }
     
+    // scrollViewDelegate
     func scrollViewDidScroll(scrollView: UIScrollView) {
-        if scrollView.contentOffset.y < -80 {
-            pullLabel.text = "Release to go back"
-            
-            if scrollView.contentOffset.y < -150 {
-                pullLabel.text = "Return to main feed"
-            }
+        if scrollView == pieceImagesScrollView {
+            calculatePageIndicator()
         } else {
-            pullLabel.text = "Pull down to go back"
+            if scrollView.contentOffset.y < -80 {
+                pullLabel.text = "Release to go back"
+                
+                if scrollView.contentOffset.y < -150 {
+                    pullLabel.text = "Return to main feed"
+                }
+            } else {
+                pullLabel.text = "Pull down to go back"
+            }
         }
     }
     
     func scrollViewWillBeginDecelerating(scrollView : UIScrollView){
-        if scrollView.contentOffset.y < -150 {
-            returnAction?()
-        } else if scrollView.contentOffset.y < -80 {
-            pullAction?(offset: scrollView.contentOffset)
+        if scrollView != pieceImagesScrollView {
+            if scrollView.contentOffset.y < -150 {
+                returnAction?()
+            } else if scrollView.contentOffset.y < -80 {
+                pullAction?(offset: scrollView.contentOffset)
+            }
         }
     }
     

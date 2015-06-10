@@ -56,7 +56,8 @@ class CommentsViewController: UIViewController, UITextViewDelegate, UITableViewD
         
         if userData != nil {
             let commentsRef = firebaseRef.childByAppendingPath("comments")
-            let poutfitCommentsRef = firebaseRef.childByAppendingPath("poutfits/\(poutfitIdentifier)/comments")
+            let poutfitRef = firebaseRef.childByAppendingPath("poutfits/\(poutfitIdentifier)")
+            let poutfitCommentsRef = poutfitRef.childByAppendingPath("comments")
             let notificationsRef = firebaseRef.childByAppendingPath("notifications")
             let receiverUserNotificationsRef = firebaseRef.childByAppendingPath("users/\(receiverUsername)/notifications")
             
@@ -85,6 +86,23 @@ class CommentsViewController: UIViewController, UITextViewDelegate, UITableViewD
                     println("Error: Comment could not be added.")
                 } else {
                     // comment added successfully
+                    
+                    // update poutfitRef num of comments
+                    let poutfitCommentCountRef = poutfitRef.childByAppendingPath("num_comments")
+                    
+                    poutfitCommentCountRef.runTransactionBlock({
+                        (currentData:FMutableData!) in
+                        
+                        var value = currentData.value as? Int
+                        
+                        if value == nil {
+                            value = 0
+                        }
+                        
+                        currentData.value = value! + 1
+                        
+                        return FTransactionResult.successWithValue(currentData)
+                    })
                     
                     // update poutfitCommentsRef
                     let poutfitCommentRef = poutfitCommentsRef.childByAppendingPath(commentRef.key)

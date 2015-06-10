@@ -41,13 +41,16 @@ class SprubixItemCommentRow: UIView {
         // commenter's image
         var commentImageView:UIImageView = UIImageView(frame: CGRect(x: 20, y: 0, width: commentImageViewWidth, height: commentImageViewWidth))
 
-        if userThumbnail != "sprubix-user" {
-            commentImageView.image = UIImage(named: userThumbnail)
-        } else {
+        if userThumbnail == "sprubix-user" {
             let userData:NSDictionary! = defaults.dictionaryForKey("userData")
             
             // create profile UIImageView programmatically
             let userThumbnailURL = NSURL(string: userData["image"] as! String)
+            
+            commentImageView.setImageWithURL(userThumbnailURL)
+        } else {
+            // create profile UIImageView programmatically
+            let userThumbnailURL = NSURL(string: userThumbnail)
             
             commentImageView.setImageWithURL(userThumbnailURL)
         }

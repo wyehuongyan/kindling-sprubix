@@ -25,6 +25,8 @@ class SidePanelOption {
         case CreateOutfit
         case Favorites
         case Settings
+        case Inventory
+        case Orders
         
         func toString()->String {
             switch self {
@@ -38,6 +40,10 @@ class SidePanelOption {
                 return "Favorites"
             case .Settings:
                 return "Settings"
+            case .Inventory:
+                return "Inventory"
+            case .Orders:
+                return "Orders"
             }
         }
     }
@@ -79,6 +85,18 @@ class SidePanelOption {
             //SidePanelOption(option: Option.Messages, image: UIImage(named: "sidemenu-messages")),
             SidePanelOption(option: Option.Notifications, image: UIImage(named: "sidemenu-notifications")),
             SidePanelOption(option: Option.CreateOutfit, image: UIImage(named: "sidemenu-create")),
+            SidePanelOption(option: Option.Favorites, image: UIImage(named: "sidemenu-likes")),
+            SidePanelOption(option: Option.Settings, image: UIImage(named: "sidemenu-settings"))
+        ]
+    }
+    
+    class func shopOptions() -> Array<SidePanelOption> {
+        return [
+            //SidePanelOption(option: Option.Messages, image: UIImage(named: "sidemenu-messages")),
+            SidePanelOption(option: Option.Notifications, image: UIImage(named: "sidemenu-notifications")),
+            SidePanelOption(option: Option.CreateOutfit, image: UIImage(named: "sidemenu-create")),
+            SidePanelOption(option: Option.Inventory, image: UIImage(named: "icon-placeholder")),
+            SidePanelOption(option: Option.Orders, image: UIImage(named: "icon-placeholder")),
             SidePanelOption(option: Option.Favorites, image: UIImage(named: "sidemenu-likes")),
             SidePanelOption(option: Option.Settings, image: UIImage(named: "sidemenu-settings"))
         ]

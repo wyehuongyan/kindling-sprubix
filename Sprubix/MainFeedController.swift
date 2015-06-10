@@ -255,6 +255,8 @@ class MainFeedController: UIViewController, UICollectionViewDataSource, OutfitIn
     }
     
     func collectionView(collectionView: UICollectionView, didSelectItemAtIndexPath indexPath: NSIndexPath) {
+
+        tappedOutfit(indexPath)
     }
     
     func scrollViewDidScroll(scrollView: UIScrollView) {

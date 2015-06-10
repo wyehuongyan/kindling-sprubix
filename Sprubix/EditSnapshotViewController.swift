@@ -32,6 +32,7 @@ class EditSnapshotViewController: UIViewController {
     
     var scale: CGFloat = 1.0
     var previousScale: CGFloat = 1.0
+    
     var pinchedBox: UIView?
     
     var sprubixHandleBarSeperatorTop:SprubixHandleBarSeperator!
@@ -331,7 +332,7 @@ class EditSnapshotViewController: UIViewController {
     func handlePinch(gesture: UIPinchGestureRecognizer) {
         // impt: there should be one 'scale' property per image, currently it's shared. hence zoom in max to img1, img2 cant zoom
         firstTouchPoint = gesture.locationInView(boundingBoxView)
-        var currentScale: CGFloat = min(gesture.scale * scale, 4.0)
+        var currentScale: CGFloat = gesture.scale * scale //min(gesture.scale * scale, 4.0)
         
         if gesture.state == UIGestureRecognizerState.Began {
             pinchedBox = findBoxBeingTouched(boundingBoxView, touchPoint: firstTouchPoint)
@@ -932,30 +933,58 @@ class EditSnapshotViewController: UIViewController {
     }
     
     func nextTapped(sender: UIBarButtonItem) {
-        var snapshotShareController = SnapshotShareController()
-        var totalHeight: CGFloat = 0
-        
         var resizedHeight = imageCopies[0].size.height * screenWidth / imageCopies[0].size.width
         
-        // GPUImageCropFilter on each sprubixImageView
-        for var i = 0; i < sprubixImageViews.count; i++ {
+        if previewStillImages.count > 1 {
+            var snapshotShareController = SnapshotShareController()
+            var totalHeight: CGFloat = 0
             
-            // normalize boundingBox on each sprubixImageView first
-            var normalizedCropRegion: CGRect = CGRectMake(abs(sprubixImageViews[i].frame.origin.x)/sprubixImageViews[i].frame.size.width, abs(sprubixImageViews[i].frame.origin.y)/sprubixImageViews[i].frame.size.height, sprubixBoundingBoxes[i].frame.size.width/sprubixImageViews[i].frame.size.width, sprubixBoundingBoxes[i].frame.size.height/sprubixImageViews[i].frame.size.height)
+            // GPUImageCropFilter on each sprubixImageView
+            for var i = 0; i < sprubixImageViews.count; i++ {
+                
+                // normalize boundingBox on each sprubixImageView first
+                var normalizedCropRegion: CGRect = CGRectMake(abs(sprubixImageViews[i].frame.origin.x)/sprubixImageViews[i].frame.size.width, abs(sprubixImageViews[i].frame.origin.y)/sprubixImageViews[i].frame.size.height, sprubixBoundingBoxes[i].frame.size.width/sprubixImageViews[i].frame.size.width, sprubixBoundingBoxes[i].frame.size.height/sprubixImageViews[i].frame.size.height)
+                
+                gpuImageFilter = GPUImageCropFilter(cropRegion: normalizedCropRegion)
+                (gpuImageFilter as! GPUImageCropFilter).forceProcessingAtSizeRespectingAspectRatio(CGSizeMake(screenWidth, resizedHeight))
+                quickFilteredImage = (gpuImageFilter as! GPUImageCropFilter).imageByFilteringImage(sprubixImageViews[i].image)
             
-            gpuImageFilter = GPUImageCropFilter(cropRegion: normalizedCropRegion)
-            (gpuImageFilter as! GPUImageCropFilter).forceProcessingAtSizeRespectingAspectRatio(CGSizeMake(screenWidth, resizedHeight))
-            quickFilteredImage = (gpuImageFilter as! GPUImageCropFilter).imageByFilteringImage(sprubixImageViews[i].image)
-        
-            snapshotShareController.images.append(quickFilteredImage)
-            snapshotShareController.imageViewHeights.append(sprubixBoundingBoxes[i].frame.size.height)
+                snapshotShareController.images.append(quickFilteredImage)
+                snapshotShareController.imageViewHeights.append(sprubixBoundingBoxes[i].frame.size.height)
+                
+                totalHeight += sprubixBoundingBoxes[i].frame.size.height
+            }
             
-            totalHeight += sprubixBoundingBoxes[i].frame.size.height
+            snapshotShareController.selectedPiecesOrdered = self.selectedPiecesOrdered
+            snapshotShareController.totalHeight = totalHeight
+            
+            self.navigationController?.pushViewController(snapshotShareController, animated: true)
+        } else {
+            println("Only one piece, not qualified to be outfit")
+            
+            var snapshotDetailsController = SnapshotDetailsController()
+            
+            for var i = 0; i < sprubixImageViews.count; i++ {
+                // normalize boundingBox on each sprubixImageView first
+                var normalizedCropRegion: CGRect = CGRectMake(abs(sprubixImageViews[i].frame.origin.x)/sprubixImageViews[i].frame.size.width, abs(sprubixImageViews[i].frame.origin.y)/sprubixImageViews[i].frame.size.height, sprubixBoundingBoxes[i].frame.size.width/sprubixImageViews[i].frame.size.width, sprubixBoundingBoxes[i].frame.size.height/sprubixImageViews[i].frame.size.height)
+                
+                gpuImageFilter = GPUImageCropFilter(cropRegion: normalizedCropRegion)
+                (gpuImageFilter as! GPUImageCropFilter).forceProcessingAtSizeRespectingAspectRatio(CGSizeMake(screenWidth, resizedHeight))
+                quickFilteredImage = (gpuImageFilter as! GPUImageCropFilter).imageByFilteringImage(sprubixImageViews[i].image)
+                
+                snapshotDetailsController.itemCoverImageView.image = quickFilteredImage
+                snapshotDetailsController.itemCategory = selectedPiecesOrdered[i]
+                snapshotDetailsController.pos = i
+                snapshotDetailsController.onlyOnePiece = true
+
+                var sprubixPiece = SprubixPiece()
+                sprubixPiece.images.append(quickFilteredImage)
+                sprubixPiece.type = selectedPiecesOrdered[i]
+                
+                snapshotDetailsController.sprubixPiece = sprubixPiece
+            }
+            
+            self.navigationController?.pushViewController(snapshotDetailsController, animated: true)
         }
-        
-        snapshotShareController.selectedPiecesOrdered = self.selectedPiecesOrdered
-        snapshotShareController.totalHeight = totalHeight
-        
-        self.navigationController?.pushViewController(snapshotShareController, animated: true)
     }
 }

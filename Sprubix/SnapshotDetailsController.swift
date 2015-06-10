@@ -35,6 +35,8 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
     var delegate: SprubixPieceProtocol?
     var pos: Int!
     var sprubixPiece: SprubixPiece!
+    var onlyOnePiece: Bool = false
+    var addToClosetButton: UIButton!
     
     let imagePicker = UIImagePickerController()
     var photoLibraryButton: UIButton!
@@ -70,7 +72,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
     // thumbnails
     var thumbnails: [SprubixItemThumbnail] = [SprubixItemThumbnail]()
     var hasThumbnails: [SprubixItemThumbnail] = [SprubixItemThumbnail]()
-    let thumbnailViewWidth: CGFloat = (screenWidth - 20) / 4
+    let thumbnailViewWidth: CGFloat = (screenWidth - 100) / 4
     var selectedThumbnail: SprubixItemThumbnail!
     
     // itemDetails textfields
@@ -100,6 +102,15 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
         self.view.addSubview(itemTableView)
         
         oldFrameRect = itemTableView.frame
+        
+        if onlyOnePiece {
+            addToClosetButton = UIButton(frame: CGRect(x: 0, y: screenHeight - navigationHeight, width: screenWidth, height: navigationHeight))
+            addToClosetButton.backgroundColor = sprubixColor
+            addToClosetButton.setTitle("Add to Closet!", forState: UIControlState.Normal)
+            addToClosetButton.addTarget(self, action: "addToClosetPressed:", forControlEvents: UIControlEvents.TouchUpInside)
+            
+            self.view.addSubview(addToClosetButton)
+        }
     }
     
     override func viewWillAppear(animated: Bool) {
@@ -132,16 +143,18 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
         
         newNavItem.leftBarButtonItem = backBarButtonItem
         
-        // 5. create a done buton
-        var nextButton:UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
-        nextButton.setTitle("done", forState: UIControlState.Normal)
-        nextButton.setTitleColor(sprubixColor, forState: UIControlState.Normal)
-        nextButton.frame = CGRect(x: 0, y: 0, width: 50, height: 20)
-        nextButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
-        nextButton.addTarget(self, action: "doneTapped:", forControlEvents: UIControlEvents.TouchUpInside)
-        
-        var nextBarButtonItem:UIBarButtonItem = UIBarButtonItem(customView: nextButton)
-        newNavItem.rightBarButtonItem = nextBarButtonItem
+        if onlyOnePiece != true {
+            // 5. create a done buton
+            var nextButton:UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+            nextButton.setTitle("done", forState: UIControlState.Normal)
+            nextButton.setTitleColor(sprubixColor, forState: UIControlState.Normal)
+            nextButton.frame = CGRect(x: 0, y: 0, width: 50, height: 20)
+            nextButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+            nextButton.addTarget(self, action: "doneTapped:", forControlEvents: UIControlEvents.TouchUpInside)
+            
+            var nextBarButtonItem:UIBarButtonItem = UIBarButtonItem(customView: nextButton)
+            newNavItem.rightBarButtonItem = nextBarButtonItem
+        }
         
         newNavBar.setItems([newNavItem], animated: false)
         
@@ -181,14 +194,21 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
         self.camera?.focus(touchPoint, preview: self.preview!)
     }
     
-    func setPreviewStillImage(image: UIImage?) {
+    func setPreviewStillImage(image: UIImage?, fromPhotoLibrary: Bool) {
         if image != nil {
             // crop image to square
             var fixedImage: UIImage = self.fixOrientation(image!)
             
-            var cropCenter: CGPoint = CGPointMake((fixedImage.size.width / 2), (fixedImage.size.height / 2));
-            var cropStart: CGPoint = CGPointMake((cropCenter.x - fixedImage.size.width / 2), (cropCenter.y - fixedImage.size.height / 2));
-            let cropRect: CGRect = CGRectMake(cropStart.x, cropStart.y, fixedImage.size.width, fixedImage.size.height);
+            var cropWidth = fixedImage.size.width
+            var cropHeight = fixedImage.size.height
+            var cropCenter: CGPoint = CGPointMake((cropWidth / 2), (cropHeight / 2));
+            
+            if fromPhotoLibrary != true {
+                cropHeight = cropWidth
+            }
+            
+            var cropStart: CGPoint = CGPointMake((cropCenter.x - cropWidth / 2), (cropCenter.y - cropHeight / 2));
+            let cropRect: CGRect = CGRectMake(cropStart.x, cropStart.y, cropWidth, cropHeight);
             
             let cropRef: CGImageRef = CGImageCreateWithImageInRect(fixedImage.CGImage, cropRect);
             let cropImage: UIImage = UIImage(CGImage: cropRef)!
@@ -207,6 +227,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
             self.cameraCapture.alpha = 0.0
             self.itemDescriptionCell.alpha = 1.0
             self.photoLibraryButton.alpha = 0.0
+            self.addToClosetButton.alpha = 1.0
             
             self.cameraCapture.enabled = true
             
@@ -226,7 +247,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
         })
         
         self.camera?.captureStillImage({ (image) -> Void in
-            self.setPreviewStillImage(image)
+            self.setPreviewStillImage(image, fromPhotoLibrary: false)
         })
     }
     
@@ -331,9 +352,10 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
                 
                 thumbnailView.addGestureRecognizer(singleTapGestureRecognizer)
                 
-                thumbnailView.frame = CGRectMake(CGFloat(i) * thumbnailViewWidth, 0, thumbnailViewWidth, thumbnailViewWidth)
-                thumbnailView.imageEdgeInsets = UIEdgeInsetsMake(20, 20, 0, 0) // top left bottom right
-                thumbnailView.contentMode = UIViewContentMode.ScaleAspectFit
+                thumbnailView.frame = CGRectMake(20 + CGFloat(i) * (thumbnailViewWidth + 20), 20, thumbnailViewWidth, thumbnailViewWidth)
+
+                thumbnailView.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+                thumbnailView.backgroundColor = sprubixGray
                 
                 thumbnails.append(thumbnailView)
                 
@@ -347,7 +369,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
             let itemSpecHeight:CGFloat = 55
             let itemSpecHeightTotal:CGFloat = itemSpecHeight * 4
             
-            pieceSpecsView = UIView(frame: CGRect(x: 0, y: 0, width: screenWidth, height: itemSpecHeightTotal))
+            pieceSpecsView = UIView(frame: CGRect(x: 0, y: 10, width: screenWidth, height: itemSpecHeightTotal))
             pieceSpecsView.backgroundColor = UIColor.whiteColor()
             
             // generate 4 labels with icons
@@ -441,7 +463,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
             
             // cameraCapture button
             let cameraCaptureWidth: CGFloat = 100
-            cameraCapture = UIButton(frame: CGRectMake(screenWidth / 2 - cameraCaptureWidth / 2, 0, cameraCaptureWidth, cameraCaptureWidth))
+            cameraCapture = UIButton(frame: CGRectMake(screenWidth / 2 - cameraCaptureWidth / 2, 20, cameraCaptureWidth, cameraCaptureWidth))
             cameraCapture.backgroundColor = sprubixColor
             cameraCapture.alpha = 0.0
             cameraCapture.addTarget(self, action: "captureFrame:", forControlEvents: UIControlEvents.TouchUpInside)
@@ -457,18 +479,18 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
             return itemDetailsCell
             
         case 3:
-            descriptionText = UITextView(frame: CGRectInset(CGRect(x: 0, y: 0, width: screenWidth, height: descriptionTextHeight), 15, 0))
+            if descriptionText == nil {
+                descriptionText = UITextView(frame: CGRectInset(CGRect(x: 0, y: 0, width: screenWidth, height: descriptionTextHeight), 15, 0))
+            }
             
             descriptionText.tintColor = sprubixColor
             
-            if sprubixPiece.desc != nil && sprubixPiece.desc != "" {
-                descriptionText.text = sprubixPiece.desc
-            } else if descriptionText.text == "" {
+            if descriptionText.text == "" {
                 descriptionText.text = placeholderText
                 descriptionText.textColor = UIColor.lightGrayColor()
             }
             
-            descriptionText.font = UIFont(name: descriptionText.font.fontName, size: 16)
+            descriptionText.font = UIFont(name: descriptionText.font.fontName, size: 17)
             descriptionText.delegate = self
             
             itemDescriptionCell.addSubview(descriptionText)
@@ -494,6 +516,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
             cameraCapture.alpha = 1.0
             photoLibraryButton.alpha = 1.0
             itemDescriptionCell.alpha = 0.0
+            addToClosetButton.alpha = 0.0
             
             setNavBar("Add Image", leftButtonTitle: "cancel", leftButtonCallback: "addImageCancelTapped:", rightButtonTitle: "", rightButtonCallback: nil)
             
@@ -523,7 +546,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
             self.cameraPreview!.alpha = 0.0
         })
         
-        self.setPreviewStillImage(chosenImage)
+        self.setPreviewStillImage(chosenImage, fromPhotoLibrary: true)
     }
     
     func imagePickerControllerDidCancel(picker: UIImagePickerController) {
@@ -594,6 +617,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
         cameraCapture.alpha = 0.0
         itemDescriptionCell.alpha = 1.0
         photoLibraryButton.alpha = 0.0
+        addToClosetButton.alpha = 1.0
         
         cameraCapture.enabled = true
         
@@ -703,6 +727,102 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
         self.presentViewController(alert, animated: true, completion: nil)
     }
     
+    func addToClosetPressed(sender: UIButton) {
+        // init sprubix piece
+        sprubixPiece.images.removeAll()
+        
+        for thumbnail in thumbnails {
+            if thumbnail.hasThumbnail {
+                sprubixPiece.images.append(thumbnail.imageView!.image!)
+            }
+        }
+        
+        // item details
+        sprubixPiece.name = (itemDetailsName != nil) ? itemDetailsName.text : ""
+        sprubixPiece.category = (itemDetailsCategory != nil) ? itemDetailsCategory.text : ""
+        sprubixPiece.brand = (itemDetailsBrand != nil) ? itemDetailsBrand.text : ""
+        sprubixPiece.size = (itemDetailsSize != nil) ? itemDetailsSize.text : ""
+        sprubixPiece.desc = (descriptionText != nil && descriptionText.text != placeholderText) ? descriptionText.text : ""
+        
+        let userData: NSDictionary! = defaults.dictionaryForKey("userData")
+
+        var sprubixDict: NSMutableDictionary = [
+            "num_pieces": 1,
+            "created_by": userData["username"] as! String,
+            "from": userData["username"] as! String,
+            "user_id": userData["id"] as! Int,
+        ]
+        
+        var pieces: NSMutableDictionary = NSMutableDictionary()
+        var pieceDict: NSDictionary = [
+            "num_images": sprubixPiece.images.count,
+            "name": sprubixPiece.name != nil ? sprubixPiece.name : "",
+            "category": sprubixPiece.category != nil ? sprubixPiece.category : "",
+            "type": sprubixPiece.type, // type will never be nil
+            "brand": sprubixPiece.brand != nil ? sprubixPiece.brand : "",
+            "size": sprubixPiece.size != nil ? sprubixPiece.size : "",
+            "description": sprubixPiece.desc != nil ? sprubixPiece.desc : "",
+            "height": sprubixPiece.images[0].scale * sprubixPiece.images[0].size.height,
+            "width": sprubixPiece.images[0].scale * sprubixPiece.images[0].size.width
+        ]
+        
+        pieces.setObject(pieceDict, forKey: sprubixPiece.type.lowercaseString)
+
+        sprubixDict.setObject(pieces, forKey: "pieces")
+        
+        println(sprubixDict)
+        
+        // upload piece data
+        var requestOperation: AFHTTPRequestOperation = manager.POST(SprubixConfig.URL.api + "/upload/piece/create", parameters: sprubixDict, constructingBodyWithBlock: { formData in
+            let data: AFMultipartFormData = formData
+        
+            for var j = 0; j < self.sprubixPiece.images.count; j++ {
+                var pieceImage: UIImage = self.sprubixPiece.images[j]
+                var pieceImageData: NSData = UIImageJPEGRepresentation(pieceImage, 0.5)
+                
+                var pieceImageName = "piece_\(self.sprubixPiece.type.lowercaseString)_\(j)"
+                var pieceImageFileName = pieceImageName + ".jpg"
+                
+                data.appendPartWithFileData(pieceImageData, name: pieceImageName, fileName: pieceImageFileName, mimeType: "image/jpeg")
+            }
+            
+            }, success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                // success block
+                println("Upload Success")
+                
+                self.delay(0.6) {
+                    // go back to main feed
+                    self.navigationController!.delegate = nil
+                    
+                    let transition = CATransition()
+                    transition.duration = 0.3
+                    transition.type = kCATransitionReveal
+                    transition.subtype = kCATransitionFromBottom
+                    transition.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
+                    
+                    self.navigationController!.view.layer.addAnimation(transition, forKey: kCATransition)
+                    self.navigationController?.popToViewController(self.navigationController?.viewControllers.first! as! UIViewController, animated: false)
+                }
+                
+            }, failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                // failure block
+                println("Upload Fail")
+        })
+
+        // upload progress
+        requestOperation.setUploadProgressBlock { (bytesWritten: UInt, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) -> Void in
+            var percentDone: Double = Double(totalBytesWritten) / Double(totalBytesExpectedToWrite)
+            
+            println("percentage done: \(percentDone)")
+        }
+        
+        // overlay indicator
+        var overlayView: MRProgressOverlayView = MRProgressOverlayView.showOverlayAddedTo(self.view, animated: true)
+        overlayView.setModeAndProgressWithStateOfOperation(requestOperation)
+        
+        overlayView.tintColor = sprubixColor
+    }
+
     func doneTapped(sender: UIBarButtonItem) {
         sprubixPiece.images.removeAll()
         
@@ -746,5 +866,14 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
         imagePicker.allowsEditing = false
         imagePicker.sourceType = UIImagePickerControllerSourceType.PhotoLibrary
         presentViewController(imagePicker, animated: true, completion: nil)
+    }
+    
+    func delay(delay:Double, closure:()->()) {
+        dispatch_after(
+            dispatch_time(
+                DISPATCH_TIME_NOW,
+                Int64(delay * Double(NSEC_PER_SEC))
+            ),
+            dispatch_get_main_queue(), closure)
     }
 }

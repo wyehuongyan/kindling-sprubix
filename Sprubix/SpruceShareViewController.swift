@@ -196,7 +196,7 @@ class SpruceShareViewController: UIViewController, UITableViewDelegate, UITableV
             descriptionText.tintColor = sprubixColor
             descriptionText.text = placeholderText
             descriptionText.textColor = UIColor.lightGrayColor()
-            descriptionText.font = UIFont(name: descriptionText.font.fontName, size: 16)
+            descriptionText.font = UIFont(name: descriptionText.font.fontName, size: 17)
             descriptionText.delegate = self
             
             descriptionCell.addSubview(descriptionText)

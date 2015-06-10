@@ -151,7 +151,7 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, UIActionShee
         descriptionText.tintColor = sprubixColor
         descriptionText.text = placeholderText
         descriptionText.textColor = UIColor.lightGrayColor()
-        descriptionText.font = UIFont(name: descriptionText.font.fontName, size: 16)
+        descriptionText.font = UIFont(name: descriptionText.font.fontName, size: 17)
         descriptionText.delegate = self
         
         //scrollView.addSubview(descriptionText)

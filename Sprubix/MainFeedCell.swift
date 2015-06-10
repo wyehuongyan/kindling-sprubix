@@ -272,7 +272,7 @@ class MainFeedCell: UICollectionViewCell, TransitionWaterfallGridViewProtocol {
     
     // gesture recognizer callbacks
     func outfitTapped(gesture: UITapGestureRecognizer) {
-        delegate?.tappedOutfit(indexPath)
+        //delegate?.tappedOutfit(indexPath)
     }
     
     func outfitLiked(gesture: UITapGestureRecognizer) {

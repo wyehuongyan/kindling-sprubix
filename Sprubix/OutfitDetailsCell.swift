@@ -25,6 +25,8 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
     var piecesLiked: NSMutableDictionary = NSMutableDictionary()
     var user: NSDictionary!
     var inspiredBy: NSDictionary!
+    var recentComments: [NSDictionary] = [NSDictionary]()
+    var numTotalComments: Int = 0
     
     var pieceImageView: UIImageView!
     var pieceImages: [UIImageView] = [UIImageView]()
@@ -41,7 +43,12 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
     var descriptionCell: UITableViewCell!
     var commentsCell: UITableViewCell!
     
+    let viewAllCommentsHeight: CGFloat = 40
     var commentRowButton: SprubixItemCommentRow!
+    
+    // firebase
+    var childAddedHandle: UInt?
+    var poutfitCommentsRef: Firebase!
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -75,6 +82,11 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
     
     override func layoutSubviews() {
         super.layoutSubviews()
+        
+        // retrieve 3 most recent comments
+        let outfitId = outfit["id"] as! Int
+        retrieveRecentComments("outfit_\(outfitId)")
+        
         tableView.reloadData()
     }
     
@@ -253,13 +265,11 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
             
         case 3:
             // init comments
-            let viewAllCommentsHeight:CGFloat = 40
-            //let commentYPos:CGFloat = screenWidth + creditsViewHeight + itemSpecHeightTotal + itemDescriptionHeight + viewAllCommentsHeight
             
             // view all comments button
             var viewAllComments:UIButton = UIButton(frame: CGRect(x: 0, y: 0, width: screenWidth/2 + 35, height: viewAllCommentsHeight))
-            var numComments:Int = 15
-            viewAllComments.setTitle("View all comments (\(numComments))", forState: UIControlState.Normal)
+
+            viewAllComments.setTitle("View all comments (\(numTotalComments))", forState: UIControlState.Normal)
             viewAllComments.setTitleColor(UIColor.lightGrayColor(), forState: UIControlState.Normal)
             viewAllComments.backgroundColor = UIColor.whiteColor()
             viewAllComments.addTarget(self, action: "addComments:", forControlEvents: UIControlEvents.TouchUpInside)
@@ -275,21 +285,7 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
             
             commentsCell.addSubview(viewAllCommentsBG)
             
-            // the 3 most recent comments
-            var commentRowView1:SprubixItemCommentRow = SprubixItemCommentRow(username: "Mika", commentString: "Really love this!", y: viewAllCommentsHeight, button: false, userThumbnail: "user4-mika.jpg")
-            var commentRowView2:SprubixItemCommentRow = SprubixItemCommentRow(username: "Rika", commentString: "Hey! I also have this at home!", y: viewAllCommentsHeight + commentRowView1.commentRowHeight, button: false, userThumbnail: "user5-rika.jpg")
-            var commentRowView3:SprubixItemCommentRow = SprubixItemCommentRow(username: "Melody", commentString: "How much is it?", y: viewAllCommentsHeight + commentRowView1.commentRowHeight + commentRowView2.commentRowHeight, button: false, userThumbnail: "user6-melody.jpg")
-            
-            commentsCell.addSubview(commentRowView1)
-            commentsCell.addSubview(commentRowView2)
-            commentsCell.addSubview(commentRowView3)
-            
-            // add a comment button
-            commentRowButton = SprubixItemCommentRow(username: "", commentString: "", y: viewAllCommentsHeight + commentRowView1.commentRowHeight + commentRowView2.commentRowHeight + commentRowView3.commentRowHeight, button: true, userThumbnail: "sprubix-user")
-            
-            commentRowButton.postCommentButton.addTarget(self, action: "addComments:", forControlEvents: UIControlEvents.TouchUpInside)
-            
-            commentsCell.addSubview(commentRowButton)
+            loadRecentComments()
             
             // get rid of the gray bg when cell is selected
             var bgColorView = UIView()
@@ -300,6 +296,30 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
             
         default: fatalError("Unknown row in section")
         }
+    }
+    
+    private func loadRecentComments() {
+        var prevHeight: CGFloat = 0
+        
+        for recentComment in recentComments {
+            let commentAuthor = recentComment["author"] as! NSDictionary
+            let authorImage = commentAuthor["image"] as! String
+            let authorUserName = commentAuthor["username"] as! String
+            
+            let commentBody = recentComment["body"] as! String
+            
+            var commentRowView: SprubixItemCommentRow = SprubixItemCommentRow(username: authorUserName, commentString: commentBody, y: viewAllCommentsHeight + prevHeight, button: false, userThumbnail: authorImage)
+            
+            prevHeight += commentRowView.commentRowHeight
+            commentsCell.addSubview(commentRowView)
+        }
+        
+        // add a comment button
+        commentRowButton = SprubixItemCommentRow(username: "", commentString: "", y: viewAllCommentsHeight + prevHeight, button: true, userThumbnail: "sprubix-user")
+        
+        commentRowButton.postCommentButton.addTarget(self, action: "addComments:", forControlEvents: UIControlEvents.TouchUpInside)
+        
+        commentsCell.addSubview(commentRowButton)
     }
     
     func wasSingleTapped(gesture: UITapGestureRecognizer) {
@@ -678,8 +698,18 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
     func scrollViewWillBeginDecelerating(scrollView : UIScrollView){        
         if scrollView.contentOffset.y < -150 {
             returnAction?()
+            
+            // delete firebase observer handle
+            if childAddedHandle != nil {
+                poutfitCommentsRef.removeObserverWithHandle(childAddedHandle!)
+            }
         } else if scrollView.contentOffset.y < -80 {
             pullAction?(offset: scrollView.contentOffset)
+            
+            // delete firebase observer handle
+            if childAddedHandle != nil {
+                poutfitCommentsRef.removeObserverWithHandle(childAddedHandle!)
+            }
         }
     }
     
@@ -764,6 +794,55 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
                 unlikedPiece(piece)
             }
         }
+    }
+    
+    func retrieveRecentComments(poutfitIdentifier: String) {
+        // firebase retrieve 3 most recent comments
+        poutfitCommentsRef = firebaseRef.childByAppendingPath("poutfits/\(poutfitIdentifier)/comments")
+        
+        childAddedHandle = poutfitCommentsRef.queryOrderedByChild("created_at").queryLimitedToLast(3).observeEventType(.ChildAdded, withBlock: { snapshot in
+            // do some stuff once
+            
+            if (snapshot.value as? NSNull) != nil {
+                // does not exist
+                println("Error: (Recent Comments) poutfitCommentsRef does not exist")
+            } else {
+                // retrieve total number of comments
+                let poutfitCommentCountRef = firebaseRef.childByAppendingPath("poutfits/\(poutfitIdentifier)/num_comments")
+                
+                poutfitCommentCountRef.observeSingleEventOfType(.Value, withBlock: { snapshot in
+                    if (snapshot.value as? NSNull) != nil {
+                        // does not exist
+                        println("Error: (Recent Comments) poutfitCommentCountRef does not exist")
+                    } else {
+                        self.numTotalComments = snapshot.value as! Int
+                    }
+                })
+                
+                let commentKey = snapshot.key as String
+                let commentRef = firebaseRef.childByAppendingPath("comments/\(commentKey)")
+                
+                // retreieve comment data
+                commentRef.observeSingleEventOfType(.Value, withBlock: { snapshot in
+                    if (snapshot.value as? NSNull) != nil {
+                        // does not exist
+                        println("Error: (Recent Comments) commentRef does not exist")
+                    } else {
+                        var comment = snapshot.value as! NSDictionary
+                        
+                        self.recentComments.append(comment)
+                        
+                        if self.recentComments.count > 3 {
+                            // remove oldest (first one)
+                            self.recentComments.removeAtIndex(0)
+                        }
+                        
+                        var nsPath = NSIndexPath(forRow: 3, inSection: 0)
+                        self.tableView.reloadRowsAtIndexPaths([nsPath], withRowAnimation: UITableViewRowAnimation.None)
+                    }
+                })
+            }
+        })
     }
 
 }

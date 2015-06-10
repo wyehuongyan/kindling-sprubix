@@ -306,7 +306,7 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
         if nearestPoint != nil && page != nil {
             scrollView.setContentOffset(nearestPoint!, animated: true)
             
-            if page > selectedPiecesOrdered.count {
+            if page < selectedPiecesOrdered.count {
                 setSnapButtonIcon(selectedPiecesOrdered[page!])
             }
         }
