@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="7706" systemVersion="14D136" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES">
     <dependencies>
-        <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="7703"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
     </dependencies>
@@ -525,33 +524,7 @@
                     <view key="view" contentMode="scaleToFill" id="NEL-aI-aIC">
                         <rect key="frame" x="0.0" y="64" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <subviews>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="UOm-Al-FLh">
-                                <rect key="frame" x="250" y="490" width="100" height="100"/>
-                                <color key="backgroundColor" red="1" green="0.40000000000000002" blue="0.42352941179999998" alpha="1" colorSpace="calibratedRGB"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="100" id="OK7-ws-kTj"/>
-                                    <constraint firstAttribute="width" constant="100" id="q2G-QD-KgU"/>
-                                </constraints>
-                                <state key="normal">
-                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
-                                </state>
-                                <userDefinedRuntimeAttributes>
-                                    <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
-                                        <integer key="value" value="50"/>
-                                    </userDefinedRuntimeAttribute>
-                                </userDefinedRuntimeAttributes>
-                                <connections>
-                                    <action selector="captureFrame:" destination="7cQ-nT-gg7" eventType="touchUpInside" id="FM6-8I-E7U"/>
-                                </connections>
-                            </button>
-                        </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                        <constraints>
-                            <constraint firstAttribute="centerX" secondItem="UOm-Al-FLh" secondAttribute="centerX" id="WN1-yt-6tI"/>
-                            <constraint firstItem="Rtx-co-5Pb" firstAttribute="top" secondItem="UOm-Al-FLh" secondAttribute="bottom" constant="10" id="gop-KC-ppc"/>
-                        </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="Px7-Ge-M6I">
                         <barButtonItem key="leftBarButtonItem" title="X" id="Oq9-Ai-MOX">
@@ -562,9 +535,6 @@
                         </barButtonItem>
                     </navigationItem>
                     <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" prompted="NO"/>
-                    <connections>
-                        <outlet property="cameraCapture" destination="UOm-Al-FLh" id="9Pq-He-27Y"/>
-                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="zwp-l3-6Xs" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>

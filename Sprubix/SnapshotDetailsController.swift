@@ -215,7 +215,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
             
             var resizedImage = self.resizeImage(cropImage, width: screenWidth)
             
-            println(resizedImage.size)
+            //println(resizedImage.size)
             
             self.selectedThumbnail.setImage(resizedImage, forState: UIControlState.Normal)
             self.selectedThumbnail.hasThumbnail = true

@@ -254,10 +254,12 @@ class MainFeedController: UIViewController, UICollectionViewDataSource, OutfitIn
         return cell
     }
     
+    /*
     func collectionView(collectionView: UICollectionView, didSelectItemAtIndexPath indexPath: NSIndexPath) {
 
         tappedOutfit(indexPath)
     }
+    */
     
     func scrollViewDidScroll(scrollView: UIScrollView) {
         var currentDistanceMoved:CGFloat = 0

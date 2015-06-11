@@ -78,7 +78,7 @@ class MainFeedCell: UICollectionViewCell, TransitionWaterfallGridViewProtocol {
         
         imageViewContent.frame = CGRectMake(0, 0, frame.size.width, frame.size.height - cellInfoViewHeight)
         imageViewContent.setImageWithURL(imageURL)
-        imageViewContent.contentMode = UIViewContentMode.ScaleAspectFill
+        imageViewContent.contentMode = UIViewContentMode.ScaleAspectFit
         imageViewContent.userInteractionEnabled = true
         
         // gesture recognizers
@@ -272,7 +272,7 @@ class MainFeedCell: UICollectionViewCell, TransitionWaterfallGridViewProtocol {
     
     // gesture recognizer callbacks
     func outfitTapped(gesture: UITapGestureRecognizer) {
-        //delegate?.tappedOutfit(indexPath)
+        delegate?.tappedOutfit(indexPath)
     }
     
     func outfitLiked(gesture: UITapGestureRecognizer) {

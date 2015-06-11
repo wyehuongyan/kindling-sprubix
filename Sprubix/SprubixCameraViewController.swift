@@ -35,11 +35,13 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
     var selectedCount:CGFloat = 0.0
     
     //@IBOutlet var cameraPreview: UIView!
-    @IBOutlet var cameraCapture: UIButton!
+    var cameraCapture: UIButton!
     var okButton: UIButton!
     
     @IBAction func closeCreateOutfit(sender: AnyObject) {
         editSnapshotViewController = nil
+        
+        camera?.stopCamera()
         
         self.navigationController!.delegate = nil
         self.navigationController!.popViewControllerAnimated(true)
@@ -80,7 +82,7 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
         self.navigationController?.navigationBar.setBackgroundImage(nil, forBarMetrics: UIBarMetrics.Default)
         self.navigationController?.navigationBar.shadowImage = nil
         
-        self.camera?.stopCamera()
+        //self.camera?.stopCamera()
     }
     
     override func viewDidDisappear(animated: Bool) {
@@ -154,7 +156,7 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
         previewStillScrollView.addSubview(pieceSelectorView)
         
         // init "Ok" button
-        let okButtonWidth: CGFloat = 100
+        let okButtonWidth: CGFloat = screenHeight - navigationHeight - pieceSelectorView.frame.height - 10 * 2 // 10 is padding
         okButton = UIButton(frame: CGRectMake(screenWidth / 2 - okButtonWidth / 2, screenHeight - 10 - okButtonWidth, okButtonWidth, okButtonWidth))
         okButton.setTitle("OK", forState: UIControlState.Normal)
         okButton.setTitleColor(sprubixColor, forState: UIControlState.Normal)
@@ -164,8 +166,13 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
         okButton.layer.borderWidth = 3.0
         okButton.addTarget(self, action: "confirmPiecesSelected", forControlEvents: UIControlEvents.TouchUpInside)
         
+        cameraCapture = UIButton(frame: okButton.frame)
+        cameraCapture.backgroundColor = sprubixColor
+        cameraCapture.layer.cornerRadius = okButtonWidth / 2
+        cameraCapture.addTarget(self, action: "captureFrame:", forControlEvents: UIControlEvents.TouchUpInside)
         cameraCapture.alpha = 0
         
+        self.view.addSubview(cameraCapture)
         self.view.addSubview(okButton)
         self.view.addSubview(previewStillScrollView)
     }
@@ -208,6 +215,8 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
         
         feetButton.selected = false
         feetButton.backgroundColor = UIColor.lightGrayColor()
+        
+        camera?.stopCamera()
     }
     
     func initPhotoLibrary() {
@@ -233,24 +242,27 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
     }
     
     func initializeCamera() {
-        self.camera = SprubixCamera(sender: self)
+        if camera == nil {
+            camera = SprubixCamera(sender: self)
+        }
     }
     
     func establishVideoPreviewArea() {
         if cameraPreview == nil {
-            //cameraPreview = UIView(frame: CGRectMake(0, screenHeight / 2 - screenWidth / 1.5, screenWidth, screenWidth / 0.75))
+            println("establish")
+            
             cameraPreview = UIView(frame: CGRectMake(0, 0, screenWidth, screenWidth / 0.75))
             
             var touch = UITapGestureRecognizer(target:self, action:"manualFocus:")
             cameraPreview.addGestureRecognizer(touch)
             
             previewStillScrollView.insertSubview(cameraPreview, atIndex: 0)
-        }
         
-        self.preview = AVCaptureVideoPreviewLayer(session: self.camera?.session)
-        self.preview?.videoGravity = AVLayerVideoGravityResizeAspect
-        self.preview?.frame = self.cameraPreview.bounds
-        self.cameraPreview.layer.addSublayer(self.preview)
+            self.preview = AVCaptureVideoPreviewLayer(session: self.camera?.session)
+            self.preview?.videoGravity = AVLayerVideoGravityResizeAspect
+            self.preview?.frame = self.cameraPreview.bounds
+            self.cameraPreview.layer.addSublayer(self.preview)
+        }
     }
     
     // tap to focus
@@ -335,7 +347,7 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
     }
     
     // MARK: Button Actions
-    @IBAction func captureFrame(sender: AnyObject) {
+    func captureFrame(sender: AnyObject) {
         // this is the part where image is captured successfully
         self.cameraCapture.enabled = false
         
@@ -381,6 +393,7 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
             // the delay is for the cameraStill to remain on screen for a while before moving away
             self.delay(0.6) {
                 if self.snappedCount == self.selectedCount {
+                    
                     self.cameraCapture.alpha = 0.0
                     
                     // go to edit controller
@@ -441,6 +454,8 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
     func cameraSessionDidStop() {
         UIView.animateWithDuration(0.225, animations: { () -> Void in
             self.cameraPreview.alpha = 0.0
+            self.camera = nil
+            self.cameraPreview = nil
         })
     }
     
