@@ -28,8 +28,6 @@ class PieceDetailsViewController: UICollectionViewController, UICollectionViewDe
         collectionView.registerClass(PieceDetailsCell.self, forCellWithReuseIdentifier: pieceDetailsCellIdentifier)
         collectionView.setToIndexPath(indexPath)
         
-        println(indexPath)
-        
         collectionView.performBatchUpdates({collectionView.reloadData()}, completion: { finished in
             if finished {
                 collectionView.scrollToItemAtIndexPath(indexPath,atScrollPosition:.CenteredHorizontally, animated: false)
@@ -115,8 +113,10 @@ class PieceDetailsViewController: UICollectionViewController, UICollectionViewDe
         collectionCell.navController = self.navigationController
         collectionCell.delegate = self
         
+        collectionCell.initPieceCollectionView()
+        
         collectionCell.setNeedsLayout()
-        collectionCell.setNeedsDisplay()
+        collectionCell.layoutIfNeeded()
         
         return collectionCell
     }

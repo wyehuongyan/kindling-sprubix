@@ -52,28 +52,6 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        //tableView.backgroundColor = UIColor(red: 229/255, green: 229/255, blue: 229/255, alpha: 1)
-        
-        tableView.backgroundColor = UIColor.whiteColor()
-        
-        contentView.addSubview(tableView)
-        
-        tableView.showsVerticalScrollIndicator = false
-        tableView.separatorColor = UIColor.clearColor()
-        tableView.delegate = self
-        tableView.dataSource = self
-        
-        self.autoresizingMask = UIViewAutoresizing.FlexibleWidth | UIViewAutoresizing.FlexibleHeight;
-        
-        outfitImageCell = UITableViewCell()
-        creditsCell = UITableViewCell()
-        descriptionCell = UITableViewCell()
-        commentsCell = UITableViewCell()
-        
-        outfitImageCell.backgroundColor = UIColor.whiteColor()
-        creditsCell.backgroundColor = UIColor.whiteColor()
-        descriptionCell.backgroundColor = UIColor.whiteColor()
-        commentsCell.backgroundColor = UIColor.whiteColor()
     }
     
     required init(coder aDecoder: NSCoder) {
@@ -95,6 +73,36 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
         
         pullLabel.removeFromSuperview()
         pieceImageView.removeFromSuperview()
+        
+        if childAddedHandle != nil {
+            poutfitCommentsRef.removeObserverWithHandle(childAddedHandle!)
+            
+            childAddedHandle = nil
+            numTotalComments = 0
+        }
+    }
+    
+    func initOutfitTableView() {
+        tableView.backgroundColor = UIColor.whiteColor()
+        
+        contentView.addSubview(tableView)
+        
+        tableView.showsVerticalScrollIndicator = false
+        tableView.separatorColor = UIColor.clearColor()
+        tableView.delegate = self
+        tableView.dataSource = self
+        
+        self.autoresizingMask = UIViewAutoresizing.FlexibleWidth | UIViewAutoresizing.FlexibleHeight;
+        
+        outfitImageCell = UITableViewCell()
+        creditsCell = UITableViewCell()
+        descriptionCell = UITableViewCell()
+        commentsCell = UITableViewCell()
+        
+        outfitImageCell.backgroundColor = UIColor.whiteColor()
+        creditsCell.backgroundColor = UIColor.whiteColor()
+        descriptionCell.backgroundColor = UIColor.whiteColor()
+        commentsCell.backgroundColor = UIColor.whiteColor()
     }
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -798,6 +806,9 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
     
     func retrieveRecentComments(poutfitIdentifier: String) {
         // firebase retrieve 3 most recent comments
+        numTotalComments = 0
+        recentComments.removeAll()
+        
         poutfitCommentsRef = firebaseRef.childByAppendingPath("poutfits/\(poutfitIdentifier)/comments")
         
         childAddedHandle = poutfitCommentsRef.queryOrderedByChild("created_at").queryLimitedToLast(3).observeEventType(.ChildAdded, withBlock: { snapshot in

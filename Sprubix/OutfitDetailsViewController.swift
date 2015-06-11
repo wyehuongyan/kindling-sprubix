@@ -115,6 +115,8 @@ class OutfitDetailsViewController: UICollectionViewController, UICollectionViewD
 
         collectionCell.navController = self.navigationController
         
+        collectionCell.initOutfitTableView()
+        
         collectionCell.setNeedsLayout()
         collectionCell.setNeedsDisplay()
         
