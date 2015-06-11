@@ -249,8 +249,6 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
     
     func establishVideoPreviewArea() {
         if cameraPreview == nil {
-            println("establish")
-            
             cameraPreview = UIView(frame: CGRectMake(0, 0, screenWidth, screenWidth / 0.75))
             
             var touch = UITapGestureRecognizer(target:self, action:"manualFocus:")
