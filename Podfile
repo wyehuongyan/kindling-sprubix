@@ -14,6 +14,7 @@ target "Sprubix" do
   pod 'SSKeychain', '~> 1.2.3'
   pod 'SVPullToRefresh', '~> 0.4.1'
   pod 'STTweetLabel', '~> 3.1.2'
+  pod 'DZNEmptyDataSet', '~> 1.5.2'
 end
 
 target "SprubixTests" do
