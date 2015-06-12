@@ -8,6 +8,7 @@
 
 import UIKit
 import CoreData
+import AFNetworking
 
 struct SprubixConfig {
     struct URL {
@@ -39,7 +40,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         window!.rootViewController = containerViewController
         window!.makeKeyAndVisible()
         window!.backgroundColor = UIColor.whiteColor()
-        window!.tintColor = UIColor.whiteColor()
+        window!.tintColor = sprubixColor
         
         checkLoggedIn()
         

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		440EEF4B5FE0D5277D1F73A6 /* Pods_Sprubix.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A23433EF8FCD1F1CE7226A6 /* Pods_Sprubix.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		843B81A11AFCB71900FA2DD2 /* SnapshotShareController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 843B81A01AFCB71900FA2DD2 /* SnapshotShareController.swift */; };
 		843B81A31AFDF22200FA2DD2 /* SnapshotDetailsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 843B81A21AFDF22200FA2DD2 /* SnapshotDetailsController.swift */; };
 		84470D8A1AECC41B007E9A93 /* MainFeedController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84470D891AECC41B007E9A93 /* MainFeedController.swift */; };
@@ -58,7 +59,6 @@
 		84D697291AC922DA00C676FD /* logo-final-square.png in Resources */ = {isa = PBXBuildFile; fileRef = 84D697281AC922DA00C676FD /* logo-final-square.png */; };
 		84FDB9601B1595FA00E8D720 /* NotificationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FDB95F1B1595FA00E8D720 /* NotificationCell.swift */; };
 		84FDB9631B15A63700E8D720 /* NotificationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FDB9621B15A63700E8D720 /* NotificationViewController.swift */; };
-		85EF5C0437A8227915E7E498 /* libPods-Sprubix.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0682FA12E127785642AF2FF7 /* libPods-Sprubix.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -72,7 +72,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		0682FA12E127785642AF2FF7 /* libPods-Sprubix.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Sprubix.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		1A23433EF8FCD1F1CE7226A6 /* Pods_Sprubix.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Sprubix.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		3CCB3E13BD90F2A4CB30E528 /* Pods-Sprubix.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Sprubix.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Sprubix/Pods-Sprubix.debug.xcconfig"; sourceTree = "<group>"; };
 		843B81A01AFCB71900FA2DD2 /* SnapshotShareController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SnapshotShareController.swift; sourceTree = "<group>"; };
 		843B81A21AFDF22200FA2DD2 /* SnapshotDetailsController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SnapshotDetailsController.swift; sourceTree = "<group>"; };
@@ -138,7 +138,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				85EF5C0437A8227915E7E498 /* libPods-Sprubix.a in Frameworks */,
+				440EEF4B5FE0D5277D1F73A6 /* Pods_Sprubix.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -420,7 +420,7 @@
 		C8DB1F85BAB349ED9836B8C0 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				0682FA12E127785642AF2FF7 /* libPods-Sprubix.a */,
+				1A23433EF8FCD1F1CE7226A6 /* Pods_Sprubix.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -437,6 +437,7 @@
 				845048AB1A9ECC81008BDBAA /* Frameworks */,
 				845048AC1A9ECC81008BDBAA /* Resources */,
 				B7ED7270C67BCD69752250FC /* Copy Pods Resources */,
+				983BD515A56370F7A86F5BDD /* Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -543,6 +544,21 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		983BD515A56370F7A86F5BDD /* Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Sprubix/Pods-Sprubix-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		B7ED7270C67BCD69752250FC /* Copy Pods Resources */ = {
@@ -737,7 +753,7 @@
 				INFOPLIST_FILE = Sprubix/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				OTHER_SWIFT_FLAGS = "";
+				OTHER_SWIFT_FLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "Sprubix-Bridging-Header.h";

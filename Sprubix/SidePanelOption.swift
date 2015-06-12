@@ -33,7 +33,7 @@ class SidePanelOption {
             case .Messages:
                 return "Messages"
             case .Notifications:
-                return "Notifications"
+                return "Activity"
             case .CreateOutfit:
                 return "Create Outfit"
             case .Favorites:

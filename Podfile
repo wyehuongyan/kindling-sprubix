@@ -1,7 +1,9 @@
 # Uncomment this line to define a global platform for your project
-platform :ios, "7.0"
+platform :ios, "8.0"
 
 source 'https://github.com/CocoaPods/Specs.git'
+
+use_frameworks!
 
 target "Sprubix" do
   pod 'AFNetworking', '~> 2.5.3'
@@ -15,6 +17,7 @@ target "Sprubix" do
   pod 'SVPullToRefresh', '~> 0.4.1'
   pod 'STTweetLabel', '~> 3.1.2'
   pod 'DZNEmptyDataSet', '~> 1.5.2'
+  pod 'PermissionScope', '~> 0.6'
 end
 
 target "SprubixTests" do

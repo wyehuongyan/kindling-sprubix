@@ -7,6 +7,9 @@
 //
 
 import UIKit
+import DZNEmptyDataSet
+import CHTCollectionViewWaterfallLayout
+import AFNetworking
 
 enum FavoriteState {
     case Outfits
@@ -302,11 +305,11 @@ class FavoritesViewController: UIViewController, DZNEmptyDataSetSource, DZNEmpty
     }
     
     func imageForEmptyDataSet(scrollView: UIScrollView!) -> UIImage! {
-        return UIImage(named: "logo-final-square.png")
+        return UIImage(named: "main-like-filled-large")
     }
     
     func backgroundColorForEmptyDataSet(scrollView: UIScrollView!) -> UIColor! {
-        return UIColor.whiteColor()
+        return sprubixGray
     }
     
     // CHTCollectionViewDelegateWaterfallLayout

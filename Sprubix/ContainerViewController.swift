@@ -195,7 +195,7 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
                     self.darkenedOverlay!.alpha = 0
                     
                     }, completion: { finished in
-                        self.darkenedOverlay!.removeFromSuperview()
+                        self.darkenedOverlay?.removeFromSuperview()
                         self.darkenedOverlay = nil
                 })
             }

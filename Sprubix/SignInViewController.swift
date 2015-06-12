@@ -8,6 +8,7 @@
 
 import UIKit
 import CoreData
+import AFNetworking
 
 class SignInViewController: UIViewController, UITextFieldDelegate, UITableViewDataSource, UITableViewDelegate {
     

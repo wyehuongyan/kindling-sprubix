@@ -7,6 +7,8 @@
 //
 
 import UIKit
+import AFNetworking
+import MRProgress
 
 class SnapshotShareController: UIViewController, UITableViewDelegate, UITableViewDataSource, UITextViewDelegate, SprubixPieceProtocol {
     

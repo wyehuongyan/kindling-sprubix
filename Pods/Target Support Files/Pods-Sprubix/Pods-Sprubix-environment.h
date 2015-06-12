@@ -174,6 +174,12 @@
 #define COCOAPODS_VERSION_MINOR_MRProgress_Stopable 8
 #define COCOAPODS_VERSION_PATCH_MRProgress_Stopable 2
 
+// PermissionScope
+#define COCOAPODS_POD_AVAILABLE_PermissionScope
+#define COCOAPODS_VERSION_MAJOR_PermissionScope 0
+#define COCOAPODS_VERSION_MINOR_PermissionScope 6
+#define COCOAPODS_VERSION_PATCH_PermissionScope 0
+
 // SSKeychain
 #define COCOAPODS_POD_AVAILABLE_SSKeychain
 #define COCOAPODS_VERSION_MAJOR_SSKeychain 1

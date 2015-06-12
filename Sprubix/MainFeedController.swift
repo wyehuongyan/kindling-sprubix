@@ -7,6 +7,9 @@
 //
 
 import UIKit
+import DZNEmptyDataSet
+import CHTCollectionViewWaterfallLayout
+import AFNetworking
 
 class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataSetDelegate, UICollectionViewDataSource, OutfitInteractionProtocol, CHTCollectionViewDelegateWaterfallLayout, TransitionProtocol {
     var delegate: SidePanelViewControllerDelegate?
@@ -14,12 +17,12 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
     let mainFeedCellIdentifier = "MainFeedCell"
     var mainCollectionView: UICollectionView!
     
-    var outfits:[NSDictionary] = [NSDictionary]()
-    var outfitsLiked:NSMutableDictionary = NSMutableDictionary()
-    var outfitsLayout:SprubixStretchyHeader!
+    var outfits: [NSDictionary] = [NSDictionary]()
+    var outfitsLiked: NSMutableDictionary = NSMutableDictionary()
+    var outfitsLayout: SprubixStretchyHeader!
     
-    var refreshControl:UIRefreshControl!
-    var createOutfitButton:UIButton!
+    var refreshControl: UIRefreshControl!
+    var createOutfitButton: UIButton!
     var lastContentOffset:CGFloat = 0
     var lastNavOffset:CGFloat = 0
     
@@ -255,11 +258,11 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
     }
     
     func imageForEmptyDataSet(scrollView: UIScrollView!) -> UIImage! {
-        return UIImage(named: "logo-final-square.png")
+        return UIImage(named: "main-like-filled-large")
     }
     
     func backgroundColorForEmptyDataSet(scrollView: UIScrollView!) -> UIColor! {
-        return UIColor.whiteColor()
+        return sprubixGray
     }
     
     // UICollectionViewDataSource

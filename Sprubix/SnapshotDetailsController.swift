@@ -7,6 +7,9 @@
 //
 
 import UIKit
+import AFNetworking
+import MRProgress
+import PermissionScope
 
 class SprubixItemThumbnail: UIButton {
     var hasThumbnail: Bool = false
@@ -31,6 +34,9 @@ protocol SprubixPieceProtocol {
 }
 
 class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableViewDataSource, UITextViewDelegate, UITextFieldDelegate, SprubixCameraDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+    
+    let cameraPscope = PermissionScope()
+    let photoPscope = PermissionScope()
     
     var delegate: SprubixPieceProtocol?
     var pos: Int!
@@ -102,6 +108,21 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
         self.view.addSubview(itemTableView)
         
         oldFrameRect = itemTableView.frame
+        
+        // initialized permissions
+        cameraPscope.addPermission(PermissionConfig(type: .Camera, demands: .Required, message: "We need this so you can snap\r\nawesome pictures of your items!", notificationCategories: .None))
+        
+        cameraPscope.tintColor = sprubixColor
+        cameraPscope.headerLabel.text = "Hey there!"
+        cameraPscope.headerLabel.textColor = UIColor.darkGrayColor()
+        cameraPscope.bodyLabel.textColor = UIColor.lightGrayColor()
+        
+        photoPscope.addPermission(PermissionConfig(type: .Photos, demands: .Required, message: "We need this so you can import\r\nawesome pictures of your items!", notificationCategories: .None))
+        
+        photoPscope.tintColor = sprubixColor
+        photoPscope.headerLabel.text = "Hey there!"
+        photoPscope.headerLabel.textColor = UIColor.darkGrayColor()
+        photoPscope.bodyLabel.textColor = UIColor.lightGrayColor()
         
         if onlyOnePiece {
             addToClosetButton = UIButton(frame: CGRect(x: 0, y: screenHeight - navigationHeight, width: screenWidth, height: navigationHeight))
@@ -524,8 +545,15 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
             
             if camera == nil {
                 // activate camera mode (square)
-                initializeCamera()
-                establishVideoPreviewArea()
+                cameraPscope.show(authChange: { (finished, results) -> Void in
+                        //println("got results \(results)")
+                        self.initializeCamera()
+                        self.establishVideoPreviewArea()
+                    }, cancelled: { (results) -> Void in
+                        //println("thing was cancelled")
+                        
+                        self.addImageCancelTapped(UIButton())
+                })
             }
         } else {
             itemCoverImageView.image = selectedThumbnail.imageView?.image
@@ -574,8 +602,8 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
         itemDetailsCell.addSubview(photoLibraryButton)
         
         imagePicker.delegate = self
-        imagePicker.navigationBar.translucent = false
-        imagePicker.navigationBar.barTintColor = sprubixColor
+        imagePicker.navigationBar.translucent = true
+        imagePicker.navigationBar.barTintColor = sprubixGray
     }
     
     func setNavBar(title: String, leftButtonTitle: String, leftButtonCallback: Selector, rightButtonTitle: String, rightButtonCallback: Selector) {
@@ -863,9 +891,15 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
     }
     
     func photoFromLibrary(sender: UIButton) {
-        imagePicker.allowsEditing = false
-        imagePicker.sourceType = UIImagePickerControllerSourceType.PhotoLibrary
-        presentViewController(imagePicker, animated: true, completion: nil)
+        photoPscope.show(authChange: { (finished, results) -> Void in
+            //println("got results \(results)")
+            self.imagePicker.allowsEditing = false
+            self.imagePicker.sourceType = UIImagePickerControllerSourceType.PhotoLibrary
+            
+            self.presentViewController(self.imagePicker, animated: true, completion: nil)
+            }, cancelled: { (results) -> Void in
+                //println("thing was cancelled")
+        })
     }
     
     func delay(delay:Double, closure:()->()) {

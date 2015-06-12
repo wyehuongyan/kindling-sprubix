@@ -34,6 +34,11 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
+		<key>Pods-Sprubix-PermissionScope.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
 		<key>Pods-Sprubix-SSKeychain.xcscheme</key>
 		<dict>
 			<key>isShown</key>
@@ -62,57 +67,62 @@
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
-		<key>088595C098B7FE3D3639DAB8</key>
+		<key>0F1601D617A5B995092B6B93</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>229B9ED32874050F7ED3B8E7</key>
+		<key>2A22A263E15AD3A07CC00B7C</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>3F79AC576BC417A78AFC1B5C</key>
+		<key>64AFE82C5A4CBD4BCF81790C</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>43CDC0ACC68226DCE75C9202</key>
+		<key>6C8A12E957DEA0C69214A94E</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>7EAB2DD06F1382DACCB4DE63</key>
+		<key>91E92675C3B8AE28E483E5EF</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>8D0B5FD37446390E1F84B77F</key>
+		<key>991BD973B794547271ACDC83</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>C900812BAF609AB4612BAA31</key>
+		<key>9AD62B0552913C4AA8753CBF</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>D825CFB0DF976FCF2CCED138</key>
+		<key>B08961A6D9F6D882C080E3F1</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>DD370CD17BDFAD5C31FEE4C6</key>
+		<key>C6A1D26518EF5BBCB56EF3FB</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>DDBBCC15EB41797930689513</key>
+		<key>E85F4F6E9B262054151D0FC2</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>E9BEE294A9AC7F7CB3D219CF</key>
+		<key>EC3020EC55B30231272C5945</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>F46676AC55B9F13C60C9E705</key>
 		<dict>
 			<key>primary</key>
 			<true/>

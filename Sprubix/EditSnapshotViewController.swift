@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import GPUImage
 
 enum EditMode {
     case None

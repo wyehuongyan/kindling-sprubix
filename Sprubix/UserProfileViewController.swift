@@ -7,6 +7,9 @@
 //
 
 import UIKit
+import DZNEmptyDataSet
+import CHTCollectionViewWaterfallLayout
+import AFNetworking
 
 enum ProfileState {
     case Outfits
@@ -14,7 +17,7 @@ enum ProfileState {
     case Community
 }
 
-class UserProfileViewController: UIViewController, UICollectionViewDataSource, CHTCollectionViewDelegateWaterfallLayout, TransitionProtocol, UserProfileHeaderDelegate {
+class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataSetDelegate, UICollectionViewDataSource, CHTCollectionViewDelegateWaterfallLayout, TransitionProtocol, UserProfileHeaderDelegate {
     
     var user: NSDictionary?
     
@@ -33,6 +36,7 @@ class UserProfileViewController: UIViewController, UICollectionViewDataSource, C
     var userPiecesLayout:SprubixStretchyHeader!
     
     let userProfileHeaderHeight:CGFloat = 300;
+    var emptyDataTableView: UITableView?
     
     var outfits:[NSDictionary] = [NSDictionary]()
     var pieces:[NSDictionary] = [NSDictionary]()
@@ -376,6 +380,78 @@ class UserProfileViewController: UIViewController, UICollectionViewDataSource, C
         }
     }
     
+    func showEmptyDataSet() {
+        if emptyDataTableView != nil {
+            emptyDataTableView?.removeFromSuperview()
+        }
+        
+        emptyDataTableView = UITableView(frame: CGRectMake(0, userProfileHeaderHeight, screenWidth, screenHeight - userProfileHeaderHeight))
+        
+        profileCollectionView.addSubview(emptyDataTableView!)
+
+        emptyDataTableView?.emptyDataSetDelegate = self
+        emptyDataTableView?.emptyDataSetSource = self
+        emptyDataTableView?.tableFooterView = UIView()
+    }
+    
+    func hideEmptyDataSet() {
+        emptyDataTableView?.removeFromSuperview()
+    }
+    
+    // DZNEmptyDataSetSource
+    func titleForEmptyDataSet(scrollView: UIScrollView!) -> NSAttributedString! {
+        let text: String = "Title For Empty Data Set"
+        
+        let attributes: NSDictionary = [
+            NSFontAttributeName: UIFont.boldSystemFontOfSize(18.0),
+            NSForegroundColorAttributeName: UIColor.darkGrayColor()
+        ]
+        
+        let attributedString: NSAttributedString = NSAttributedString(string: text, attributes: attributes as [NSObject : AnyObject])
+        
+        return attributedString
+    }
+    
+    func descriptionForEmptyDataSet(scrollView: UIScrollView!) -> NSAttributedString! {
+        let text: String = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+        
+        var paragraph: NSMutableParagraphStyle = NSMutableParagraphStyle.new()
+        paragraph.lineBreakMode = NSLineBreakMode.ByWordWrapping
+        paragraph.alignment = NSTextAlignment.Center
+        
+        let attributes: NSDictionary = [
+            NSFontAttributeName: UIFont.boldSystemFontOfSize(14.0),
+            NSForegroundColorAttributeName: UIColor.lightGrayColor(),
+            NSParagraphStyleAttributeName: paragraph
+        ]
+        
+        let attributedString: NSAttributedString = NSAttributedString(string: text, attributes: attributes as [NSObject : AnyObject])
+        
+        return attributedString
+    }
+    
+    func buttonTitleForEmptyDataSet(scrollView: UIScrollView!, forState state: UIControlState) -> NSAttributedString! {
+        let text: String = "Button Title"
+        
+        let attributes: NSDictionary = [
+            NSFontAttributeName: UIFont.boldSystemFontOfSize(17.0)
+        ]
+        
+        let attributedString: NSAttributedString = NSAttributedString(string: text, attributes: attributes as [NSObject : AnyObject])
+        
+        return attributedString
+    }
+    
+    /*
+    func imageForEmptyDataSet(scrollView: UIScrollView!) -> UIImage! {
+        return UIImage(named: "logo-final-square.png")
+    }
+    */
+    
+    func backgroundColorForEmptyDataSet(scrollView: UIScrollView!) -> UIColor! {
+        return sprubixGray
+    }
+    
     // UserProfileHeaderDelegate
     func loadUserOutfits() {
         if outfitsLoaded != true {
@@ -391,14 +467,21 @@ class UserProfileViewController: UIViewController, UICollectionViewDataSource, C
                     success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
                         self.outfits = responseObject["data"] as! [NSDictionary]
                         
-                        self.outfitsLoaded = true
                         self.currentProfileState = .Outfits
                         self.activityView.stopAnimating()
-                        self.profileCollectionView.reloadData()
                         
-                        // set layout
-                        self.profileCollectionView.collectionViewLayout.invalidateLayout()
-                        self.profileCollectionView.setCollectionViewLayout(self.userOutfitsLayout, animated: false)
+                        if self.outfits.count > 0 {
+                            self.outfitsLoaded = true
+                            self.hideEmptyDataSet()
+                            self.profileCollectionView.reloadData()
+                            
+                            // set layout
+                            self.profileCollectionView.collectionViewLayout.invalidateLayout()
+                            self.profileCollectionView.setCollectionViewLayout(self.userOutfitsLayout, animated: false)
+                        } else {
+                            println("Oops, there are no outfits in your closet.")
+                            self.showEmptyDataSet()
+                        }
 
                     },
                     failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
@@ -431,14 +514,21 @@ class UserProfileViewController: UIViewController, UICollectionViewDataSource, C
                     success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
                         self.pieces = responseObject["data"] as! [NSDictionary]
                         
-                        self.piecesLoaded = true
                         self.currentProfileState = .Pieces
                         self.activityView.stopAnimating()
-                        self.profileCollectionView.reloadData()
                         
-                        // set layout
-                        self.profileCollectionView.collectionViewLayout.invalidateLayout()
-                        self.profileCollectionView.setCollectionViewLayout(self.userPiecesLayout, animated: false)
+                        if self.pieces.count > 0 {
+                            self.piecesLoaded = true
+                            self.hideEmptyDataSet()
+                            self.profileCollectionView.reloadData()
+                            
+                            // set layout
+                            self.profileCollectionView.collectionViewLayout.invalidateLayout()
+                            self.profileCollectionView.setCollectionViewLayout(self.userPiecesLayout, animated: false)
+                        } else {
+                            println("Oops, there are no pieces in your closet.")
+                            self.showEmptyDataSet()
+                        }
                     },
                     failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                         println("Error: " + error.localizedDescription)
@@ -469,14 +559,21 @@ class UserProfileViewController: UIViewController, UICollectionViewDataSource, C
                     success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
                         self.communityOutfits = responseObject["data"] as! [NSDictionary]
                         
-                        self.communityLoaded = true
                         self.currentProfileState = .Community
                         self.activityView.stopAnimating()
-                        self.profileCollectionView.reloadData()
                         
-                        // set layout
-                        self.profileCollectionView.collectionViewLayout.invalidateLayout()
-                        self.profileCollectionView.setCollectionViewLayout(self.userOutfitsLayout, animated: false)
+                        if self.communityOutfits.count > 0 {
+                            self.communityLoaded = true
+                            self.hideEmptyDataSet()
+                            self.profileCollectionView.reloadData()
+                            
+                            // set layout
+                            self.profileCollectionView.collectionViewLayout.invalidateLayout()
+                            self.profileCollectionView.setCollectionViewLayout(self.userOutfitsLayout, animated: false)
+                        } else {
+                            println("Oops, there are no community outfits in your closet.")
+                            self.showEmptyDataSet()
+                        }
                         
                     },
                     failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in

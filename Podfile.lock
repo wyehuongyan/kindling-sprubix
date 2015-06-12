@@ -73,6 +73,7 @@ PODS:
   - MRProgress/ProgressBaseClass (0.8.2)
   - MRProgress/Stopable (0.8.2):
     - MRProgress/Helper
+  - PermissionScope (0.6)
   - SSKeychain (1.2.3)
   - STTweetLabel (3.1.20)
   - SVPullToRefresh (0.4.1)
@@ -86,6 +87,7 @@ DEPENDENCIES:
   - Firebase (>= 2.2.2)
   - GPUImage (~> 0.1.4)
   - MRProgress/AFNetworking (~> 0.8.2)
+  - PermissionScope (~> 0.6)
   - SSKeychain (~> 1.2.3)
   - STTweetLabel (~> 3.1.2)
   - SVPullToRefresh (~> 0.4.1)
@@ -99,6 +101,7 @@ SPEC CHECKSUMS:
   Firebase: e35cdd2561bf4fea9c1e384e9400a9c173d19e47
   GPUImage: 4675ce4a5370ca92fcea8623b2a08b8f0c51b940
   MRProgress: f4cfe862082418e8f542f077772283f425d6c699
+  PermissionScope: 90a0d5261633d2292c02f3d419fbb4a1e1f4f5bf
   SSKeychain: 3f42991739c6c60a9cf1bbd4dff6c0d3694bcf3d
   STTweetLabel: 52f443aa81eea297285150e343c0d49284df7dfe
   SVPullToRefresh: ba2e718695a43253d8bea6852d2960097dc15d8c

@@ -7,6 +7,9 @@
 //
 
 import UIKit
+import DZNEmptyDataSet
+import STTweetLabel
+import AFNetworking
 
 class NotificationViewController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataSetDelegate, UITableViewDataSource, UITableViewDelegate {
 
@@ -150,7 +153,7 @@ class NotificationViewController: UIViewController, DZNEmptyDataSetSource, DZNEm
         
         // 3. add a new navigation item w/title to the new nav bar
         newNavItem = UINavigationItem()
-        newNavItem.title = "Notifications"
+        newNavItem.title = "Activity"
         
         // 4. create a custom back button
         var backButton:UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
@@ -247,7 +250,7 @@ class NotificationViewController: UIViewController, DZNEmptyDataSetSource, DZNEm
     }
     
     func imageForEmptyDataSet(scrollView: UIScrollView!) -> UIImage! {
-        return UIImage(named: "logo-final-square.png")
+        return UIImage(named: "main-like-filled-large")
     }
     
     func backgroundColorForEmptyDataSet(scrollView: UIScrollView!) -> UIColor! {

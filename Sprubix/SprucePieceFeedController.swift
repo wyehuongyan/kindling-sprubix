@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import AFNetworking
 
 protocol SprucePieceFeedProtocol {
     func deleteSprucePieceFeed(sprucePieceFeedController: SprucePieceFeedController)

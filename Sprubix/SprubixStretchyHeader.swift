@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import CHTCollectionViewWaterfallLayout
 
 class SprubixStretchyHeader: CHTCollectionViewWaterfallLayout {
     override func shouldInvalidateLayoutForBoundsChange(newBounds: CGRect) -> Bool {

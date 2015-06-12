@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import AFNetworking
 
 class SignUpViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UITextFieldDelegate, UIGestureRecognizerDelegate {
     var signUpTable:UITableView!

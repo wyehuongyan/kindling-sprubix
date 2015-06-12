@@ -7,6 +7,8 @@
 //
 
 import UIKit
+import CHTCollectionViewWaterfallLayout
+import AFNetworking
 
 protocol PieceDetailsOutfitProtocol {
     func relevantOutfitSelected(collectionView: UICollectionView, index: NSIndexPath)

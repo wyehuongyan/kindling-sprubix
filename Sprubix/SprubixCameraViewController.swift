@@ -8,8 +8,12 @@
 
 import UIKit
 import AVFoundation
+import PermissionScope
 
 class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, SprubixCameraDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+    
+    let cameraPscope = PermissionScope()
+    let photoPscope = PermissionScope()
     
     var editSnapshotViewController: EditSnapshotViewController!
     
@@ -54,6 +58,21 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        // initialized permissions
+        cameraPscope.addPermission(PermissionConfig(type: .Camera, demands: .Required, message: "We need this so you can snap\r\nawesome pictures of your items!", notificationCategories: .None))
+        
+        cameraPscope.tintColor = sprubixColor
+        cameraPscope.headerLabel.text = "Hey there!"
+        cameraPscope.headerLabel.textColor = UIColor.darkGrayColor()
+        cameraPscope.bodyLabel.textColor = UIColor.lightGrayColor()
+        
+        photoPscope.addPermission(PermissionConfig(type: .Photos, demands: .Required, message: "We need this so you can import\r\nawesome pictures of your items!", notificationCategories: .None))
+        
+        photoPscope.tintColor = sprubixColor
+        photoPscope.headerLabel.text = "Hey there!"
+        photoPscope.headerLabel.textColor = UIColor.darkGrayColor()
+        photoPscope.bodyLabel.textColor = UIColor.lightGrayColor()
+        
         initPieceSelector()
     }
     
@@ -64,7 +83,14 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
         self.navigationController?.navigationBar.setBackgroundImage(UIImage(), forBarMetrics: UIBarMetrics.Default)
         self.navigationController?.navigationBar.shadowImage = UIImage()
 
-        self.initializeCamera()
+        cameraPscope.show(authChange: { (finished, results) -> Void in
+                //println("got results \(results)")
+                self.initializeCamera()
+            }, cancelled: { (results) -> Void in
+                //println("thing was cancelled")
+                
+                self.closeCreateOutfit(UIButton())
+        })
     }
     
     override func viewDidAppear(animated: Bool) {
@@ -237,8 +263,8 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
         view.addSubview(photoLibraryButton)
         
         imagePicker.delegate = self
-        imagePicker.navigationBar.translucent = false
-        imagePicker.navigationBar.barTintColor = sprubixColor
+        imagePicker.navigationBar.translucent = true
+        imagePicker.navigationBar.barTintColor = sprubixGray
     }
     
     func initializeCamera() {
@@ -459,9 +485,15 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
     
     // Button Callbacks
     func photoFromLibrary(sender: UIButton) {
-        imagePicker.allowsEditing = false
-        imagePicker.sourceType = UIImagePickerControllerSourceType.PhotoLibrary
-        presentViewController(imagePicker, animated: true, completion: nil)
+        photoPscope.show(authChange: { (finished, results) -> Void in
+                //println("got results \(results)")
+                self.imagePicker.allowsEditing = false
+                self.imagePicker.sourceType = UIImagePickerControllerSourceType.PhotoLibrary
+            
+                self.presentViewController(self.imagePicker, animated: true, completion: nil)
+            }, cancelled: { (results) -> Void in
+                //println("thing was cancelled")
+        })
     }
     
     func headPieceSelected(sender: UIButton) {

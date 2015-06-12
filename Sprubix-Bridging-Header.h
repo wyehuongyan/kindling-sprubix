@@ -1,16 +1,16 @@
-//
-//  Use this file to import your target's public headers that you would like to expose to Swift.
+//  If your podfile does not contain use_frameworks!,
+//  use this file to import your target's public headers that you would like to expose to Swift.
 //
 
-#import "AFNetworking.h"
+#import "AFNetworking/AFNetworking.h"
 #import "AFNetworking/UIKit+AFNetworking.h"
 #import "AFNetworkActivityLogger/AFNetworkActivityLogger.h"
-#import "CHTCollectionViewWaterfallLayout.h"
-#import "TLYShyNavBarManager.h"
-#import "GPUImage.h"
+#import "CHTCollectionViewWaterfallLayout/CHTCollectionViewWaterfallLayout.h"
+#import "TLYShyNavBar/TLYShyNavBarManager.h"
+#import "GPUImage/GPUImage.h"
 #import "MRProgress/MRProgressOverlayView+AFNetworking.h"
 #import "Firebase/Firebase.h"
-#import "SSKeychain.h"
-#import "UIScrollView+SVInfiniteScrolling.h"
-#import "STTweetLabel.h"
-#import "UIScrollView+EmptyDataSet.h"
+#import "SSKeychain/SSKeychain.h"
+#import "SVPullToRefresh/UIScrollView+SVInfiniteScrolling.h"
+#import "STTweetLabel/STTweetLabel.h"
+#import "DZNEmptyDataSet/UIScrollView+EmptyDataSet.h"
