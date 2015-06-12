@@ -479,7 +479,7 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
                             self.profileCollectionView.collectionViewLayout.invalidateLayout()
                             self.profileCollectionView.setCollectionViewLayout(self.userOutfitsLayout, animated: false)
                         } else {
-                            println("Oops, there are no outfits in your closet.")
+                            //println("Oops, there are no outfits in your closet.")
                             self.showEmptyDataSet()
                         }
 
@@ -526,7 +526,7 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
                             self.profileCollectionView.collectionViewLayout.invalidateLayout()
                             self.profileCollectionView.setCollectionViewLayout(self.userPiecesLayout, animated: false)
                         } else {
-                            println("Oops, there are no pieces in your closet.")
+                            //println("Oops, there are no pieces in your closet.")
                             self.showEmptyDataSet()
                         }
                     },
@@ -571,7 +571,7 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
                             self.profileCollectionView.collectionViewLayout.invalidateLayout()
                             self.profileCollectionView.setCollectionViewLayout(self.userOutfitsLayout, animated: false)
                         } else {
-                            println("Oops, there are no community outfits in your closet.")
+                            //println("Oops, there are no community outfits in your closet.")
                             self.showEmptyDataSet()
                         }
                         
