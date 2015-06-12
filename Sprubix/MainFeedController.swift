@@ -401,6 +401,7 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
             
             let senderUsername = userData!["username"] as! String
             let receiverUsername = receiver["username"] as! String
+            let poutfitRef = firebaseRef.childByAppendingPath("poutfits/\(itemIdentifier)")
             let poutfitLikesUserRef = poutfitLikesRef.childByAppendingPath(senderUsername) // to be removed
             
             let receiverUserNotificationsRef = firebaseRef.childByAppendingPath("users/\(receiverUsername)/notifications")
@@ -454,6 +455,27 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
                                     
                                     self.outfitsLiked.setObject(false, forKey: outfitId)
                                     
+                                    // update poutfitRef num of likes
+                                    let poutfitLikeCountRef = poutfitRef.childByAppendingPath("num_likes")
+                                    
+                                    poutfitLikeCountRef.runTransactionBlock({
+                                        (currentData:FMutableData!) in
+                                        
+                                        var value = currentData.value as? Int
+                                        
+                                        if value == nil {
+                                            value = 0
+                                        } else {
+                                            if value > 0 {
+                                                value = value! - 1
+                                            }
+                                        }
+                                        
+                                        currentData.value = value!
+                                        
+                                        return FTransactionResult.successWithValue(currentData)
+                                    })
+                                    
                                     println("Outfit unliked successfully!")
                                 }
                             })
@@ -480,6 +502,7 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
             let senderUsername = userData!["username"] as! String
             let senderImage = userData!["image"] as! String
             let receiverUsername = receiver["username"] as! String
+            let poutfitRef = firebaseRef.childByAppendingPath("poutfits/\(itemIdentifier)")
             let poutfitLikesUserRef = poutfitLikesRef.childByAppendingPath(senderUsername)
             
             let receiverUserNotificationsRef = firebaseRef.childByAppendingPath("users/\(receiverUsername)/notifications")
@@ -507,6 +530,25 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
                         if (error != nil) {
                             println("Error: Like could not be added.")
                         } else {
+                            // like added successfully
+                            
+                            // update poutfitRef num of likes
+                            let poutfitLikeCountRef = poutfitRef.childByAppendingPath("num_likes")
+                            
+                            poutfitLikeCountRef.runTransactionBlock({
+                                (currentData:FMutableData!) in
+                                
+                                var value = currentData.value as? Int
+                                
+                                if value == nil {
+                                    value = 0
+                                }
+                                
+                                currentData.value = value! + 1
+                                
+                                return FTransactionResult.successWithValue(currentData)
+                            })
+                            
                             // update child values: poutfits
                             poutfitLikesRef.updateChildValues([
                                 userData!["username"] as! String: likeRef.key

@@ -28,6 +28,10 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
     var recentComments: [NSDictionary] = [NSDictionary]()
     var numTotalComments: Int = 0
     
+    var itemLikesImage: UIButton?
+    var itemLikesLabel: UILabel?
+    var numTotalLikes: Int = 0
+    
     var pieceImageView: UIImageView!
     var pieceImages: [UIImageView] = [UIImageView]()
     var likeImageView: UIImageView!
@@ -41,8 +45,10 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
     var outfitImageCell: UITableViewCell!
     var creditsCell: UITableViewCell!
     var descriptionCell: UITableViewCell!
+    var specificationCell: UITableViewCell!
     var commentsCell: UITableViewCell!
     
+    let itemSpecHeight: CGFloat = 55
     let viewAllCommentsHeight: CGFloat = 40
     var commentRowButton: SprubixItemCommentRow!
     
@@ -80,6 +86,8 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
             childAddedHandle = nil
             numTotalComments = 0
         }
+        
+        numTotalLikes = 0
     }
     
     func initOutfitTableView() {
@@ -97,16 +105,18 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
         outfitImageCell = UITableViewCell()
         creditsCell = UITableViewCell()
         descriptionCell = UITableViewCell()
+        specificationCell = UITableViewCell()
         commentsCell = UITableViewCell()
         
         outfitImageCell.backgroundColor = UIColor.whiteColor()
         creditsCell.backgroundColor = UIColor.whiteColor()
         descriptionCell.backgroundColor = UIColor.whiteColor()
+        specificationCell.backgroundColor = UIColor.whiteColor()
         commentsCell.backgroundColor = UIColor.whiteColor()
     }
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 4
+        return 5
     }
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
@@ -119,6 +129,7 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
             pullLabel.textColor = UIColor.lightGrayColor()
             pullLabel.textAlignment = NSTextAlignment.Center
             
+            outfitImageCell.selectionStyle = UITableViewCellSelectionStyle.None
             outfitImageCell.addSubview(pullLabel)
             
             pieceImages.removeAll()
@@ -178,64 +189,71 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
                 prevPieceHeight += pieceHeight // to offset 2nd piece image's height with first image's height
                 outfitHeight += pieceHeight // accumulate height of all pieces
                 
-                // like button
-                let likeButtonWidth = frame.size.width / 10
-                likeButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
-                var image = UIImage(named: "main-like")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
-                likeButton.setImage(image, forState: UIControlState.Normal)
-                likeButton.setImage(UIImage(named: "main-like-filled"), forState: UIControlState.Selected)
-                likeButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
-                likeButton.imageView?.tintColor = sprubixGray
-                likeButton.backgroundColor = UIColor.clearColor()
-                likeButton.frame = CGRectMake(8 * likeButtonWidth, pieceHeight - likeButtonWidth, likeButtonWidth, likeButtonWidth)
-                likeButton.imageEdgeInsets = UIEdgeInsetsMake(5, 5, 5, 5)
-                likeButton.addTarget(self, action: "togglePieceLike:", forControlEvents: UIControlEvents.TouchUpInside)
+                if piece["deleted_at"]!.isKindOfClass(NSNull) {
+                    // like button
+                    let likeButtonWidth = frame.size.width / 10
+                    likeButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+                    var image = UIImage(named: "main-like")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
+                    likeButton.setImage(image, forState: UIControlState.Normal)
+                    likeButton.setImage(UIImage(named: "main-like-filled"), forState: UIControlState.Selected)
+                    likeButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+                    likeButton.imageView?.tintColor = sprubixGray
+                    likeButton.backgroundColor = UIColor.clearColor()
+                    likeButton.frame = CGRectMake(8 * likeButtonWidth, pieceHeight - likeButtonWidth, likeButtonWidth, likeButtonWidth)
+                    likeButton.imageEdgeInsets = UIEdgeInsetsMake(5, 5, 5, 5)
+                    likeButton.addTarget(self, action: "togglePieceLike:", forControlEvents: UIControlEvents.TouchUpInside)
 
-                let pieceId = piece["id"] as! Int
-                likeButtonsDict.setObject(likeButton, forKey: piece)
-                
-                // very first time: check likebutton selected
-                let userData: NSDictionary? = defaults.dictionaryForKey("userData")
-                let username = userData!["username"] as! String
+                    let pieceId = piece["id"] as! Int
+                    likeButtonsDict.setObject(likeButton, forKey: piece)
+                    
+                    // very first time: check likebutton selected
+                    let userData: NSDictionary? = defaults.dictionaryForKey("userData")
+                    let username = userData!["username"] as! String
 
-                let poutfitLikesUserRef = firebaseRef.childByAppendingPath("poutfits/piece_\(pieceId)/likes/\(username)")
-                
-                var liked: Bool? = piecesLiked[pieceId] as? Bool
-                
-                if liked != nil {
-                    likeButton.selected = liked!
+                    let poutfitLikesUserRef = firebaseRef.childByAppendingPath("poutfits/piece_\(pieceId)/likes/\(username)")
+                    
+                    var liked: Bool? = piecesLiked[pieceId] as? Bool
+                    
+                    if liked != nil {
+                        likeButton.selected = liked!
+                    } else {
+                        // check if user has already liked this outfit
+                        poutfitLikesUserRef.observeSingleEventOfType(.Value, withBlock: {
+                            snapshot in
+                            
+                            if (snapshot.value as? NSNull) != nil {
+                                // not yet liked
+                                liked = false
+                            } else {
+                                liked = true
+                            }
+                            
+                            (self.likeButtonsDict[piece] as! UIButton).selected = liked!
+                            self.piecesLiked.setObject(liked!, forKey: pieceId)
+                        })
+                    }
+                    
+                    pieceImageView.addSubview(likeButton)
+                    Glow.addGlow(likeButton)
+                    
+                    // comment button
+                    commentsButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+                    image = UIImage(named: "main-comments")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
+                    commentsButton.setImage(image, forState: UIControlState.Normal)
+                    commentsButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+                    commentsButton.imageView?.tintColor = sprubixGray
+                    commentsButton.backgroundColor = UIColor.clearColor()
+                    commentsButton.frame = CGRectMake(9 * likeButtonWidth, pieceHeight - likeButtonWidth, likeButtonWidth, likeButtonWidth)
+                    commentsButton.imageEdgeInsets = UIEdgeInsetsMake(5, 5, 5, 5)
+                    commentsButton.addTarget(self, action: "addCommentsPiece:", forControlEvents: UIControlEvents.TouchUpInside)
+                    pieceImageView.addSubview(commentsButton)
+                    Glow.addGlow(commentsButton)
                 } else {
-                    // check if user has already liked this outfit
-                    poutfitLikesUserRef.observeSingleEventOfType(.Value, withBlock: {
-                        snapshot in
-                        
-                        if (snapshot.value as? NSNull) != nil {
-                            // not yet liked
-                            liked = false
-                        } else {
-                            liked = true
-                        }
-                        
-                        (self.likeButtonsDict[piece] as! UIButton).selected = liked!
-                        self.piecesLiked.setObject(liked!, forKey: pieceId)
-                    })
+                    println("This item is deleted")
+                    
+                    // darkened overlay
+                    // // two buttons: complete outfit, find similar
                 }
-                
-                pieceImageView.addSubview(likeButton)
-                Glow.addGlow(likeButton)
-                
-                // comment button
-                commentsButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
-                image = UIImage(named: "main-comments")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
-                commentsButton.setImage(image, forState: UIControlState.Normal)
-                commentsButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
-                commentsButton.imageView?.tintColor = sprubixGray
-                commentsButton.backgroundColor = UIColor.clearColor()
-                commentsButton.frame = CGRectMake(9 * likeButtonWidth, pieceHeight - likeButtonWidth, likeButtonWidth, likeButtonWidth)
-                commentsButton.imageEdgeInsets = UIEdgeInsetsMake(5, 5, 5, 5)
-                commentsButton.addTarget(self, action: "addCommentsPiece:", forControlEvents: UIControlEvents.TouchUpInside)
-                pieceImageView.addSubview(commentsButton)
-                Glow.addGlow(commentsButton)
             }
             
             return outfitImageCell
@@ -259,19 +277,46 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
             creditsView.addSubview(postedByButton)
             creditsView.addSubview(fromButton)
             
+            creditsCell.selectionStyle = UITableViewCellSelectionStyle.None
             creditsCell.addSubview(creditsView)
             
             return creditsCell
         case 2:
-            descriptionCell.textLabel?.text = outfit["description"] as! String!
+            let itemImageViewWidth:CGFloat = 0.3 * screenWidth
             
+            // likes
+            itemLikesImage?.removeFromSuperview()
+            itemLikesImage = UIButton.buttonWithType(UIButtonType.Custom) as? UIButton
+            itemLikesImage!.setImage(UIImage(named: "main-like"), forState: UIControlState.Normal)
+            itemLikesImage!.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+            itemLikesImage!.frame = CGRect(x: 0, y: 0, width: itemImageViewWidth, height: itemSpecHeight)
+            itemLikesImage!.imageEdgeInsets = UIEdgeInsetsMake(10, 10, 10, 0)
+            
+            Glow.addGlow(itemLikesImage!)
+            
+            itemLikesLabel?.removeFromSuperview()
+            itemLikesLabel = UILabel(frame: CGRect(x: itemImageViewWidth, y: 0, width: screenWidth - itemImageViewWidth, height: itemSpecHeight))
+            if numTotalLikes != 0 {
+                itemLikesLabel!.text = numTotalLikes > 1 ? "\(numTotalLikes) people like this" : "\(numTotalLikes) person likes this"
+            } else {
+                itemLikesLabel!.text = "Be the first to like!"
+            }
+            
+            specificationCell.selectionStyle = UITableViewCellSelectionStyle.None
+            specificationCell.addSubview(itemLikesImage!)
+            specificationCell.addSubview(itemLikesLabel!)
+            
+            return specificationCell
+        case 3:
+            descriptionCell.textLabel?.text = outfit["description"] as! String!
+            descriptionCell.textLabel?.textColor = UIColor.darkGrayColor()
             descriptionCell.textLabel?.lineBreakMode = NSLineBreakMode.ByWordWrapping
             descriptionCell.textLabel?.numberOfLines = 0
             descriptionCell.userInteractionEnabled = false
+            descriptionCell.selectionStyle = UITableViewCellSelectionStyle.None
             
             return descriptionCell
-            
-        case 3:
+        case 4:
             // init comments
             
             // view all comments button
@@ -291,6 +336,7 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
             viewAllCommentsBG.addSubview(viewAllComments)
             viewAllCommentsBG.addSubview(viewAllCommentsLineTop)
             
+            commentsCell.selectionStyle = UITableViewCellSelectionStyle.None
             commentsCell.addSubview(viewAllCommentsBG)
             
             loadRecentComments()
@@ -421,6 +467,7 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
             let senderUsername = userData!["username"] as! String
             let senderImage = userData!["image"] as! String
             let receiverUsername = receiver["username"] as! String
+            let poutfitRef = firebaseRef.childByAppendingPath("poutfits/\(itemIdentifier)")
             let poutfitLikesUserRef = poutfitLikesRef.childByAppendingPath(senderUsername)
             
             let receiverUserNotificationsRef = firebaseRef.childByAppendingPath("users/\(receiverUsername)/notifications")
@@ -428,7 +475,7 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
             
             let createdAt = timestamp
             
-            // check if user has already liked this outfit
+            // check if user has already liked this piece
             poutfitLikesUserRef.observeSingleEventOfType(.Value, withBlock: {
                 snapshot in
                 
@@ -451,6 +498,25 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
                         if (error != nil) {
                             println("Error: Like could not be added.")
                         } else {
+                            // like added successfully
+                            
+                            // update poutfitRef num of likes
+                            let poutfitLikeCountRef = poutfitRef.childByAppendingPath("num_likes")
+                            
+                            poutfitLikeCountRef.runTransactionBlock({
+                                (currentData:FMutableData!) in
+                                
+                                var value = currentData.value as? Int
+                                
+                                if value == nil {
+                                    value = 0
+                                }
+                                
+                                currentData.value = value! + 1
+                                
+                                return FTransactionResult.successWithValue(currentData)
+                            })
+                            
                             // update child values: poutfits
                             poutfitLikesRef.updateChildValues([
                                 userData!["username"] as! String: likeRef.key
@@ -569,6 +635,7 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
             
             let senderUsername = userData!["username"] as! String
             let receiverUsername = receiver["username"] as! String
+            let poutfitRef = firebaseRef.childByAppendingPath("poutfits/\(itemIdentifier)")
             let poutfitLikesUserRef = poutfitLikesRef.childByAppendingPath(senderUsername) // to be removed
             
             let receiverUserNotificationsRef = firebaseRef.childByAppendingPath("users/\(receiverUsername)/notifications")
@@ -621,6 +688,27 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
                                     poutfitLikesUserRef.removeValue()
                                     
                                     self.piecesLiked.setObject(false, forKey: pieceId)
+                                    
+                                    // update poutfitRef num of likes
+                                    let poutfitLikeCountRef = poutfitRef.childByAppendingPath("num_likes")
+                                    
+                                    poutfitLikeCountRef.runTransactionBlock({
+                                        (currentData:FMutableData!) in
+                                        
+                                        var value = currentData.value as? Int
+                                        
+                                        if value == nil {
+                                            value = 0
+                                        } else {
+                                            if value > 0 {
+                                                value = value! - 1
+                                            }
+                                        }
+                                        
+                                        currentData.value = value!
+                                        
+                                        return FTransactionResult.successWithValue(currentData)
+                                    })
                                     
                                     println("Piece unliked successfully!")
                                 }
@@ -677,8 +765,10 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
         case 1:
             cellHeight = 80 // creditsViewHeight
         case 2:
-            cellHeight = heightForTextLabel(outfit["description"] as! String, width: screenWidth, padding: 20) // description height
+            cellHeight = itemSpecHeight // specifications height
         case 3:
+            cellHeight = heightForTextLabel(outfit["description"] as! String, width: screenWidth, padding: 20) // description height
+        case 4:
             cellHeight = 270 // comments height
         default:
             cellHeight = 300
@@ -816,7 +906,7 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
             
             if (snapshot.value as? NSNull) != nil {
                 // does not exist
-                println("Error: (Recent Comments) poutfitCommentsRef does not exist")
+                println("Error: (OutfitDetailsCell) poutfitCommentsRef does not exist")
             } else {
                 // retrieve total number of comments
                 let poutfitCommentCountRef = firebaseRef.childByAppendingPath("poutfits/\(poutfitIdentifier)/num_comments")
@@ -824,7 +914,7 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
                 poutfitCommentCountRef.observeSingleEventOfType(.Value, withBlock: { snapshot in
                     if (snapshot.value as? NSNull) != nil {
                         // does not exist
-                        println("Error: (Recent Comments) poutfitCommentCountRef does not exist")
+                        println("Error: (OutfitDetailsCell) poutfitCommentCountRef does not exist")
                     } else {
                         self.numTotalComments = snapshot.value as! Int
                     }
@@ -837,7 +927,7 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
                 commentRef.observeSingleEventOfType(.Value, withBlock: { snapshot in
                     if (snapshot.value as? NSNull) != nil {
                         // does not exist
-                        println("Error: (Recent Comments) commentRef does not exist")
+                        println("Error: (OutfitDetailsCell) commentRef does not exist")
                     } else {
                         var comment = snapshot.value as! NSDictionary
                         
@@ -848,10 +938,27 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
                             self.recentComments.removeAtIndex(0)
                         }
                         
-                        var nsPath = NSIndexPath(forRow: 3, inSection: 0)
+                        var nsPath = NSIndexPath(forRow: 4, inSection: 0)
                         self.tableView.reloadRowsAtIndexPaths([nsPath], withRowAnimation: UITableViewRowAnimation.None)
                     }
                 })
+            }
+        })
+        
+        // retrieve total number of comments
+        let poutfitLikesCountRef = firebaseRef.childByAppendingPath("poutfits/\(poutfitIdentifier)/num_likes")
+        
+        numTotalLikes = 0
+        
+        poutfitLikesCountRef.observeSingleEventOfType(.Value, withBlock: { snapshot in
+            if (snapshot.value as? NSNull) != nil {
+                // does not exist
+                println("Error: (PieceDetailsCell) poutfitLikesCountRef does not exist")
+            } else {
+                self.numTotalLikes = snapshot.value as! Int
+                
+                var nsPath = NSIndexPath(forRow: 2, inSection: 0)
+                self.tableView.reloadRowsAtIndexPaths([nsPath], withRowAnimation: UITableViewRowAnimation.None)
             }
         })
     }

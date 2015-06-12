@@ -62,14 +62,14 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
         cameraPscope.addPermission(PermissionConfig(type: .Camera, demands: .Required, message: "We need this so you can snap\r\nawesome pictures of your items!", notificationCategories: .None))
         
         cameraPscope.tintColor = sprubixColor
-        cameraPscope.headerLabel.text = "Hey there!"
+        cameraPscope.headerLabel.text = "Hey there,"
         cameraPscope.headerLabel.textColor = UIColor.darkGrayColor()
         cameraPscope.bodyLabel.textColor = UIColor.lightGrayColor()
         
         photoPscope.addPermission(PermissionConfig(type: .Photos, demands: .Required, message: "We need this so you can import\r\nawesome pictures of your items!", notificationCategories: .None))
         
         photoPscope.tintColor = sprubixColor
-        photoPscope.headerLabel.text = "Hey there!"
+        photoPscope.headerLabel.text = "Hey there,"
         photoPscope.headerLabel.textColor = UIColor.darkGrayColor()
         photoPscope.bodyLabel.textColor = UIColor.lightGrayColor()
         
