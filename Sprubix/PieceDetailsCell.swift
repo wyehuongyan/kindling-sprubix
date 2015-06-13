@@ -16,6 +16,7 @@ protocol PieceDetailsOutfitProtocol {
 
 class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UICollectionViewDelegate, CHTCollectionViewDelegateWaterfallLayout, UIScrollViewDelegate {
 
+    var detailsCellActionDelegate: DetailsCellActions?
     var outfits: [NSDictionary] = [NSDictionary]()
     
     var piece: NSDictionary!
@@ -322,6 +323,7 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         viewMore.imageView?.tintColor = sprubixGray
         viewMore.contentHorizontalAlignment = UIControlContentHorizontalAlignment.Right
         viewMore.backgroundColor = UIColor.clearColor()
+        viewMore.addTarget(self, action: "showMoreOptions:", forControlEvents: UIControlEvents.TouchUpInside)
         
         var viewAllCommentsBG:UIView = UIView(frame: CGRect(x: 0, y: screenWidth + creditsViewHeight + itemSpecHeightTotal + itemDescriptionHeight, width: screenWidth, height: viewAllCommentsHeight))
         viewAllCommentsBG.backgroundColor = UIColor.whiteColor()
@@ -548,6 +550,12 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
     }
     
     // button callbacks
+    func showMoreOptions(sender: UIButton) {
+        let ownerId = user["id"] as! Int
+        
+        detailsCellActionDelegate?.showMoreOptions(ownerId)
+    }
+    
     func addComments(sender: UIButton) {
         commentsViewController = UIStoryboard(name: "Main", bundle: NSBundle.mainBundle()).instantiateViewControllerWithIdentifier("CommentsView") as? CommentsViewController
         

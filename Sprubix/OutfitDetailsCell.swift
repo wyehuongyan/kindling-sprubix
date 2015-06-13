@@ -8,7 +8,12 @@
 
 import UIKit
 
+protocol DetailsCellActions {
+    func showMoreOptions(ownerId: Int)
+}
+
 class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewDataSource {
+    var delegate: DetailsCellActions?
     var navController: UINavigationController?
     var commentsViewController: CommentsViewController?
     
@@ -390,6 +395,7 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
             viewMore.imageView?.tintColor = sprubixGray
             viewMore.contentHorizontalAlignment = UIControlContentHorizontalAlignment.Right
             viewMore.backgroundColor = UIColor.clearColor()
+            viewMore.addTarget(self, action: "showMoreOptions:", forControlEvents: UIControlEvents.TouchUpInside)
             
             var viewAllCommentsBG:UIView = UIView(frame: CGRect(x: 0, y: 0, width: screenWidth, height: viewAllCommentsHeight))
             viewAllCommentsBG.backgroundColor = UIColor.whiteColor()
@@ -972,6 +978,12 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
                 unlikedPiece(piece)
             }
         }
+    }
+    
+    func showMoreOptions(sender: UIButton) {
+        let ownerId = user["id"] as! Int
+        
+        delegate?.showMoreOptions(ownerId)
     }
     
     func retrieveRecentComments(poutfitIdentifier: String) {

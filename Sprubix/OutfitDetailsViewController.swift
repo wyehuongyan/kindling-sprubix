@@ -8,7 +8,7 @@
 
 import UIKit
 
-class OutfitDetailsViewController: UICollectionViewController, UICollectionViewDelegateFlowLayout, TransitionProtocol, HorizontalPageViewControllerProtocol {
+class OutfitDetailsViewController: UICollectionViewController, UICollectionViewDelegateFlowLayout, TransitionProtocol, HorizontalPageViewControllerProtocol, DetailsCellActions {
     let outfitDetailsCellIdentifier = "OutfitDetailsCell"
     
     var outfits: [NSDictionary] = [NSDictionary]()
@@ -56,7 +56,7 @@ class OutfitDetailsViewController: UICollectionViewController, UICollectionViewD
         let collectionCell: OutfitDetailsCell = collectionView.dequeueReusableCellWithReuseIdentifier(outfitDetailsCellIdentifier, forIndexPath: indexPath) as! OutfitDetailsCell
         
         var outfit = outfits[indexPath.row] as NSDictionary
-        var inspiredBy: AnyObject = outfit["inspired_by"]!
+        var inspiredBy: AnyObject = outfit["inspired_by"]! // the immediate previous person (not the true owner)
         
         if inspiredBy.isKindOfClass(NSNull) {
             collectionCell.inspiredBy = nil
@@ -66,6 +66,7 @@ class OutfitDetailsViewController: UICollectionViewController, UICollectionViewD
         
         collectionCell.user = outfit["user"] as! NSDictionary!
         collectionCell.outfit = outfit
+        collectionCell.delegate = self
         
         collectionCell.tappedAction = {}
         
@@ -133,5 +134,47 @@ class OutfitDetailsViewController: UICollectionViewController, UICollectionViewD
     
     func pageViewCellScrollViewContentOffset() -> CGPoint{
         return self.pullOffset
+    }
+    
+    // DetailsCellActions
+    func showMoreOptions(ownerId: Int) {
+        
+        let alertViewController = UIAlertController(title: nil, message: nil, preferredStyle: UIAlertControllerStyle.ActionSheet)
+        alertViewController.view.tintColor = UIColor.grayColor()
+        
+        // actions
+        let reportAction = UIAlertAction(title: "Report inappropriate", style: UIAlertActionStyle.Default, handler: {
+            action in
+            // handler
+            println("report")
+        })
+        
+        let userId:Int? = defaults.objectForKey("userId") as? Int
+        
+        // check if you're the owner (i.e. person who posted this outfit)
+        if userId != nil && userId == ownerId {
+            let deleteAction = UIAlertAction(title: "Delete", style: UIAlertActionStyle.Destructive, handler: {
+                action in
+                // handler
+                println("delete")
+            })
+            
+            alertViewController.addAction(deleteAction)
+        }
+        
+        // cancel
+        let cancelAction = UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Cancel, handler: {
+            action in
+            // handler
+            println("cancel")
+            
+            self.dismissViewControllerAnimated(true, completion: nil)
+            alertViewController.removeFromParentViewController()
+        })
+        
+        alertViewController.addAction(reportAction)
+        alertViewController.addAction(cancelAction)
+        
+        self.presentViewController(alertViewController, animated: true, completion: nil)
     }
 }
