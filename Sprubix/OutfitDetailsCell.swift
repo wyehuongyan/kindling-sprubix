@@ -97,6 +97,7 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
         
         tableView.showsVerticalScrollIndicator = false
         tableView.separatorColor = UIColor.clearColor()
+        tableView.delaysContentTouches = false
         tableView.delegate = self
         tableView.dataSource = self
         
@@ -130,6 +131,7 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
             pullLabel.textAlignment = NSTextAlignment.Center
             
             outfitImageCell.selectionStyle = UITableViewCellSelectionStyle.None
+            outfitImageCell.userInteractionEnabled = true
             outfitImageCell.addSubview(pullLabel)
             
             pieceImages.removeAll()
@@ -161,24 +163,12 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
                 pieceImageView.contentMode = UIViewContentMode.ScaleAspectFit
                 pieceImageView.userInteractionEnabled = true
                 
-                // add gesture recognizers
-                var singleTap = UITapGestureRecognizer(target: self, action: Selector("wasSingleTapped:"))
-                singleTap.numberOfTapsRequired = 1
-                pieceImageView.addGestureRecognizer(singleTap)
-                
-                var doubleTap = UITapGestureRecognizer(target: self, action: Selector("wasDoubleTapped:"))
-                doubleTap.numberOfTapsRequired = 2
-                pieceImageView.addGestureRecognizer(doubleTap)
-                
-                singleTap.requireGestureRecognizerToFail(doubleTap) // so that single tap will not be called during a double tap
-                
                 // like heart image
                 let likeImageViewWidth:CGFloat = 75
                 likeImageView = UIImageView(image: UIImage(named: "main-like-filled-large"))
                 likeImageView.frame = CGRect(x: frame.size.width / 2 - likeImageViewWidth / 2, y: 0, width: likeImageViewWidth, height: pieceHeight)
                 likeImageView.contentMode = UIViewContentMode.ScaleAspectFit
                 likeImageView.alpha = 0
-                
                 pieceImageView.addSubview(likeImageView)
                 
                 likeImagesDict.setObject(likeImageView, forKey: piece)
@@ -186,10 +176,20 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
                 
                 outfitImageCell.addSubview(pieceImageView)
                 
-                prevPieceHeight += pieceHeight // to offset 2nd piece image's height with first image's height
-                outfitHeight += pieceHeight // accumulate height of all pieces
-                
                 if piece["deleted_at"]!.isKindOfClass(NSNull) {
+                    // add gesture recognizers
+                    var singleTap = UITapGestureRecognizer(target: self, action: Selector("wasSingleTapped:"))
+                    singleTap.numberOfTapsRequired = 1
+                    singleTap.cancelsTouchesInView = false
+                    pieceImageView.addGestureRecognizer(singleTap)
+                    
+                    var doubleTap = UITapGestureRecognizer(target: self, action: Selector("wasDoubleTapped:"))
+                    doubleTap.numberOfTapsRequired = 2
+                    doubleTap.cancelsTouchesInView = false
+                    pieceImageView.addGestureRecognizer(doubleTap)
+                    
+                    singleTap.requireGestureRecognizerToFail(doubleTap) // so that single tap will not be called during a double tap
+                    
                     // like button
                     let likeButtonWidth = frame.size.width / 10
                     likeButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
@@ -246,14 +246,63 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
                     commentsButton.frame = CGRectMake(9 * likeButtonWidth, pieceHeight - likeButtonWidth, likeButtonWidth, likeButtonWidth)
                     commentsButton.imageEdgeInsets = UIEdgeInsetsMake(5, 5, 5, 5)
                     commentsButton.addTarget(self, action: "addCommentsPiece:", forControlEvents: UIControlEvents.TouchUpInside)
+                    
                     pieceImageView.addSubview(commentsButton)
                     Glow.addGlow(commentsButton)
                 } else {
-                    println("This item is deleted")
-                    
                     // darkened overlay
                     // // two buttons: complete outfit, find similar
+                    
+                    let deletedOverlay = UIView(frame: pieceImageView.bounds)
+                    deletedOverlay.backgroundColor = UIColor.blackColor().colorWithAlphaComponent(0.3)
+                    deletedOverlay.alpha = 0.0
+                    deletedOverlay.userInteractionEnabled = true
+                    pieceImageView.addSubview(deletedOverlay)
+                    
+                    // label
+                    var deletedLabel = UILabel(frame: deletedOverlay.bounds)
+                    deletedLabel.textColor = UIColor.whiteColor()
+                    deletedLabel.text = "Oh no, the owner\nhas removed this item!"
+                    deletedLabel.textAlignment = NSTextAlignment.Center
+                    deletedLabel.numberOfLines = 0
+                    deletedLabel.font = UIFont.boldSystemFontOfSize(18)
+                    Glow.addGlow(deletedLabel)
+                    deletedOverlay.addSubview(deletedLabel)
+                    
+                    // two buttons
+                    let deletedButtonHeight: CGFloat = 30
+                    let deletedButtonPadding: CGFloat = 10
+                    let deletedButtonWidth: CGFloat = (screenWidth - 3 * deletedButtonPadding) / 2 // 10 is padding
+                    let completeOutfit = UIButton(frame: CGRectMake(deletedButtonPadding, deletedOverlay.frame.size.height - deletedButtonHeight - deletedButtonPadding, deletedButtonWidth, deletedButtonHeight))
+                    completeOutfit.setTitle("Complete this outfit", forState: UIControlState.Normal)
+                    completeOutfit.layer.cornerRadius = deletedButtonHeight / 2
+                    completeOutfit.titleLabel?.font = screenWidth < 375 ? UIFont.systemFontOfSize(14) : UIFont.systemFontOfSize(16)
+                    completeOutfit.layer.borderWidth = 2.0
+                    completeOutfit.layer.borderColor = UIColor.whiteColor().CGColor
+                    completeOutfit.addTarget(self, action: "completeOutfit:", forControlEvents: UIControlEvents.TouchUpInside)
+                    completeOutfit.alpha = 0.0
+                    pieceImageView.addSubview(completeOutfit)
+
+                    let findSimilar = UIButton(frame: CGRectMake(completeOutfit.frame.origin.x + completeOutfit.frame.size.width + deletedButtonPadding, deletedOverlay.frame.size.height - deletedButtonHeight - deletedButtonPadding, deletedButtonWidth, deletedButtonHeight))
+                    findSimilar.setTitle("Recommend similar", forState: UIControlState.Normal)
+                    findSimilar.layer.cornerRadius = deletedButtonHeight / 2
+                    findSimilar.titleLabel?.font = screenWidth < 375 ? UIFont.systemFontOfSize(14) : UIFont.systemFontOfSize(16)
+                    findSimilar.layer.borderWidth = 2.0
+                    findSimilar.layer.borderColor = UIColor.whiteColor().CGColor
+                    findSimilar.addTarget(self, action: "findSimilar:", forControlEvents: UIControlEvents.TouchUpInside)
+                    findSimilar.alpha = 0.0
+                    pieceImageView.addSubview(findSimilar)
+                    
+                    UIView.animateWithDuration(0.6, delay: 0.3, usingSpringWithDamping: 0.9 , initialSpringVelocity: 0, options: .CurveEaseInOut, animations: {
+                            deletedOverlay.alpha = 1.0
+                            completeOutfit.alpha = 1.0
+                            findSimilar.alpha = 1.0
+                        }, completion: { finished in
+                    })
                 }
+                
+                prevPieceHeight += pieceHeight // to offset 2nd piece image's height with first image's height
+                outfitHeight += pieceHeight // accumulate height of all pieces
             }
             
             return outfitImageCell
@@ -312,6 +361,7 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
             descriptionCell.textLabel?.textColor = UIColor.darkGrayColor()
             descriptionCell.textLabel?.lineBreakMode = NSLineBreakMode.ByWordWrapping
             descriptionCell.textLabel?.numberOfLines = 0
+            descriptionCell.separatorInset = UIEdgeInsetsMake(0, 20, 0, 0)
             descriptionCell.userInteractionEnabled = false
             descriptionCell.selectionStyle = UITableViewCellSelectionStyle.None
             
@@ -320,12 +370,26 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
             // init comments
             
             // view all comments button
-            var viewAllComments:UIButton = UIButton(frame: CGRect(x: 0, y: 0, width: screenWidth/2 + 35, height: viewAllCommentsHeight))
+            var viewAllComments: UIButton = UIButton(frame: CGRect(x: 0, y: 0, width: 0.8 * screenWidth, height: viewAllCommentsHeight))
 
             viewAllComments.setTitle("View all comments (\(numTotalComments))", forState: UIControlState.Normal)
+            viewAllComments.titleEdgeInsets = UIEdgeInsetsMake(0, 20, 0, 0)
+            viewAllComments.contentHorizontalAlignment = UIControlContentHorizontalAlignment.Left
             viewAllComments.setTitleColor(UIColor.lightGrayColor(), forState: UIControlState.Normal)
             viewAllComments.backgroundColor = UIColor.whiteColor()
-            viewAllComments.addTarget(self, action: "addComments:", forControlEvents: UIControlEvents.TouchUpInside)
+            viewAllComments.titleLabel?.font = UIFont.systemFontOfSize(17.0)
+            viewAllComments.addTarget(self, action: "addComments:", forControlEvents:
+                UIControlEvents.TouchUpInside)
+            
+            var viewMore: UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+            var image = UIImage(named: "more-dots")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
+            viewMore.frame = CGRectMake(viewAllComments.frame.size.width, 0, screenWidth - viewAllComments.frame.size.width, viewAllCommentsHeight)
+            viewMore.setImage(image, forState: UIControlState.Normal)
+            viewMore.imageEdgeInsets = UIEdgeInsetsMake(0, 0, 0, 16)
+            viewMore.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+            viewMore.imageView?.tintColor = sprubixGray
+            viewMore.contentHorizontalAlignment = UIControlContentHorizontalAlignment.Right
+            viewMore.backgroundColor = UIColor.clearColor()
             
             var viewAllCommentsBG:UIView = UIView(frame: CGRect(x: 0, y: 0, width: screenWidth, height: viewAllCommentsHeight))
             viewAllCommentsBG.backgroundColor = UIColor.whiteColor()
@@ -334,6 +398,7 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
             viewAllCommentsLineTop.backgroundColor = UIColor(red: 244/255, green: 244/255, blue: 244/255, alpha: 1)
             
             viewAllCommentsBG.addSubview(viewAllComments)
+            viewAllCommentsBG.addSubview(viewMore)
             viewAllCommentsBG.addSubview(viewAllCommentsLineTop)
             
             commentsCell.selectionStyle = UITableViewCellSelectionStyle.None
@@ -835,8 +900,23 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
         commentsViewController?.poutfitIdentifier = "outfit_\(outfitId)"
         commentsViewController?.prevViewIsOutfit = true
         
-        navController!.delegate = nil
-        navController!.pushViewController(commentsViewController!, animated: true)
+        navController?.delegate = nil
+        navController?.pushViewController(commentsViewController!, animated: true)
+    }
+    
+    func completeOutfit(sender: UIButton) {
+        let spruceViewController = UIStoryboard(name: "Main", bundle: NSBundle.mainBundle()).instantiateViewControllerWithIdentifier("SpruceView") as? SpruceViewController
+        spruceViewController?.outfit = outfit
+        spruceViewController?.userIdFrom = user["id"] as! Int
+        spruceViewController?.usernameFrom = user["username"] as! String
+        spruceViewController?.userThumbnailFrom = user["image"] as! String
+        
+        navController?.delegate = nil
+        navController?.pushViewController(spruceViewController!, animated: true)
+    }
+    
+    func findSimilar(sender: UIButton) {
+        println("search")
     }
     
     // piece button callbacks

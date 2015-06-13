@@ -50,6 +50,10 @@ class MainFeedCell: UICollectionViewCell, TransitionWaterfallGridViewProtocol {
     let padding: CGFloat = 5
     var likeImageView:UIImageView!
     
+    // gesture recognizers
+    var outfitTapped: UITapGestureRecognizer?
+    var outfitLiked: UITapGestureRecognizer?
+    
     required init(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -62,13 +66,12 @@ class MainFeedCell: UICollectionViewCell, TransitionWaterfallGridViewProtocol {
         clipsToBounds = true
         layer.borderWidth = 1.0
         layer.borderColor = UIColor.lightGrayColor().CGColor
-        
-        contentView.addSubview(imageViewContent)
     }
     
     override func prepareForReuse() {
         infoView.removeFromSuperview()
         likeButton.selected = false
+        imageViewContent.removeFromSuperview()
     }
     
     override func layoutSubviews() {
@@ -81,18 +84,29 @@ class MainFeedCell: UICollectionViewCell, TransitionWaterfallGridViewProtocol {
         imageViewContent.contentMode = UIViewContentMode.ScaleAspectFit
         imageViewContent.userInteractionEnabled = true
         
+        contentView.addSubview(imageViewContent)
+        
         // gesture recognizers
-        var outfitTapped: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: "outfitTapped:")
-        outfitTapped.numberOfTapsRequired = 1
+        if outfitTapped != nil {
+            imageViewContent.removeGestureRecognizer(outfitTapped!)
+        }
         
-        imageViewContent.addGestureRecognizer(outfitTapped)
+        outfitTapped = UITapGestureRecognizer(target: self, action: "outfitTapped:")
+        outfitTapped?.numberOfTapsRequired = 1
+        outfitTapped?.delaysTouchesBegan = true
         
-        var outfitLiked: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: "outfitLiked:")
-        outfitLiked.numberOfTapsRequired = 2
+        imageViewContent.addGestureRecognizer(outfitTapped!)
         
-        imageViewContent.addGestureRecognizer(outfitLiked)
+        if outfitLiked != nil {
+            imageViewContent.removeGestureRecognizer(outfitLiked!)
+        }
         
-        outfitTapped.requireGestureRecognizerToFail(outfitLiked) // so that single tap will not be called during a double tap
+        outfitLiked = UITapGestureRecognizer(target: self, action: "outfitLiked:")
+        outfitLiked?.numberOfTapsRequired = 2
+        outfitLiked?.delaysTouchesBegan = true
+        outfitTapped?.requireGestureRecognizerToFail(outfitLiked!) // so that single tap will not be called during a double tap
+        
+        imageViewContent.addGestureRecognizer(outfitLiked!)
         
         // info view containing user info and buttons
         infoView = UIView(frame: CGRectMake(0, imageViewContent.frame.size.height, frame.size.width, cellInfoViewHeight))

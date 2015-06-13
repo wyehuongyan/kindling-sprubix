@@ -111,8 +111,11 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, UIActionShee
             
             let sprucePieceFeedController = SprucePieceFeedController(collectionViewLayout: sprucePieceFeedControllerLayout(pieceHeight), pieceType: pieceType, pieceHeight: pieceHeight)
 
-            sprucePieceFeedController.piece = piece
-            sprucePieceFeedController.sprucePieces.insert(piece, atIndex: 0)
+            if piece["deleted_at"]!.isKindOfClass(NSNull) {
+                sprucePieceFeedController.piece = piece
+                sprucePieceFeedController.sprucePieces.insert(piece, atIndex: 0)
+            }
+            
             sprucePieceFeedController.delegate = self
             
             sprucePieceFeedController.willMoveToParentViewController(self)
@@ -519,7 +522,21 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, UIActionShee
     }
     
     func resizeOutfit() {
-        expandOutfit()
+        // here we need to check if all sprucePieceFeedControllers have non-nil currentVisibleCells
+        // // if all are not nil, then resizeOutfit is called
+        
+        for var i = 0; i < childControllers.count; i++ {
+            let childController = self.childControllers[i]
+            
+            if childController.currentVisibleCell == nil {
+                break
+            }
+            
+            // last one cleared
+            if i == childControllers.count - 1 {
+                expandOutfit()
+            }
+        }
     }
     
     func sprucePieceFeedControllerLayout (itemHeight: CGFloat) -> UICollectionViewFlowLayout {

@@ -304,11 +304,24 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         let commentYPos:CGFloat = screenWidth + creditsViewHeight + itemSpecHeightTotal + itemDescriptionHeight + viewAllCommentsHeight
         
         // view all comments button
-        var viewAllComments:UIButton = UIButton(frame: CGRect(x: 0, y: 0, width: screenWidth/2 + 35, height: viewAllCommentsHeight))
+        var viewAllComments:UIButton = UIButton(frame: CGRect(x: 0, y: 0, width: 0.8 * screenWidth, height: viewAllCommentsHeight))
         viewAllComments.setTitle("View all comments (\(numTotalComments))", forState: UIControlState.Normal)
+        viewAllComments.titleEdgeInsets = UIEdgeInsetsMake(0, 20, 0, 0)
+        viewAllComments.contentHorizontalAlignment = UIControlContentHorizontalAlignment.Left
         viewAllComments.setTitleColor(UIColor.lightGrayColor(), forState: UIControlState.Normal)
         viewAllComments.backgroundColor = UIColor.whiteColor()
+        viewAllComments.titleLabel?.font = UIFont.systemFontOfSize(17.0)
         viewAllComments.addTarget(self, action: "addComments:", forControlEvents: UIControlEvents.TouchUpInside)
+        
+        var viewMore: UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+        var image = UIImage(named: "more-dots")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
+        viewMore.frame = CGRectMake(viewAllComments.frame.size.width, 0, screenWidth - viewAllComments.frame.size.width, viewAllCommentsHeight)
+        viewMore.setImage(image, forState: UIControlState.Normal)
+        viewMore.imageEdgeInsets = UIEdgeInsetsMake(0, 0, 0, 16)
+        viewMore.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+        viewMore.imageView?.tintColor = sprubixGray
+        viewMore.contentHorizontalAlignment = UIControlContentHorizontalAlignment.Right
+        viewMore.backgroundColor = UIColor.clearColor()
         
         var viewAllCommentsBG:UIView = UIView(frame: CGRect(x: 0, y: screenWidth + creditsViewHeight + itemSpecHeightTotal + itemDescriptionHeight, width: screenWidth, height: viewAllCommentsHeight))
         viewAllCommentsBG.backgroundColor = UIColor.whiteColor()
@@ -317,6 +330,7 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         viewAllCommentsLineTop.backgroundColor = UIColor(red: 244/255, green: 244/255, blue: 244/255, alpha: 1)
         
         viewAllCommentsBG.addSubview(viewAllComments)
+        viewAllCommentsBG.addSubview(viewMore)
         viewAllCommentsBG.addSubview(viewAllCommentsLineTop)
         
         pieceDetailInfoView.addSubview(viewAllCommentsBG)

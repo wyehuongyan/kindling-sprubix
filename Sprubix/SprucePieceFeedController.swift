@@ -17,7 +17,7 @@ protocol SprucePieceFeedProtocol {
 class SprucePieceFeedController: UICollectionViewController, UICollectionViewDelegateFlowLayout {
     var delegate: SprucePieceFeedProtocol?
     
-    var piece: NSDictionary!
+    var piece: NSDictionary?
     
     let sprucePieceFeedCellIdentifier = "sprucePieceFeedCell"
     
@@ -35,7 +35,7 @@ class SprucePieceFeedController: UICollectionViewController, UICollectionViewDel
     
     var scrolling:Bool = false
     var index:Int! // current page
-    var currentVisibleCell:SprucePieceFeedCell!
+    var currentVisibleCell: SprucePieceFeedCell!
     
     var startingPieceHeight: CGFloat!
     
@@ -247,7 +247,12 @@ class SprucePieceFeedController: UICollectionViewController, UICollectionViewDel
                     
                     self.collectionView?.reloadData()
                     self.collectionView?.layoutIfNeeded()
-                    self.delegate?.resizeOutfit()
+
+                    if self.piece == nil {
+                        // does not have a piece initialized (could be removed by owner)
+                        // // resize outfit on the new piece from server
+                        self.delegate?.resizeOutfit()
+                    }
                 },
                 failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                     println("Error: " + error.localizedDescription)

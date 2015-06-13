@@ -180,8 +180,6 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
             })
         } else {
             println("userId not found, please login or create an account")
-            
-            
         }
     }
     
@@ -662,6 +660,8 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
     }
     
     func tappedOutfit(indexPath: NSIndexPath) {
+        mainCollectionView.layoutIfNeeded()
+        
         let outfitDetailsViewController = OutfitDetailsViewController(collectionViewLayout: detailsViewControllerLayout(), currentIndexPath:indexPath)
         outfitDetailsViewController.outfits = outfits
         

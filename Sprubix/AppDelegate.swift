@@ -68,7 +68,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         var activeController:UIViewController = self.window!.rootViewController!
         
         if activeController.isKindOfClass(UINavigationController) {
-            println("lol")
             activeController = (activeController as UINavigationController).visibleViewController
         }
         
@@ -104,8 +103,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 var response = responseObject as! NSDictionary
                 var user = response["user"] as? NSDictionary
                 
-                if user != nil {
+                let localUserId:Int? = self.defaults.objectForKey("userId") as? Int
+                
+                if user != nil && localUserId != nil {
                     println("I am logged in!")
+                    
                 } else {
                     println("No, I am not logged in.")
                     self.defaults.removeObjectForKey("userId")
