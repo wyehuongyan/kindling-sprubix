@@ -239,7 +239,7 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
     func initButtons() {
         // create outfit button at bottom right
         let createOutfitButtonWidth: CGFloat = 50
-        let createOutfitButtonPadding: CGFloat = 10
+        let createOutfitButtonPadding: CGFloat = 15
         
         createOutfitButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
         createOutfitButton.frame = CGRect(x: screenWidth - createOutfitButtonWidth - createOutfitButtonPadding, y: screenHeight - createOutfitButtonWidth - createOutfitButtonPadding, width: createOutfitButtonWidth, height: createOutfitButtonWidth)
@@ -253,6 +253,11 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         createOutfitButton.clipsToBounds = true
         createOutfitButton.layer.borderWidth = 1.0
         createOutfitButton.layer.borderColor = UIColor.lightGrayColor().CGColor
+        createOutfitButton.layer.shadowOpacity = 0.6;
+        createOutfitButton.layer.shadowRadius = 10.0;
+        createOutfitButton.layer.shadowColor = UIColor.blackColor().CGColor;
+        createOutfitButton.layer.shadowOffset = CGSizeMake(0.0, 10.0);
+        createOutfitButton.layer.masksToBounds = false
         createOutfitButton.userInteractionEnabled = true
         
         view.addSubview(createOutfitButton)
@@ -378,10 +383,10 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
             createOutfitButton.frame.origin.y -= currentNavMoved * 1.5
         }
         
-        if createOutfitButton.frame.origin.y < screenHeight - createOutfitButton.frame.size.height - 10  {
-            createOutfitButton.frame.origin.y = screenHeight - createOutfitButton.frame.size.height - 10
-        } else if createOutfitButton.frame.origin.y > screenHeight + 10 {
-            createOutfitButton.frame.origin.y = screenHeight + 10
+        if createOutfitButton.frame.origin.y < screenHeight - createOutfitButton.frame.size.height - 15  {
+            createOutfitButton.frame.origin.y = screenHeight - createOutfitButton.frame.size.height - 15
+        } else if createOutfitButton.frame.origin.y > screenHeight + 15 {
+            createOutfitButton.frame.origin.y = screenHeight + 15
         }
         
         lastNavOffset = self.navigationController!.navigationBar.frame.origin.y
