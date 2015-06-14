@@ -195,8 +195,11 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
     
     func initButtons() {
         // create outfit button at bottom right
+        let createOutfitButtonWidth: CGFloat = 50
+        let createOutfitButtonPadding: CGFloat = 10
+        
         createOutfitButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
-        createOutfitButton.frame = CGRect(x: screenWidth - 50, y: screenHeight - 50, width: 40, height: 40)
+        createOutfitButton.frame = CGRect(x: screenWidth - createOutfitButtonWidth - createOutfitButtonPadding, y: screenHeight - createOutfitButtonWidth - createOutfitButtonPadding, width: createOutfitButtonWidth, height: createOutfitButtonWidth)
         createOutfitButton.backgroundColor = UIColor.whiteColor()
         createOutfitButton.setImage(UIImage(named: "main-cta-add"), forState: UIControlState.Normal)
         createOutfitButton.addTarget(self, action: "createOutfit:", forControlEvents: UIControlEvents.TouchUpInside)
@@ -207,6 +210,7 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         createOutfitButton.layer.borderWidth = 1.0
         createOutfitButton.layer.borderColor = UIColor.lightGrayColor().CGColor
         createOutfitButton.userInteractionEnabled = true
+        Glow.addGlow(createOutfitButton)
         
         view.addSubview(createOutfitButton)
     }

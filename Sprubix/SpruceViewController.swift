@@ -13,7 +13,7 @@ protocol SpruceViewProtocol {
     func dismissSpruceView()
 }
 
-class SpruceViewController: UIViewController, UIScrollViewDelegate, UIActionSheetDelegate, UITextViewDelegate, SprucePieceFeedProtocol {
+class SpruceViewController: UIViewController, UIScrollViewDelegate, UITextViewDelegate, SprucePieceFeedProtocol {
     var delegate: SpruceViewProtocol?
     
     var userIdFrom: Int!
@@ -136,6 +136,11 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, UIActionShee
             prevPieceHeight += pieceHeight
         }
         
+        if actionSheetButtonNames.count <= 0 {
+            // empty, disable add pieces button
+            addPieceButton.enabled = false
+        }
+        
         // init 'posted by' and 'from' credits
         creditsView = UIView(frame: CGRect(x: 0, y: navigationHeight + prevPieceHeight, width: screenWidth, height: creditsViewHeight))
         
@@ -246,18 +251,33 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, UIActionShee
     }
     
     func showAddPieceActionSheet() {
-        addRemovePieceActionSheet = UIActionSheet(title: "Which piece would you like to add?", delegate: self, cancelButtonTitle: "Cancel", destructiveButtonTitle: nil)
+        let alertViewController = UIAlertController(title: "Which piece would you like to add?", message: nil, preferredStyle: UIAlertControllerStyle.ActionSheet)
+        alertViewController.view.tintColor = UIColor.grayColor()
         
         for buttonName in actionSheetButtonNames {
-            addRemovePieceActionSheet.addButtonWithTitle(buttonName.lowercaseString.capitalizeFirst)
+            let buttonAction = UIAlertAction(title: buttonName.lowercaseString.capitalizeFirst, style: UIAlertActionStyle.Default, handler: {
+                action in
+                // handler
+                self.clickedButtonAction(action.title)
+            })
+            
+            alertViewController.addAction(buttonAction)
         }
         
-        addRemovePieceActionSheet.showInView(self.view)
+        // add cancel button
+        let cancelAction = UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Cancel, handler: {
+            action in
+            // handler
+            self.dismissViewControllerAnimated(true, completion: nil)
+            alertViewController.removeFromParentViewController()
+        })
+        
+        alertViewController.addAction(cancelAction)
+        
+        self.presentViewController(alertViewController, animated: true, completion: nil)
     }
     
-    func actionSheet(actionSheet: UIActionSheet, clickedButtonAtIndex buttonIndex: Int) {
-        let buttonName: String = actionSheet.buttonTitleAtIndex(buttonIndex)
-
+    func clickedButtonAction(buttonName: String) {
         // create a new pieceController based on the buttonName
         let pieceType: String = buttonName.uppercaseString
         var pieceIndex: Int?
@@ -265,12 +285,12 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, UIActionShee
         switch buttonName {
             
         case "Head":
-            println("Head pressed")
+            //println("Head pressed")
             // append to currentSprucePieces position 0
             pieceIndex = 0
            
         case "Top":
-            println("Top pressed")
+            //println("Top pressed")
             
             if childControllers.count > 0 {
                 // check if first item is of pieceType "HEAD"
@@ -286,7 +306,7 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, UIActionShee
             }
             
         case "Bottom":
-            println("Bottom pressed")
+            //println("Bottom pressed")
             
             if childControllers.count > 0 {
                 // check if last item is of pieceType "FEET"
@@ -302,12 +322,9 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, UIActionShee
             }
             
         case "Feet":
-            println("Feet pressed")
+            //println("Feet pressed")
             // append to currentSprucePieces last position
             pieceIndex = currentSprucePieceTypes.count
-            
-        case "Cancel":
-            println("Cancel")
             
         default:
             fatalError("Unknown piece entered")

@@ -9,11 +9,13 @@
 import UIKit
 
 protocol DetailsCellActions {
-    func showMoreOptions(ownerId: Int)
+    func showMoreOptions(ownerId: Int, targetId: Int)
 }
 
 class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewDataSource {
     var delegate: DetailsCellActions?
+    var selectedPieceDetail: NSDictionary?
+    
     var navController: UINavigationController?
     var commentsViewController: CommentsViewController?
     
@@ -156,6 +158,7 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
                 pieceImageView = UIImageView()
                 pieceImageView.image = nil
                 pieceImageView.frame = CGRect(x:0, y: prevPieceHeight, width: UIScreen.mainScreen().bounds.width, height: pieceHeight)
+                pieceImageView.backgroundColor = sprubixGray
                 
                 var pieceImagesString = piece["images"] as! String
                 var pieceImagesData:NSData = pieceImagesString.dataUsingEncoding(NSUTF8StringEncoding)!
@@ -456,6 +459,8 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
         
         let pieceDetailsViewController = PieceDetailsViewController(collectionViewLayout: detailsViewControllerLayout(), currentIndexPath: currentIndexPath)
 
+        selectedPieceDetail = pieces[position!] as NSDictionary
+        
         pieceDetailsViewController.pieces = pieces
         pieceDetailsViewController.user = user
         pieceDetailsViewController.inspiredBy = inspiredBy
@@ -982,8 +987,9 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
     
     func showMoreOptions(sender: UIButton) {
         let ownerId = user["id"] as! Int
+        let outfitId = outfit["id"] as! Int
         
-        delegate?.showMoreOptions(ownerId)
+        delegate?.showMoreOptions(ownerId, targetId: outfitId)
     }
     
     func retrieveRecentComments(poutfitIdentifier: String) {

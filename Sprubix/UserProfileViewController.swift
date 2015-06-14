@@ -74,10 +74,8 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
         // initialization
         if user != nil {
             initUserProfile()
-            
-            // call to servers
             loadUserFollow()
-            loadUserOutfits()
+            //loadUserOutfits()
         } else {
             fatalError("User Profile user is nil.")
         }
@@ -161,6 +159,8 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
     
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
+        
+        reloadUserItems()
         
         self.navigationController?.setNavigationBarHidden(false, animated: true)
         
@@ -471,7 +471,7 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
                         self.activityView.stopAnimating()
                         
                         if self.outfits.count > 0 {
-                            self.outfitsLoaded = true
+                            //self.outfitsLoaded = true
                             self.hideEmptyDataSet()
                             self.profileCollectionView.reloadData()
                             
@@ -518,7 +518,7 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
                         self.activityView.stopAnimating()
                         
                         if self.pieces.count > 0 {
-                            self.piecesLoaded = true
+                            //self.piecesLoaded = true
                             self.hideEmptyDataSet()
                             self.profileCollectionView.reloadData()
                             
@@ -563,7 +563,7 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
                         self.activityView.stopAnimating()
                         
                         if self.communityOutfits.count > 0 {
-                            self.communityLoaded = true
+                            //self.communityLoaded = true
                             self.hideEmptyDataSet()
                             self.profileCollectionView.reloadData()
                             
@@ -589,6 +589,20 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
             
             // set layout
             self.profileCollectionView.setCollectionViewLayout(self.userOutfitsLayout, animated: false)
+        }
+    }
+    
+    private func reloadUserItems() {
+        switch(currentProfileState) {
+        case .Outfits:
+            outfitsLoaded = false
+            loadUserOutfits()
+        case .Pieces:
+            piecesLoaded = false
+            loadUserPieces()
+        case .Community:
+            communityLoaded = false
+            loadCommunityOutfits()
         }
     }
     

@@ -111,7 +111,7 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         singlePieceCollectionView.registerClass(ProfileOutfitCell.self, forCellWithReuseIdentifier: relatedOutfitCellIdentifier)
         
         singlePieceCollectionView.alwaysBounceVertical = true
-        singlePieceCollectionView.backgroundColor = UIColor(red: 229/255, green: 229/255, blue: 229/255, alpha: 1)
+        singlePieceCollectionView.backgroundColor = sprubixGray
         
         singlePieceCollectionView.dataSource = self;
         singlePieceCollectionView.delegate = self;
@@ -155,6 +155,7 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
             let imageURL = NSURL(string: imageDict["medium"] as! String)
             
             var pieceImageView: UIImageView = UIImageView()
+            pieceImageView.backgroundColor = sprubixGray
             pieceImageView.setImageWithURL(imageURL)
             pieceImageView.frame = CGRect(x: CGFloat(i) * screenWidth, y: 0, width: screenWidth, height: screenWidth)
             pieceImageView.contentMode = UIViewContentMode.ScaleAspectFit
@@ -552,8 +553,9 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
     // button callbacks
     func showMoreOptions(sender: UIButton) {
         let ownerId = user["id"] as! Int
+        let pieceId = piece["id"] as! Int
         
-        detailsCellActionDelegate?.showMoreOptions(ownerId)
+        detailsCellActionDelegate?.showMoreOptions(ownerId, targetId: pieceId)
     }
     
     func addComments(sender: UIButton) {
