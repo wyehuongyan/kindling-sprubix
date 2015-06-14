@@ -220,7 +220,7 @@ class OutfitDetailsViewController: UICollectionViewController, UICollectionViewD
                     // REST call to server to delete outfit id
                     manager.DELETE(SprubixConfig.URL.api + "/outfit/\(targetId)",
                         parameters: [
-                            "ownerId": ownerId
+                            "owner_id": ownerId
                         ],
                         success: { (operation: AFHTTPRequestOperation!, responseObject:
                             AnyObject!) in

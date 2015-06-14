@@ -10,6 +10,7 @@ import UIKit
 import DZNEmptyDataSet
 import CHTCollectionViewWaterfallLayout
 import AFNetworking
+import SVPullToRefresh
 
 class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataSetDelegate, UICollectionViewDataSource, OutfitInteractionProtocol, CHTCollectionViewDelegateWaterfallLayout, TransitionProtocol {
     var delegate: SidePanelViewControllerDelegate?
@@ -46,12 +47,13 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         mainCollectionView.alwaysBounceVertical = true
         mainCollectionView.backgroundColor = sprubixGray
         
-        // empty dataset
-        mainCollectionView.emptyDataSetSource = self
-        mainCollectionView.emptyDataSetDelegate = self
-        
         mainCollectionView.dataSource = self;
         mainCollectionView.delegate = self;
+        
+        // infinite scrolling
+        mainCollectionView.addInfiniteScrollingWithActionHandler({
+            self.insertMoreOutfits()
+        })
         
         view.addSubview(mainCollectionView)
         
@@ -168,12 +170,53 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         
         if userId != nil {
             // retrieve 3 example pieces
-            manager.GET(SprubixConfig.URL.api + "/user/\(userId!)/outfits/following",
+            manager.POST(SprubixConfig.URL.api + "/user/\(userId!)/outfits/following",
                 parameters: nil,
                 success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
                     self.outfits = responseObject["data"] as! [NSDictionary]
                     
+                    if self.outfits.count <= 0 {
+                        // empty dataset
+                        self.mainCollectionView.emptyDataSetSource = self
+                        self.mainCollectionView.emptyDataSetDelegate = self
+                    } else {
+                        self.mainCollectionView.emptyDataSetSource = nil
+                        self.mainCollectionView.emptyDataSetDelegate = nil
+                    }
+                    
                     self.mainCollectionView.reloadData()
+                },
+                failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                    println("Error: " + error.localizedDescription)
+            })
+        } else {
+            println("userId not found, please login or create an account")
+        }
+    }
+    
+    // infinite scrolling
+    func insertMoreOutfits() {
+        let lastOutfit: NSDictionary = outfits.last!
+        let lastOutfitId = lastOutfit["id"] as! Int
+        let userId:Int? = defaults.objectForKey("userId") as? Int
+        
+        if userId != nil {
+            // retrieve 3 example pieces
+            manager.POST(SprubixConfig.URL.api + "/user/\(userId!)/outfits/following",
+                parameters: [
+                    "last_outfit_id": lastOutfitId
+                ],
+                success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                    
+                    let moreOutfits = responseObject as! [NSDictionary]
+                    
+                    for moreOutfit in moreOutfits {
+                        self.outfits.append(moreOutfit)
+                        
+                        self.mainCollectionView.insertItemsAtIndexPaths([NSIndexPath(forItem: self.outfits.count - 1, inSection: 0)])
+                    }
+                    
+                    self.mainCollectionView.infiniteScrollingView.stopAnimating()
                 },
                 failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                     println("Error: " + error.localizedDescription)
@@ -314,13 +357,6 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         
         return cell
     }
-    
-    /*
-    func collectionView(collectionView: UICollectionView, didSelectItemAtIndexPath indexPath: NSIndexPath) {
-
-        tappedOutfit(indexPath)
-    }
-    */
     
     func scrollViewDidScroll(scrollView: UIScrollView) {
         var currentDistanceMoved:CGFloat = 0
