@@ -99,13 +99,12 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         sideMenuButton.setImage(UIImage(named: "main-hamburger"), forState: UIControlState.Normal)
         let sideMenuButtonWidth: CGFloat = 30
         sideMenuButton.frame = CGRect(x: 0, y: 0, width: sideMenuButtonWidth, height: sideMenuButtonWidth)
-        sideMenuButton.imageEdgeInsets = UIEdgeInsetsMake(5, -20, 5, 23)
         sideMenuButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
         sideMenuButton.addTarget(self, action: "sideMenuTapped:", forControlEvents: UIControlEvents.TouchUpInside)
         
         // 2.1 badge for notifications attached to hamburger
         let badgeWidth:CGFloat = 20
-        mainBadge.frame = CGRectMake(5, sideMenuButtonWidth / 2 - badgeWidth / 2, badgeWidth, badgeWidth)
+        mainBadge.frame = CGRectMake(sideMenuButtonWidth, sideMenuButtonWidth / 2 - badgeWidth / 2, badgeWidth, badgeWidth)
         mainBadge.backgroundColor = sprubixColor
         mainBadge.layer.cornerRadius = badgeWidth / 2
         mainBadge.clipsToBounds = true
@@ -122,10 +121,13 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         
         sideMenuButton.addSubview(mainBadge)
         
-        var SideMenuButtonItem:UIBarButtonItem = UIBarButtonItem(customView: sideMenuButton)
-        SideMenuButtonItem.tintColor = UIColor(red: 170/255, green: 170/255, blue: 170/255, alpha: 1.0)
+        var sideMenuButtonItem: UIBarButtonItem = UIBarButtonItem(customView: sideMenuButton)
+        sideMenuButtonItem.tintColor = UIColor(red: 170/255, green: 170/255, blue: 170/255, alpha: 1.0)
         
-        self.navigationItem.leftBarButtonItem = SideMenuButtonItem
+        var negativeSpacerItem: UIBarButtonItem = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.FixedSpace, target: nil, action: nil)
+        negativeSpacerItem.width = -20
+
+        self.navigationItem.leftBarButtonItems = [negativeSpacerItem, sideMenuButtonItem]
         
         if(refreshControl.refreshing) {
             refreshControl.endRefreshing()
