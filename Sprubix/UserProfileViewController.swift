@@ -24,6 +24,9 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
     var outfitsLoaded: Bool = false
     var piecesLoaded: Bool = false
     var communityLoaded: Bool = false
+    var currentPage: Int?
+    var lastPage: Int?
+    
     var ownProfile: Bool = false
     var alreadyFollowed: Bool?
     
@@ -121,6 +124,11 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
         
         profileCollectionView.dataSource = self;
         profileCollectionView.delegate = self;
+        
+        // infinite scrolling
+        profileCollectionView.addInfiniteScrollingWithActionHandler({
+            self.insertMoreItems()
+        })
         
         view.addSubview(profileCollectionView)
         
@@ -442,14 +450,98 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
         return attributedString
     }
     
-    /*
-    func imageForEmptyDataSet(scrollView: UIScrollView!) -> UIImage! {
-        return UIImage(named: "logo-final-square.png")
-    }
-    */
-    
     func backgroundColorForEmptyDataSet(scrollView: UIScrollView!) -> UIColor! {
         return sprubixGray
+    }
+    
+    // infinite scrolling
+    func insertMoreItems() {
+        var userId:Int? = user!["id"] as? Int
+        
+        if userId != nil {
+            if currentPage < lastPage {
+                switch(currentProfileState) {
+                case .Outfits:
+                    insertMoreOutfits(userId!)
+                case .Pieces:
+                    insertMorePieces(userId!)
+                case .Community:
+                    insertMoreCommunityOutfits(userId!)
+                }
+            } else {
+                // currentPage >= lastPage
+                profileCollectionView.infiniteScrollingView.stopAnimating()
+            }
+        } else {
+            println("userId not found, please login or create an account")
+        }
+    }
+    
+    private func insertMoreOutfits(userId: Int) {
+        // GET page=2, page=3 and so on
+        let nextPage = currentPage! + 1
+        
+        manager.GET(SprubixConfig.URL.api + "/user/\(userId)/outfits?page=\(nextPage)",
+            parameters: nil,
+            success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                let moreOutfits = responseObject["data"] as! [NSDictionary]
+                
+                for moreOutfit in moreOutfits {
+                    self.outfits.append(moreOutfit)
+                    
+                    self.profileCollectionView.insertItemsAtIndexPaths([NSIndexPath(forItem: self.outfits.count - 1, inSection: 0)])
+                }
+                
+                self.currentPage = nextPage
+                self.profileCollectionView.infiniteScrollingView.stopAnimating()
+            },
+            failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                println("Error: " + error.localizedDescription)
+        })
+    }
+    
+    private func insertMorePieces(userId: Int) {
+        let nextPage = currentPage! + 1
+        
+        manager.GET(SprubixConfig.URL.api + "/user/\(userId)/pieces?page=\(nextPage)",
+            parameters: nil,
+            success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                let morePieces = responseObject["data"] as! [NSDictionary]
+                
+                for morePiece in morePieces {
+                    self.pieces.append(morePiece)
+                    
+                    self.profileCollectionView.insertItemsAtIndexPaths([NSIndexPath(forItem: self.pieces.count - 1, inSection: 0)])
+                }
+                
+                self.currentPage = nextPage
+                self.profileCollectionView.infiniteScrollingView.stopAnimating()
+            },
+            failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                println("Error: " + error.localizedDescription)
+        })
+    }
+    
+    private func insertMoreCommunityOutfits(userId: Int) {
+        let nextPage = currentPage! + 1
+        
+        manager.GET(SprubixConfig.URL.api + "/user/\(userId)/community?page=\(nextPage)",
+            parameters: nil,
+            success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                let moreCommunityOutfits = responseObject["data"] as! [NSDictionary]
+                
+                for moreCommunityOutfit in moreCommunityOutfits {
+                    self.communityOutfits.append(moreCommunityOutfit)
+                    
+                    self.profileCollectionView.insertItemsAtIndexPaths([NSIndexPath(forItem: self.communityOutfits.count - 1, inSection: 0)])
+                }
+                
+                self.currentPage = nextPage
+                self.profileCollectionView.infiniteScrollingView.stopAnimating()
+            },
+            failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                println("Error: " + error.localizedDescription)
+        })
     }
     
     // UserProfileHeaderDelegate
@@ -468,6 +560,8 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
                         self.outfits = responseObject["data"] as! [NSDictionary]
                         
                         self.currentProfileState = .Outfits
+                        self.currentPage = responseObject["current_page"] as? Int
+                        self.lastPage = responseObject["last_page"] as? Int
                         self.activityView.stopAnimating()
                         
                         if self.outfits.count > 0 {
@@ -515,6 +609,8 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
                         self.pieces = responseObject["data"] as! [NSDictionary]
                         
                         self.currentProfileState = .Pieces
+                        self.currentPage = responseObject["current_page"] as? Int
+                        self.lastPage = responseObject["last_page"] as? Int
                         self.activityView.stopAnimating()
                         
                         if self.pieces.count > 0 {
@@ -560,6 +656,8 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
                         self.communityOutfits = responseObject["data"] as! [NSDictionary]
                         
                         self.currentProfileState = .Community
+                        self.currentPage = responseObject["current_page"] as? Int
+                        self.lastPage = responseObject["last_page"] as? Int
                         self.activityView.stopAnimating()
                         
                         if self.communityOutfits.count > 0 {
