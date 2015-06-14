@@ -245,6 +245,7 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         createOutfitButton.frame = CGRect(x: screenWidth - createOutfitButtonWidth - createOutfitButtonPadding, y: screenHeight - createOutfitButtonWidth - createOutfitButtonPadding, width: createOutfitButtonWidth, height: createOutfitButtonWidth)
         createOutfitButton.backgroundColor = UIColor.whiteColor()
         createOutfitButton.setImage(UIImage(named: "main-cta-add"), forState: UIControlState.Normal)
+        createOutfitButton.imageView?.backgroundColor = UIColor.clearColor()
         createOutfitButton.addTarget(self, action: "createOutfit:", forControlEvents: UIControlEvents.TouchUpInside)
         
         // circle mask
@@ -253,7 +254,6 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         createOutfitButton.layer.borderWidth = 1.0
         createOutfitButton.layer.borderColor = UIColor.lightGrayColor().CGColor
         createOutfitButton.userInteractionEnabled = true
-        Glow.addGlow(createOutfitButton)
         
         view.addSubview(createOutfitButton)
     }
