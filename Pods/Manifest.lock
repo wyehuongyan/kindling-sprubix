@@ -27,6 +27,11 @@ PODS:
   - DZNEmptyDataSet (1.5.2)
   - Firebase (2.2.2)
   - GPUImage (0.1.6)
+  - Mixpanel (2.8.1):
+    - Mixpanel/Mixpanel (= 2.8.1)
+  - Mixpanel/Mixpanel (2.8.1):
+    - Mixpanel/MPCategoryHelpers
+  - Mixpanel/MPCategoryHelpers (2.8.1)
   - MRProgress/ActivityIndicator (0.8.2):
     - MRProgress/Stopable
   - MRProgress/AFNetworking (0.8.2):
@@ -86,6 +91,7 @@ DEPENDENCIES:
   - DZNEmptyDataSet (~> 1.5.2)
   - Firebase (>= 2.2.2)
   - GPUImage (~> 0.1.4)
+  - Mixpanel (~> 2.8.1)
   - MRProgress/AFNetworking (~> 0.8.2)
   - PermissionScope (~> 0.6)
   - SSKeychain (~> 1.2.3)
@@ -100,6 +106,7 @@ SPEC CHECKSUMS:
   DZNEmptyDataSet: 741da409081a4bf707c949c964623a6ad1799772
   Firebase: e35cdd2561bf4fea9c1e384e9400a9c173d19e47
   GPUImage: 4675ce4a5370ca92fcea8623b2a08b8f0c51b940
+  Mixpanel: 93c4825025e6380ced273ed7178496282e385077
   MRProgress: f4cfe862082418e8f542f077772283f425d6c699
   PermissionScope: 90a0d5261633d2292c02f3d419fbb4a1e1f4f5bf
   SSKeychain: 3f42991739c6c60a9cf1bbd4dff6c0d3694bcf3d

@@ -1,0 +1,6 @@
+framework module Mixpanel {
+  umbrella header "Pods-Sprubix-Mixpanel-umbrella.h"
+
+  export *
+  module * { export * }
+}
