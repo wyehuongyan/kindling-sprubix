@@ -11,6 +11,7 @@ import UIKit
 class SprucePieceFeedCell: UICollectionViewCell {
     var pieceImageView: UIImageView = UIImageView()
     var piece: NSDictionary!
+    var compressedDueToDress: Bool!
     
     override init(frame: CGRect) {
         super.init(frame: frame)

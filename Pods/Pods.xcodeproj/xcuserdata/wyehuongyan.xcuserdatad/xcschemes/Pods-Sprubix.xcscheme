@@ -14,7 +14,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "9AD62B0552913C4AA8753CBF"
+               BlueprintIdentifier = "61DB1CA94B2296AE545A5660"
                BuildableName = "Pods_Sprubix.framework"
                BlueprintName = "Pods-Sprubix"
                ReferencedContainer = "container:Pods.xcodeproj">

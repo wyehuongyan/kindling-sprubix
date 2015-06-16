@@ -519,6 +519,7 @@ class SnapshotShareController: UIViewController, UITableViewDelegate, UITableVie
                 "name": sprubixPiece.name != nil ? sprubixPiece.name : "",
                 "category": sprubixPiece.category != nil ? sprubixPiece.category : "",
                 "type": sprubixPiece.type, // type will never be nil
+                "is_dress": sprubixPiece.isDress != nil ? sprubixPiece.isDress : false,
                 "brand": sprubixPiece.brand != nil ? sprubixPiece.brand : "",
                 "size": sprubixPiece.size != nil ? sprubixPiece.size : "",
                 "description": sprubixPiece.desc != nil ? sprubixPiece.desc : "",

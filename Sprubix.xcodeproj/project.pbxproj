@@ -57,6 +57,8 @@
 		84C9AC3E1AA06041009ADF5C /* SignUpViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84C9AC3D1AA06041009ADF5C /* SignUpViewController.swift */; };
 		84D697271AC7E05800C676FD /* SpruceShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D697261AC7E05800C676FD /* SpruceShareViewController.swift */; };
 		84D697291AC922DA00C676FD /* logo-final-square.png in Resources */ = {isa = PBXBuildFile; fileRef = 84D697281AC922DA00C676FD /* logo-final-square.png */; };
+		84EBF05C1B306176008D2306 /* SpruceSearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84EBF05B1B306176008D2306 /* SpruceSearchViewController.swift */; };
+		84EBF05E1B30619B008D2306 /* SpruceSearchResultsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84EBF05D1B30619B008D2306 /* SpruceSearchResultsViewController.swift */; };
 		84FDB9601B1595FA00E8D720 /* NotificationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FDB95F1B1595FA00E8D720 /* NotificationCell.swift */; };
 		84FDB9631B15A63700E8D720 /* NotificationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FDB9621B15A63700E8D720 /* NotificationViewController.swift */; };
 /* End PBXBuildFile section */
@@ -128,6 +130,8 @@
 		84C9AC3D1AA06041009ADF5C /* SignUpViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignUpViewController.swift; sourceTree = "<group>"; };
 		84D697261AC7E05800C676FD /* SpruceShareViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpruceShareViewController.swift; sourceTree = "<group>"; };
 		84D697281AC922DA00C676FD /* logo-final-square.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "logo-final-square.png"; sourceTree = "<group>"; };
+		84EBF05B1B306176008D2306 /* SpruceSearchViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpruceSearchViewController.swift; sourceTree = "<group>"; };
+		84EBF05D1B30619B008D2306 /* SpruceSearchResultsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpruceSearchResultsViewController.swift; sourceTree = "<group>"; };
 		84FDB95F1B1595FA00E8D720 /* NotificationCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotificationCell.swift; sourceTree = "<group>"; };
 		84FDB9621B15A63700E8D720 /* NotificationViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotificationViewController.swift; sourceTree = "<group>"; };
 		9C19E471A8B7AC341F31C03D /* Pods-Sprubix.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Sprubix.release.xcconfig"; path = "Pods/Target Support Files/Pods-Sprubix/Pods-Sprubix.release.xcconfig"; sourceTree = "<group>"; };
@@ -233,6 +237,7 @@
 		846C979A1ABD5BCC0050D0BC /* Spruce */ = {
 			isa = PBXGroup;
 			children = (
+				84EBF05A1B306137008D2306 /* Search */,
 				846C97981ABD545A0050D0BC /* SpruceViewController.swift */,
 				846C979C1ABD68A80050D0BC /* SprucePieceFeedController.swift */,
 				84D697261AC7E05800C676FD /* SpruceShareViewController.swift */,
@@ -340,6 +345,15 @@
 				84B3353D1AB2BA2000B9707D /* TransitionProtocol.swift */,
 			);
 			name = Protocol;
+			sourceTree = "<group>";
+		};
+		84EBF05A1B306137008D2306 /* Search */ = {
+			isa = PBXGroup;
+			children = (
+				84EBF05B1B306176008D2306 /* SpruceSearchViewController.swift */,
+				84EBF05D1B30619B008D2306 /* SpruceSearchResultsViewController.swift */,
+			);
+			name = Search;
 			sourceTree = "<group>";
 		};
 		84FCCABF1AB56422009C10B2 /* Profile */ = {
@@ -610,6 +624,7 @@
 				846C97A01ABDA6F00050D0BC /* SprucePieceFeedCell.swift in Sources */,
 				846C97931ABAB11F0050D0BC /* Subclasses.swift in Sources */,
 				84ACA11E1AE78F250084D4CF /* SprubixCameraViewController.swift in Sources */,
+				84EBF05E1B30619B008D2306 /* SpruceSearchResultsViewController.swift in Sources */,
 				845048B71A9ECC81008BDBAA /* Sprubix.xcdatamodeld in Sources */,
 				84470D8C1AED1847007E9A93 /* MainFeedCell.swift in Sources */,
 				84FDB9631B15A63700E8D720 /* NotificationViewController.swift in Sources */,
@@ -619,6 +634,7 @@
 				84B3354A1AB4035A00B9707D /* OutfitDetailsCell.swift in Sources */,
 				84B335441AB2BD0700B9707D /* Extension.swift in Sources */,
 				84B335281AADE1F600B9707D /* UserProfileViewController.swift in Sources */,
+				84EBF05C1B306176008D2306 /* SpruceSearchViewController.swift in Sources */,
 				84B3352A1AAEBF8300B9707D /* ProfileOutfitCell.swift in Sources */,
 				84D697271AC7E05800C676FD /* SpruceShareViewController.swift in Sources */,
 				84B335461AB2DA6F00B9707D /* OutfitDetailsViewController.swift in Sources */,

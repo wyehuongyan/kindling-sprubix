@@ -39,11 +39,16 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, UITextViewDe
     var toggleRemovePieceFeed: Bool = false
     
     @IBOutlet var trashPieceButton: UIBarButtonItem!
+    @IBOutlet var searchButton: UIBarButtonItem!
     @IBOutlet var closetButton: UIBarButtonItem!
     @IBOutlet var addPieceButton: UIBarButtonItem!
     
     @IBAction func trashPiece(sender: AnyObject) {
         toggleDeletePieceCrosses()
+    }
+    
+    @IBAction func searchPieces(sender: AnyObject) {
+        
     }
     
     @IBAction func closetSelection(sender: AnyObject) {
@@ -372,17 +377,6 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, UITextViewDe
             
             childControllers.insert(sprucePieceFeedController, atIndex: pieceIndex!)
             
-            // shift the credits view
-            /*
-            UIView.animateWithDuration(0.5, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .CurveEaseInOut, animations: {
-                
-                self.creditsView.frame = CGRect(x: self.creditsView.frame.origin.x, y: self.creditsView.frame.origin.y + newPieceHeight, width: self.creditsView.frame.width, height: self.creditsView.frame.height)
-                
-                self.descriptionText.frame = CGRect(x: self.descriptionText.frame.origin.x, y: self.descriptionText.frame.origin.y + newPieceHeight, width: self.descriptionText.frame.width, height: self.descriptionText.frame.height)
-                
-                }, completion: nil)
-            */
-            
             // update actionSheetButtonNames
             var position = find(actionSheetButtonNames, buttonName.uppercaseString)
             
@@ -406,19 +400,42 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, UITextViewDe
     func expandOutfit() {
         var prevHeight: CGFloat = 0
         var totalHeight: CGFloat = 0
+        var hasDress: Bool = false
+        var hadHasDress: Bool = false
         
         // get total height of all current
         for childController in self.childControllers {
             let currentVisibleCell = childController.currentVisibleCell as SprucePieceFeedCell
             
-            totalHeight += currentVisibleCell.piece["height"] as! CGFloat
+            if hasDress != true {
+                currentVisibleCell.compressedDueToDress = false
+                totalHeight += currentVisibleCell.piece["height"] as! CGFloat
+            } else {
+                // dont add height for bottoms
+                
+                // // set compression true
+                currentVisibleCell.compressedDueToDress = true
+                
+                // // reset hasDress
+                hasDress = false
+            }
+            
+            if currentVisibleCell.piece["is_dress"] as! Bool == true {
+                hasDress = true
+                hadHasDress = true
+            }
         }
         
         // resize the heights of the viewcontrollers
         for childController in self.childControllers {
             let currentVisibleCell = childController.currentVisibleCell as SprucePieceFeedCell
             
-            let height:CGFloat = currentVisibleCell.piece["height"] as! CGFloat / totalHeight * outfitHeight
+            var height: CGFloat = currentVisibleCell.piece["height"] as! CGFloat / totalHeight * outfitHeight
+            
+            if currentVisibleCell.piece["type"] as! String == "BOTTOM" && hadHasDress == true {
+                
+                height = 0
+            }
             
             // smooth animation
             UIView.animateWithDuration(0, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .CurveEaseInOut, animations: {
@@ -622,14 +639,16 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, UITextViewDe
         for childController in childControllers {
             let currentVisibleCell = childController.currentVisibleCell as SprucePieceFeedCell
             
-            var image = currentVisibleCell.pieceImageView.image!
-            images.append(image)
-            
-            var piece = currentVisibleCell.piece
-            sprucedPieces.append(piece)
-            
-            var newImageHeight = image.size.height * width / image.size.width
-            totalHeight += newImageHeight
+            if currentVisibleCell.compressedDueToDress != true {
+                var image = currentVisibleCell.pieceImageView.image!
+                images.append(image)
+                
+                var piece = currentVisibleCell.piece
+                sprucedPieces.append(piece)
+                
+                var newImageHeight = image.size.height * width / image.size.width
+                totalHeight += newImageHeight
+            }
         }
         
         // create the merged image

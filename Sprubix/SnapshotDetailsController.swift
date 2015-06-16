@@ -48,8 +48,8 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
     var photoLibraryButton: UIButton!
     
     // custom nav bar
-    var newNavBar:UINavigationBar!
-    var newNavItem:UINavigationItem!
+    var newNavBar: UINavigationBar!
+    var newNavItem: UINavigationItem!
     
     // item
     var itemCoverImageView: UIImageView = UIImageView()
@@ -82,11 +82,13 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
     var selectedThumbnail: SprubixItemThumbnail!
     
     // itemDetails textfields
-    var pieceSpecsView:UIView!
+    var pieceSpecsView: UIView!
     var itemDetailsName: UITextField!
     var itemDetailsCategory: UITextField!
     var itemDetailsBrand: UITextField!
     var itemDetailsSize: UITextField!
+    var isDressSwitch: UISwitch?
+    var itemSpecHeightTotal: CGFloat = 220
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -321,7 +323,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
         case 1:
             cellHeight = thumbnailViewWidth + 20 // itemThumbnails
         case 2:
-            cellHeight = 230 // itemDetails
+            cellHeight = itemSpecHeightTotal + 10 // itemDetails
         case 3:
             cellHeight = descriptionTextHeight // description
         default:
@@ -387,8 +389,8 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
             
         case 2:
             // init piece specifications
-            let itemSpecHeight:CGFloat = 55
-            let itemSpecHeightTotal:CGFloat = itemSpecHeight * 4
+            let itemSpecHeight: CGFloat = 55
+            itemSpecHeightTotal = sprubixPiece.type != "TOP" ? itemSpecHeight * 4 : itemSpecHeight * 5
             
             pieceSpecsView = UIView(frame: CGRect(x: 0, y: 10, width: screenWidth, height: itemSpecHeightTotal))
             pieceSpecsView.backgroundColor = UIColor.whiteColor()
@@ -468,6 +470,21 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
                 itemDetailsSize.text = sprubixPiece.size
             }
             
+            // is this item a dress? applicable for top only
+            if sprubixPiece.type == "TOP" {
+                var isDressLabel = UILabel(frame: CGRectMake(20, itemSpecHeight * 4, screenWidth - 20, itemSpecHeight))
+                
+                isDressLabel.text = "Is this item a dress?"
+                isDressLabel.textColor = UIColor.lightGrayColor()
+                
+                let isDressSwitchWidth: CGFloat = 50
+                isDressSwitch = UISwitch(frame: CGRectMake(screenWidth - 20 - isDressSwitchWidth, itemSpecHeight * 4 + 12, isDressSwitchWidth, itemSpecHeight))
+                isDressSwitch!.addTarget(self, action: "isDressPressed:", forControlEvents: UIControlEvents.ValueChanged)
+                
+                pieceSpecsView.addSubview(isDressLabel)
+                pieceSpecsView.addSubview(isDressSwitch!)
+            }
+            
             pieceSpecsView.addSubview(itemNameImage)
             pieceSpecsView.addSubview(itemDetailsName)
             
@@ -520,6 +537,11 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
             
         default: fatalError("Unknown row in section")
         }
+    }
+    
+    // is dress? switch callback
+    func isDressPressed(sender: UISwitch) {
+        sprubixPiece.isDress = sender.on
     }
     
     // thumbnail tap gesture recognizer
@@ -787,6 +809,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
             "name": sprubixPiece.name != nil ? sprubixPiece.name : "",
             "category": sprubixPiece.category != nil ? sprubixPiece.category : "",
             "type": sprubixPiece.type, // type will never be nil
+            "is_dress": sprubixPiece.isDress,
             "brand": sprubixPiece.brand != nil ? sprubixPiece.brand : "",
             "size": sprubixPiece.size != nil ? sprubixPiece.size : "",
             "description": sprubixPiece.desc != nil ? sprubixPiece.desc : "",
@@ -797,8 +820,6 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
         pieces.setObject(pieceDict, forKey: sprubixPiece.type.lowercaseString)
 
         sprubixDict.setObject(pieces, forKey: "pieces")
-        
-        println(sprubixDict)
         
         // upload piece data
         var requestOperation: AFHTTPRequestOperation = manager.POST(SprubixConfig.URL.api + "/upload/piece/create", parameters: sprubixDict, constructingBodyWithBlock: { formData in
@@ -866,6 +887,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
         sprubixPiece.brand = (itemDetailsBrand != nil) ? itemDetailsBrand.text : ""
         sprubixPiece.size = (itemDetailsSize != nil) ? itemDetailsSize.text : ""
         sprubixPiece.desc = (descriptionText != nil && descriptionText.text != placeholderText) ? descriptionText.text : ""
+        sprubixPiece.isDress = isDressSwitch != nil ? isDressSwitch?.on : false
         
         delegate?.setSprubixPiece(sprubixPiece, position: pos)
         
