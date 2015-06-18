@@ -18,6 +18,7 @@ target "Sprubix" do
   pod 'STTweetLabel', '~> 3.1.2'
   pod 'DZNEmptyDataSet', '~> 1.5.2'
   pod 'PermissionScope', '~> 0.6'
+  pod 'AMTagListView', '~>0.6.3'
 end
 
 target "SprubixTests" do

@@ -50,6 +50,7 @@ code_sign() {
 if [[ "$CONFIGURATION" == "Debug" ]]; then
   install_framework 'AFNetworkActivityLogger.framework'
   install_framework 'AFNetworking.framework'
+  install_framework 'AMTagListView.framework'
   install_framework 'CHTCollectionViewWaterfallLayout.framework'
   install_framework 'DZNEmptyDataSet.framework'
   install_framework 'GPUImage.framework'
@@ -63,6 +64,7 @@ fi
 if [[ "$CONFIGURATION" == "Release" ]]; then
   install_framework 'AFNetworkActivityLogger.framework'
   install_framework 'AFNetworking.framework'
+  install_framework 'AMTagListView.framework'
   install_framework 'CHTCollectionViewWaterfallLayout.framework'
   install_framework 'DZNEmptyDataSet.framework'
   install_framework 'GPUImage.framework'

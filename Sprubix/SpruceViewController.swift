@@ -13,7 +13,7 @@ protocol SpruceViewProtocol {
     func dismissSpruceView()
 }
 
-class SpruceViewController: UIViewController, UIScrollViewDelegate, UITextViewDelegate, SprucePieceFeedProtocol {
+class SpruceViewController: UIViewController, UIScrollViewDelegate, UITextViewDelegate, SprucePieceFeedProtocol, SpruceSelectedPiecesProtocol {
     var delegate: SpruceViewProtocol?
     
     var userIdFrom: Int!
@@ -48,10 +48,36 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, UITextViewDe
     }
     
     @IBAction func searchPieces(sender: AnyObject) {
+        // SpruceSearchViewController
+        let spruceSearchViewController = SpruceSearchViewController()
         
+        self.navigationController?.delegate = nil
+        
+        let transition = CATransition()
+        transition.duration = 0.3
+        transition.type = kCATransitionMoveIn
+        transition.subtype = kCATransitionFromTop
+        transition.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
+        
+        self.navigationController?.view.layer.addAnimation(transition, forKey: kCATransition)
+        self.navigationController?.pushViewController(spruceSearchViewController, animated: false)
     }
     
     @IBAction func closetSelection(sender: AnyObject) {
+        // SpruceSearchResultsViewController 
+        let myClosetViewController = MyClosetViewController()
+        myClosetViewController.delegate = self
+        
+        self.navigationController?.delegate = nil
+        
+        let transition = CATransition()
+        transition.duration = 0.3
+        transition.type = kCATransitionMoveIn
+        transition.subtype = kCATransitionFromTop
+        transition.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
+        
+        self.navigationController?.view.layer.addAnimation(transition, forKey: kCATransition)
+        self.navigationController?.pushViewController(myClosetViewController, animated: false)
     }
     
     @IBAction func addPiece(sender: AnyObject) {
@@ -588,6 +614,34 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, UITextViewDe
     
     override func prefersStatusBarHidden() -> Bool {
         return true
+    }
+    
+    // MyClosetProtocol
+    func insertSelectedClosetPieces(closetPieces: [NSDictionary]) {
+        
+        // sort into different arrays based on pieceType
+        var closetPiecesDict: [String: [NSDictionary]] = [String: [NSDictionary]]()
+        
+        for closetPiece in closetPieces {
+            let pieceType = closetPiece["type"] as! String
+            
+            if closetPiecesDict[pieceType] == nil {
+               closetPiecesDict[pieceType] = [NSDictionary]()
+            }
+            
+            closetPiecesDict[pieceType]?.append(closetPiece)
+        }
+        
+        // insert into respective sprucePieceFeedControllers
+        for childController in self.childControllers {
+            let childPieceType = childController.pieceType
+            
+            let newPieces: [NSDictionary]? = closetPiecesDict[childPieceType]
+            
+            if newPieces != nil {
+                childController.insertMorePieces(newPieces!)
+            }
+        }
     }
     
     // UITextViewDelegate

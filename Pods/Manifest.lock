@@ -23,6 +23,7 @@ PODS:
   - AFNetworking/UIKit (2.5.3):
     - AFNetworking/NSURLConnection
     - AFNetworking/NSURLSession
+  - AMTagListView (0.6.3)
   - CHTCollectionViewWaterfallLayout (0.8)
   - DZNEmptyDataSet (1.5.2)
   - Firebase (2.2.2)
@@ -82,6 +83,7 @@ PODS:
 DEPENDENCIES:
   - AFNetworkActivityLogger (~> 2.0)
   - AFNetworking (~> 2.5.3)
+  - AMTagListView (~> 0.6.3)
   - CHTCollectionViewWaterfallLayout (~> 0.8)
   - DZNEmptyDataSet (~> 1.5.2)
   - Firebase (>= 2.2.2)
@@ -96,6 +98,7 @@ DEPENDENCIES:
 SPEC CHECKSUMS:
   AFNetworkActivityLogger: 121486778117d53b3ab1c61d264b88081d0c3eee
   AFNetworking: e1d86c2a96bb5d2e7408da36149806706ee122fe
+  AMTagListView: 3f95751a6bae491553800447d4f5deba033ca7da
   CHTCollectionViewWaterfallLayout: 058823cc65c9d84e059b0a85eede517550da0334
   DZNEmptyDataSet: 741da409081a4bf707c949c964623a6ad1799772
   Firebase: e35cdd2561bf4fea9c1e384e9400a9c173d19e47

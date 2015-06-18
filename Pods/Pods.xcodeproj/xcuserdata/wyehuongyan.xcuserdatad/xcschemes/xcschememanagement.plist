@@ -14,6 +14,11 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
+		<key>Pods-Sprubix-AMTagListView.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
 		<key>Pods-Sprubix-CHTCollectionViewWaterfallLayout.xcscheme</key>
 		<dict>
 			<key>isShown</key>
@@ -67,62 +72,67 @@
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
-		<key>109EA6C356144CF23B928E04</key>
+		<key>2FD347ED40314E8D178332C7</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>61DB1CA94B2296AE545A5660</key>
+		<key>50A9EE2C263341D6A7164ACE</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>68979CAC027CFC943753FFD9</key>
+		<key>54FBE5574F88FC2BABEB5CCD</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>723A675D2A14360A5E4CD0BE</key>
+		<key>5527479BFAA481A5AFC42A79</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>7ED43A2969A03E9FF5315B3F</key>
+		<key>63045F30BF0D66688AB2B4CA</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>8337321B5B7CE5C4F757F904</key>
+		<key>6B82A1018D848C65CFDE1270</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>8F3E9AAC168587178751F0A6</key>
+		<key>8D40DD63D8B452F7C9C14B57</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>9047E022FF919E2CA30EAD97</key>
+		<key>A9774653DEE3DC30E463995C</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>ACB19C7BA6BFC8824091874F</key>
+		<key>AFD217B94D1EB712645688BC</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>C683AF3BDB9EA4DC87C9A050</key>
+		<key>BC3D6851DD800FD90838ABCC</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>EA572BE5E28A6B5B41CEA9C4</key>
+		<key>D4F249AF80FDE7D1627CF8F4</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>FE302286AEA769C680356063</key>
+		<key>DAFE2FA44E5C4E596FE0AA91</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>F6DE6D3842A7DAC3360ABBBF</key>
 		<dict>
 			<key>primary</key>
 			<true/>

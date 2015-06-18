@@ -54,6 +54,12 @@
 #define COCOAPODS_VERSION_MINOR_AFNetworking_UIKit 5
 #define COCOAPODS_VERSION_PATCH_AFNetworking_UIKit 3
 
+// AMTagListView
+#define COCOAPODS_POD_AVAILABLE_AMTagListView
+#define COCOAPODS_VERSION_MAJOR_AMTagListView 0
+#define COCOAPODS_VERSION_MINOR_AMTagListView 6
+#define COCOAPODS_VERSION_PATCH_AMTagListView 3
+
 // CHTCollectionViewWaterfallLayout
 #define COCOAPODS_POD_AVAILABLE_CHTCollectionViewWaterfallLayout
 #define COCOAPODS_VERSION_MAJOR_CHTCollectionViewWaterfallLayout 0

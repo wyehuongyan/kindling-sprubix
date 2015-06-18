@@ -67,7 +67,6 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
             } else {
                 println("unfollow user")
             }
-            
         }
     }
 
@@ -315,7 +314,7 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
         return reusableView
     }
     
-    func collectionView(collectionView: UICollectionView, didSelectItemAtIndexPath indexPath: NSIndexPath){
+    func collectionView(collectionView: UICollectionView, didSelectItemAtIndexPath indexPath: NSIndexPath) {
         switch(currentProfileState) {
         case .Outfits:
             let outfitDetailsViewController = OutfitDetailsViewController(collectionViewLayout: detailsViewControllerLayout(), currentIndexPath:indexPath)

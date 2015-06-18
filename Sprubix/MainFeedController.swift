@@ -129,6 +129,18 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
 
         self.navigationItem.leftBarButtonItems = [negativeSpacerItem, sideMenuButtonItem]
         
+        // 3. right bar button for shop feed
+        var shopFeedButton: UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+        var image: UIImage = UIImage(named: "profile-community")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
+        shopFeedButton.setImage(image, forState: UIControlState.Normal)
+        shopFeedButton.frame = CGRect(x: 0, y: 0, width: 30, height: 30)
+        shopFeedButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+        shopFeedButton.addTarget(self, action: "shopFeedTapped:", forControlEvents: UIControlEvents.TouchUpInside)
+        
+        var shopFeedBarButton: UIBarButtonItem = UIBarButtonItem(customView: shopFeedButton)
+        self.navigationItem.rightBarButtonItems = [shopFeedBarButton]
+        
+        // other stuff
         if(refreshControl.refreshing) {
             refreshControl.endRefreshing()
         }
@@ -229,7 +241,7 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
     }
     
     func refresh(sender: AnyObject) {
-        //retrieveOutfits()
+        retrieveOutfits()
         
         refreshControl.endRefreshing()
     }
@@ -738,5 +750,15 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
     // button callbacks
     func createOutfit(sender: UIButton) {
         delegate?.showCreateOutfit()
+    }
+    
+    func shopFeedTapped(sender: UIBarButtonItem) {
+        println("shop feed tapped")
+        
+        let shopFeedController = ShopFeedController()
+        
+        UIView.transitionWithView(self.navigationController!.view, duration: 0.5, options: UIViewAnimationOptions.TransitionCrossDissolve, animations: {
+            self.navigationController?.pushViewController(shopFeedController, animated: false)
+        }, completion: nil)
     }
 }

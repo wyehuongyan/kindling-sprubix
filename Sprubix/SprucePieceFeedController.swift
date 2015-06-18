@@ -71,6 +71,12 @@ class SprucePieceFeedController: UICollectionViewController, UICollectionViewDel
         retrievePiecesOfType(pieceType)
     }
     
+    override func viewWillAppear(animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        self.navigationController?.navigationBarHidden = true
+    }
+    
     func initButtons() {
         // left
         leftArrowButton = UIButton.buttonWithType(UIButtonType.System) as! UIButton
@@ -169,12 +175,6 @@ class SprucePieceFeedController: UICollectionViewController, UICollectionViewDel
         delegate?.deleteSprucePieceFeed(self)
     }
     
-    override func viewWillAppear(animated: Bool) {
-        super.viewWillAppear(animated)
-        
-        self.navigationController?.navigationBarHidden = true
-    }
-    
     override func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return sprucePieces.count
     }
@@ -261,6 +261,22 @@ class SprucePieceFeedController: UICollectionViewController, UICollectionViewDel
             println("userId not found, please login or create an account")
         }
 
+    }
+    
+    func insertMorePieces(pieces: [NSDictionary]) {
+        collectionView?.performBatchUpdates({
+            // update data source
+            for piece in pieces {
+                self.sprucePieces.insert(piece, atIndex: self.index)
+                self.collectionView!.insertItemsAtIndexPaths([NSIndexPath(forItem: self.index, inSection: 0)])
+            }
+            
+            }, completion: { finished in
+                
+                if finished {
+                    self.delegate?.resizeOutfit()
+                }
+        })
     }
     
     // callback methods for arrows

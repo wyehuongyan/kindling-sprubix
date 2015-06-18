@@ -2,7 +2,7 @@
 CONFIGURATION_BUILD_DIR = $PODS_FRAMEWORK_BUILD_PATH
 FRAMEWORK_SEARCH_PATHS = "$PODS_FRAMEWORK_BUILD_PATH"
 GCC_PREPROCESSOR_DEFINITIONS = $(inherited) COCOAPODS=1
-HEADER_SEARCH_PATHS = "${PODS_ROOT}/Headers/Private" "${PODS_ROOT}/Headers/Private/SSKeychain" "${PODS_ROOT}/Headers/Public" "${PODS_ROOT}/Headers/Public/AFNetworkActivityLogger" "${PODS_ROOT}/Headers/Public/AFNetworking" "${PODS_ROOT}/Headers/Public/CHTCollectionViewWaterfallLayout" "${PODS_ROOT}/Headers/Public/DZNEmptyDataSet" "${PODS_ROOT}/Headers/Public/Firebase" "${PODS_ROOT}/Headers/Public/GPUImage" "${PODS_ROOT}/Headers/Public/MRProgress" "${PODS_ROOT}/Headers/Public/PermissionScope" "${PODS_ROOT}/Headers/Public/SSKeychain" "${PODS_ROOT}/Headers/Public/STTweetLabel" "${PODS_ROOT}/Headers/Public/SVPullToRefresh" "${PODS_ROOT}/Headers/Public/TLYShyNavBar"
+HEADER_SEARCH_PATHS = "${PODS_ROOT}/Headers/Private" "${PODS_ROOT}/Headers/Private/SSKeychain" "${PODS_ROOT}/Headers/Public" "${PODS_ROOT}/Headers/Public/AFNetworkActivityLogger" "${PODS_ROOT}/Headers/Public/AFNetworking" "${PODS_ROOT}/Headers/Public/AMTagListView" "${PODS_ROOT}/Headers/Public/CHTCollectionViewWaterfallLayout" "${PODS_ROOT}/Headers/Public/DZNEmptyDataSet" "${PODS_ROOT}/Headers/Public/Firebase" "${PODS_ROOT}/Headers/Public/GPUImage" "${PODS_ROOT}/Headers/Public/MRProgress" "${PODS_ROOT}/Headers/Public/PermissionScope" "${PODS_ROOT}/Headers/Public/SSKeychain" "${PODS_ROOT}/Headers/Public/STTweetLabel" "${PODS_ROOT}/Headers/Public/SVPullToRefresh" "${PODS_ROOT}/Headers/Public/TLYShyNavBar"
 OTHER_LDFLAGS = ${PODS_SPRUBIX_SSKEYCHAIN_OTHER_LDFLAGS} -ObjC
 PODS_FRAMEWORK_BUILD_PATH = $(BUILD_DIR)/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/Pods-Sprubix
 PODS_ROOT = ${SRCROOT}
