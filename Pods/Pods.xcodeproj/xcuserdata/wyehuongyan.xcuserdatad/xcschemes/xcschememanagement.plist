@@ -19,6 +19,11 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
+		<key>Pods-Sprubix-ActionSheetPicker-3.0.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
 		<key>Pods-Sprubix-CHTCollectionViewWaterfallLayout.xcscheme</key>
 		<dict>
 			<key>isShown</key>
@@ -72,67 +77,72 @@
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
-		<key>2FD347ED40314E8D178332C7</key>
+		<key>075773035C7CB1D9442E90E2</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>50A9EE2C263341D6A7164ACE</key>
+		<key>07AA0DBF5E4B9C1B9D42662C</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>54FBE5574F88FC2BABEB5CCD</key>
+		<key>0CB982320A1D82011254E70A</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>5527479BFAA481A5AFC42A79</key>
+		<key>13120FBD67C99171CA397CAD</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>63045F30BF0D66688AB2B4CA</key>
+		<key>20108CF5F9FD7F9608DE0969</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>6B82A1018D848C65CFDE1270</key>
+		<key>24922A744CC6854ED5BF48E0</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>8D40DD63D8B452F7C9C14B57</key>
+		<key>599824DB1185C54869038DA3</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>A9774653DEE3DC30E463995C</key>
+		<key>62DD269FC78ABAE520C9A516</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>AFD217B94D1EB712645688BC</key>
+		<key>7BB273A4EDE84501B90EDB1F</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>BC3D6851DD800FD90838ABCC</key>
+		<key>A0894849B883FBD9075262F7</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>D4F249AF80FDE7D1627CF8F4</key>
+		<key>AF8D705FCD7F258B12389C19</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>DAFE2FA44E5C4E596FE0AA91</key>
+		<key>B0558EFA5A6E6E4A4F763D4D</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>F6DE6D3842A7DAC3360ABBBF</key>
+		<key>CAA2A585B93A4F95DB4837ED</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>CE6D8367646E55B39FCFA890</key>
 		<dict>
 			<key>primary</key>
 			<true/>

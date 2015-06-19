@@ -88,13 +88,40 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
         
+        initNavBar()
+        
+        // other stuff
+        if(refreshControl.refreshing) {
+            refreshControl.endRefreshing()
+        }
+        
+        // reset
+        spruceViewController?.view.removeFromSuperview()
+        spruceViewController = nil
+        
+        if self.shyNavBarManager.scrollView == nil {
+            self.shyNavBarManager.scrollView = self.mainCollectionView
+        }
+        
+        commentsViewController?.view.removeFromSuperview()
+        commentsViewController = nil
+        
+        // retrieve following outfits
+        retrieveOutfits()
+    }
+    
+    override func viewWillDisappear(animated: Bool) {
+        super.viewWillDisappear(animated)
+
+        self.shyNavBarManager = nil
+        self.navigationController?.setNavigationBarHidden(true, animated: true)
+    }
+    
+    func initNavBar() {
         self.navigationController?.setNavigationBarHidden(false, animated: true)
         self.navigationController?.navigationBar.barTintColor = UIColor.whiteColor()
         
-        // 1. add a new navigation item w/title to the new nav bar
-        var newNavItem:UINavigationItem = UINavigationItem()
-        
-        // 2. create a custom button
+        // 1. create a custom button
         var sideMenuButton:UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
         sideMenuButton.setImage(UIImage(named: "main-hamburger"), forState: UIControlState.Normal)
         let sideMenuButtonWidth: CGFloat = 30
@@ -126,45 +153,19 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         
         var negativeSpacerItem: UIBarButtonItem = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.FixedSpace, target: nil, action: nil)
         negativeSpacerItem.width = -20
-
+        
         self.navigationItem.leftBarButtonItems = [negativeSpacerItem, sideMenuButtonItem]
         
-        // 3. right bar button for shop feed
-        var shopFeedButton: UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+        // 2. right bar button for discover feed
+        var discoverFeedButton: UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
         var image: UIImage = UIImage(named: "profile-community")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
-        shopFeedButton.setImage(image, forState: UIControlState.Normal)
-        shopFeedButton.frame = CGRect(x: 0, y: 0, width: 30, height: 30)
-        shopFeedButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
-        shopFeedButton.addTarget(self, action: "shopFeedTapped:", forControlEvents: UIControlEvents.TouchUpInside)
+        discoverFeedButton.setImage(image, forState: UIControlState.Normal)
+        discoverFeedButton.frame = CGRect(x: 0, y: 0, width: 30, height: 30)
+        discoverFeedButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+        discoverFeedButton.addTarget(self, action: "discoverFeedTapped:", forControlEvents: UIControlEvents.TouchUpInside)
         
-        var shopFeedBarButton: UIBarButtonItem = UIBarButtonItem(customView: shopFeedButton)
-        self.navigationItem.rightBarButtonItems = [shopFeedBarButton]
-        
-        // other stuff
-        if(refreshControl.refreshing) {
-            refreshControl.endRefreshing()
-        }
-        
-        // reset
-        spruceViewController?.view.removeFromSuperview()
-        spruceViewController = nil
-        
-        if self.shyNavBarManager.scrollView == nil {
-            self.shyNavBarManager.scrollView = self.mainCollectionView
-        }
-        
-        commentsViewController?.view.removeFromSuperview()
-        commentsViewController = nil
-        
-        // retrieve following outfits
-        retrieveOutfits()
-    }
-    
-    override func viewWillDisappear(animated: Bool) {
-        super.viewWillDisappear(animated)
-
-        self.shyNavBarManager = nil
-        self.navigationController?.setNavigationBarHidden(true, animated: true)
+        var discoverFeedBarButton: UIBarButtonItem = UIBarButtonItem(customView: discoverFeedButton)
+        self.navigationItem.rightBarButtonItems = [discoverFeedBarButton]
     }
     
     func initCollectionViewLayout() {
@@ -752,13 +753,12 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         delegate?.showCreateOutfit()
     }
     
-    func shopFeedTapped(sender: UIBarButtonItem) {
-        println("shop feed tapped")
-        
-        let shopFeedController = ShopFeedController()
+    func discoverFeedTapped(sender: UIBarButtonItem) {
+        let discoverFeedController = DiscoverFeedController()
+        discoverFeedController.delegate = containerViewController
         
         UIView.transitionWithView(self.navigationController!.view, duration: 0.5, options: UIViewAnimationOptions.TransitionCrossDissolve, animations: {
-            self.navigationController?.pushViewController(shopFeedController, animated: false)
+            self.navigationController?.pushViewController(discoverFeedController, animated: false)
         }, completion: nil)
     }
 }

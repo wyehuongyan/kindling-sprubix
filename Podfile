@@ -19,6 +19,7 @@ target "Sprubix" do
   pod 'DZNEmptyDataSet', '~> 1.5.2'
   pod 'PermissionScope', '~> 0.6'
   pod 'AMTagListView', '~>0.6.3'
+  pod 'ActionSheetPicker-3.0', '~>1.6.2'
 end
 
 target "SprubixTests" do

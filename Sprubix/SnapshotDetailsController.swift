@@ -10,6 +10,7 @@ import UIKit
 import AFNetworking
 import MRProgress
 import PermissionScope
+import ActionSheetPicker_3_0
 
 class SprubixItemThumbnail: UIButton {
     var hasThumbnail: Bool = false
@@ -42,7 +43,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
     var pos: Int!
     var sprubixPiece: SprubixPiece!
     var onlyOnePiece: Bool = false
-    var addToClosetButton: UIButton!
+    var addToClosetButton: UIButton?
     
     let imagePicker = UIImagePickerController()
     var photoLibraryButton: UIButton!
@@ -53,7 +54,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
     
     // item
     var itemCoverImageView: UIImageView = UIImageView()
-    var itemCategory: String!
+    var itemCategories: [String] = [String]()
     
     // camera
     var cameraCapture: UIButton!
@@ -84,10 +85,11 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
     // itemDetails textfields
     var pieceSpecsView: UIView!
     var itemDetailsName: UITextField!
-    var itemDetailsCategory: UITextField!
+    var itemDetailsCategory: UIButton!
+    var itemDetailsCategoryText: UITextField!
     var itemDetailsBrand: UITextField!
     var itemDetailsSize: UITextField!
-    var isDressSwitch: UISwitch?
+    var itemIsDress: Bool = false
     var itemSpecHeightTotal: CGFloat = 220
     
     override func viewDidLoad() {
@@ -128,11 +130,35 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
         
         if onlyOnePiece {
             addToClosetButton = UIButton(frame: CGRect(x: 0, y: screenHeight - navigationHeight, width: screenWidth, height: navigationHeight))
-            addToClosetButton.backgroundColor = sprubixColor
-            addToClosetButton.setTitle("Add to Closet!", forState: UIControlState.Normal)
-            addToClosetButton.addTarget(self, action: "addToClosetPressed:", forControlEvents: UIControlEvents.TouchUpInside)
+            addToClosetButton!.backgroundColor = sprubixColor
+            addToClosetButton!.setTitle("Add to Closet!", forState: UIControlState.Normal)
+            addToClosetButton!.addTarget(self, action: "addToClosetPressed:", forControlEvents: UIControlEvents.TouchUpInside)
             
-            self.view.addSubview(addToClosetButton)
+            self.view.addSubview(addToClosetButton!)
+        }
+        
+        retrieveItemCategories()
+    }
+    
+    private func retrieveItemCategories() {
+        if itemCategories.count <= 0 {
+            // REST call to retrieve piece categories
+            manager.GET(SprubixConfig.URL.api + "/piece/categories",
+                parameters: nil,
+                success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                    var categories = responseObject as? [NSDictionary]
+                    
+                    if categories != nil {
+                        for category in categories! {
+                            var categoryName = category["name"] as? String
+                            
+                            self.itemCategories.append(categoryName!)
+                        }
+                    }
+                },
+                failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                    println("Error: " + error.localizedDescription)
+            })
         }
     }
     
@@ -250,7 +276,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
             self.cameraCapture.alpha = 0.0
             self.itemDescriptionCell.alpha = 1.0
             self.photoLibraryButton.alpha = 0.0
-            self.addToClosetButton.alpha = 1.0
+            self.addToClosetButton?.alpha = 1.0
             
             self.cameraCapture.enabled = true
             
@@ -390,7 +416,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
         case 2:
             // init piece specifications
             let itemSpecHeight: CGFloat = 55
-            itemSpecHeightTotal = sprubixPiece.type != "TOP" ? itemSpecHeight * 4 : itemSpecHeight * 5
+            itemSpecHeightTotal = itemSpecHeight * 4
             
             pieceSpecsView = UIView(frame: CGRect(x: 0, y: 10, width: screenWidth, height: itemSpecHeightTotal))
             pieceSpecsView.backgroundColor = UIColor.whiteColor()
@@ -426,11 +452,13 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
             
             Glow.addGlow(itemCategoryImage)
             
-            itemDetailsCategory = UITextField(frame: CGRectMake(itemImageViewWidth, itemSpecHeight, screenWidth - itemImageViewWidth, itemSpecHeight))
-            itemDetailsCategory.tintColor = sprubixColor
-            itemDetailsCategory.placeholder = "Which category is it from?" 
-            itemDetailsCategory.returnKeyType = UIReturnKeyType.Done
-            itemDetailsCategory.delegate = self
+            itemDetailsCategory = UIButton(frame: CGRectMake(itemImageViewWidth, itemSpecHeight, screenWidth - itemImageViewWidth, itemSpecHeight))
+            itemDetailsCategoryText = UITextField(frame: CGRectMake(0, 0, screenWidth - itemImageViewWidth, itemSpecHeight))
+            itemDetailsCategoryText.tintColor = sprubixColor
+            itemDetailsCategoryText.placeholder = "Which category is it from?"
+            itemDetailsCategoryText.enabled = false
+            itemDetailsCategory.addSubview(itemDetailsCategoryText)
+            itemDetailsCategory.addTarget(self, action: "itemDetailsCategoryPressed:", forControlEvents: UIControlEvents.TouchUpInside)
             
             // brand
             var itemBrandImage = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
@@ -468,21 +496,6 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
             
             if sprubixPiece.size != nil {
                 itemDetailsSize.text = sprubixPiece.size
-            }
-            
-            // is this item a dress? applicable for top only
-            if sprubixPiece.type == "TOP" {
-                var isDressLabel = UILabel(frame: CGRectMake(20, itemSpecHeight * 4, screenWidth - 20, itemSpecHeight))
-                
-                isDressLabel.text = "Is this item a dress?"
-                isDressLabel.textColor = UIColor.lightGrayColor()
-                
-                let isDressSwitchWidth: CGFloat = 50
-                isDressSwitch = UISwitch(frame: CGRectMake(screenWidth - 20 - isDressSwitchWidth, itemSpecHeight * 4 + 12, isDressSwitchWidth, itemSpecHeight))
-                isDressSwitch!.addTarget(self, action: "isDressPressed:", forControlEvents: UIControlEvents.ValueChanged)
-                
-                pieceSpecsView.addSubview(isDressLabel)
-                pieceSpecsView.addSubview(isDressSwitch!)
             }
             
             pieceSpecsView.addSubview(itemNameImage)
@@ -559,11 +572,9 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
             cameraCapture.alpha = 1.0
             photoLibraryButton.alpha = 1.0
             itemDescriptionCell.alpha = 0.0
-            addToClosetButton.alpha = 0.0
+            addToClosetButton?.alpha = 0.0
             
             setNavBar("Add Image", leftButtonTitle: "cancel", leftButtonCallback: "addImageCancelTapped:", rightButtonTitle: "", rightButtonCallback: nil)
-            
-            println(camera)
             
             if camera == nil {
                 // activate camera mode (square)
@@ -667,7 +678,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
         cameraCapture.alpha = 0.0
         itemDescriptionCell.alpha = 1.0
         photoLibraryButton.alpha = 0.0
-        addToClosetButton.alpha = 1.0
+        addToClosetButton?.alpha = 1.0
         
         cameraCapture.enabled = true
         
@@ -759,6 +770,43 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
         return true
     }
     
+    // button callbacks
+    func itemDetailsCategoryPressed(sender: UIButton) {
+
+        let picker: ActionSheetStringPicker = ActionSheetStringPicker(title: "Choose a category", rows: itemCategories, initialSelection: 2,
+            doneBlock: { actionSheetPicker, selectedIndex, selectedValue in
+                
+                if selectedIndex as Int == 3 && selectedValue as! String == "Dress" {
+                    self.itemIsDress = true
+                } else {
+                    self.itemIsDress = false
+                }
+                
+                self.itemDetailsCategoryText.text = "\(selectedValue)"
+                
+            }, cancelBlock: nil, origin: sender)
+        
+        // custom done button
+        let doneButton = UIBarButtonItem(title: "done", style: UIBarButtonItemStyle.Plain, target: nil, action: nil)
+        
+        doneButton.setTitleTextAttributes([
+            NSForegroundColorAttributeName: sprubixColor,
+            ], forState: UIControlState.Normal)
+        
+        picker.setDoneButton(doneButton)
+        
+        // custom cancel button
+        var cancelButton:UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+        
+        cancelButton.setTitle("X", forState: UIControlState.Normal)
+        cancelButton.setTitleColor(sprubixColor, forState: UIControlState.Normal)
+        cancelButton.frame = CGRect(x: 0, y: 0, width: 20, height: 20)
+        
+        picker.setCancelButton(UIBarButtonItem(customView: cancelButton))
+        
+        picker.showActionSheetPicker()
+    }
+    
     // Callback Handler: navigation bar back button
     func cancelTapped(sender: UIBarButtonItem) {
         var alert = UIAlertController(title: "Are you sure?", message: "Changes made to the current item will be lost", preferredStyle: UIAlertControllerStyle.Alert)
@@ -789,10 +837,11 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
         
         // item details
         sprubixPiece.name = (itemDetailsName != nil) ? itemDetailsName.text : ""
-        sprubixPiece.category = (itemDetailsCategory != nil) ? itemDetailsCategory.text : ""
+        sprubixPiece.category = (itemDetailsCategoryText != nil) ? itemDetailsCategoryText.text : ""
         sprubixPiece.brand = (itemDetailsBrand != nil) ? itemDetailsBrand.text : ""
         sprubixPiece.size = (itemDetailsSize != nil) ? itemDetailsSize.text : ""
         sprubixPiece.desc = (descriptionText != nil && descriptionText.text != placeholderText) ? descriptionText.text : ""
+        sprubixPiece.isDress = itemIsDress
         
         let userData: NSDictionary! = defaults.dictionaryForKey("userData")
 
@@ -883,11 +932,11 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
         
         // item details
         sprubixPiece.name = (itemDetailsName != nil) ? itemDetailsName.text : ""
-        sprubixPiece.category = (itemDetailsCategory != nil) ? itemDetailsCategory.text : ""
+        sprubixPiece.category = (itemDetailsCategoryText != nil) ? itemDetailsCategoryText.text : ""
         sprubixPiece.brand = (itemDetailsBrand != nil) ? itemDetailsBrand.text : ""
         sprubixPiece.size = (itemDetailsSize != nil) ? itemDetailsSize.text : ""
         sprubixPiece.desc = (descriptionText != nil && descriptionText.text != placeholderText) ? descriptionText.text : ""
-        sprubixPiece.isDress = isDressSwitch != nil ? isDressSwitch?.on : false
+        sprubixPiece.isDress = itemIsDress
         
         delegate?.setSprubixPiece(sprubixPiece, position: pos)
         

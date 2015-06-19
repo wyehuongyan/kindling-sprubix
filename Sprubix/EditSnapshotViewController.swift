@@ -974,7 +974,6 @@ class EditSnapshotViewController: UIViewController {
                 quickFilteredImage = (gpuImageFilter as! GPUImageCropFilter).imageByFilteringImage(sprubixImageViews[i].image)
                 
                 snapshotDetailsController.itemCoverImageView.image = quickFilteredImage
-                snapshotDetailsController.itemCategory = selectedPiecesOrdered[i]
                 snapshotDetailsController.pos = i
                 snapshotDetailsController.onlyOnePiece = true
 

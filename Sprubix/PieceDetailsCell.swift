@@ -244,7 +244,9 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         Glow.addGlow(itemCategoryImage)
         
         var itemCategoryLabel:UILabel = UILabel(frame: CGRect(x: itemImageViewWidth, y: itemSpecHeight * 2, width: screenWidth - itemImageViewWidth, height: itemSpecHeight))
-        itemCategoryLabel.text = piece["category"] as? String
+        
+        let pieceCategory = piece["category"] as? NSDictionary
+        itemCategoryLabel.text = pieceCategory?["name"] as? String
         
         // brand
         var itemBrandImage = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton

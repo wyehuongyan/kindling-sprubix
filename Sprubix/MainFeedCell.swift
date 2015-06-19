@@ -27,7 +27,7 @@ class MainFeedCell: UICollectionViewCell, TransitionWaterfallGridViewProtocol {
     
     var imageURLString: String!
     var thumbnailURLString: String!
-    var imageViewContent: UIImageView = UIImageView()
+    var imageViewContent: UIImageView!
     var imageHeight: CGFloat!
     
     // user info and buttons
@@ -79,6 +79,7 @@ class MainFeedCell: UICollectionViewCell, TransitionWaterfallGridViewProtocol {
         
         let imageURL = NSURL(string: imageURLString!)
         
+        imageViewContent = UIImageView()
         imageViewContent.frame = CGRectMake(0, 0, frame.size.width, frame.size.height - cellInfoViewHeight)
         imageViewContent.setImageWithURL(imageURL)
         imageViewContent.contentMode = UIViewContentMode.ScaleAspectFit

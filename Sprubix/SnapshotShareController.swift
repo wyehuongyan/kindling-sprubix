@@ -9,6 +9,7 @@
 import UIKit
 import AFNetworking
 import MRProgress
+import ActionSheetPicker_3_0
 
 class SnapshotShareController: UIViewController, UITableViewDelegate, UITableViewDataSource, UITextViewDelegate, SprubixPieceProtocol {
     
@@ -29,12 +30,19 @@ class SnapshotShareController: UIViewController, UITableViewDelegate, UITableVie
     var shareTableView: UITableView!
     var outfitImageCell: UITableViewCell = UITableViewCell()
     var creditsCell: UITableViewCell = UITableViewCell()
+    var detailsCell: UITableViewCell = UITableViewCell()
     var descriptionCell: UITableViewCell = UITableViewCell()
     var socialCell: UITableViewCell = UITableViewCell()
     
     var shareButton: UIButton!
     let creditsViewHeight:CGFloat = 80
     var lastContentOffset:CGFloat = 0
+    
+    // details
+    let detailsHeight: CGFloat = 55
+    var detailsCategory: UIButton!
+    var detailsCategoryText: UITextField!
+    var outfitCategories: [String] = [String]()
     
     // description
     let descriptionTextHeight: CGFloat = 100
@@ -100,6 +108,31 @@ class SnapshotShareController: UIViewController, UITableViewDelegate, UITableVie
         outfitImageView.backgroundColor = sprubixGray
         
         oldFrameRect = shareTableView.frame
+        
+        // retrieve
+        retrieveOutfitCategories()
+    }
+    
+    private func retrieveOutfitCategories() {
+        if outfitCategories.count <= 0 {
+            // REST call to retrieve outfit categories
+            manager.GET(SprubixConfig.URL.api + "/piece/categories",
+                parameters: nil,
+                success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                    var categories = responseObject as? [NSDictionary]
+                    
+                    if categories != nil {
+                        for category in categories! {
+                            var categoryName = category["name"] as? String
+                            
+                            self.outfitCategories.append(categoryName!)
+                        }
+                    }
+                },
+                failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                    println("Error: " + error.localizedDescription)
+            })
+        }
     }
     
     override func viewWillAppear(animated: Bool) {
@@ -216,6 +249,10 @@ class SnapshotShareController: UIViewController, UITableViewDelegate, UITableVie
         case 1:
             cellHeight = creditsViewHeight // creditsViewHeight
         case 2:
+            /*
+            cellHeight = detailsHeight
+        case 3:
+            */
             cellHeight = descriptionTextHeight
         case 3:
             cellHeight = 200 // social share
@@ -254,6 +291,32 @@ class SnapshotShareController: UIViewController, UITableViewDelegate, UITableVie
             
             return creditsCell
         case 2:
+            /*
+            // category
+            let itemImageViewWidth:CGFloat = 0.3 * screenWidth
+            
+            var categoryImage = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+            categoryImage.setImage(UIImage(named: "view-item-cat-top"), forState: UIControlState.Normal)
+            categoryImage.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+            categoryImage.frame = CGRect(x: 0, y: 0, width: itemImageViewWidth, height: detailsHeight)
+            categoryImage.imageEdgeInsets = UIEdgeInsetsMake(10, 10, 10, 0)
+            
+            Glow.addGlow(categoryImage)
+            
+            detailsCategory = UIButton(frame: CGRectMake(itemImageViewWidth, 0, screenWidth - itemImageViewWidth, detailsHeight))
+            detailsCategoryText = UITextField(frame: CGRectMake(0, 0, screenWidth - itemImageViewWidth, detailsHeight))
+            detailsCategoryText.tintColor = sprubixColor
+            detailsCategoryText.placeholder = "Add a outfit category!"
+            detailsCategoryText.enabled = false
+            detailsCategory.addSubview(detailsCategoryText)
+            detailsCategory.addTarget(self, action: "itemDetailsCategoryPressed:", forControlEvents: UIControlEvents.TouchUpInside)
+            
+            detailsCell.addSubview(categoryImage)
+            detailsCell.addSubview(detailsCategory)
+            
+            return detailsCell
+        case 3:
+            */
             descriptionText = UITextView(frame: CGRectInset(CGRect(x: 0, y: 0, width: screenWidth, height: descriptionTextHeight), 15, 0))
             
             descriptionText.tintColor = sprubixColor
@@ -346,7 +409,6 @@ class SnapshotShareController: UIViewController, UITableViewDelegate, UITableVie
             var snapshotDetailsController = SnapshotDetailsController()
             
             snapshotDetailsController.itemCoverImageView.image = (gesture.view as! UIImageView).image!
-            snapshotDetailsController.itemCategory = selectedPiecesOrdered[pos!]
             snapshotDetailsController.delegate = self
             snapshotDetailsController.pos = pos
             snapshotDetailsController.sprubixPiece = sprubixPieces[pos!]
@@ -467,6 +529,15 @@ class SnapshotShareController: UIViewController, UITableViewDelegate, UITableVie
         alert.addAction(UIAlertAction(title: "No", style: UIAlertActionStyle.Cancel, handler: nil))
         
         self.presentViewController(alert, animated: true, completion: nil)
+    }
+    
+    func itemDetailsCategoryPressed(sender: UIButton) {
+        ActionSheetStringPicker.showPickerWithTitle("Choose a category", rows: outfitCategories, initialSelection: 2,
+            doneBlock: { actionSheetPicker, selectedIndex, selectedValue in
+                
+                self.detailsCategoryText.text = "\(selectedValue)"
+                
+            }, cancelBlock: nil, origin: sender)
     }
     
     func shareButtonPressed(sender: UIButton) {
