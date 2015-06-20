@@ -14,7 +14,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "0CB982320A1D82011254E70A"
+               BlueprintIdentifier = "D9F5839F92B774E4C1570D30"
                BuildableName = "TLYShyNavBar.framework"
                BlueprintName = "Pods-Sprubix-TLYShyNavBar"
                ReferencedContainer = "container:Pods.xcodeproj">

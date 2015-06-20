@@ -25,6 +25,7 @@ class DiscoverFeedController: UIViewController, UITextFieldDelegate, UICollectio
     // search
     let searchBarViewHeight: CGFloat = 44
     let searchBarTextFieldHeight: CGFloat = 24
+    var searchBarView: UIView!
     var searchBarTextField: UITextField!
     var searchBarPlaceholderText: String = "Looking for something?"
     
@@ -48,6 +49,7 @@ class DiscoverFeedController: UIViewController, UITextFieldDelegate, UICollectio
         
         if self.shyNavBarManager.scrollView == nil {
             self.shyNavBarManager.scrollView = self.discoverCollectionView
+            self.shyNavBarManager.extensionView = searchBarView
         }
         
         retrieveOutfits()
@@ -151,7 +153,7 @@ class DiscoverFeedController: UIViewController, UITextFieldDelegate, UICollectio
 
     func initToolbar() {
         // search bar
-        let searchBarView = UIView(frame: CGRectMake(0, navigationHeight, screenWidth, searchBarViewHeight))
+        searchBarView = UIView(frame: CGRectMake(0, navigationHeight, screenWidth, searchBarViewHeight))
         
         searchBarView.backgroundColor = sprubixLightGray
         
@@ -168,8 +170,6 @@ class DiscoverFeedController: UIViewController, UITextFieldDelegate, UICollectio
         searchBarTextField.textAlignment = NSTextAlignment.Center
         
         searchBarView.addSubview(searchBarTextField)
-        
-        self.shyNavBarManager.extensionView = searchBarView
     }
     
     // REST calls

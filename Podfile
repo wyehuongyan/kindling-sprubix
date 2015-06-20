@@ -18,8 +18,9 @@ target "Sprubix" do
   pod 'STTweetLabel', '~> 3.1.2'
   pod 'DZNEmptyDataSet', '~> 1.5.2'
   pod 'PermissionScope', '~> 0.6'
-  pod 'AMTagListView', '~>0.6.3'
-  pod 'ActionSheetPicker-3.0', '~>1.6.2'
+  pod 'AMTagListView', '~> 0.6.3'
+  pod 'ActionSheetPicker-3.0', '~> 1.6.2'
+  pod 'MLPAutoCompleteTextField', '~> 1.5'
 end
 
 target "SprubixTests" do

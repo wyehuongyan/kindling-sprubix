@@ -32,6 +32,9 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
     var spruceViewController: SpruceViewController?
     var commentsViewController: CommentsViewController?
     
+    // discover feed
+    var discoverFeedController: DiscoverFeedController?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -58,14 +61,17 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         view.addSubview(mainCollectionView)
         
         // sprubix logo
-        var logoImageView = UIImageView(image: UIImage(named: "main-sprubix-logo"))
         let logoImageWidth:CGFloat = 50
         let logoImageHeight:CGFloat = 30
-        logoImageView.frame = CGRect(x: -logoImageWidth / 2, y: -logoImageHeight / 2, width: logoImageWidth, height: logoImageHeight)
-        logoImageView.contentMode = UIViewContentMode.ScaleAspectFit
         
-        self.navigationItem.titleView = UIView()
-        self.navigationItem.titleView?.addSubview(logoImageView)
+        var sprubixLogo = UIButton(frame: CGRect(x: -logoImageWidth / 2, y: -logoImageHeight / 2, width: logoImageWidth, height: logoImageHeight))
+        
+        sprubixLogo.addTarget(self, action: "sprubixLogoPressed:", forControlEvents: UIControlEvents.TouchUpInside)
+        sprubixLogo.setImage(UIImage(named: "main-sprubix-logo"), forState: UIControlState.Normal)
+        sprubixLogo.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+        
+        self.navigationItem.titleView = sprubixLogo
+        self.navigationItem.titleView?.userInteractionEnabled = true
         
         // drawer navbar
         self.shyNavBarManager.expansionResistance = 20
@@ -180,7 +186,7 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
     }
     
     // REST calls
-    func retrieveOutfits() {
+    func retrieveOutfits(scrollToTop: Bool = false) {
         let userId:Int? = defaults.objectForKey("userId") as? Int
         
         if userId != nil {
@@ -199,7 +205,13 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
                         self.mainCollectionView.emptyDataSetDelegate = nil
                     }
                     
+                    self.refreshControl.endRefreshing()
                     self.mainCollectionView.reloadData()
+                    
+                    if scrollToTop {
+                        self.mainCollectionView.layoutIfNeeded()
+                        self.mainCollectionView.scrollToItemAtIndexPath(NSIndexPath(forItem: 0, inSection: 0), atScrollPosition: UICollectionViewScrollPosition.Bottom, animated: true)
+                    }
                 },
                 failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                     println("Error: " + error.localizedDescription)
@@ -242,9 +254,7 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
     }
     
     func refresh(sender: AnyObject) {
-        retrieveOutfits()
-        
-        refreshControl.endRefreshing()
+        retrieveOutfits(scrollToTop: true)
     }
     
     func sideMenuTapped(sender: UIBarButtonItem) {
@@ -753,12 +763,21 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         delegate?.showCreateOutfit()
     }
     
+    func sprubixLogoPressed(sender: UIButton) {
+        if outfits.count > 0 {
+            mainCollectionView.scrollToItemAtIndexPath(NSIndexPath(forItem: 0, inSection: 0), atScrollPosition: UICollectionViewScrollPosition.Bottom, animated: true)
+        }
+    }
+    
     func discoverFeedTapped(sender: UIBarButtonItem) {
-        let discoverFeedController = DiscoverFeedController()
-        discoverFeedController.delegate = containerViewController
+        
+        if discoverFeedController == nil {
+            discoverFeedController = DiscoverFeedController()
+            discoverFeedController!.delegate = containerViewController
+        }
         
         UIView.transitionWithView(self.navigationController!.view, duration: 0.5, options: UIViewAnimationOptions.TransitionCrossDissolve, animations: {
-            self.navigationController?.pushViewController(discoverFeedController, animated: false)
+            self.navigationController?.pushViewController(discoverFeedController!, animated: false)
         }, completion: nil)
     }
 }

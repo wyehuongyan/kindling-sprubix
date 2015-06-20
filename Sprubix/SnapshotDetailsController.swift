@@ -11,6 +11,7 @@ import AFNetworking
 import MRProgress
 import PermissionScope
 import ActionSheetPicker_3_0
+import MLPAutoCompleteTextField
 
 class SprubixItemThumbnail: UIButton {
     var hasThumbnail: Bool = false
@@ -34,7 +35,7 @@ protocol SprubixPieceProtocol {
     func setSprubixPiece(sprubixPiece: SprubixPiece, position: Int)
 }
 
-class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableViewDataSource, UITextViewDelegate, UITextFieldDelegate, SprubixCameraDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableViewDataSource, UITextViewDelegate, UITextFieldDelegate, MLPAutoCompleteTextFieldDataSource, MLPAutoCompleteTextFieldDelegate, SprubixCameraDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
     let cameraPscope = PermissionScope()
     let photoPscope = PermissionScope()
@@ -87,7 +88,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
     var itemDetailsName: UITextField!
     var itemDetailsCategory: UIButton!
     var itemDetailsCategoryText: UITextField!
-    var itemDetailsBrand: UITextField!
+    var itemDetailsBrand: MLPAutoCompleteTextField!
     var itemDetailsSize: UITextField!
     var itemIsDress: Bool = false
     var itemSpecHeightTotal: CGFloat = 220
@@ -469,11 +470,18 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
             
             Glow.addGlow(itemBrandImage)
             
-            itemDetailsBrand = UITextField(frame: CGRectMake(itemImageViewWidth, itemSpecHeight * 2, screenWidth - itemImageViewWidth, itemSpecHeight))
+            itemDetailsBrand = MLPAutoCompleteTextField(frame: CGRectMake(itemImageViewWidth, itemSpecHeight * 2, screenWidth - itemImageViewWidth, itemSpecHeight))
             itemDetailsBrand.tintColor = sprubixColor
             itemDetailsBrand.placeholder = "What brand is it?"
             itemDetailsBrand.returnKeyType = UIReturnKeyType.Done
             itemDetailsBrand.delegate = self
+            
+            // autocomplete
+            itemDetailsBrand.autoCompleteDataSource = self
+            itemDetailsBrand.autoCompleteTableAppearsAsKeyboardAccessory = true
+            itemDetailsBrand.autoCompleteDelegate = self
+            itemDetailsBrand.autoCompleteTableCellTextColor = sprubixColor
+            itemDetailsBrand.autoCompleteTableBorderColor = sprubixLightGray
             
             if sprubixPiece.brand != nil {
                 itemDetailsBrand.text = sprubixPiece.brand
@@ -768,6 +776,45 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
         textField.resignFirstResponder()
         
         return true
+    }
+    
+    // MLPAutoCompleteTextFieldDataSource
+    func autoCompleteTextField(textField: MLPAutoCompleteTextField!, possibleCompletionsForString string: String!, completionHandler handler: (([AnyObject]!) -> Void)!) {
+        
+        if count(textField.text) > 0 {
+            manager.POST(SprubixConfig.URL.api + "/piece/brands",
+                parameters: [
+                    "name": textField.text
+                ],
+                success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                    
+                    var brands = responseObject["data"] as! [NSDictionary]
+                    var completions: [String] = [String]()
+                    
+                    for brand in brands {
+                        completions.append(brand["name"] as! String)
+                    }
+                    
+                    handler(completions)
+                },
+                failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                    println("Error: " + error.localizedDescription)
+            })
+        }
+    }
+    
+    // MLPAutoCompleteTextFieldDelegate
+    func autoCompleteTextField(textField: MLPAutoCompleteTextField!, didSelectAutoCompleteString selectedString: String!, withAutoCompleteObject selectedObject: MLPAutoCompletionObject!, forRowAtIndexPath indexPath: NSIndexPath!) {
+        
+        if selectedObject != nil {
+            println("selected object from autocomplete menu \(selectedObject) with string \(selectedObject.autocompleteString())");
+        } else {
+            println("selected string '\(selectedString)' from autocomplete menu");
+        }
+        
+        makeKeyboardVisible = false
+        
+        self.view.endEditing(true)
     }
     
     // button callbacks

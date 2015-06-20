@@ -90,6 +90,12 @@
 #define COCOAPODS_VERSION_MINOR_GPUImage 1
 #define COCOAPODS_VERSION_PATCH_GPUImage 6
 
+// MLPAutoCompleteTextField
+#define COCOAPODS_POD_AVAILABLE_MLPAutoCompleteTextField
+#define COCOAPODS_VERSION_MAJOR_MLPAutoCompleteTextField 1
+#define COCOAPODS_VERSION_MINOR_MLPAutoCompleteTextField 5
+#define COCOAPODS_VERSION_PATCH_MLPAutoCompleteTextField 0
+
 // MRProgress/AFNetworking
 #define COCOAPODS_POD_AVAILABLE_MRProgress_AFNetworking
 #define COCOAPODS_VERSION_MAJOR_MRProgress_AFNetworking 0
