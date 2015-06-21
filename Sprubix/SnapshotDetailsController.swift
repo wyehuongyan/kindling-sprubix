@@ -90,11 +90,26 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
     var itemDetailsCategoryText: UITextField!
     var itemDetailsBrand: MLPAutoCompleteTextField!
     var itemDetailsSize: UITextField!
+    var itemDetailsQuantity: UITextField!
+    var itemDetailsPrice: UITextField!
     var itemIsDress: Bool = false
     var itemSpecHeightTotal: CGFloat = 220
     
+    var isShop: Bool = false
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        let userData: NSDictionary? = defaults.dictionaryForKey("userData")
+        let shoppableType: String? = userData!["shoppable_type"] as? String
+        
+        if shoppableType?.lowercaseString.rangeOfString("shopper") != nil {
+            // shopper
+            isShop = false
+        } else {
+            // shop
+            isShop = true
+        }
         
         self.view.backgroundColor = UIColor.whiteColor()
         
@@ -420,7 +435,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
         case 2:
             // init piece specifications
             let itemSpecHeight: CGFloat = 55
-            itemSpecHeightTotal = itemSpecHeight * 4
+            itemSpecHeightTotal = isShop != true ? itemSpecHeight * 4 : itemSpecHeight * 6
             
             pieceSpecsView = UIView(frame: CGRect(x: 0, y: 10, width: screenWidth, height: itemSpecHeightTotal))
             pieceSpecsView.backgroundColor = UIColor.whiteColor()
@@ -507,6 +522,54 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
             
             if sprubixPiece.size != nil {
                 itemDetailsSize.text = sprubixPiece.size
+            }
+            
+            if isShop == true {
+                // quantity
+                var itemQuantityImage = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+                itemQuantityImage.setImage(UIImage(named: "icon-placeholder.png"), forState: UIControlState.Normal)
+                itemQuantityImage.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+                itemQuantityImage.frame = CGRect(x: 0, y: itemSpecHeight * 4, width: itemImageViewWidth, height: itemSpecHeight)
+                itemQuantityImage.imageEdgeInsets = UIEdgeInsetsMake(10, 10, 10, 0)
+                
+                Glow.addGlow(itemQuantityImage)
+                
+                itemDetailsQuantity = UITextField(frame: CGRectMake(itemImageViewWidth, itemSpecHeight * 4, screenWidth - itemImageViewWidth, itemSpecHeight))
+                itemDetailsQuantity.tintColor = sprubixColor
+                itemDetailsQuantity.placeholder = "How much quantity?"
+                itemDetailsQuantity.keyboardType = UIKeyboardType.NumberPad
+                itemDetailsQuantity.returnKeyType = UIReturnKeyType.Done
+                itemDetailsQuantity.delegate = self
+                
+                if sprubixPiece.quantity != nil {
+                    itemDetailsQuantity.text = sprubixPiece.quantity
+                }
+                
+                // price
+                var itemPriceImage = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+                itemPriceImage.setImage(UIImage(named: "icon-placeholder.png"), forState: UIControlState.Normal)
+                itemPriceImage.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+                itemPriceImage.frame = CGRect(x: 0, y: itemSpecHeight * 5, width: itemImageViewWidth, height: itemSpecHeight)
+                itemPriceImage.imageEdgeInsets = UIEdgeInsetsMake(10, 10, 10, 0)
+                
+                Glow.addGlow(itemPriceImage)
+                
+                itemDetailsPrice = UITextField(frame: CGRectMake(itemImageViewWidth, itemSpecHeight * 5, screenWidth - itemImageViewWidth, itemSpecHeight))
+                itemDetailsPrice.tintColor = sprubixColor
+                itemDetailsPrice.placeholder = "How much does it cost?"
+                itemDetailsPrice.keyboardType = UIKeyboardType.NumberPad
+                itemDetailsPrice.returnKeyType = UIReturnKeyType.Done
+                itemDetailsPrice.delegate = self
+                
+                if sprubixPiece.price != nil {
+                    itemDetailsPrice.text = sprubixPiece.price
+                }
+                
+                pieceSpecsView.addSubview(itemQuantityImage)
+                pieceSpecsView.addSubview(itemDetailsQuantity)
+                
+                pieceSpecsView.addSubview(itemPriceImage)
+                pieceSpecsView.addSubview(itemDetailsPrice)
             }
             
             pieceSpecsView.addSubview(itemNameImage)
@@ -703,7 +766,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
             descriptionText.textColor = UIColor.blackColor()
         }
         
-        setNavBar("Item Description", leftButtonTitle: "", leftButtonCallback: nil, rightButtonTitle: "done", rightButtonCallback: "descriptionDoneTapped:")
+        setNavBar("Item Description", leftButtonTitle: "", leftButtonCallback: nil, rightButtonTitle: "done", rightButtonCallback: "itemDetailsDoneTapped:")
         
         return true
     }
@@ -718,7 +781,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
         newNavBar.setItems([newNavItem], animated: true)
     }
     
-    func descriptionDoneTapped(sender: UIButton) {
+    func itemDetailsDoneTapped(sender: UIButton) {
         makeKeyboardVisible = false
         
         self.view.endEditing(true)
@@ -781,32 +844,55 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
         return true
     }
     
+    func textFieldDidBeginEditing(textField: UITextField) {
+        var navBarTitle: String = ""
+        
+        switch textField {
+        case itemDetailsName:
+            navBarTitle = "Item Name"
+        case itemDetailsCategory:
+            navBarTitle = "Item Category"
+        case itemDetailsBrand:
+            navBarTitle = "Item Brand"
+        case itemDetailsSize:
+            navBarTitle = "Item Size"
+        case itemDetailsQuantity:
+            navBarTitle = "Item Quantity"
+        case itemDetailsPrice:
+            navBarTitle = "Item Price"
+        default:
+            fatalError("Error: Unknown textField object, unable to assign navBarTitle")
+        }
+        
+        setNavBar(navBarTitle, leftButtonTitle: "", leftButtonCallback: nil, rightButtonTitle: "done", rightButtonCallback: "itemDetailsDoneTapped:")
+    }
+    
+    func textFieldDidEndEditing(textField: UITextField) {
+        newNavBar.setItems([newNavItem], animated: true)
+    }
+    
     // MLPAutoCompleteTextFieldDataSource
     func autoCompleteTextField(textField: MLPAutoCompleteTextField!, possibleCompletionsForString string: String!, completionHandler handler: (([AnyObject]!) -> Void)!) {
         
         var completions: [String] = [String]()
         
-        if count(textField.text) > 0 {
-            manager.POST(SprubixConfig.URL.api + "/piece/brands",
-                parameters: [
-                    "name": textField.text
-                ],
-                success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
-                    
-                    var brands = responseObject["data"] as! [NSDictionary]
-                    
-                    for brand in brands {
-                        completions.append(brand["name"] as! String)
-                    }
-                    
-                    handler(completions)
-                },
-                failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
-                    println("Error: " + error.localizedDescription)
-            })
-        } else {
-            handler(completions)
-        }
+        manager.POST(SprubixConfig.URL.api + "/piece/brands",
+            parameters: [
+                "name": textField.text
+            ],
+            success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                
+                var brands = responseObject["data"] as! [NSDictionary]
+                
+                for brand in brands {
+                    completions.append(brand["name"] as! String)
+                }
+                
+                handler(completions)
+            },
+            failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                println("Error: " + error.localizedDescription)
+        })
     }
     
     // MLPAutoCompleteTextFieldDelegate
@@ -887,6 +973,8 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
         sprubixPiece.category = (itemDetailsCategoryText != nil) ? itemDetailsCategoryText.text : ""
         sprubixPiece.brand = (itemDetailsBrand != nil) ? itemDetailsBrand.text : ""
         sprubixPiece.size = (itemDetailsSize != nil) ? itemDetailsSize.text : ""
+        sprubixPiece.quantity = itemDetailsQuantity != nil ? itemDetailsQuantity.text : ""
+        sprubixPiece.price = itemDetailsPrice != nil ? itemDetailsPrice.text : ""
         sprubixPiece.desc = (descriptionText != nil && descriptionText.text != placeholderText) ? descriptionText.text : ""
         sprubixPiece.isDress = itemIsDress
         
@@ -908,6 +996,8 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
             "is_dress": sprubixPiece.isDress,
             "brand": sprubixPiece.brand != nil ? sprubixPiece.brand : "",
             "size": sprubixPiece.size != nil ? sprubixPiece.size : "",
+            "quantity": sprubixPiece.quantity != nil ? sprubixPiece.quantity : "",
+            "price": sprubixPiece.price != nil ? sprubixPiece.price : "",
             "description": sprubixPiece.desc != nil ? sprubixPiece.desc : "",
             "height": sprubixPiece.images[0].scale * sprubixPiece.images[0].size.height,
             "width": sprubixPiece.images[0].scale * sprubixPiece.images[0].size.width
@@ -917,6 +1007,9 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
 
         sprubixDict.setObject(pieces, forKey: "pieces")
         
+        println(sprubixDict)
+        
+        /*
         // upload piece data
         var requestOperation: AFHTTPRequestOperation = manager.POST(SprubixConfig.URL.api + "/upload/piece/create", parameters: sprubixDict, constructingBodyWithBlock: { formData in
             let data: AFMultipartFormData = formData
@@ -966,6 +1059,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
         overlayView.setModeAndProgressWithStateOfOperation(requestOperation)
         
         overlayView.tintColor = sprubixColor
+        */
     }
 
     func doneTapped(sender: UIBarButtonItem) {
@@ -982,6 +1076,8 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
         sprubixPiece.category = (itemDetailsCategoryText != nil) ? itemDetailsCategoryText.text : ""
         sprubixPiece.brand = (itemDetailsBrand != nil) ? itemDetailsBrand.text : ""
         sprubixPiece.size = (itemDetailsSize != nil) ? itemDetailsSize.text : ""
+        sprubixPiece.quantity = itemDetailsQuantity != nil ? itemDetailsQuantity.text : ""
+        sprubixPiece.price = itemDetailsPrice != nil ? itemDetailsPrice.text : ""
         sprubixPiece.desc = (descriptionText != nil && descriptionText.text != placeholderText) ? descriptionText.text : ""
         sprubixPiece.isDress = itemIsDress
         

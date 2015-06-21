@@ -572,7 +572,7 @@
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="CA4-3Y-1Zn" id="ENi-GE-dMo">
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="icon-placeholder.png" translatesAutoresizingMaskIntoConstraints="NO" id="WXs-Ja-hSx">
+                                                <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="WXs-Ja-hSx">
                                                     <rect key="frame" x="10" y="10" width="80" height="80"/>
                                                     <constraints>
                                                         <constraint firstAttribute="height" constant="80" id="3ek-qR-axj"/>
@@ -591,7 +591,7 @@
                                                     <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
-                                                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="icon-placeholder.png" translatesAutoresizingMaskIntoConstraints="NO" id="pkf-tD-ISu">
+                                                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="details-info-add" translatesAutoresizingMaskIntoConstraints="NO" id="pkf-tD-ISu">
                                                     <rect key="frame" x="542" y="25" width="50" height="50"/>
                                                     <constraints>
                                                         <constraint firstAttribute="width" constant="50" id="Luf-70-hkN"/>
@@ -612,13 +612,13 @@
                                                 <constraint firstItem="unP-1K-quF" firstAttribute="leading" secondItem="WXs-Ja-hSx" secondAttribute="trailing" constant="10" id="RlJ-rt-70y"/>
                                                 <constraint firstItem="pkf-tD-ISu" firstAttribute="trailing" secondItem="ENi-GE-dMo" secondAttribute="trailingMargin" id="TDS-E0-Szv"/>
                                                 <constraint firstAttribute="centerY" secondItem="WXs-Ja-hSx" secondAttribute="centerY" id="bNe-TV-FQ6"/>
+                                                <constraint firstItem="WXs-Ja-hSx" firstAttribute="leading" secondItem="ENi-GE-dMo" secondAttribute="leading" constant="10" id="dcm-C2-iQY"/>
                                                 <constraint firstAttribute="bottom" secondItem="iEe-aO-2sD" secondAttribute="bottom" constant="10" id="enJ-1T-47W"/>
                                                 <constraint firstItem="unP-1K-quF" firstAttribute="top" secondItem="FHU-Ms-ZtW" secondAttribute="bottom" constant="10" id="f6M-is-J6d"/>
                                                 <constraint firstItem="iEe-aO-2sD" firstAttribute="top" secondItem="unP-1K-quF" secondAttribute="bottom" constant="10" id="fs5-9i-tDD"/>
                                                 <constraint firstItem="FHU-Ms-ZtW" firstAttribute="top" secondItem="ENi-GE-dMo" secondAttribute="top" constant="10" id="hlT-7k-y8j"/>
                                                 <constraint firstItem="pkf-tD-ISu" firstAttribute="leading" secondItem="FHU-Ms-ZtW" secondAttribute="trailing" constant="10" id="jIO-lV-g92"/>
                                                 <constraint firstItem="pkf-tD-ISu" firstAttribute="leading" secondItem="iEe-aO-2sD" secondAttribute="trailing" constant="10" id="kVP-bM-WgK"/>
-                                                <constraint firstItem="WXs-Ja-hSx" firstAttribute="leading" secondItem="ENi-GE-dMo" secondAttribute="leadingMargin" constant="2" id="lRz-CK-Yd9"/>
                                                 <constraint firstItem="iEe-aO-2sD" firstAttribute="top" secondItem="unP-1K-quF" secondAttribute="bottom" constant="10" id="np1-rc-YKN"/>
                                                 <constraint firstAttribute="centerY" secondItem="pkf-tD-ISu" secondAttribute="centerY" id="r1V-wc-W85"/>
                                                 <constraint firstItem="iEe-aO-2sD" firstAttribute="leading" secondItem="WXs-Ja-hSx" secondAttribute="trailing" constant="10" id="uo2-Ww-eDv"/>
@@ -928,6 +928,7 @@
         </scene>
     </scenes>
     <resources>
+        <image name="details-info-add" width="40" height="40"/>
         <image name="details-thumbnail-trash" width="40" height="40"/>
         <image name="icon-placeholder.png" width="64" height="64"/>
         <image name="main-comments" width="40" height="40"/>

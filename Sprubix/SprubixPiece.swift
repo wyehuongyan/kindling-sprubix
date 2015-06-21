@@ -18,4 +18,8 @@ class SprubixPiece: NSObject {
     var brand: String!
     var size: String!
     var desc: String!
+    
+    // if shop
+    var quantity: String!
+    var price: String!
 }

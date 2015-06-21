@@ -24,5 +24,7 @@ class InventoryCell: UITableViewCell {
         inventoryImage.layer.borderColor = UIColor.lightGrayColor().CGColor
         inventoryImage.layer.borderWidth = 0.5
         inventoryImage.clipsToBounds = true
+        
+        Glow.addGlow(accessoryImage)
     }
 }

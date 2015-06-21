@@ -182,6 +182,10 @@ class InventoryViewController: UIViewController, UITableViewDataSource, UITableV
         return 100.0
     }
     
+    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+        //
+    }
+    
     // tool bar button callbacks
     func allPiecesPressed(sender: UIButton) {
         if sender != currentChoice {
