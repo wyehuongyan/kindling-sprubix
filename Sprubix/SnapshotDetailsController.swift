@@ -196,7 +196,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
         if onlyOnePiece != true {
             // 5. create a done buton
             var nextButton:UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
-            nextButton.setTitle("done", forState: UIControlState.Normal)
+            nextButton.setTitle("save", forState: UIControlState.Normal)
             nextButton.setTitleColor(sprubixColor, forState: UIControlState.Normal)
             nextButton.frame = CGRect(x: 0, y: 0, width: 50, height: 20)
             nextButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
@@ -214,6 +214,9 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
     
     override func viewWillDisappear(animated: Bool) {
         super.viewWillDisappear(animated)
+        
+        makeKeyboardVisible = false
+        self.view.endEditing(true)
         
         // listen to keyboard show/hide events
         NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardWillChangeFrameNotification, object: nil)
@@ -781,6 +784,8 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
     // MLPAutoCompleteTextFieldDataSource
     func autoCompleteTextField(textField: MLPAutoCompleteTextField!, possibleCompletionsForString string: String!, completionHandler handler: (([AnyObject]!) -> Void)!) {
         
+        var completions: [String] = [String]()
+        
         if count(textField.text) > 0 {
             manager.POST(SprubixConfig.URL.api + "/piece/brands",
                 parameters: [
@@ -789,7 +794,6 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
                 success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
                     
                     var brands = responseObject["data"] as! [NSDictionary]
-                    var completions: [String] = [String]()
                     
                     for brand in brands {
                         completions.append(brand["name"] as! String)
@@ -800,17 +804,13 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
                 failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                     println("Error: " + error.localizedDescription)
             })
+        } else {
+            handler(completions)
         }
     }
     
     // MLPAutoCompleteTextFieldDelegate
     func autoCompleteTextField(textField: MLPAutoCompleteTextField!, didSelectAutoCompleteString selectedString: String!, withAutoCompleteObject selectedObject: MLPAutoCompletionObject!, forRowAtIndexPath indexPath: NSIndexPath!) {
-        
-        if selectedObject != nil {
-            println("selected object from autocomplete menu \(selectedObject) with string \(selectedObject.autocompleteString())");
-        } else {
-            println("selected string '\(selectedString)' from autocomplete menu");
-        }
         
         makeKeyboardVisible = false
         

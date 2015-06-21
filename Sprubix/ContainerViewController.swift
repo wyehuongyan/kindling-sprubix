@@ -35,6 +35,7 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
     var sprubixCameraViewController: SprubixCameraViewController?
     var favoritesViewController: FavoritesViewController?
     var settingsViewController: SettingsViewController?
+    var inventoryViewController: InventoryViewController?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -106,6 +107,15 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
         
         sprubixNavigationController.delegate = nil
         sprubixNavigationController.pushViewController(settingsViewController!, animated: true)
+    }
+    
+    func showInventoryView() {
+        inventoryViewController = UIStoryboard.inventoryViewController()
+        
+        self.closeSidePanel()
+        
+        sprubixNavigationController.delegate = nil
+        sprubixNavigationController.pushViewController(inventoryViewController!, animated: true)
     }
     
     // SprubixFeedControllerDelegate
@@ -268,5 +278,9 @@ extension UIStoryboard {
     
     class func settingsViewController() -> SettingsViewController? {
         return mainStoryboard().instantiateViewControllerWithIdentifier("SettingsView") as? SettingsViewController
+    }
+    
+    class func inventoryViewController() -> InventoryViewController? {
+        return mainStoryboard().instantiateViewControllerWithIdentifier("InventoryView") as? InventoryViewController
     }
 }

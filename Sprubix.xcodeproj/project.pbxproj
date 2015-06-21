@@ -33,6 +33,8 @@
 		8486D4161B04774800ED31BA /* SprubixPiece.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8486D4151B04774800ED31BA /* SprubixPiece.swift */; };
 		8488717A1B32996E001D60A1 /* SpruceSearchResultsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 848871791B32996E001D60A1 /* SpruceSearchResultsViewController.swift */; };
 		8488717C1B32D163001D60A1 /* DiscoverFeedController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8488717B1B32D163001D60A1 /* DiscoverFeedController.swift */; };
+		8488717F1B369CBA001D60A1 /* InventoryCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8488717E1B369CBA001D60A1 /* InventoryCell.swift */; };
+		848871821B36A140001D60A1 /* InventoryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 848871811B36A140001D60A1 /* InventoryViewController.swift */; };
 		84ACA11E1AE78F250084D4CF /* SprubixCameraViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84ACA11D1AE78F250084D4CF /* SprubixCameraViewController.swift */; };
 		84ACA1211AE790020084D4CF /* SprubixCamera.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84ACA1201AE790020084D4CF /* SprubixCamera.swift */; };
 		84ACA1231AE7B5C80084D4CF /* EditSnapshotViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84ACA1221AE7B5C80084D4CF /* EditSnapshotViewController.swift */; };
@@ -108,6 +110,8 @@
 		8486D4151B04774800ED31BA /* SprubixPiece.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SprubixPiece.swift; sourceTree = "<group>"; };
 		848871791B32996E001D60A1 /* SpruceSearchResultsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpruceSearchResultsViewController.swift; sourceTree = "<group>"; };
 		8488717B1B32D163001D60A1 /* DiscoverFeedController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DiscoverFeedController.swift; sourceTree = "<group>"; };
+		8488717E1B369CBA001D60A1 /* InventoryCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InventoryCell.swift; sourceTree = "<group>"; };
+		848871811B36A140001D60A1 /* InventoryViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InventoryViewController.swift; sourceTree = "<group>"; };
 		84ACA11D1AE78F250084D4CF /* SprubixCameraViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SprubixCameraViewController.swift; sourceTree = "<group>"; };
 		84ACA1201AE790020084D4CF /* SprubixCamera.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SprubixCamera.swift; sourceTree = "<group>"; };
 		84ACA1221AE7B5C80084D4CF /* EditSnapshotViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EditSnapshotViewController.swift; sourceTree = "<group>"; };
@@ -267,6 +271,22 @@
 			name = Spruce;
 			sourceTree = "<group>";
 		};
+		8488717D1B369995001D60A1 /* Inventory */ = {
+			isa = PBXGroup;
+			children = (
+				8488717E1B369CBA001D60A1 /* InventoryCell.swift */,
+			);
+			name = Inventory;
+			sourceTree = "<group>";
+		};
+		848871801B36A112001D60A1 /* Inventory */ = {
+			isa = PBXGroup;
+			children = (
+				848871811B36A140001D60A1 /* InventoryViewController.swift */,
+			);
+			name = Inventory;
+			sourceTree = "<group>";
+		};
 		8497333E1AA4556200E5C750 /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
@@ -278,6 +298,7 @@
 				846C979A1ABD5BCC0050D0BC /* Spruce */,
 				84FDB9611B15A5F900E8D720 /* Menu */,
 				84ACA11C1AE78EBF0084D4CF /* Create */,
+				848871801B36A112001D60A1 /* Inventory */,
 			);
 			name = Controllers;
 			sourceTree = "<group>";
@@ -292,6 +313,7 @@
 				84FCCABF1AB56422009C10B2 /* Profile */,
 				846C979E1ABDA5840050D0BC /* Spruce */,
 				84FDB95A1B1594E000E8D720 /* Menu */,
+				8488717D1B369995001D60A1 /* Inventory */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -612,9 +634,11 @@
 				845048B91A9ECC81008BDBAA /* SignInViewController.swift in Sources */,
 				84B334EC1AAB1F9B00B9707D /* ContainerViewController.swift in Sources */,
 				8475ECFD1B25D4F80000111A /* SettingsViewController.swift in Sources */,
+				848871821B36A140001D60A1 /* InventoryViewController.swift in Sources */,
 				84B334EA1AAB0CC900B9707D /* SidePanelCell.swift in Sources */,
 				845048B41A9ECC81008BDBAA /* AppDelegate.swift in Sources */,
 				84FDB9601B1595FA00E8D720 /* NotificationCell.swift in Sources */,
+				8488717F1B369CBA001D60A1 /* InventoryCell.swift in Sources */,
 				84470D8A1AECC41B007E9A93 /* MainFeedController.swift in Sources */,
 				84C9AC3E1AA06041009ADF5C /* SignUpViewController.swift in Sources */,
 				84B334E51AAB00DD00B9707D /* SidePanelViewController.swift in Sources */,

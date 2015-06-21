@@ -162,9 +162,9 @@ class UserProfileHeader: UICollectionReusableView, UIScrollViewDelegate {
         profileRealName.textColor = UIColor.whiteColor()
         profileRealName.font = UIFont(name: profileRealName.font.fontName, size: 22)
         profileRealName.textAlignment = NSTextAlignment.Center
-        profileRealName.layer.shadowOpacity = 1.0;
+        profileRealName.layer.shadowOpacity = 0.8;
         profileRealName.layer.shadowRadius = 1.0;
-        profileRealName.layer.shadowColor = UIColor.grayColor().CGColor;
+        profileRealName.layer.shadowColor = UIColor.blackColor().CGColor;
         profileRealName.layer.shadowOffset = CGSizeMake(0.0, 1.0);
         
         userInfoScrollView.addSubview(profileRealName)
@@ -176,9 +176,9 @@ class UserProfileHeader: UICollectionReusableView, UIScrollViewDelegate {
         profileName.textColor = UIColor.whiteColor()
         profileName.font = UIFont(name: profileName.font.fontName, size: 16)
         profileName.textAlignment = NSTextAlignment.Center
-        profileName.layer.shadowOpacity = 1.0;
+        profileName.layer.shadowOpacity = 0.8;
         profileName.layer.shadowRadius = 1.0;
-        profileName.layer.shadowColor = UIColor.grayColor().CGColor;
+        profileName.layer.shadowColor = UIColor.blackColor().CGColor;
         profileName.layer.shadowOffset = CGSizeMake(0.0, 1.0);
         
         userInfoScrollView.addSubview(profileName)

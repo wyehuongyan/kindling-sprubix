@@ -16,6 +16,7 @@ protocol SidePanelViewControllerDelegate {
     func showNotifications()
     func showFavorites()
     func showSettingsView()
+    func showInventoryView()
 }
 
 class SidePanelViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
@@ -131,6 +132,7 @@ class SidePanelViewController: UIViewController, UITableViewDataSource, UITableV
             delegate?.showSettingsView()
             break
         case .Inventory:
+            delegate?.showInventoryView()
             break
         case .Orders:
             break
