@@ -158,13 +158,13 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         sideMenuButtonItem.tintColor = UIColor(red: 170/255, green: 170/255, blue: 170/255, alpha: 1.0)
         
         var negativeSpacerItem: UIBarButtonItem = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.FixedSpace, target: nil, action: nil)
-        negativeSpacerItem.width = -20
+        negativeSpacerItem.width = -16
         
         self.navigationItem.leftBarButtonItems = [negativeSpacerItem, sideMenuButtonItem]
         
         // 2. right bar button for discover feed
         var discoverFeedButton: UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
-        var image: UIImage = UIImage(named: "profile-community")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
+        var image: UIImage = UIImage(named: "profile-myoutfits")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
         discoverFeedButton.setImage(image, forState: UIControlState.Normal)
         discoverFeedButton.frame = CGRect(x: 0, y: 0, width: 30, height: 30)
         discoverFeedButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit

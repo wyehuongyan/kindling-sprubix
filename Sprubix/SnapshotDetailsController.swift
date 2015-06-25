@@ -35,19 +35,15 @@ protocol SprubixPieceProtocol {
     func setSprubixPiece(sprubixPiece: SprubixPiece, position: Int)
 }
 
-class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableViewDataSource, UITextViewDelegate, UITextFieldDelegate, MLPAutoCompleteTextFieldDataSource, MLPAutoCompleteTextFieldDelegate, SprubixCameraDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
-    
-    let cameraPscope = PermissionScope()
-    let photoPscope = PermissionScope()
+class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableViewDataSource, UITextViewDelegate, UITextFieldDelegate, MLPAutoCompleteTextFieldDataSource, MLPAutoCompleteTextFieldDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate, SnapshotDetailsProtocol {
     
     var delegate: SprubixPieceProtocol?
     var pos: Int!
     var sprubixPiece: SprubixPiece!
+    
+    // entered with only one piece
     var onlyOnePiece: Bool = false
     var addToClosetButton: UIButton?
-    
-    let imagePicker = UIImagePickerController()
-    var photoLibraryButton: UIButton!
     
     // custom nav bar
     var newNavBar: UINavigationBar!
@@ -56,12 +52,6 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
     // item
     var itemCoverImageView: UIImageView = UIImageView()
     var itemCategories: [String] = [String]()
-    
-    // camera
-    var cameraCapture: UIButton!
-    var cameraPreview: UIView?
-    var preview: AVCaptureVideoPreviewLayer?
-    var camera: SprubixCamera?
     
     // tableview cells
     var itemTableView: UITableView!
@@ -79,7 +69,6 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
     
     // thumbnails
     var thumbnails: [SprubixItemThumbnail] = [SprubixItemThumbnail]()
-    var hasThumbnails: [SprubixItemThumbnail] = [SprubixItemThumbnail]()
     let thumbnailViewWidth: CGFloat = (screenWidth - 100) / 4
     var selectedThumbnail: SprubixItemThumbnail!
     
@@ -96,6 +85,12 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
     var itemSpecHeightTotal: CGFloat = 220
     
     var isShop: Bool = false
+    
+    // trash button
+    var trashButton: UIButton!
+    
+    // entered from inventory
+    var fromInventoryView: Bool = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -128,21 +123,6 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
         self.view.addSubview(itemTableView)
         
         oldFrameRect = itemTableView.frame
-        
-        // initialized permissions
-        cameraPscope.addPermission(PermissionConfig(type: .Camera, demands: .Required, message: "We need this so you can snap\r\nawesome pictures of your items!", notificationCategories: .None))
-        
-        cameraPscope.tintColor = sprubixColor
-        cameraPscope.headerLabel.text = "Hey there,"
-        cameraPscope.headerLabel.textColor = UIColor.darkGrayColor()
-        cameraPscope.bodyLabel.textColor = UIColor.lightGrayColor()
-        
-        photoPscope.addPermission(PermissionConfig(type: .Photos, demands: .Required, message: "We need this so you can import\r\nawesome pictures of your items!", notificationCategories: .None))
-        
-        photoPscope.tintColor = sprubixColor
-        photoPscope.headerLabel.text = "Hey there,"
-        photoPscope.headerLabel.textColor = UIColor.darkGrayColor()
-        photoPscope.bodyLabel.textColor = UIColor.lightGrayColor()
         
         if onlyOnePiece {
             addToClosetButton = UIButton(frame: CGRect(x: 0, y: screenHeight - navigationHeight, width: screenWidth, height: navigationHeight))
@@ -237,120 +217,23 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
         NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardWillChangeFrameNotification, object: nil)
     }
     
-    // camera
-    func initializeCamera() {
-        self.camera = SprubixCamera(sender: self)
-    }
-    
-    func establishVideoPreviewArea() {
-        if cameraPreview != nil {
-            var touch = UITapGestureRecognizer(target:self, action:"manualFocus:")
-            cameraPreview!.addGestureRecognizer(touch)
-            cameraPreview!.alpha = 1.0
-        
-            self.preview = AVCaptureVideoPreviewLayer(session: self.camera?.session)
-            self.preview?.videoGravity = AVLayerVideoGravityResizeAspectFill
-            self.preview?.frame = self.cameraPreview!.bounds
-            self.cameraPreview!.layer.addSublayer(self.preview)
-        }
-    }
-    
-    // tap to focus
-    func manualFocus(gesture :UITapGestureRecognizer) {
-        var touchPoint: CGPoint = gesture.locationInView(gesture.view)
-        
-        self.camera?.focus(touchPoint, preview: self.preview!)
-    }
-    
+    // SnapshotDetailsProtocol
     func setPreviewStillImage(image: UIImage?, fromPhotoLibrary: Bool) {
         if image != nil {
-            // crop image to square
-            var fixedImage: UIImage = self.fixOrientation(image!)
-            
-            var cropWidth = fixedImage.size.width
-            var cropHeight = fixedImage.size.height
-            var cropCenter: CGPoint = CGPointMake((cropWidth / 2), (cropHeight / 2));
-            
-            if fromPhotoLibrary != true {
-                cropHeight = cropWidth
-            }
-            
-            var cropStart: CGPoint = CGPointMake((cropCenter.x - cropWidth / 2), (cropCenter.y - cropHeight / 2));
-            let cropRect: CGRect = CGRectMake(cropStart.x, cropStart.y, cropWidth, cropHeight);
-            
-            let cropRef: CGImageRef = CGImageCreateWithImageInRect(fixedImage.CGImage, cropRect);
-            let cropImage: UIImage = UIImage(CGImage: cropRef)!
-            
-            var resizedImage = self.resizeImage(cropImage, width: screenWidth)
-            
-            //println(resizedImage.size)
-            
-            self.selectedThumbnail.setImage(resizedImage, forState: UIControlState.Normal)
+            self.selectedThumbnail.setImage(image, forState: UIControlState.Normal)
             self.selectedThumbnail.hasThumbnail = true
-            self.itemCoverImageView.image = resizedImage
+            self.itemCoverImageView.image = image
             self.itemCoverImageView.alpha = 1.0
             
             self.itemTableView.scrollEnabled = true
             self.pieceSpecsView.alpha = 1.0
-            self.cameraCapture.alpha = 0.0
             self.itemDescriptionCell.alpha = 1.0
-            self.photoLibraryButton.alpha = 0.0
             self.addToClosetButton?.alpha = 1.0
-            
-            self.cameraCapture.enabled = true
             
             self.newNavBar.setItems([self.newNavItem], animated: true)
         } else {
             NSLog("Uh oh! Something went wrong. Try it again.")
         }
-    }
-    
-    func captureFrame(sender: AnyObject) {
-        // this is the part where image is captured successfully
-        self.cameraCapture.enabled = false
-        self.itemCoverImageView.alpha = 0.0
-        
-        UIView.animateWithDuration(0.225, animations: { () -> Void in
-            self.cameraPreview!.alpha = 0.0
-        })
-        
-        self.camera?.captureStillImage({ (image) -> Void in
-            self.setPreviewStillImage(image, fromPhotoLibrary: false)
-        })
-    }
-    
-    // fix image orientation
-    func fixOrientation(img: UIImage) -> UIImage {
-        
-        if (img.imageOrientation == UIImageOrientation.Up) {
-            return img;
-        }
-        
-        UIGraphicsBeginImageContextWithOptions(img.size, false, img.scale);
-        let rect = CGRect(x: 0, y: 0, width: img.size.width, height: img.size.height)
-        img.drawInRect(rect)
-        
-        var normalizedImage : UIImage = UIGraphicsGetImageFromCurrentImageContext()
-        UIGraphicsEndImageContext();
-        return normalizedImage;
-        
-    }
-    
-    // MARK: Camera Delegate
-    func cameraSessionConfigurationDidComplete() {
-        self.camera?.startCamera()
-    }
-    
-    func cameraSessionDidBegin() {
-        UIView.animateWithDuration(0.225, animations: { () -> Void in
-            self.cameraPreview!.alpha = 1.0
-        })
-    }
-    
-    func cameraSessionDidStop() {
-        UIView.animateWithDuration(0.225, animations: { () -> Void in
-            self.cameraPreview!.alpha = 0.0
-        })
     }
     
     // tableViewDelegate
@@ -385,14 +268,26 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
             itemCoverImageView.frame = CGRectMake(0, 0, screenWidth, screenWidth)
             itemCoverImageView.contentMode = UIViewContentMode.ScaleAspectFit
             itemCoverImageView.backgroundColor = sprubixGray
-
-            // camera view is at the same location as itemCover
-            cameraPreview = UIView(frame: itemCoverImageView.frame)
-            cameraPreview!.alpha = 0
+            itemCoverImageView.userInteractionEnabled = true
             
             itemImageCell.addSubview(itemCoverImageView)
-            itemImageCell.addSubview(cameraPreview!)
             itemImageCell.backgroundColor = sprubixGray
+            
+            // trash button
+            let trashButtonWidth = screenWidth / 10
+            trashButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+            var image = UIImage(named: "details-thumbnail-trash")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
+            trashButton.setImage(image, forState: UIControlState.Normal)
+            trashButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+            trashButton.imageView?.tintColor = sprubixGray
+            trashButton.backgroundColor = UIColor.clearColor()
+            trashButton.frame = CGRectMake(9 * trashButtonWidth, screenWidth - trashButtonWidth, trashButtonWidth, trashButtonWidth)
+            trashButton.imageEdgeInsets = UIEdgeInsetsMake(5, 5, 5, 5)
+            trashButton.addTarget(self, action: "deleteImage:", forControlEvents: UIControlEvents.TouchUpInside)
+            trashButton.exclusiveTouch = true
+            Glow.addGlow(trashButton)
+            
+            itemCoverImageView.addSubview(trashButton)
             
             return itemImageCell
             
@@ -405,10 +300,13 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
                     // first one
                     thumbnailView.setImage(itemCoverImageView.image, forState: UIControlState.Normal)
                     thumbnailView.hasThumbnail = true
+                    selectedThumbnail = thumbnailView
                 } else {
-                    if sprubixPiece.images.count > i {
-                        thumbnailView.setImage(sprubixPiece.images[i], forState: UIControlState.Normal)
+                    if sprubixPiece.imageURLs.count > i {
+                        thumbnailView.setImage(UIImage(data: NSData(contentsOfURL: sprubixPiece.imageURLs[i])!), forState: UIControlState.Normal)
+                        
                         thumbnailView.hasThumbnail = true
+                        
                     } else {
                         thumbnailView.setImage(UIImage(named: "details-thumbnail-add"), forState: UIControlState.Normal)
                     }
@@ -479,6 +377,10 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
             itemDetailsCategory.addSubview(itemDetailsCategoryText)
             itemDetailsCategory.addTarget(self, action: "itemDetailsCategoryPressed:", forControlEvents: UIControlEvents.TouchUpInside)
             
+            if sprubixPiece.category != nil {
+                itemDetailsCategoryText.text = sprubixPiece.category
+            }
+            
             // brand
             var itemBrandImage = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
             itemBrandImage.setImage(UIImage(named: "view-item-brand"), forState: UIControlState.Normal)
@@ -542,7 +444,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
                 itemDetailsQuantity.delegate = self
                 
                 if sprubixPiece.quantity != nil {
-                    itemDetailsQuantity.text = sprubixPiece.quantity
+                    itemDetailsQuantity.text = "\(sprubixPiece.quantity)"
                 }
                 
                 // price
@@ -557,7 +459,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
                 itemDetailsPrice = UITextField(frame: CGRectMake(itemImageViewWidth, itemSpecHeight * 5, screenWidth - itemImageViewWidth, itemSpecHeight))
                 itemDetailsPrice.tintColor = sprubixColor
                 itemDetailsPrice.placeholder = "How much does it cost?"
-                itemDetailsPrice.keyboardType = UIKeyboardType.NumberPad
+                itemDetailsPrice.keyboardType = UIKeyboardType.DecimalPad
                 itemDetailsPrice.returnKeyType = UIReturnKeyType.Done
                 itemDetailsPrice.delegate = self
                 
@@ -586,21 +488,6 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
             
             itemDetailsCell.addSubview(pieceSpecsView)
             
-            // cameraCapture button
-            let cameraCaptureWidth: CGFloat = 100
-            cameraCapture = UIButton(frame: CGRectMake(screenWidth / 2 - cameraCaptureWidth / 2, 20, cameraCaptureWidth, cameraCaptureWidth))
-            cameraCapture.backgroundColor = sprubixColor
-            cameraCapture.alpha = 0.0
-            cameraCapture.addTarget(self, action: "captureFrame:", forControlEvents: UIControlEvents.TouchUpInside)
-            cameraCapture.exclusiveTouch = true
-            cameraCapture.layer.cornerRadius = cameraCaptureWidth / 2
-            cameraCapture.setTitle("Snap!", forState: UIControlState.Normal)
-            cameraCapture.setTitleColor(UIColor.whiteColor(), forState: UIControlState.Normal)
-            
-            itemDetailsCell.addSubview(cameraCapture)
-            
-            initPhotoLibrary()
-            
             return itemDetailsCell
             
         case 3:
@@ -609,6 +496,10 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
             }
             
             descriptionText.tintColor = sprubixColor
+            
+            if sprubixPiece.desc != nil {
+                descriptionText.text = "\(sprubixPiece.desc)"
+            }
             
             if descriptionText.text == "" {
                 descriptionText.text = placeholderText
@@ -637,80 +528,23 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
         selectedThumbnail = gesture.view as! SprubixItemThumbnail
         
         if selectedThumbnail.hasThumbnail != true {
-            cameraPreview!.alpha = 1.0
+            let sprubixCameraViewController = UIStoryboard.sprubixCameraViewController()
+            sprubixCameraViewController?.fromAddDetails = true
+            sprubixCameraViewController?.fromAddDetailsPieceType = sprubixPiece.type
             
-            // show the needed items
-            itemTableView.scrollRectToVisible(itemCoverImageView.frame, animated: true)
-            itemTableView.scrollEnabled = false
-            pieceSpecsView.alpha = 0.0
-            cameraCapture.alpha = 1.0
-            photoLibraryButton.alpha = 1.0
-            itemDescriptionCell.alpha = 0.0
-            addToClosetButton?.alpha = 0.0
+            let transition = CATransition()
+            transition.duration = 0.3
+            transition.type = kCATransitionMoveIn
+            transition.subtype = kCATransitionFromTop
+            transition.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
             
-            setNavBar("Add Image", leftButtonTitle: "cancel", leftButtonCallback: "addImageCancelTapped:", rightButtonTitle: "", rightButtonCallback: nil)
+            self.navigationController?.view.layer.addAnimation(transition, forKey: kCATransition)
             
-            if camera == nil {
-                // activate camera mode (square)
-                cameraPscope.show(authChange: { (finished, results) -> Void in
-                        //println("got results \(results)")
-                        self.initializeCamera()
-                        self.establishVideoPreviewArea()
-                    }, cancelled: { (results) -> Void in
-                        //println("thing was cancelled")
-                        
-                        self.addImageCancelTapped(UIButton())
-                })
-            }
+            self.navigationController?.pushViewController(sprubixCameraViewController!, animated: false)
+            
         } else {
             itemCoverImageView.image = selectedThumbnail.imageView?.image
         }
-    }
-    
-    //MARK: PhotoLibrary Delegates
-    func imagePickerController(picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [NSObject : AnyObject]) {
-        
-        var chosenImage = info[UIImagePickerControllerOriginalImage] as! UIImage
-        dismissViewControllerAnimated(true, completion: nil)
-        
-        // this is the part where image is captured successfully
-        self.cameraCapture.enabled = false
-        self.itemCoverImageView.alpha = 0.0
-        
-        UIView.animateWithDuration(0.225, animations: { () -> Void in
-            self.cameraPreview!.alpha = 0.0
-        })
-        
-        self.setPreviewStillImage(chosenImage, fromPhotoLibrary: true)
-    }
-    
-    func imagePickerControllerDidCancel(picker: UIImagePickerController) {
-        addImageCancelTapped(UIButton())
-        
-        dismissViewControllerAnimated(true, completion: nil)
-    }
-    
-    func initPhotoLibrary() {
-        let photoLibraryButtonWidth: CGFloat = 40
-        
-        photoLibraryButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
-        
-        photoLibraryButton.frame = CGRectMake(cameraCapture.frame.origin.x / 2 - photoLibraryButtonWidth / 2, cameraCapture.frame.origin.y + (cameraCapture.frame.height / 2 - photoLibraryButtonWidth / 2), photoLibraryButtonWidth, photoLibraryButtonWidth)
-        
-        var image: UIImage = UIImage(named: "camera-roll")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
-        
-        photoLibraryButton.setImage(image, forState: UIControlState.Normal)
-        photoLibraryButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
-        photoLibraryButton.imageView?.tintColor = UIColor.lightGrayColor()
-        photoLibraryButton.addTarget(self, action: "photoFromLibrary:", forControlEvents: UIControlEvents.TouchUpInside)
-        photoLibraryButton.layer.cornerRadius = 5
-        photoLibraryButton.alpha = 0.0
-        
-        itemDetailsCell.addSubview(photoLibraryButton)
-        
-        imagePicker.delegate = self
-        imagePicker.navigationBar.translucent = true
-        imagePicker.navigationBar.barTintColor = sprubixGray
     }
     
     func setNavBar(title: String, leftButtonTitle: String, leftButtonCallback: Selector, rightButtonTitle: String, rightButtonCallback: Selector) {
@@ -748,27 +582,20 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
         
         itemTableView.scrollEnabled = true
         pieceSpecsView.alpha = 1.0
-        cameraPreview!.alpha = 0.0
-        cameraCapture.alpha = 0.0
         itemDescriptionCell.alpha = 1.0
-        photoLibraryButton.alpha = 0.0
         addToClosetButton?.alpha = 1.0
-        
-        cameraCapture.enabled = true
         
         newNavBar.setItems([newNavItem], animated: true)
     }
     
     // UITextViewDelegate
-    func textViewShouldBeginEditing(textView: UITextView) -> Bool {
+    func textViewDidBeginEditing(textView: UITextView) {
         if textView.text == placeholderText {
             descriptionText.text = ""
             descriptionText.textColor = UIColor.blackColor()
         }
         
         setNavBar("Item Description", leftButtonTitle: "", leftButtonCallback: nil, rightButtonTitle: "done", rightButtonCallback: "itemDetailsDoneTapped:")
-        
-        return true
     }
     
     func textViewDidEndEditing(textView: UITextView) {
@@ -785,6 +612,8 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
         makeKeyboardVisible = false
         
         self.view.endEditing(true)
+        
+        newNavBar.setItems([newNavItem], animated: true)
     }
     
     /**
@@ -841,6 +670,8 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
         
         textField.resignFirstResponder()
         
+        newNavBar.setItems([newNavItem], animated: true)
+        
         return true
     }
     
@@ -860,6 +691,22 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
             navBarTitle = "Item Quantity"
         case itemDetailsPrice:
             navBarTitle = "Item Price"
+            
+            if itemDetailsPrice.text == "" {
+                var dollarLabel: UILabel = UILabel(frame: CGRectMake(0, -1, 10, itemDetailsPrice.frame.height))
+                dollarLabel.text = "$"
+                dollarLabel.textColor = UIColor.lightGrayColor()
+                dollarLabel.textAlignment = NSTextAlignment.Left
+                
+                var offsetView: UIView = UIView(frame: dollarLabel.bounds)
+                offsetView.addSubview(dollarLabel)
+                
+                itemDetailsPrice.leftView = offsetView
+                itemDetailsPrice.leftViewMode = UITextFieldViewMode.Always
+                
+                itemDetailsPrice.placeholder = ""
+            }
+            
         default:
             fatalError("Error: Unknown textField object, unable to assign navBarTitle")
         }
@@ -868,7 +715,10 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
     }
     
     func textFieldDidEndEditing(textField: UITextField) {
-        newNavBar.setItems([newNavItem], animated: true)
+        if textField == itemDetailsPrice && itemDetailsPrice.text == "" {
+            itemDetailsPrice.leftView = nil
+            itemDetailsPrice.placeholder = "How much does it cost?"
+        }
     }
     
     // MLPAutoCompleteTextFieldDataSource
@@ -901,11 +751,21 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
         makeKeyboardVisible = false
         
         self.view.endEditing(true)
+        
+        newNavBar.setItems([newNavItem], animated: true)
     }
     
     // button callbacks
+    func deleteImage(sender: UIButton) {
+        println(selectedThumbnail)
+        
+        selectedThumbnail.setImage(UIImage(named: "details-thumbnail-add"), forState: UIControlState.Normal)
+        selectedThumbnail.hasThumbnail = false
+        
+        itemCoverImageView.image = nil
+    }
+    
     func itemDetailsCategoryPressed(sender: UIButton) {
-
         let picker: ActionSheetStringPicker = ActionSheetStringPicker(title: "Choose a category", rows: itemCategories, initialSelection: 2,
             doneBlock: { actionSheetPicker, selectedIndex, selectedValue in
                 
@@ -948,7 +808,6 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
         // Yes
         alert.addAction(UIAlertAction(title: "Yes, I'm sure", style: UIAlertActionStyle.Default, handler: { action in
             
-            self.camera?.stopCamera()
             self.navigationController?.popViewControllerAnimated(true)
         }))
         
@@ -959,132 +818,210 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
     }
     
     func addToClosetPressed(sender: UIButton) {
-        // init sprubix piece
-        sprubixPiece.images.removeAll()
-        
-        for thumbnail in thumbnails {
-            if thumbnail.hasThumbnail {
-                sprubixPiece.images.append(thumbnail.imageView!.image!)
-            }
-        }
-        
-        // item details
-        sprubixPiece.name = (itemDetailsName != nil) ? itemDetailsName.text : ""
-        sprubixPiece.category = (itemDetailsCategoryText != nil) ? itemDetailsCategoryText.text : ""
-        sprubixPiece.brand = (itemDetailsBrand != nil) ? itemDetailsBrand.text : ""
-        sprubixPiece.size = (itemDetailsSize != nil) ? itemDetailsSize.text : ""
-        sprubixPiece.quantity = itemDetailsQuantity != nil ? itemDetailsQuantity.text : ""
-        sprubixPiece.price = itemDetailsPrice != nil ? itemDetailsPrice.text : ""
-        sprubixPiece.desc = (descriptionText != nil && descriptionText.text != placeholderText) ? descriptionText.text : ""
-        sprubixPiece.isDress = itemIsDress
-        
-        let userData: NSDictionary! = defaults.dictionaryForKey("userData")
-
-        var sprubixDict: NSMutableDictionary = [
-            "num_pieces": 1,
-            "created_by": userData["username"] as! String,
-            "from": userData["username"] as! String,
-            "user_id": userData["id"] as! Int,
-        ]
-        
-        var pieces: NSMutableDictionary = NSMutableDictionary()
-        var pieceDict: NSDictionary = [
-            "num_images": sprubixPiece.images.count,
-            "name": sprubixPiece.name != nil ? sprubixPiece.name : "",
-            "category": sprubixPiece.category != nil ? sprubixPiece.category : "",
-            "type": sprubixPiece.type, // type will never be nil
-            "is_dress": sprubixPiece.isDress,
-            "brand": sprubixPiece.brand != nil ? sprubixPiece.brand : "",
-            "size": sprubixPiece.size != nil ? sprubixPiece.size : "",
-            "quantity": sprubixPiece.quantity != nil ? sprubixPiece.quantity : "",
-            "price": sprubixPiece.price != nil ? sprubixPiece.price : "",
-            "description": sprubixPiece.desc != nil ? sprubixPiece.desc : "",
-            "height": sprubixPiece.images[0].scale * sprubixPiece.images[0].size.height,
-            "width": sprubixPiece.images[0].scale * sprubixPiece.images[0].size.width
-        ]
-        
-        pieces.setObject(pieceDict, forKey: sprubixPiece.type.lowercaseString)
-
-        sprubixDict.setObject(pieces, forKey: "pieces")
-        
-        println(sprubixDict)
-        
-        /*
-        // upload piece data
-        var requestOperation: AFHTTPRequestOperation = manager.POST(SprubixConfig.URL.api + "/upload/piece/create", parameters: sprubixDict, constructingBodyWithBlock: { formData in
-            let data: AFMultipartFormData = formData
-        
-            for var j = 0; j < self.sprubixPiece.images.count; j++ {
-                var pieceImage: UIImage = self.sprubixPiece.images[j]
-                var pieceImageData: NSData = UIImageJPEGRepresentation(pieceImage, 0.5)
-                
-                var pieceImageName = "piece_\(self.sprubixPiece.type.lowercaseString)_\(j)"
-                var pieceImageFileName = pieceImageName + ".jpg"
-                
-                data.appendPartWithFileData(pieceImageData, name: pieceImageName, fileName: pieceImageFileName, mimeType: "image/jpeg")
+        if validatePieceInfo() {
+            // init sprubix piece
+            sprubixPiece.images.removeAll()
+            
+            for thumbnail in thumbnails {
+                if thumbnail.hasThumbnail {
+                    sprubixPiece.images.append(thumbnail.imageView!.image!)
+                }
             }
             
-            }, success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
-                // success block
-                println("Upload Success")
-                
-                self.delay(0.6) {
-                    // go back to main feed
-                    self.navigationController!.delegate = nil
+            // item details
+            sprubixPiece.name = (itemDetailsName != nil) ? itemDetailsName.text : ""
+            sprubixPiece.category = (itemDetailsCategoryText != nil) ? itemDetailsCategoryText.text : ""
+            sprubixPiece.brand = (itemDetailsBrand != nil) ? itemDetailsBrand.text : ""
+            sprubixPiece.size = (itemDetailsSize != nil) ? itemDetailsSize.text : ""
+            sprubixPiece.quantity = itemDetailsQuantity != nil ? itemDetailsQuantity.text.toInt() : 0
+            sprubixPiece.price = itemDetailsPrice != nil ? itemDetailsPrice.text : ""
+            sprubixPiece.desc = (descriptionText != nil && descriptionText.text != placeholderText) ? descriptionText.text : ""
+            sprubixPiece.isDress = itemIsDress
+            
+            let userData: NSDictionary! = defaults.dictionaryForKey("userData")
+
+            var sprubixDict: NSMutableDictionary = [
+                "num_pieces": 1,
+                "created_by": userData["username"] as! String,
+                "from": userData["username"] as! String,
+                "user_id": userData["id"] as! Int,
+            ]
+            
+            var pieces: NSMutableDictionary = NSMutableDictionary()
+            var pieceDict: NSMutableDictionary = NSMutableDictionary()
+            pieceDict.setObject(sprubixPiece.images.count, forKey: "num_images")
+            pieceDict.setObject(sprubixPiece.name != nil ? sprubixPiece.name : "", forKey: "name")
+            pieceDict.setObject(sprubixPiece.category != nil ? sprubixPiece.category : "", forKey: "category")
+            pieceDict.setObject(sprubixPiece.type, forKey: "type")
+            pieceDict.setObject(sprubixPiece.isDress, forKey: "is_dress")
+            pieceDict.setObject(sprubixPiece.brand != nil ? sprubixPiece.brand : "", forKey: "brand")
+            pieceDict.setObject(sprubixPiece.price != nil ? sprubixPiece.price : "", forKey: "price")
+            pieceDict.setObject(sprubixPiece.desc != nil ? sprubixPiece.desc : "", forKey: "description")
+            pieceDict.setObject(sprubixPiece.images[0].scale * sprubixPiece.images[0].size.height, forKey: "height")
+            pieceDict.setObject(sprubixPiece.images[0].scale * sprubixPiece.images[0].size.width, forKey: "width")
+            pieceDict.setObject(sprubixPiece.size != nil ? sprubixPiece.size : "", forKey: "size")
+            pieceDict.setObject(sprubixPiece.quantity != nil ? sprubixPiece.quantity : "", forKey: "quantity")
+            
+            pieces.setObject(pieceDict, forKey: sprubixPiece.type.lowercaseString)
+
+            sprubixDict.setObject(pieces, forKey: "pieces")
+            
+            // upload piece data
+            var requestOperation: AFHTTPRequestOperation = manager.POST(SprubixConfig.URL.api + "/upload/piece/create", parameters: sprubixDict, constructingBodyWithBlock: { formData in
+                let data: AFMultipartFormData = formData
+            
+                for var j = 0; j < self.sprubixPiece.images.count; j++ {
+                    var pieceImage: UIImage = self.sprubixPiece.images[j]
+                    var pieceImageData: NSData = UIImageJPEGRepresentation(pieceImage, 0.5)
                     
-                    let transition = CATransition()
-                    transition.duration = 0.3
-                    transition.type = kCATransitionReveal
-                    transition.subtype = kCATransitionFromBottom
-                    transition.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
+                    var pieceImageName = "piece_\(self.sprubixPiece.type.lowercaseString)_\(j)"
+                    var pieceImageFileName = pieceImageName + ".jpg"
                     
-                    self.navigationController!.view.layer.addAnimation(transition, forKey: kCATransition)
-                    self.navigationController?.popToViewController(self.navigationController?.viewControllers.first! as! UIViewController, animated: false)
+                    data.appendPartWithFileData(pieceImageData, name: pieceImageName, fileName: pieceImageFileName, mimeType: "image/jpeg")
                 }
                 
-            }, failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
-                // failure block
-                println("Upload Fail")
-        })
+                }, success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                    // success block
+                    println("Upload Success")
+                    
+                    self.delay(0.6) {
+                        // go back to main feed
+                        self.navigationController!.delegate = nil
+                        
+                        let transition = CATransition()
+                        transition.duration = 0.3
+                        transition.type = kCATransitionReveal
+                        transition.subtype = kCATransitionFromBottom
+                        transition.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
+                        
+                        self.navigationController!.view.layer.addAnimation(transition, forKey: kCATransition)
+                        self.navigationController?.popToViewController(self.navigationController?.viewControllers.first! as! UIViewController, animated: false)
+                    }
+                    
+                }, failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                    // failure block
+                    println("Upload Fail")
+            })
 
-        // upload progress
-        requestOperation.setUploadProgressBlock { (bytesWritten: UInt, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) -> Void in
-            var percentDone: Double = Double(totalBytesWritten) / Double(totalBytesExpectedToWrite)
+            // upload progress
+            requestOperation.setUploadProgressBlock { (bytesWritten: UInt, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) -> Void in
+                var percentDone: Double = Double(totalBytesWritten) / Double(totalBytesExpectedToWrite)
+                
+                println("percentage done: \(percentDone)")
+            }
             
-            println("percentage done: \(percentDone)")
+            // overlay indicator
+            var overlayView: MRProgressOverlayView = MRProgressOverlayView.showOverlayAddedTo(self.view, animated: true)
+            overlayView.setModeAndProgressWithStateOfOperation(requestOperation)
+            
+            overlayView.tintColor = sprubixColor
         }
-        
-        // overlay indicator
-        var overlayView: MRProgressOverlayView = MRProgressOverlayView.showOverlayAddedTo(self.view, animated: true)
-        overlayView.setModeAndProgressWithStateOfOperation(requestOperation)
-        
-        overlayView.tintColor = sprubixColor
-        */
     }
 
     func doneTapped(sender: UIBarButtonItem) {
-        sprubixPiece.images.removeAll()
-        
-        for thumbnail in thumbnails {
-            if thumbnail.hasThumbnail {
-                sprubixPiece.images.append(thumbnail.imageView!.image!)
+        if validatePieceInfo() {
+            sprubixPiece.images.removeAll()
+            
+            for thumbnail in thumbnails {
+                if thumbnail.hasThumbnail {
+                    sprubixPiece.images.append(thumbnail.imageView!.image!)
+                }
+            }
+            
+            // item details
+            sprubixPiece.name = (itemDetailsName != nil) ? itemDetailsName.text : ""
+            sprubixPiece.category = (itemDetailsCategoryText != nil) ? itemDetailsCategoryText.text : ""
+            sprubixPiece.brand = (itemDetailsBrand != nil) ? itemDetailsBrand.text : ""
+            sprubixPiece.size = (itemDetailsSize != nil) ? itemDetailsSize.text : ""
+            sprubixPiece.quantity = itemDetailsQuantity != nil ? itemDetailsQuantity.text.toInt() : 0
+            sprubixPiece.price = itemDetailsPrice != nil ? itemDetailsPrice.text : ""
+            sprubixPiece.desc = (descriptionText != nil && descriptionText.text != placeholderText) ? descriptionText.text : ""
+            sprubixPiece.isDress = itemIsDress
+            
+            if fromInventoryView == false {
+                delegate?.setSprubixPiece(sprubixPiece, position: pos)
+                
+                self.navigationController?.popViewControllerAnimated(true)
+            } else {
+                // update new information to server
+                let userData: NSDictionary! = defaults.dictionaryForKey("userData")
+                
+                var sprubixDict: NSMutableDictionary = [
+                    "num_pieces": 1,
+                    "created_by": userData["username"] as! String,
+                    "from": userData["username"] as! String,
+                    "user_id": userData["id"] as! Int,
+                ]
+                
+                var pieces: NSMutableDictionary = NSMutableDictionary()
+
+                var pieceDict: NSMutableDictionary = NSMutableDictionary()
+                pieceDict.setObject(sprubixPiece.images.count, forKey: "num_images")
+                pieceDict.setObject(sprubixPiece.id, forKey: "id")
+                pieceDict.setObject(sprubixPiece.name != nil ? sprubixPiece.name : "", forKey: "name")
+                pieceDict.setObject(sprubixPiece.category != nil ? sprubixPiece.category : "", forKey: "category")
+                pieceDict.setObject(sprubixPiece.type, forKey: "type")
+                pieceDict.setObject(sprubixPiece.isDress, forKey: "is_dress")
+                pieceDict.setObject(sprubixPiece.brand != nil ? sprubixPiece.brand : "", forKey: "brand")
+                pieceDict.setObject(sprubixPiece.price != nil ? sprubixPiece.price : "", forKey: "price")
+                pieceDict.setObject(sprubixPiece.desc != nil ? sprubixPiece.desc : "", forKey: "description")
+                pieceDict.setObject(sprubixPiece.images[0].scale * sprubixPiece.images[0].size.height, forKey: "height")
+                pieceDict.setObject(sprubixPiece.images[0].scale * sprubixPiece.images[0].size.width, forKey: "width")
+                pieceDict.setObject(sprubixPiece.size != nil ? sprubixPiece.size : "", forKey: "size")
+                pieceDict.setObject(sprubixPiece.quantity != nil ? sprubixPiece.quantity : "", forKey: "quantity")
+                
+                pieces.setObject(pieceDict, forKey: sprubixPiece.type.lowercaseString)
+                
+                sprubixDict.setObject(pieces, forKey: "pieces")
+                
+                // upload piece data
+                var requestOperation: AFHTTPRequestOperation = manager.POST(SprubixConfig.URL.api + "/upload/piece/update", parameters: sprubixDict, constructingBodyWithBlock: { formData in
+                    let data: AFMultipartFormData = formData
+                    
+                    for var j = 0; j < self.sprubixPiece.images.count; j++ {
+                        var pieceImage: UIImage = self.sprubixPiece.images[j]
+                        var pieceImageData: NSData = UIImageJPEGRepresentation(pieceImage, 0.5)
+                        
+                        var pieceImageName = "piece_\(self.sprubixPiece.type.lowercaseString)_\(j)"
+                        var pieceImageFileName = pieceImageName + ".jpg"
+                        
+                        data.appendPartWithFileData(pieceImageData, name: pieceImageName, fileName: pieceImageFileName, mimeType: "image/jpeg")
+                    }
+                    
+                    }, success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                        // success block
+                        println("Upload Success")
+                        
+                        self.delay(0.6) {
+                            self.navigationController?.popViewControllerAnimated(true)
+                        }
+                        
+                    }, failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                        // failure block
+                        println("Upload Fail")
+                })
+                
+                // upload progress
+                requestOperation.setUploadProgressBlock { (bytesWritten: UInt, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) -> Void in
+                    var percentDone: Double = Double(totalBytesWritten) / Double(totalBytesExpectedToWrite)
+                    
+                    println("percentage done: \(percentDone)")
+                }
+                
+                // overlay indicator
+                var overlayView: MRProgressOverlayView = MRProgressOverlayView.showOverlayAddedTo(self.view, animated: true)
+                overlayView.setModeAndProgressWithStateOfOperation(requestOperation)
+                
+                overlayView.tintColor = sprubixColor
             }
         }
+    }
+    
+    func validatePieceInfo() -> Bool {
+        // check if category, price and quantity (if shop) is present
+        // there must be at least one image
         
-        // item details
-        sprubixPiece.name = (itemDetailsName != nil) ? itemDetailsName.text : ""
-        sprubixPiece.category = (itemDetailsCategoryText != nil) ? itemDetailsCategoryText.text : ""
-        sprubixPiece.brand = (itemDetailsBrand != nil) ? itemDetailsBrand.text : ""
-        sprubixPiece.size = (itemDetailsSize != nil) ? itemDetailsSize.text : ""
-        sprubixPiece.quantity = itemDetailsQuantity != nil ? itemDetailsQuantity.text : ""
-        sprubixPiece.price = itemDetailsPrice != nil ? itemDetailsPrice.text : ""
-        sprubixPiece.desc = (descriptionText != nil && descriptionText.text != placeholderText) ? descriptionText.text : ""
-        sprubixPiece.isDress = itemIsDress
-        
-        delegate?.setSprubixPiece(sprubixPiece, position: pos)
-        
-        self.camera?.stopCamera()
-        self.navigationController?.popViewControllerAnimated(true)
+        return true
     }
     
     func resizeImage(image: UIImage, width: CGFloat) -> UIImage {
@@ -1102,18 +1039,6 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
         UIGraphicsEndImageContext()
         
         return finalImage
-    }
-    
-    func photoFromLibrary(sender: UIButton) {
-        photoPscope.show(authChange: { (finished, results) -> Void in
-            //println("got results \(results)")
-            self.imagePicker.allowsEditing = false
-            self.imagePicker.sourceType = UIImagePickerControllerSourceType.PhotoLibrary
-            
-            self.presentViewController(self.imagePicker, animated: true, completion: nil)
-            }, cancelled: { (results) -> Void in
-                //println("thing was cancelled")
-        })
     }
     
     func delay(delay:Double, closure:()->()) {

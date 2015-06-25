@@ -222,12 +222,12 @@ class SprubixCreditButton: UIButton {
         
         // labels 'posted by'/'from' and user name below
         var buttonLabelTopHeight:CGFloat = 20
-        var buttonLabelTop:UILabel = UILabel(frame: CGRect(x: creditImageViewWidth + 28, y: buttonLabelTopHeight, width: self.frame.width - creditImageViewWidth + 20, height: 21))
+        var buttonLabelTop:UILabel = UILabel(frame: CGRect(x: creditImageView.frame.origin.x + 43, y: buttonLabelTopHeight, width: self.frame.width - creditImageViewWidth + 20, height: 21))
         buttonLabelTop.font = UIFont(name: buttonLabelTop.font.fontName, size: 13)
         buttonLabelTop.textColor = UIColor.lightGrayColor()
         buttonLabelTop.text = buttonLabel
         
-        var buttonLabelBottom:UILabel = UILabel(frame: CGRect(x: creditImageViewWidth + 28, y: buttonLabelTopHeight + 18, width: self.frame.width - creditImageViewWidth + 20, height: 21))
+        var buttonLabelBottom:UILabel = UILabel(frame: CGRect(x: creditImageView.frame.origin.x + 43, y: buttonLabelTopHeight + 18, width: self.frame.width - creditImageViewWidth + 20, height: 21))
         buttonLabelBottom.font = UIFont(name: buttonLabelTop.font.fontName, size: 13)
         buttonLabelBottom.text = username
         

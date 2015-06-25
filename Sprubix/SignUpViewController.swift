@@ -24,10 +24,13 @@ class SignUpViewController: UIViewController, UITableViewDataSource, UITableView
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         
+        view.backgroundColor = sprubixGray
+        
         signUpTable = UITableView(frame: CGRect(x: 0, y: navigationHeight, width: screenWidth, height: screenHeight - navigationHeight), style: UITableViewStyle.Grouped)
         
         signUpTable.separatorStyle = UITableViewCellSeparatorStyle.SingleLine
         signUpTable.scrollEnabled = false
+        signUpTable.backgroundColor = sprubixGray
         signUpTable.dataSource = self
         signUpTable.delegate = self
         

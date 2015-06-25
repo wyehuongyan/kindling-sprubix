@@ -7,9 +7,10 @@
 //
 
 import UIKit
+import DZNEmptyDataSet
 import AFNetworking
 
-class InventoryViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
+class InventoryViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, DZNEmptyDataSetSource, DZNEmptyDataSetDelegate {
     
     // tool bar
     @IBOutlet var toolBarView: UIView!
@@ -27,6 +28,9 @@ class InventoryViewController: UIViewController, UITableViewDataSource, UITableV
     var newNavBar: UINavigationBar!
     var newNavItem: UINavigationItem!
     
+    var selectedIndexPath: NSIndexPath!
+    var selectedPiece: NSDictionary!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -36,6 +40,10 @@ class InventoryViewController: UIViewController, UITableViewDataSource, UITableV
         inventoryTableView.backgroundColor = sprubixGray
         inventoryTableView.tableFooterView = UIView(frame: CGRectZero)
         
+        // empty dataset
+        inventoryTableView.emptyDataSetSource = self
+        inventoryTableView.emptyDataSetDelegate = self
+        
         initToolBar()
         retrieveInventoryPieces()
     }
@@ -44,6 +52,7 @@ class InventoryViewController: UIViewController, UITableViewDataSource, UITableV
         super.viewWillAppear(animated)
         
         initNavBar()
+        refreshEditedPiece()
     }
     
     func initNavBar() {
@@ -127,6 +136,29 @@ class InventoryViewController: UIViewController, UITableViewDataSource, UITableV
         button1.tintColor = sprubixColor
     }
     
+    func refreshEditedPiece() {
+        if selectedPiece != nil {
+            manager.POST(SprubixConfig.URL.api + "/pieces",
+                parameters: [
+                    "id": selectedPiece["id"] as! Int
+                ],
+                success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                    
+                    var updatedPiece = (responseObject["data"] as! [NSDictionary]).first
+                    
+                    if updatedPiece != nil {
+                        self.pieces.insert(updatedPiece!, atIndex: self.selectedIndexPath.row)
+                        self.pieces.removeAtIndex(self.selectedIndexPath.row + 1)
+                        
+                        self.inventoryTableView.reloadRowsAtIndexPaths([self.selectedIndexPath], withRowAnimation: UITableViewRowAnimation.None)
+                    }
+                },
+                failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                    println("Error: " + error.localizedDescription)
+            })
+        }
+    }
+    
     func retrieveInventoryPieces() {
         let userId:Int? = defaults.objectForKey("userId") as? Int
         
@@ -150,6 +182,58 @@ class InventoryViewController: UIViewController, UITableViewDataSource, UITableV
         }
     }
     
+    // DZNEmptyDataSetSource
+    func titleForEmptyDataSet(scrollView: UIScrollView!) -> NSAttributedString! {
+        let text: String = "Title For Empty Data Set"
+        
+        let attributes: NSDictionary = [
+            NSFontAttributeName: UIFont.boldSystemFontOfSize(18.0),
+            NSForegroundColorAttributeName: UIColor.darkGrayColor()
+        ]
+        
+        let attributedString: NSAttributedString = NSAttributedString(string: text, attributes: attributes as [NSObject : AnyObject])
+        
+        return attributedString
+    }
+    
+    func descriptionForEmptyDataSet(scrollView: UIScrollView!) -> NSAttributedString! {
+        let text: String = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+        
+        var paragraph: NSMutableParagraphStyle = NSMutableParagraphStyle.new()
+        paragraph.lineBreakMode = NSLineBreakMode.ByWordWrapping
+        paragraph.alignment = NSTextAlignment.Center
+        
+        let attributes: NSDictionary = [
+            NSFontAttributeName: UIFont.boldSystemFontOfSize(14.0),
+            NSForegroundColorAttributeName: UIColor.lightGrayColor(),
+            NSParagraphStyleAttributeName: paragraph
+        ]
+        
+        let attributedString: NSAttributedString = NSAttributedString(string: text, attributes: attributes as [NSObject : AnyObject])
+        
+        return attributedString
+    }
+    
+    func buttonTitleForEmptyDataSet(scrollView: UIScrollView!, forState state: UIControlState) -> NSAttributedString! {
+        let text: String = "Button Title"
+        
+        let attributes: NSDictionary = [
+            NSFontAttributeName: UIFont.boldSystemFontOfSize(17.0)
+        ]
+        
+        let attributedString: NSAttributedString = NSAttributedString(string: text, attributes: attributes as [NSObject : AnyObject])
+        
+        return attributedString
+    }
+    
+    func imageForEmptyDataSet(scrollView: UIScrollView!) -> UIImage! {
+        return UIImage(named: "main-like-filled-large")
+    }
+    
+    func backgroundColorForEmptyDataSet(scrollView: UIScrollView!) -> UIColor! {
+        return sprubixGray
+    }
+    
     // MARK: UITableViewDataSource
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return pieces.count
@@ -159,11 +243,12 @@ class InventoryViewController: UIViewController, UITableViewDataSource, UITableV
         let cell = tableView.dequeueReusableCellWithIdentifier(inventoryCellIdentifier, forIndexPath: indexPath) as! InventoryCell
         
         let piece = pieces[indexPath.row] as NSDictionary
-        let pieceName = piece["name"] as! String
+        var piecePrice = piece["price"] as! String
+        var pieceQuantity = piece["quantity"] as! Int
         
-        cell.inventoryName.text = pieceName
-        cell.inventoryPrice.text = "$12.00"
-        cell.inventoryQuantity.text = "3 left in stock"
+        cell.inventoryName.text = piece["name"] as? String
+        cell.inventoryPrice.text = "$\(piecePrice)"
+        cell.inventoryQuantity.text = "\(pieceQuantity) left in stock"
         
         let pieceImagesString = piece["images"] as! NSString
         let pieceImagesData:NSData = pieceImagesString.dataUsingEncoding(NSUTF8StringEncoding)!
@@ -183,7 +268,55 @@ class InventoryViewController: UIViewController, UITableViewDataSource, UITableV
     }
     
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        //
+        
+        let snapshotDetailsController = SnapshotDetailsController()
+        
+        let piece = pieces[indexPath.row] as NSDictionary
+        let sprubixPiece = SprubixPiece()
+        selectedPiece = piece
+        selectedIndexPath = indexPath
+        
+        // get images
+        var pieceImagesString = piece["images"] as! String
+        var pieceImagesData:NSData = pieceImagesString.dataUsingEncoding(NSUTF8StringEncoding)!
+        
+        var pieceImagesDict: NSDictionary = NSJSONSerialization.JSONObjectWithData(pieceImagesData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSDictionary
+        
+        var pieceImageURL = NSURL(string: pieceImagesDict["cover"] as! String)
+        
+        snapshotDetailsController.itemCoverImageView.setImageWithURL(pieceImageURL)
+        
+        let pieceImagesArray = pieceImagesDict["images"] as! NSArray
+        
+        for var i = 0; i < pieceImagesArray.count ; i++ {
+            var imageDict = pieceImagesArray[i] as! NSDictionary
+            let imageURL = NSURL(string: imageDict["original"] as! String)
+            
+            sprubixPiece.imageURLs.append(imageURL!)
+        }
+        
+        // init sprubix piece
+        let pieceId = piece["id"] as? Int
+        sprubixPiece.id = pieceId // important, this is an existing piece
+        sprubixPiece.name = piece["name"] as? String
+        
+        let pieceCategory = piece["category"] as? NSDictionary
+        sprubixPiece.category = pieceCategory?["name"] as? String
+        
+        let pieceBrand = piece["brand"] as? NSDictionary
+        sprubixPiece.brand = pieceBrand?["name"] as? String
+    
+        sprubixPiece.size = piece["size"] as? String
+        sprubixPiece.quantity = piece["quantity"] as? Int
+        sprubixPiece.price = piece["price"] as? String
+        sprubixPiece.desc = piece["description"] as? String
+        sprubixPiece.isDress = piece["is_dress"] as? Bool
+        sprubixPiece.type = piece["type"] as? String
+        
+        snapshotDetailsController.sprubixPiece = sprubixPiece
+        snapshotDetailsController.fromInventoryView = true
+        
+        self.navigationController?.pushViewController(snapshotDetailsController, animated: true)
     }
     
     // tool bar button callbacks

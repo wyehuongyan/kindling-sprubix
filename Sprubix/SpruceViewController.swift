@@ -459,7 +459,6 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, UITextViewDe
             var height: CGFloat = currentVisibleCell.piece["height"] as! CGFloat / totalHeight * outfitHeight
             
             if currentVisibleCell.piece["type"] as! String == "BOTTOM" && hadHasDress == true {
-                
                 height = 0
             }
             

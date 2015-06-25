@@ -27,6 +27,7 @@ class SidePanelOption {
         case Settings
         case Inventory
         case Orders
+        case DeliveryOptions
         
         func toString()->String {
             switch self {
@@ -44,6 +45,8 @@ class SidePanelOption {
                 return "Inventory"
             case .Orders:
                 return "Orders"
+            case .DeliveryOptions:
+                return "Delivery Options"
             }
         }
     }
@@ -85,8 +88,8 @@ class SidePanelOption {
             //SidePanelOption(option: Option.Messages, image: UIImage(named: "sidemenu-messages")),
             SidePanelOption(option: Option.Notifications, image: UIImage(named: "sidemenu-notifications")),
             SidePanelOption(option: Option.CreateOutfit, image: UIImage(named: "sidemenu-create")),
-            SidePanelOption(option: Option.Orders, image: UIImage(named: "icon-placeholder")),
             SidePanelOption(option: Option.Favorites, image: UIImage(named: "sidemenu-likes")),
+            SidePanelOption(option: Option.Orders, image: UIImage(named: "sidemenu-orders")),
             SidePanelOption(option: Option.Settings, image: UIImage(named: "sidemenu-settings"))
         ]
     }
@@ -96,9 +99,10 @@ class SidePanelOption {
             //SidePanelOption(option: Option.Messages, image: UIImage(named: "sidemenu-messages")),
             SidePanelOption(option: Option.Notifications, image: UIImage(named: "sidemenu-notifications")),
             SidePanelOption(option: Option.CreateOutfit, image: UIImage(named: "sidemenu-create")),
-            SidePanelOption(option: Option.Inventory, image: UIImage(named: "icon-placeholder")),
-            SidePanelOption(option: Option.Orders, image: UIImage(named: "icon-placeholder")),
             SidePanelOption(option: Option.Favorites, image: UIImage(named: "sidemenu-likes")),
+            SidePanelOption(option: Option.Inventory, image: UIImage(named: "sidemenu-inventory")),
+            SidePanelOption(option: Option.Orders, image: UIImage(named: "sidemenu-orders")),
+            SidePanelOption(option: Option.DeliveryOptions, image: UIImage(named: "sidemenu-fulfilment")),
             SidePanelOption(option: Option.Settings, image: UIImage(named: "sidemenu-settings"))
         ]
     }

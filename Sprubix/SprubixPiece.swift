@@ -9,8 +9,10 @@
 import UIKit
 
 class SprubixPiece: NSObject {
+    var imageURLs: [NSURL] = [NSURL]()
     var images: [UIImage] = [UIImage]()
     
+    var id: Int!
     var name: String!
     var category: String!
     var type: String!
@@ -20,6 +22,6 @@ class SprubixPiece: NSObject {
     var desc: String!
     
     // if shop
-    var quantity: String!
+    var quantity: Int!
     var price: String!
 }

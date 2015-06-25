@@ -274,6 +274,10 @@ class SprucePieceFeedController: UICollectionViewController, UICollectionViewDel
             }, completion: { finished in
                 
                 if finished {
+                    // update current visible cell
+                    self.setCurrentVisibleCell()
+                    
+                    // resize
                     self.delegate?.resizeOutfit()
                 }
         })

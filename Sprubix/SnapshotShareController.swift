@@ -406,7 +406,7 @@ class SnapshotShareController: UIViewController, UITableViewDelegate, UITableVie
         // pos is not enough, please pass from the beginning, the piece type array
         if pos != nil {
             
-            var snapshotDetailsController = SnapshotDetailsController()
+            let snapshotDetailsController = SnapshotDetailsController()
             
             snapshotDetailsController.itemCoverImageView.image = (gesture.view as! UIImageView).image!
             snapshotDetailsController.delegate = self
@@ -585,22 +585,21 @@ class SnapshotShareController: UIViewController, UITableViewDelegate, UITableVie
         
         var pieces: NSMutableDictionary = NSMutableDictionary()
         for sprubixPiece in sprubixPieces {
-            var tempPiece: NSDictionary = [
-                "num_images": sprubixPiece.images.count,
-                "name": sprubixPiece.name != nil ? sprubixPiece.name : "",
-                "category": sprubixPiece.category != nil ? sprubixPiece.category : "",
-                "type": sprubixPiece.type, // type will never be nil
-                "is_dress": sprubixPiece.isDress != nil ? sprubixPiece.isDress : false,
-                "brand": sprubixPiece.brand != nil ? sprubixPiece.brand : "",
-                "size": sprubixPiece.size != nil ? sprubixPiece.size : "",
-                "quantity": sprubixPiece.quantity != nil ? sprubixPiece.quantity : "",
-                "price": sprubixPiece.price != nil ? sprubixPiece.price : "",
-                "description": sprubixPiece.desc != nil ? sprubixPiece.desc : "",
-                "height": sprubixPiece.images[0].scale * sprubixPiece.images[0].size.height,
-                "width": sprubixPiece.images[0].scale * sprubixPiece.images[0].size.width
-            ]
+            var pieceDict: NSMutableDictionary = NSMutableDictionary()
+            pieceDict.setObject(sprubixPiece.images.count, forKey: "num_images")
+            pieceDict.setObject(sprubixPiece.name != nil ? sprubixPiece.name : "", forKey: "name")
+            pieceDict.setObject(sprubixPiece.category != nil ? sprubixPiece.category : "", forKey: "category")
+            pieceDict.setObject(sprubixPiece.type, forKey: "type")
+            pieceDict.setObject(sprubixPiece.isDress, forKey: "is_dress")
+            pieceDict.setObject(sprubixPiece.brand != nil ? sprubixPiece.brand : "", forKey: "brand")
+            pieceDict.setObject(sprubixPiece.price != nil ? sprubixPiece.price : "", forKey: "price")
+            pieceDict.setObject(sprubixPiece.desc != nil ? sprubixPiece.desc : "", forKey: "description")
+            pieceDict.setObject(sprubixPiece.images[0].scale * sprubixPiece.images[0].size.height, forKey: "height")
+            pieceDict.setObject(sprubixPiece.images[0].scale * sprubixPiece.images[0].size.width, forKey: "width")
+            pieceDict.setObject(sprubixPiece.size != nil ? sprubixPiece.size : "", forKey: "size")
+            pieceDict.setObject(sprubixPiece.quantity != nil ? sprubixPiece.quantity : 0, forKey: "quantity")
             
-            pieces.setObject(tempPiece, forKey: sprubixPiece.type.lowercaseString)
+            pieces.setObject(pieceDict, forKey: sprubixPiece.type.lowercaseString)
         }
         
         sprubixOutfitDict.setObject(pieces, forKey: "pieces")

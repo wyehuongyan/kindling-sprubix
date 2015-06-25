@@ -179,8 +179,21 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         let creditsViewHeight:CGFloat = 80
         var creditsView:UIView = UIView(frame: CGRect(x: 0, y: screenWidth, width: screenWidth, height: creditsViewHeight))
         
-        var postedByButton:SprubixCreditButton = SprubixCreditButton(frame: CGRect(x: 0, y: 0, width: screenWidth/2, height: creditsViewHeight), buttonLabel: "posted by", username: user["username"] as! String, userThumbnail: user["image"] as! String)
+        var postedByButton:SprubixCreditButton = SprubixCreditButton(frame: CGRect(x: 0, y: 0, width: screenWidth/2, height: creditsViewHeight), buttonLabel: "owned by", username: user["username"] as! String, userThumbnail: user["image"] as! String)
         
+        // UILines on top and buttom of button
+        var buttonLineBottom = UIView(frame: CGRect(x: 0, y: creditsView.frame.height - 10.0, width: screenWidth, height: 10))
+        buttonLineBottom.backgroundColor = UIColor(red: 244/255, green: 244/255, blue: 244/255, alpha: 1)
+        
+        var buttonLineTop = UIView(frame: CGRect(x: 0, y: 0, width: screenWidth, height: 10))
+        buttonLineTop.backgroundColor = UIColor(red: 244/255, green: 244/255, blue: 244/255, alpha: 1)
+        
+        creditsView.backgroundColor = UIColor.whiteColor()
+        
+        creditsView.addSubview(buttonLineTop)
+        creditsView.addSubview(buttonLineBottom)
+        
+        /*
         // if no inspired by, it is original
         // inspired by = parent, always credit parent
         var fromButton:SprubixCreditButton!
@@ -189,10 +202,10 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
             fromButton = SprubixCreditButton(frame: CGRect(x: screenWidth/2, y: 0, width: screenWidth/2, height: creditsViewHeight), buttonLabel: "inspired by", username: user["username"] as! String, userThumbnail: user["image"] as! String)
         } else {
             fromButton = SprubixCreditButton(frame: CGRect(x: screenWidth/2, y: 0, width: screenWidth/2, height: creditsViewHeight), buttonLabel: "inspired by", username: inspiredBy["username"] as! String, userThumbnail: inspiredBy["image"] as! String)
-        }
+        }*/
         
         creditsView.addSubview(postedByButton)
-        creditsView.addSubview(fromButton)
+        //creditsView.addSubview(fromButton)
         
         pieceDetailInfoView.addSubview(creditsView)
         
@@ -304,7 +317,11 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         itemDescription.frame = CGRect(x: 0, y: screenWidth + creditsViewHeight + itemSpecHeightTotal, width: screenWidth, height: itemDescriptionHeight)
         itemDescription.drawTextInRect(CGRect(x: 0, y: screenWidth + creditsViewHeight + itemSpecHeightTotal, width: screenWidth, height: itemDescriptionHeight))
         
+        var itemDescriptionLineTop = UIView(frame: CGRect(x: 0, y: itemDescription.frame.origin.y, width: screenWidth, height: 2))
+        itemDescriptionLineTop.backgroundColor = UIColor(red: 244/255, green: 244/255, blue: 244/255, alpha: 1)
+        
         pieceDetailInfoView.addSubview(itemDescription)
+        pieceDetailInfoView.addSubview(itemDescriptionLineTop)
         
         // init comments
         let commentYPos:CGFloat = screenWidth + creditsViewHeight + itemSpecHeightTotal + itemDescriptionHeight + viewAllCommentsHeight

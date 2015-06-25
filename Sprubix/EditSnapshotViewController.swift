@@ -16,12 +16,19 @@ enum EditMode {
     case Sharpness
 }
 
+protocol SnapshotDetailsProtocol {
+    func setPreviewStillImage(image: UIImage?, fromPhotoLibrary: Bool)
+}
+
 class EditSnapshotViewController: UIViewController {
+    var delegate: SnapshotDetailsProtocol?
     var selectedEditingMode: EditMode = .None
     
     // custom nav bar
     var newNavBar:UINavigationBar!
     var newNavItem:UINavigationItem!
+    
+    var fromAddDetails: Bool!
     
     var handleBarView: UIView = UIView()
     var boundingBoxView: UIView = UIView()
@@ -127,6 +134,13 @@ class EditSnapshotViewController: UIViewController {
         
         // 6. add the nav bar to the main view
         self.view.addSubview(newNavBar)
+    }
+    
+    override func viewDidDisappear(animated: Bool) {
+        super.viewDidDisappear(animated)
+        
+        gpuImageFilter = nil
+        quickFilteredImage = nil
     }
     
     func initView() {
@@ -304,8 +318,19 @@ class EditSnapshotViewController: UIViewController {
             imageView.contentMode = UIViewContentMode.ScaleAspectFill
             
             var fixedImage = fixOrientation(previewStillImage.image!)
-            imageView.image = fixedImage
+
+            var cropWidth = fixedImage.size.width
+            var cropHeight = fixedImage.size.height
+            var cropCenter: CGPoint = CGPointMake((cropWidth / 2), (cropHeight / 2));
+            var cropStart: CGPoint = CGPointMake((cropCenter.x - cropWidth / 2), (cropCenter.y - cropHeight / 2));
+            let cropRect: CGRect = CGRectMake(cropStart.x, cropStart.y, cropWidth, cropHeight);
+
+            let cropRef: CGImageRef = CGImageCreateWithImageInRect(fixedImage.CGImage, cropRect);
+            let cropImage: UIImage = UIImage(CGImage: cropRef)!
             
+            var resizedImage = self.resizeImage(cropImage, width: screenWidth)
+            
+            imageView.image = resizedImage
             imageView.center.y = sprubixBoundingBoxes[i].frame.size.height / 2
             
             sprubixImageViews.append(imageView)
@@ -753,6 +778,14 @@ class EditSnapshotViewController: UIViewController {
             fatalError("Unknown edit button pressed")
         }
         
+        // update slider value label
+        var trackRect: CGRect = editSlider.trackRectForBounds(editSlider.bounds)
+        var thumbRect: CGRect = editSlider.thumbRectForBounds(editSlider.bounds, trackRect: trackRect, value: editSlider.value)
+        
+        sliderCurrentValue = editSlider.value
+        editSliderLabel.text = "\(Int(editSlider.value))"
+        editSliderLabel.center = CGPointMake(thumbRect.origin.x + thumbRect.width / 2 + 0.1 * screenWidth,  sender.center.y - editSliderLabel.frame.size.height / 2);
+        
         newNavBar.setItems([emptyNavItem], animated: false)
         
         // hide editControlsPanel
@@ -771,13 +804,9 @@ class EditSnapshotViewController: UIViewController {
         editSliderLabel.text = "\(Int(sender.value))"
         editSliderLabel.center = CGPointMake(thumbRect.origin.x + thumbRect.width / 2 + 0.1 * screenWidth,  sender.center.y - editSliderLabel.frame.size.height / 2);
         
-        var width = 0.5 * imageCopies[selectedImagePos].size.width
-        var resizedHeight = imageCopies[selectedImagePos].size.height * width / imageCopies[selectedImagePos].size.width
-        
         switch (selectedEditingMode) {
         case .Brightness:
             // set brightness
-            (gpuImageFilter as! GPUImageBrightnessFilter).forceProcessingAtSizeRespectingAspectRatio(CGSizeMake(width, resizedHeight))
             (gpuImageFilter as! GPUImageBrightnessFilter).brightness = CGFloat(sender.value / 100)
             
             quickFilteredImage = (gpuImageFilter as! GPUImageBrightnessFilter).imageByFilteringImage(imageCopies[selectedImagePos])
@@ -786,7 +815,6 @@ class EditSnapshotViewController: UIViewController {
             
         case .Contrast:
             // set contrast
-            (gpuImageFilter as! GPUImageContrastFilter).forceProcessingAtSizeRespectingAspectRatio(CGSizeMake(width, resizedHeight))
             (gpuImageFilter as! GPUImageContrastFilter).contrast = CGFloat(sender.value / 100 * 4)
             
             quickFilteredImage = (gpuImageFilter as! GPUImageContrastFilter).imageByFilteringImage(imageCopies[selectedImagePos])
@@ -795,7 +823,6 @@ class EditSnapshotViewController: UIViewController {
             
         case .Sharpness:
             // set sharpness
-            (gpuImageFilter as! GPUImageSharpenFilter).forceProcessingAtSizeRespectingAspectRatio(CGSizeMake(width, resizedHeight))
             (gpuImageFilter as! GPUImageSharpenFilter).sharpness = CGFloat(sender.value / 100 * 4)
         
             quickFilteredImage = (gpuImageFilter as! GPUImageSharpenFilter).imageByFilteringImage(imageCopies[selectedImagePos])
@@ -833,6 +860,8 @@ class EditSnapshotViewController: UIViewController {
             default:
                 fatalError("Unknown editing mode selected")
             }
+            
+            imageCopies[selectedImagePos] = selectedImageView.image!
             
         case crossBtn:
             restoreOriginalImages()
@@ -926,65 +955,100 @@ class EditSnapshotViewController: UIViewController {
         self.navigationController?.popViewControllerAnimated(false)
     }
     
-    override func viewDidDisappear(animated: Bool) {
-        super.viewDidDisappear(animated)
+    func resizeImage(image: UIImage, width: CGFloat) -> UIImage {
+        var newImageHeight = image.size.height * width / image.size.width
         
-        gpuImageFilter = nil
-        quickFilteredImage = nil
+        var size: CGSize = CGSizeMake(width, newImageHeight)
+        
+        UIGraphicsBeginImageContextWithOptions(size, false, 0.0) // avoid image quality degrading
+        
+        image.drawInRect(CGRectMake(0, 0, width, newImageHeight))
+        
+        // final image
+        let finalImage:UIImage = UIGraphicsGetImageFromCurrentImageContext()
+        
+        UIGraphicsEndImageContext()
+        
+        return finalImage
     }
     
     func nextTapped(sender: UIBarButtonItem) {
+        
         var resizedHeight = imageCopies[0].size.height * screenWidth / imageCopies[0].size.width
         
-        if previewStillImages.count > 1 {
-            var snapshotShareController = SnapshotShareController()
-            var totalHeight: CGFloat = 0
-            
-            // GPUImageCropFilter on each sprubixImageView
-            for var i = 0; i < sprubixImageViews.count; i++ {
+        if fromAddDetails == false {
+            if previewStillImages.count > 1 {
+                var snapshotShareController = SnapshotShareController()
+                var totalHeight: CGFloat = 0
                 
-                // normalize boundingBox on each sprubixImageView first
-                var normalizedCropRegion: CGRect = CGRectMake(abs(sprubixImageViews[i].frame.origin.x)/sprubixImageViews[i].frame.size.width, abs(sprubixImageViews[i].frame.origin.y)/sprubixImageViews[i].frame.size.height, sprubixBoundingBoxes[i].frame.size.width/sprubixImageViews[i].frame.size.width, sprubixBoundingBoxes[i].frame.size.height/sprubixImageViews[i].frame.size.height)
+                // GPUImageCropFilter on each sprubixImageView
+                for var i = 0; i < sprubixImageViews.count; i++ {
+                    
+                    // normalize boundingBox on each sprubixImageView first
+                    var normalizedCropRegion: CGRect = CGRectMake(abs(sprubixImageViews[i].frame.origin.x)/sprubixImageViews[i].frame.size.width, abs(sprubixImageViews[i].frame.origin.y)/sprubixImageViews[i].frame.size.height, sprubixBoundingBoxes[i].frame.size.width/sprubixImageViews[i].frame.size.width, sprubixBoundingBoxes[i].frame.size.height/sprubixImageViews[i].frame.size.height)
+                    
+                    gpuImageFilter = GPUImageCropFilter(cropRegion: normalizedCropRegion)
+                    (gpuImageFilter as! GPUImageCropFilter).forceProcessingAtSizeRespectingAspectRatio(CGSizeMake(screenWidth, resizedHeight))
+                    quickFilteredImage = (gpuImageFilter as! GPUImageCropFilter).imageByFilteringImage(sprubixImageViews[i].image)
+                    
+                    snapshotShareController.images.append(quickFilteredImage)
+                    snapshotShareController.imageViewHeights.append(sprubixBoundingBoxes[i].frame.size.height)
+                    
+                    totalHeight += sprubixBoundingBoxes[i].frame.size.height
+                }
                 
-                gpuImageFilter = GPUImageCropFilter(cropRegion: normalizedCropRegion)
-                (gpuImageFilter as! GPUImageCropFilter).forceProcessingAtSizeRespectingAspectRatio(CGSizeMake(screenWidth, resizedHeight))
-                quickFilteredImage = (gpuImageFilter as! GPUImageCropFilter).imageByFilteringImage(sprubixImageViews[i].image)
-            
-                snapshotShareController.images.append(quickFilteredImage)
-                snapshotShareController.imageViewHeights.append(sprubixBoundingBoxes[i].frame.size.height)
+                snapshotShareController.selectedPiecesOrdered = self.selectedPiecesOrdered
+                snapshotShareController.totalHeight = totalHeight
                 
-                totalHeight += sprubixBoundingBoxes[i].frame.size.height
-            }
-            
-            snapshotShareController.selectedPiecesOrdered = self.selectedPiecesOrdered
-            snapshotShareController.totalHeight = totalHeight
-            
-            self.navigationController?.pushViewController(snapshotShareController, animated: true)
-        } else {
-            println("Only one piece, not qualified to be outfit")
-            
-            var snapshotDetailsController = SnapshotDetailsController()
-            
-            for var i = 0; i < sprubixImageViews.count; i++ {
-                // normalize boundingBox on each sprubixImageView first
-                var normalizedCropRegion: CGRect = CGRectMake(abs(sprubixImageViews[i].frame.origin.x)/sprubixImageViews[i].frame.size.width, abs(sprubixImageViews[i].frame.origin.y)/sprubixImageViews[i].frame.size.height, sprubixBoundingBoxes[i].frame.size.width/sprubixImageViews[i].frame.size.width, sprubixBoundingBoxes[i].frame.size.height/sprubixImageViews[i].frame.size.height)
+                self.navigationController?.pushViewController(snapshotShareController, animated: true)
+            } else {
+                println("Only one piece, not qualified to be outfit")
                 
-                gpuImageFilter = GPUImageCropFilter(cropRegion: normalizedCropRegion)
-                (gpuImageFilter as! GPUImageCropFilter).forceProcessingAtSizeRespectingAspectRatio(CGSizeMake(screenWidth, resizedHeight))
-                quickFilteredImage = (gpuImageFilter as! GPUImageCropFilter).imageByFilteringImage(sprubixImageViews[i].image)
+                var snapshotDetailsController = SnapshotDetailsController()
                 
-                snapshotDetailsController.itemCoverImageView.image = quickFilteredImage
-                snapshotDetailsController.pos = i
-                snapshotDetailsController.onlyOnePiece = true
+                for var i = 0; i < sprubixImageViews.count; i++ {
+                    // normalize boundingBox on each sprubixImageView first
+                    var normalizedCropRegion: CGRect = CGRectMake(abs(sprubixImageViews[i].frame.origin.x)/sprubixImageViews[i].frame.size.width, abs(sprubixImageViews[i].frame.origin.y)/sprubixImageViews[i].frame.size.height, sprubixBoundingBoxes[i].frame.size.width/sprubixImageViews[i].frame.size.width, sprubixBoundingBoxes[i].frame.size.height/sprubixImageViews[i].frame.size.height)
+                    
+                    gpuImageFilter = GPUImageCropFilter(cropRegion: normalizedCropRegion)
+                    (gpuImageFilter as! GPUImageCropFilter).forceProcessingAtSizeRespectingAspectRatio(CGSizeMake(screenWidth, resizedHeight))
+                    quickFilteredImage = (gpuImageFilter as! GPUImageCropFilter).imageByFilteringImage(sprubixImageViews[i].image)
+                    
+                    snapshotDetailsController.itemCoverImageView.image = quickFilteredImage
+                    snapshotDetailsController.pos = i
+                    snapshotDetailsController.onlyOnePiece = true
 
-                var sprubixPiece = SprubixPiece()
-                sprubixPiece.images.append(quickFilteredImage)
-                sprubixPiece.type = selectedPiecesOrdered[i]
+                    var sprubixPiece = SprubixPiece()
+                    sprubixPiece.images.append(quickFilteredImage)
+                    sprubixPiece.type = selectedPiecesOrdered[i]
+                    
+                    snapshotDetailsController.sprubixPiece = sprubixPiece
+                }
                 
-                snapshotDetailsController.sprubixPiece = sprubixPiece
+                self.navigationController?.pushViewController(snapshotDetailsController, animated: true)
             }
-            
-            self.navigationController?.pushViewController(snapshotDetailsController, animated: true)
+        } else {
+            // send this image back to AddDetails view
+            for var i = 0; i < sprubixImageViews.count; i++ { // will only run once
+                // normalize boundingBox on each sprubixImageView first
+                var normalizedCropRegion: CGRect = CGRectMake(abs(sprubixImageViews[i].frame.origin.x)/sprubixImageViews[i].frame.size.width, abs(sprubixImageViews[i].frame.origin.y)/sprubixImageViews[i].frame.size.height, sprubixBoundingBoxes[i].frame.size.width/sprubixImageViews[i].frame.size.width, sprubixBoundingBoxes[i].frame.size.height/sprubixImageViews[i].frame.size.height)
+                
+                gpuImageFilter = GPUImageCropFilter(cropRegion: normalizedCropRegion)
+                (gpuImageFilter as! GPUImageCropFilter).forceProcessingAtSizeRespectingAspectRatio(CGSizeMake(screenWidth, resizedHeight))
+                quickFilteredImage = (gpuImageFilter as! GPUImageCropFilter).imageByFilteringImage(sprubixImageViews[i].image)
+                
+                // // protocol method
+                delegate?.setPreviewStillImage(quickFilteredImage, fromPhotoLibrary: true)
+                
+                let transition = CATransition()
+                transition.duration = 0.3
+                transition.type = kCATransitionReveal
+                transition.subtype = kCATransitionFromBottom
+                transition.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
+                
+                self.navigationController?.view.layer.addAnimation(transition, forKey: kCATransition)
+                self.navigationController!.popToViewController(self.navigationController!.viewControllers[self.navigationController!.viewControllers.count - 3] as! UIViewController, animated: false)
+            }
         }
     }
 }

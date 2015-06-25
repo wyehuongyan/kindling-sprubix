@@ -36,6 +36,7 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
     var favoritesViewController: FavoritesViewController?
     var settingsViewController: SettingsViewController?
     var inventoryViewController: InventoryViewController?
+    var deliveryOptionsViewController: DeliveryOptionsViewController?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -100,7 +101,7 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
         sprubixNavigationController.pushViewController(favoritesViewController!, animated: true)
     }
     
-    func showSettingsView() {
+    func showSettings() {
         settingsViewController = UIStoryboard.settingsViewController()
         
         self.closeSidePanel()
@@ -109,13 +110,22 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
         sprubixNavigationController.pushViewController(settingsViewController!, animated: true)
     }
     
-    func showInventoryView() {
+    func showInventory() {
         inventoryViewController = UIStoryboard.inventoryViewController()
         
         self.closeSidePanel()
         
         sprubixNavigationController.delegate = nil
         sprubixNavigationController.pushViewController(inventoryViewController!, animated: true)
+    }
+    
+    func showDeliveryOptions() {
+        deliveryOptionsViewController = UIStoryboard.deliveryOptionsViewController()
+        
+        self.closeSidePanel()
+        
+        sprubixNavigationController.delegate = nil
+        sprubixNavigationController.pushViewController(deliveryOptionsViewController!, animated: true)
     }
     
     // SprubixFeedControllerDelegate
@@ -282,5 +292,9 @@ extension UIStoryboard {
     
     class func inventoryViewController() -> InventoryViewController? {
         return mainStoryboard().instantiateViewControllerWithIdentifier("InventoryView") as? InventoryViewController
+    }
+    
+    class func deliveryOptionsViewController() -> DeliveryOptionsViewController? {
+        return mainStoryboard().instantiateViewControllerWithIdentifier("DeliveryOptionsView") as? DeliveryOptionsViewController
     }
 }

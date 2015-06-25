@@ -12,7 +12,7 @@ protocol DetailsCellActions {
     func showMoreOptions(ownerId: Int, targetId: Int)
 }
 
-class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewDataSource {
+class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewDataSource, UIGestureRecognizerDelegate {
     var delegate: DetailsCellActions?
     var selectedPieceDetail: NSDictionary?
     
@@ -44,8 +44,10 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
     var likeImageView: UIImageView!
     var likeImagesDict: NSMutableDictionary = NSMutableDictionary()
     var likeButton: UIButton!
+    var likeButtons: [UIButton] = [UIButton]()
     var likeButtonsDict: NSMutableDictionary = NSMutableDictionary()
     var commentsButton: UIButton!
+    var commentsButtons: [UIButton] = [UIButton]()
     
     var pullLabel:UILabel!
     
@@ -198,6 +200,9 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
                     
                     singleTap.requireGestureRecognizerToFail(doubleTap) // so that single tap will not be called during a double tap
                     
+                    singleTap.delegate = self
+                    doubleTap.delegate = self
+                    
                     // like button
                     let likeButtonWidth = frame.size.width / 10
                     likeButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
@@ -210,9 +215,11 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
                     likeButton.frame = CGRectMake(8 * likeButtonWidth, pieceHeight - likeButtonWidth, likeButtonWidth, likeButtonWidth)
                     likeButton.imageEdgeInsets = UIEdgeInsetsMake(5, 5, 5, 5)
                     likeButton.addTarget(self, action: "togglePieceLike:", forControlEvents: UIControlEvents.TouchUpInside)
+                    likeButton.exclusiveTouch = true
 
                     let pieceId = piece["id"] as! Int
                     likeButtonsDict.setObject(likeButton, forKey: piece)
+                    likeButtons.append(likeButton)
                     
                     // very first time: check likebutton selected
                     let userData: NSDictionary? = defaults.dictionaryForKey("userData")
@@ -254,6 +261,8 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
                     commentsButton.frame = CGRectMake(9 * likeButtonWidth, pieceHeight - likeButtonWidth, likeButtonWidth, likeButtonWidth)
                     commentsButton.imageEdgeInsets = UIEdgeInsetsMake(5, 5, 5, 5)
                     commentsButton.addTarget(self, action: "addCommentsPiece:", forControlEvents: UIControlEvents.TouchUpInside)
+                    commentsButton.exclusiveTouch = true
+                    commentsButtons.append(commentsButton)
                     
                     pieceImageView.addSubview(commentsButton)
                     Glow.addGlow(commentsButton)
@@ -372,6 +381,11 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
             descriptionCell.separatorInset = UIEdgeInsetsMake(0, 20, 0, 0)
             descriptionCell.userInteractionEnabled = false
             descriptionCell.selectionStyle = UITableViewCellSelectionStyle.None
+            
+            var itemDescriptionLineTop = UIView(frame: CGRect(x: 0, y: 0, width: screenWidth, height: 2))
+            itemDescriptionLineTop.backgroundColor = UIColor(red: 244/255, green: 244/255, blue: 244/255, alpha: 1)
+            
+            descriptionCell.addSubview(itemDescriptionLineTop)
             
             return descriptionCell
         case 4:
@@ -799,7 +813,7 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
         }
     }
     
-    func heightForTextLabel(text:String, width:CGFloat, padding: CGFloat) -> CGFloat{
+    func heightForTextLabel(text:String, width:CGFloat, padding: CGFloat) -> CGFloat {
         let label:UILabel = UILabel(frame: CGRectMake(0, 0, width, CGFloat.max))
         label.numberOfLines = 0
         label.lineBreakMode = NSLineBreakMode.ByWordWrapping
@@ -843,7 +857,7 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
         case 2:
             cellHeight = itemSpecHeight // specifications height
         case 3:
-            cellHeight = heightForTextLabel(outfit["description"] as! String, width: screenWidth, padding: 20) // description height
+            cellHeight = heightForTextLabel(outfit["description"] as! String, width: screenWidth - 20, padding: 20) // description height
         case 4:
             cellHeight = 270 // comments height
         default:
@@ -928,6 +942,18 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
     
     func findSimilar(sender: UIButton) {
         println("search")
+    }
+    
+    // UIGestureRecognizerDelegate
+    func gestureRecognizer(gestureRecognizer: UIGestureRecognizer, shouldReceiveTouch touch: UITouch) -> Bool {
+        
+        if touch.view as? UIButton != nil {
+            if find(likeButtons, touch.view as! UIButton) != nil  || find(commentsButtons, touch.view as! UIButton) != nil {
+                return false
+            }
+        }
+        
+        return true
     }
     
     // piece button callbacks

@@ -15,13 +15,15 @@ protocol SidePanelViewControllerDelegate {
     func showCreateOutfit()
     func showNotifications()
     func showFavorites()
-    func showSettingsView()
-    func showInventoryView()
+    func showSettings()
+    func showInventory()
+    func showDeliveryOptions()
 }
 
 class SidePanelViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
     
     @IBOutlet var sidePanelTableView: UITableView!
+    @IBOutlet var sidePanelTopView: UIView!
     
     var profileImage:UIImageView = UIImageView()
     var profileName:UILabel = UILabel()
@@ -35,7 +37,8 @@ class SidePanelViewController: UIViewController, UITableViewDataSource, UITableV
         initUserInfo()
         
         sidePanelTableView.separatorColor = UIColor.clearColor()
-        sidePanelTableView.scrollEnabled = false
+        sidePanelTableView.scrollEnabled = true
+        sidePanelTopView.backgroundColor = sprubixLightGray
     }
     
     func initUserInfo() {
@@ -49,7 +52,7 @@ class SidePanelViewController: UIViewController, UITableViewDataSource, UITableV
             let profileImageLength:CGFloat = 100
             
             // 30 is the sprubixfeed offset of 60 divided by 2. 50 is arbitary value, but should convert to constraint
-            profileImage.frame = CGRect(x: (view.bounds.width / 2) - (profileImageLength / 2) - 30, y: 50, width: profileImageLength, height: profileImageLength)
+            profileImage.frame = CGRect(x: (view.bounds.width / 2) - (profileImageLength / 2) - 30, y: 30, width: profileImageLength, height: profileImageLength)
             
             // circle mask
             profileImage.layer.cornerRadius = profileImage.frame.size.width / 2
@@ -76,8 +79,8 @@ class SidePanelViewController: UIViewController, UITableViewDataSource, UITableV
             
             profileName.addSubview(viewProfileLabel)
             
-            view.addSubview(profileImage)
-            view.addSubview(profileName)
+            sidePanelTopView.addSubview(profileImage)
+            sidePanelTopView.addSubview(profileName)
             
             // add gesture recognizers
             var profileImageTap = UITapGestureRecognizer(target: self, action: Selector("wasSingleTapped:"))
@@ -129,12 +132,15 @@ class SidePanelViewController: UIViewController, UITableViewDataSource, UITableV
             delegate?.showFavorites()
             break
         case .Settings:
-            delegate?.showSettingsView()
+            delegate?.showSettings()
             break
         case .Inventory:
-            delegate?.showInventoryView()
+            delegate?.showInventory()
             break
         case .Orders:
+            break
+        case .DeliveryOptions:
+            delegate?.showDeliveryOptions()
             break
         }
     }

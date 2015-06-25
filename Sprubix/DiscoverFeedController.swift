@@ -141,7 +141,7 @@ class DiscoverFeedController: UIViewController, UITextFieldDelegate, UICollectio
         
         // 5. go back to main feed buton
         var mainFeedButton:UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
-        var image: UIImage = UIImage(named: "profile-community")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
+        var image: UIImage = UIImage(named: "profile-myoutfits")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
         mainFeedButton.setImage(image, forState: UIControlState.Normal)
         mainFeedButton.frame = CGRect(x: 0, y: 0, width: 30, height: 30)
         mainFeedButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit

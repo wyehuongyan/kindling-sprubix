@@ -48,12 +48,22 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
         camera?.stopCamera()
         
         self.navigationController!.delegate = nil
-        self.navigationController!.popViewControllerAnimated(true)
+        
+        let transition = CATransition()
+        transition.duration = 0.3
+        transition.type = kCATransitionReveal
+        transition.subtype = kCATransitionFromBottom
+        transition.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
+        
+        self.navigationController?.view.layer.addAnimation(transition, forKey: kCATransition)
+        self.navigationController!.popViewControllerAnimated(false)
     }
     
     var preview: AVCaptureVideoPreviewLayer?
-    
     var camera: SprubixCamera?
+    
+    var fromAddDetails: Bool = false
+    var fromAddDetailsPieceType: String!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -82,15 +92,14 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
         self.navigationController?.setNavigationBarHidden(false, animated: true)
         self.navigationController?.navigationBar.setBackgroundImage(UIImage(), forBarMetrics: UIBarMetrics.Default)
         self.navigationController?.navigationBar.shadowImage = UIImage()
-
-        cameraPscope.show(authChange: { (finished, results) -> Void in
-                //println("got results \(results)")
-                self.initializeCamera()
-            }, cancelled: { (results) -> Void in
-                //println("thing was cancelled")
-                
-                self.closeCreateOutfit(UIButton())
-        })
+        
+        if fromAddDetails == true {
+            pieceSelectorView.alpha = 0.0
+            selectedPieces[fromAddDetailsPieceType] = true
+            selectedCount = 1
+            
+            confirmPiecesSelected()
+        }
     }
     
     override func viewDidAppear(animated: Bool) {
@@ -98,7 +107,15 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
 
         editSnapshotViewController = nil
         
-        self.establishVideoPreviewArea()
+        cameraPscope.show(authChange: { (finished, results) -> Void in
+            //println("got results \(results)")
+            self.initializeCamera()
+            self.establishVideoPreviewArea()
+            }, cancelled: { (results) -> Void in
+                //println("thing was cancelled")
+                
+                self.closeCreateOutfit(UIButton())
+        })
     }
     
     override func viewWillDisappear(animated: Bool) {
@@ -122,6 +139,7 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
         // scrollview
         previewStillScrollView = UIScrollView(frame: CGRectMake(0, navigationHeight, screenWidth, screenWidth / 0.75))
         previewStillScrollView.contentSize = CGSize(width: screenWidth, height: pieceSelectorView.frame.size.height)
+        previewStillScrollView.backgroundColor = UIColor.lightGrayColor()
         previewStillScrollView.scrollEnabled = true
         previewStillScrollView.pagingEnabled = false
         previewStillScrollView.alwaysBounceVertical = true
@@ -427,6 +445,13 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
                     
                     self.editSnapshotViewController.selectedPiecesOrdered = self.selectedPiecesOrdered
                     self.editSnapshotViewController.previewStillImages = self.previewStillImages
+                    self.editSnapshotViewController.fromAddDetails = self.fromAddDetails
+                    
+                    if self.fromAddDetails == true {
+                        let prevViewController = self.navigationController!.viewControllers[self.navigationController!.viewControllers.count - 2] as! SnapshotDetailsController
+                        
+                        self.editSnapshotViewController.delegate = prevViewController
+                    }
                     
                     self.navigationController?.delegate = nil
                     self.navigationController?.pushViewController(self.editSnapshotViewController, animated: true) {
