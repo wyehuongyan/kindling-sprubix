@@ -60,6 +60,7 @@ class SpruceShareViewController: UIViewController, UITableViewDelegate, UITableV
         
         shareButton = UIButton(frame: CGRect(x: 0, y: screenHeight - navigationHeight, width: screenWidth, height: navigationHeight))
         shareButton.backgroundColor = sprubixColor
+        shareButton.titleLabel?.font = UIFont.boldSystemFontOfSize(18.0)
         shareButton.setTitle("Spruce it!", forState: UIControlState.Normal)
         shareButton.addTarget(self, action: "spruceConfirmed:", forControlEvents: UIControlEvents.TouchUpInside)
         

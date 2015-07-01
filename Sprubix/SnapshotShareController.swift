@@ -72,6 +72,7 @@ class SnapshotShareController: UIViewController, UITableViewDelegate, UITableVie
         
         shareButton = UIButton(frame: CGRect(x: 0, y: screenHeight - navigationHeight, width: screenWidth, height: navigationHeight))
         shareButton.backgroundColor = sprubixColor
+        shareButton.titleLabel?.font = UIFont.boldSystemFontOfSize(18.0)
         shareButton.setTitle("Share it!", forState: UIControlState.Normal)
         shareButton.addTarget(self, action: "shareButtonPressed:", forControlEvents: UIControlEvents.TouchUpInside)
         

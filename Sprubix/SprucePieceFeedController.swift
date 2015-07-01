@@ -119,12 +119,24 @@ class SprucePieceFeedController: UICollectionViewController, UICollectionViewDel
         let arrowButtonYPos:CGFloat = pieceHeight / 2 - arrowButtonHeight / 2
         
         leftArrowButton.frame = CGRect(x: arrowButtonPadding, y: arrowButtonYPos, width: arrowButtonHeight, height: arrowButtonHeight)
+        
+        if pieceHeight <= 0 {
+            leftArrowButton.alpha = 0.0
+        } else {
+            leftArrowButton.alpha = 1.0
+        }
     }
     
     func setRightArrowButtonFrame(pieceHeight: CGFloat) {
         let arrowButtonYPos:CGFloat = pieceHeight / 2 - arrowButtonHeight / 2
         
         rightArrowButton.frame = CGRect(x: screenWidth - arrowButtonHeight - arrowButtonPadding, y: arrowButtonYPos, width: arrowButtonHeight, height: arrowButtonHeight)
+        
+        if pieceHeight <= 0 {
+            rightArrowButton.alpha = 0.0
+        } else {
+            rightArrowButton.alpha = 1.0
+        }
     }
     
     func showDeletionCrosses() {
@@ -202,11 +214,15 @@ class SprucePieceFeedController: UICollectionViewController, UICollectionViewDel
         
         let visiblePoint: CGPoint = CGPointMake(CGRectGetMidX(visibleRect), CGRectGetMidY(visibleRect))
         
-        let visibleIndexPath: NSIndexPath = self.collectionView!.indexPathForItemAtPoint(visiblePoint)!
+        println("collectionview: \(self.collectionView)")
         
-        currentVisibleCell = self.collectionView!.cellForItemAtIndexPath(visibleIndexPath) as! SprucePieceFeedCell
+        var visibleIndexPath: NSIndexPath? = self.collectionView!.indexPathForItemAtPoint(visiblePoint)
         
-        index = visibleIndexPath.item
+        if visibleIndexPath != nil {
+            currentVisibleCell = self.collectionView!.cellForItemAtIndexPath(visibleIndexPath!) as! SprucePieceFeedCell
+            
+            index = visibleIndexPath!.item
+        }
     }
     
     override func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {

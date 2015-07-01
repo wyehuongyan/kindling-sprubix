@@ -85,6 +85,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
     var itemSpecHeightTotal: CGFloat = 220
     
     var isShop: Bool = false
+    var snapshotDetailsSizeController: SnapshotDetailsSizeController?
     
     // trash button
     var trashButton: UIButton!
@@ -127,6 +128,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
         if onlyOnePiece {
             addToClosetButton = UIButton(frame: CGRect(x: 0, y: screenHeight - navigationHeight, width: screenWidth, height: navigationHeight))
             addToClosetButton!.backgroundColor = sprubixColor
+            addToClosetButton!.titleLabel?.font = UIFont.boldSystemFontOfSize(18.0)
             addToClosetButton!.setTitle("Add to Closet!", forState: UIControlState.Normal)
             addToClosetButton!.addTarget(self, action: "addToClosetPressed:", forControlEvents: UIControlEvents.TouchUpInside)
             
@@ -416,9 +418,9 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
             
             Glow.addGlow(itemSizeImage)
             
-            itemDetailsSize = UITextField(frame: CGRectMake(itemImageViewWidth, itemSpecHeight * 3, screenWidth - itemImageViewWidth, itemSpecHeight))
+            itemDetailsSize = UITextField(frame: CGRectMake(itemImageViewWidth, itemSpecHeight * 3, screenWidth - itemImageViewWidth - 20, itemSpecHeight))
             itemDetailsSize.tintColor = sprubixColor
-            itemDetailsSize.placeholder = "What are the measurements?"
+            itemDetailsSize.placeholder = "What size is it?"
             itemDetailsSize.returnKeyType = UIReturnKeyType.Done
             itemDetailsSize.delegate = self
             
@@ -427,9 +429,25 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
             }
             
             if isShop == true {
+                // add more sizes
+                let addMoreSizesWidth: CGFloat = 25
+                var addMoreSizes = UIButton(frame: CGRectMake(0, -1, addMoreSizesWidth, addMoreSizesWidth))
+                addMoreSizes.setImage(UIImage(named: "main-cta-add"), forState: UIControlState.Normal)
+                addMoreSizes.addTarget(self, action: "addMoreSizesPressed:", forControlEvents: UIControlEvents.TouchUpInside)
+                addMoreSizes.imageView?.layer.cornerRadius = addMoreSizes.imageView!.frame.height / 2
+                addMoreSizes.imageView?.layer.borderColor = sprubixLightGray.CGColor
+                addMoreSizes.imageView?.layer.borderWidth = 2.0
+                addMoreSizes.clipsToBounds = true
+                
+                var offsetView: UIView = UIView(frame: addMoreSizes.bounds)
+                offsetView.addSubview(addMoreSizes)
+                
+                itemDetailsSize.rightView = offsetView
+                itemDetailsSize.rightViewMode = UITextFieldViewMode.Always
+                
                 // quantity
                 var itemQuantityImage = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
-                itemQuantityImage.setImage(UIImage(named: "icon-placeholder.png"), forState: UIControlState.Normal)
+                itemQuantityImage.setImage(UIImage(named: "view-item-quantity"), forState: UIControlState.Normal)
                 itemQuantityImage.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
                 itemQuantityImage.frame = CGRect(x: 0, y: itemSpecHeight * 4, width: itemImageViewWidth, height: itemSpecHeight)
                 itemQuantityImage.imageEdgeInsets = UIEdgeInsetsMake(10, 10, 10, 0)
@@ -449,7 +467,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
                 
                 // price
                 var itemPriceImage = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
-                itemPriceImage.setImage(UIImage(named: "icon-placeholder.png"), forState: UIControlState.Normal)
+                itemPriceImage.setImage(UIImage(named: "view-item-price"), forState: UIControlState.Normal)
                 itemPriceImage.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
                 itemPriceImage.frame = CGRect(x: 0, y: itemSpecHeight * 5, width: itemImageViewWidth, height: itemSpecHeight)
                 itemPriceImage.imageEdgeInsets = UIEdgeInsetsMake(10, 10, 10, 0)
@@ -715,9 +733,11 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
     }
     
     func textFieldDidEndEditing(textField: UITextField) {
-        if textField == itemDetailsPrice && itemDetailsPrice.text == "" {
-            itemDetailsPrice.leftView = nil
-            itemDetailsPrice.placeholder = "How much does it cost?"
+        if itemDetailsPrice != nil {
+            if textField == itemDetailsPrice && itemDetailsPrice.text == "" {
+                itemDetailsPrice.leftView = nil
+                itemDetailsPrice.placeholder = "How much does it cost?"
+            }
         }
     }
     
@@ -756,6 +776,14 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
     }
     
     // button callbacks
+    func addMoreSizesPressed(sender: UIButton) {
+        if snapshotDetailsSizeController == nil {
+            snapshotDetailsSizeController = SnapshotDetailsSizeController()
+        }
+        
+        self.navigationController?.pushViewController(snapshotDetailsSizeController!, animated: true)
+    }
+    
     func deleteImage(sender: UIButton) {
         println(selectedThumbnail)
         

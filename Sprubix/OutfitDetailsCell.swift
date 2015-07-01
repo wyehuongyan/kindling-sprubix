@@ -7,12 +7,13 @@
 //
 
 import UIKit
+import KLCPopup
 
 protocol DetailsCellActions {
     func showMoreOptions(ownerId: Int, targetId: Int)
 }
 
-class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewDataSource, UIGestureRecognizerDelegate {
+class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewDataSource, UIGestureRecognizerDelegate, PieceInteractionProtocol {
     var delegate: DetailsCellActions?
     var selectedPieceDetail: NSDictionary?
     
@@ -49,6 +50,11 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
     var commentsButton: UIButton!
     var commentsButtons: [UIButton] = [UIButton]()
     
+    var purchasable: Bool = false
+    var addToBagButton: UIButton!
+    var priceLabel: UILabel!
+    var userThumbnail: UIImageView!
+    
     var pullLabel:UILabel!
     
     var outfitImageCell: UITableViewCell!
@@ -56,6 +62,11 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
     var descriptionCell: UITableViewCell!
     var specificationCell: UITableViewCell!
     var commentsCell: UITableViewCell!
+    
+    // buy
+    var itemBuySizeLabel: UILabel!
+    var itemBuyQuantityLabel: UILabel!
+    var itemBuyDeliveryLabel: UILabel!
     
     let itemSpecHeight: CGFloat = 55
     let viewAllCommentsHeight: CGFloat = 40
@@ -144,8 +155,8 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
             outfitImageCell.addSubview(pullLabel)
             
             pieceImages.removeAll()
-            var outfitHeight:CGFloat = 0
-            var prevPieceHeight:CGFloat = 0
+            var outfitHeight: CGFloat = 0
+            var prevPieceHeight: CGFloat = 0
             
             pieces = outfit["pieces"] as! [NSDictionary]
             
@@ -227,26 +238,22 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
 
                     let poutfitLikesUserRef = firebaseRef.childByAppendingPath("poutfits/piece_\(pieceId)/likes/\(username)")
                     
-                    var liked: Bool? = piecesLiked[pieceId] as? Bool
+                    var liked: Bool?
                     
-                    if liked != nil {
-                        likeButton.selected = liked!
-                    } else {
-                        // check if user has already liked this outfit
-                        poutfitLikesUserRef.observeSingleEventOfType(.Value, withBlock: {
-                            snapshot in
-                            
-                            if (snapshot.value as? NSNull) != nil {
-                                // not yet liked
-                                liked = false
-                            } else {
-                                liked = true
-                            }
-                            
-                            (self.likeButtonsDict[piece] as! UIButton).selected = liked!
-                            self.piecesLiked.setObject(liked!, forKey: pieceId)
-                        })
-                    }
+                    // check if user has already liked this outfit
+                    poutfitLikesUserRef.observeSingleEventOfType(.Value, withBlock: {
+                        snapshot in
+                        
+                        if (snapshot.value as? NSNull) != nil {
+                            // not yet liked
+                            liked = false
+                        } else {
+                            liked = true
+                        }
+                        
+                        (self.likeButtonsDict[piece] as! UIButton).selected = liked!
+                        self.piecesLiked.setObject(liked!, forKey: pieceId)
+                    })
                     
                     pieceImageView.addSubview(likeButton)
                     Glow.addGlow(likeButton)
@@ -266,6 +273,59 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
                     
                     pieceImageView.addSubview(commentsButton)
                     Glow.addGlow(commentsButton)
+                    
+                    let padding: CGFloat = 10
+                    
+                    // price label and buy button if outfit has price and quantity
+                    if piece["price"] as! String != "0.00" {
+                        if piece["quantity"] as! Int > 0 {
+                            // price label
+                            let priceLabelHeight: CGFloat = 35
+                            priceLabel = UILabel()
+                            priceLabel.textAlignment = NSTextAlignment.Center
+                            priceLabel.font = UIFont.boldSystemFontOfSize(18.0)
+                            
+                            let price = piece["price"] as! String
+                            priceLabel.text = "$\(price)"
+                            priceLabel.frame = CGRectMake(screenWidth - (priceLabel.intrinsicContentSize().width + 20.0) - padding, padding, (priceLabel.intrinsicContentSize().width + 20.0), priceLabelHeight)
+                            
+                            priceLabel.layer.cornerRadius = priceLabelHeight / 2
+                            priceLabel.layer.borderWidth = 0.5
+                            priceLabel.layer.borderColor = UIColor.lightGrayColor().CGColor
+                            priceLabel.clipsToBounds = true
+                            priceLabel.textColor = UIColor.whiteColor()
+                            priceLabel.backgroundColor = sprubixColor
+
+                            pieceImageView.addSubview(priceLabel)
+                            
+                            purchasable = true
+                        } else {
+                            println("quantity is 0, not enough for sale")
+                        }
+                    }
+                    
+                    // user thumbnail and name on top left
+                    let userThumbnailWidth: CGFloat = 35
+                    let pieceUser = piece["user"] as! NSDictionary
+                    userThumbnail = UIImageView(frame: CGRectMake(padding, padding, userThumbnailWidth, userThumbnailWidth))
+                    
+                    userThumbnail.layer.cornerRadius = userThumbnail.frame.size.width / 2
+                    userThumbnail.clipsToBounds = true
+                    userThumbnail.layer.borderWidth = 0.5
+                    userThumbnail.layer.borderColor = UIColor.lightGrayColor().CGColor
+                    
+                    let userThumbnailURL = NSURL(string: pieceUser["image"] as! String)
+                    userThumbnail.setImageWithURL(userThumbnailURL)
+                    
+                    // gesture recognizer
+                    let userThumbnailToProfile:UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: "showProfile:")
+                    userThumbnailToProfile.numberOfTapsRequired = 1
+                    
+                    userThumbnail.userInteractionEnabled = true
+                    userThumbnail.addGestureRecognizer(userThumbnailToProfile)
+                    
+                    pieceImageView.addSubview(userThumbnail)
+                    
                 } else {
                     // darkened overlay
                     // // two buttons: complete outfit, find similar
@@ -320,6 +380,17 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
                 
                 prevPieceHeight += pieceHeight // to offset 2nd piece image's height with first image's height
                 outfitHeight += pieceHeight // accumulate height of all pieces
+            }
+            
+            // add to bag CTA button
+            if purchasable {
+                addToBagButton = UIButton(frame: CGRect(x: 0, y: screenHeight - navigationHeight, width: screenWidth, height: navigationHeight))
+                addToBagButton.backgroundColor = sprubixColor
+                addToBagButton.titleLabel?.font = UIFont.boldSystemFontOfSize(18.0)
+                addToBagButton.setTitle("Buy Outfit Now", forState: UIControlState.Normal)
+                addToBagButton.addTarget(self, action: "addToBagButtonPressed:", forControlEvents: UIControlEvents.TouchUpInside)
+                
+                contentView.addSubview(addToBagButton)
             }
             
             return outfitImageCell
@@ -478,6 +549,7 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
         pieceDetailsViewController.pieces = pieces
         pieceDetailsViewController.user = user
         pieceDetailsViewController.inspiredBy = inspiredBy
+        pieceDetailsViewController.pieceInteractionDelegate = self
         
         //collectionView.setToIndexPath(indexPath)
         navController!.delegate = nil
@@ -859,7 +931,7 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
         case 3:
             cellHeight = heightForTextLabel(outfit["description"] as! String, width: screenWidth - 20, padding: 20) // description height
         case 4:
-            cellHeight = 270 // comments height
+            cellHeight = purchasable ? 270 + navigationHeight : 270 // comments height
         default:
             cellHeight = 300
         }
@@ -957,6 +1029,144 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
     }
     
     // piece button callbacks
+    func addToBagButtonPressed(sender: UIButton) {
+        
+        let itemSpecHeight:CGFloat = 45
+        let popupWidth: CGFloat = screenWidth - 100
+        let popupHeight: CGFloat = popupWidth + itemSpecHeight * 3 + navigationHeight
+        let itemImageViewWidth:CGFloat = 0.25 * popupWidth
+        
+        let popupContentView: UIView = UIView(frame: CGRectMake(0, 0, popupWidth, popupHeight))
+        popupContentView.backgroundColor = UIColor.whiteColor()
+        popupContentView.layer.cornerRadius = 12.0
+        
+        // add content to popupContentView
+        var buyPiecesScrollView = UIScrollView(frame: CGRectMake(0, 0, popupWidth, popupHeight))
+        buyPiecesScrollView.layer.cornerRadius = 12.0
+        buyPiecesScrollView.pagingEnabled = true
+        buyPiecesScrollView.alwaysBounceHorizontal = true
+        buyPiecesScrollView.contentSize = CGSizeMake(popupWidth * CGFloat(pieces.count), popupHeight)
+        
+        for var i = 0; i < pieces.count; i++ {
+            let piece = pieces[i] as NSDictionary
+            
+            let buyPieceView: UIView = UIView(frame: CGRectMake(popupWidth * CGFloat(i), 0, popupWidth, popupHeight))
+            
+            var pieceImagesString = piece["images"] as! String
+            var pieceImagesData:NSData = pieceImagesString.dataUsingEncoding(NSUTF8StringEncoding)!
+            
+            var pieceImagesDict: NSDictionary = NSJSONSerialization.JSONObjectWithData(pieceImagesData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSDictionary
+            
+            let imageURL = NSURL(string: pieceImagesDict["cover"] as! String)
+            
+            // cover image
+            var buyPieceImage: UIImageView = UIImageView(frame: CGRectMake(0, 0, popupWidth, popupWidth))
+            buyPieceImage.backgroundColor = sprubixGray
+            buyPieceImage.contentMode = UIViewContentMode.ScaleAspectFit
+            buyPieceImage.setImageWithURL(imageURL)
+            
+            // price label
+            let padding: CGFloat = 10
+            let priceLabelHeight: CGFloat = 35
+            var buyPriceLabel = UILabel()
+            buyPriceLabel.textAlignment = NSTextAlignment.Center
+            buyPriceLabel.font = UIFont.boldSystemFontOfSize(18.0)
+            
+            let price = piece["price"] as! String
+            buyPriceLabel.text = "$\(price)"
+            buyPriceLabel.frame = CGRectMake(buyPieceImage.frame.width - (buyPriceLabel.intrinsicContentSize().width + 20.0) - padding, padding, (buyPriceLabel.intrinsicContentSize().width + 20.0), priceLabelHeight)
+            
+            buyPriceLabel.layer.cornerRadius = priceLabelHeight / 2
+            buyPriceLabel.clipsToBounds = true
+            buyPriceLabel.textColor = UIColor.whiteColor()
+            buyPriceLabel.backgroundColor = sprubixColor
+            
+            buyPieceImage.addSubview(buyPriceLabel)
+            
+            buyPieceView.addSubview(buyPieceImage)
+            
+            // size
+            var itemSizeImage = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+            itemSizeImage.setImage(UIImage(named: "view-item-size"), forState: UIControlState.Normal)
+            itemSizeImage.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+            itemSizeImage.frame = CGRect(x: 0, y: popupWidth, width: itemImageViewWidth, height: itemSpecHeight)
+            itemSizeImage.imageEdgeInsets = UIEdgeInsetsMake(10, 0, 10, 0)
+            
+            Glow.addGlow(itemSizeImage)
+            
+            var itemSizeButton: UIButton = UIButton(frame: CGRect(x: itemImageViewWidth, y: popupWidth, width: popupWidth - itemImageViewWidth, height: itemSpecHeight))
+            itemBuySizeLabel = UILabel(frame: itemSizeButton.bounds)
+            itemBuySizeLabel.text = "Select size"
+            itemBuySizeLabel.font = UIFont.systemFontOfSize(14.0)
+            itemBuySizeLabel.textColor = UIColor.lightGrayColor()
+            
+            itemSizeButton.addSubview(itemBuySizeLabel)
+            itemSizeButton.addTarget(self, action: "selectBuySize:", forControlEvents: UIControlEvents.TouchUpInside)
+            
+            // quantity
+            var itemQuantityImage = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+            itemQuantityImage.setImage(UIImage(named: "view-item-quantity"), forState: UIControlState.Normal)
+            itemQuantityImage.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+            itemQuantityImage.frame = CGRect(x: 0, y: popupWidth + itemSpecHeight, width: itemImageViewWidth, height: itemSpecHeight)
+            itemQuantityImage.imageEdgeInsets = UIEdgeInsetsMake(10, 0, 10, 0)
+            
+            Glow.addGlow(itemQuantityImage)
+            
+            var itemQuantityButton: UIButton = UIButton(frame: CGRect(x: itemImageViewWidth, y: popupWidth + itemSpecHeight, width: popupWidth - itemImageViewWidth, height: itemSpecHeight))
+            itemBuyQuantityLabel = UILabel(frame: itemQuantityButton.bounds)
+            itemBuyQuantityLabel.text = "Select quantity"
+            itemBuyQuantityLabel.font = UIFont.systemFontOfSize(14.0)
+            itemBuyQuantityLabel.textColor = UIColor.lightGrayColor()
+            
+            itemQuantityButton.addSubview(itemBuyQuantityLabel)
+            itemQuantityButton.addTarget(self, action: "selectBuyQuantity:", forControlEvents: UIControlEvents.TouchUpInside)
+            
+            // delivery method
+            var itemDeliveryImage = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+            var deliveryImage: UIImage = UIImage(named: "sidemenu-fulfilment")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
+            itemDeliveryImage.setImage(deliveryImage, forState: UIControlState.Normal)
+            itemDeliveryImage.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+            itemDeliveryImage.imageView?.tintColor = UIColor.whiteColor()
+            itemDeliveryImage.frame = CGRect(x: 0, y: popupWidth + itemSpecHeight * 2, width: itemImageViewWidth, height: itemSpecHeight)
+            itemQuantityImage.imageEdgeInsets = UIEdgeInsetsMake(10, 0, 10, 0)
+            
+            Glow.addGlow(itemDeliveryImage)
+            
+            var itemDeliveryButton: UIButton = UIButton(frame: CGRect(x: itemImageViewWidth, y: popupWidth + itemSpecHeight * 2, width: popupWidth - itemImageViewWidth, height: itemSpecHeight))
+            itemBuyDeliveryLabel = UILabel(frame: itemDeliveryButton.bounds)
+            itemBuyDeliveryLabel.text = "Select delivery method"
+            itemBuyDeliveryLabel.font = UIFont.systemFontOfSize(14.0)
+            itemBuyDeliveryLabel.textColor = UIColor.lightGrayColor()
+            
+            itemDeliveryButton.addSubview(itemBuyDeliveryLabel)
+            itemDeliveryButton.addTarget(self, action: "selectBuyDeliveryMethod:", forControlEvents: UIControlEvents.TouchUpInside)
+            
+            buyPieceView.addSubview(itemSizeImage)
+            buyPieceView.addSubview(itemSizeButton)
+            
+            buyPieceView.addSubview(itemQuantityImage)
+            buyPieceView.addSubview(itemQuantityButton)
+            
+            buyPieceView.addSubview(itemDeliveryImage)
+            buyPieceView.addSubview(itemDeliveryButton)
+            
+            buyPiecesScrollView.addSubview(buyPieceView)
+            popupContentView.addSubview(buyPiecesScrollView)
+            
+            // add to cart button
+            var addToCart: UIButton = UIButton(frame: CGRectMake(0, popupHeight - navigationHeight, popupWidth, navigationHeight))
+            addToCart.backgroundColor = sprubixColor
+            addToCart.setTitle("Add to Cart", forState: UIControlState.Normal)
+            addToCart.titleLabel?.font = UIFont.boldSystemFontOfSize(addToCart.titleLabel!.font.pointSize)
+            
+            buyPieceView.addSubview(addToCart)
+        }
+        
+        let popup: KLCPopup = KLCPopup(contentView: popupContentView, showType: KLCPopupShowType.BounceInFromTop, dismissType: KLCPopupDismissType.BounceOutToTop, maskType: KLCPopupMaskType.Dimmed, dismissOnBackgroundTouch: true, dismissOnContentTouch: false)
+        
+        popup.show()
+    }
+    
     func addCommentsPiece(sender: UIButton) {
         var parentView: UIView? = sender.superview
         

@@ -9,7 +9,14 @@
 import UIKit
 import AFNetworking
 
+protocol PieceInteractionProtocol {
+    func likedPiece(piece: NSDictionary)
+    func unlikedPiece(piece: NSDictionary)
+}
+
 class PieceDetailsViewController: UICollectionViewController, UICollectionViewDelegateFlowLayout, TransitionProtocol, HorizontalPageViewControllerProtocol, PieceDetailsOutfitProtocol, DetailsCellActions {
+    var pieceInteractionDelegate: PieceInteractionProtocol?
+    
     let pieceDetailsCellIdentifier = "PieceDetailsCell"
     
     var pieces: [NSDictionary] = [NSDictionary]()
@@ -67,6 +74,16 @@ class PieceDetailsViewController: UICollectionViewController, UICollectionViewDe
         collectionCell.detailsCellActionDelegate = self
         
         collectionCell.tappedAction = {}
+        collectionCell.doubleTappedAction = { like in
+            
+            if like == true {
+                self.pieceInteractionDelegate?.likedPiece(piece)
+            } else {
+                self.pieceInteractionDelegate?.unlikedPiece(piece)
+            }
+            
+            return
+        }
         
         // return to previous
         collectionCell.pullAction = { offset in            

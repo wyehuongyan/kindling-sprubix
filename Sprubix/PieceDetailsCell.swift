@@ -9,13 +9,15 @@
 import UIKit
 import CHTCollectionViewWaterfallLayout
 import AFNetworking
+import KLCPopup
+import ActionSheetPicker_3_0
 
 protocol PieceDetailsOutfitProtocol {
     func relevantOutfitSelected(collectionView: UICollectionView, index: NSIndexPath)
 }
 
 class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UICollectionViewDelegate, CHTCollectionViewDelegateWaterfallLayout, UIScrollViewDelegate {
-
+    
     var detailsCellActionDelegate: DetailsCellActions?
     var outfits: [NSDictionary] = [NSDictionary]()
     
@@ -26,9 +28,18 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
     var numTotalComments: Int = 0
     var numTotalLikes: Int = 0
     
+    var liked: Bool?
+    var likeButton: UIButton!
+    var likeImageView: UIImageView!
+    var commentsButton: UIButton!
+    
+    var priceLabel: UILabel!
+    var addToBagButton: UIButton!
+    
     var pullAction: ((offset : CGPoint) -> Void)?
     var returnAction: (() -> Void)?
     var tappedAction: (() -> Void)?
+    var doubleTappedAction: ((like : Bool) -> Void)?
     
     let relatedOutfitCellIdentifier = "ProfileOutfitCell"
     
@@ -49,6 +60,13 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
     
     let viewAllCommentsHeight:CGFloat = 40
     var commentRowButton: SprubixItemCommentRow!
+    
+    // buy
+    var itemBuySizeLabel: UILabel!
+    var itemBuyQuantityLabel: UILabel!
+    var itemBuyDeliveryLabel: UILabel!
+    
+    var deliveryMethods: [NSDictionary]?
     
     // firebase
     var childAddedHandle: UInt?
@@ -97,7 +115,6 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         var relatedOutfitsLayout = CHTCollectionViewWaterfallLayout()
         
         relatedOutfitsLayout.sectionInset = UIEdgeInsetsMake(1000, 10, 10, 10)
-        //relatedOutfitsLayout.headerHeight = 1
         relatedOutfitsLayout.footerHeight = 10
         relatedOutfitsLayout.minimumColumnSpacing = 10
         relatedOutfitsLayout.minimumInteritemSpacing = 10
@@ -138,12 +155,9 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         
         var pieceImagesDict: NSDictionary = NSJSONSerialization.JSONObjectWithData(pieceImagesData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSDictionary
         
-        var pieceImageURL = NSURL(string: pieceImagesDict["cover"] as! String)
-        
         // piece images horizontal scroll view
         pieceImagesScrollView = UIScrollView(frame: CGRectMake(0, 0, screenWidth, screenWidth))
         pieceImagesScrollView.pagingEnabled = true
-        pieceImagesScrollView.scrollEnabled = true
         pieceImagesScrollView.showsHorizontalScrollIndicator = false
         pieceImagesScrollView.alwaysBounceHorizontal = true
         pieceImagesScrollView.delegate = self
@@ -163,6 +177,12 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
             pieceImagesScrollView.addSubview(pieceImageView)
         }
         
+        if pieceImagesArray.count > 1 {
+            pieceImagesScrollView.scrollEnabled = true
+        } else {
+            pieceImagesScrollView.scrollEnabled = false
+        }
+        
         pieceImagesScrollView.contentSize = CGSize(width: screenWidth * CGFloat(pieceImagesArray.count), height: pieceImagesScrollView.frame.size.height)
         
         pieceDetailInfoView.addSubview(pieceImagesScrollView)
@@ -174,6 +194,77 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         pageControl.clipsToBounds = true
         
         Glow.addGlow(pageControl)
+        
+        // add gesture recognizers
+        var doubleTap = UITapGestureRecognizer(target: self, action: Selector("wasDoubleTapped:"))
+        doubleTap.numberOfTapsRequired = 2
+        doubleTap.cancelsTouchesInView = false
+        pieceImagesScrollView.addGestureRecognizer(doubleTap)
+        
+        // like and comment buttons
+        let likeButtonWidth = frame.size.width / 10
+        likeButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+        var image = UIImage(named: "main-like")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
+        likeButton.setImage(image, forState: UIControlState.Normal)
+        likeButton.setImage(UIImage(named: "main-like-filled"), forState: UIControlState.Selected)
+        likeButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+        likeButton.imageView?.tintColor = sprubixGray
+        likeButton.backgroundColor = UIColor.clearColor()
+        likeButton.frame = CGRectMake(8 * likeButtonWidth, screenWidth - likeButtonWidth, likeButtonWidth, likeButtonWidth)
+        likeButton.imageEdgeInsets = UIEdgeInsetsMake(5, 5, 5, 5)
+        likeButton.addTarget(self, action: "togglePieceLike:", forControlEvents: UIControlEvents.TouchUpInside)
+        likeButton.exclusiveTouch = true
+        
+        // very first time: check likebutton selected
+        let userData: NSDictionary? = defaults.dictionaryForKey("userData")
+        let username = userData!["username"] as! String
+        let pieceId = piece["id"] as! Int
+        
+        let poutfitLikesUserRef = firebaseRef.childByAppendingPath("poutfits/piece_\(pieceId)/likes/\(username)")
+        
+        if liked != nil {
+            likeButton.selected = liked!
+        } else {
+            // check if user has already liked this outfit
+            poutfitLikesUserRef.observeSingleEventOfType(.Value, withBlock: {
+                snapshot in
+                
+                if (snapshot.value as? NSNull) != nil {
+                    // not yet liked
+                    self.liked = false
+                } else {
+                    self.liked = true
+                }
+                
+                self.likeButton.selected = self.liked!
+            })
+        }
+        
+        pieceDetailInfoView.addSubview(likeButton)
+        Glow.addGlow(likeButton)
+        
+        // comment button
+        commentsButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+        image = UIImage(named: "main-comments")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
+        commentsButton.setImage(image, forState: UIControlState.Normal)
+        commentsButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+        commentsButton.imageView?.tintColor = sprubixGray
+        commentsButton.backgroundColor = UIColor.clearColor()
+        commentsButton.frame = CGRectMake(9 * likeButtonWidth, screenWidth - likeButtonWidth, likeButtonWidth, likeButtonWidth)
+        commentsButton.imageEdgeInsets = UIEdgeInsetsMake(5, 5, 5, 5)
+        commentsButton.addTarget(self, action: "addComments:", forControlEvents: UIControlEvents.TouchUpInside)
+        commentsButton.exclusiveTouch = true
+        
+        pieceDetailInfoView.addSubview(commentsButton)
+        Glow.addGlow(commentsButton)
+        
+        // like heart image
+        let likeImageViewWidth:CGFloat = 75
+        likeImageView = UIImageView(image: UIImage(named: "main-like-filled-large"))
+        likeImageView.frame = CGRect(x: frame.size.width / 2 - likeImageViewWidth / 2, y: 0, width: likeImageViewWidth, height: screenWidth)
+        likeImageView.contentMode = UIViewContentMode.ScaleAspectFit
+        likeImageView.alpha = 0
+        pieceImagesScrollView.addSubview(likeImageView)
         
         // init 'posted by' and 'from' credits
         let creditsViewHeight:CGFloat = 80
@@ -193,25 +284,13 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         creditsView.addSubview(buttonLineTop)
         creditsView.addSubview(buttonLineBottom)
         
-        /*
-        // if no inspired by, it is original
-        // inspired by = parent, always credit parent
-        var fromButton:SprubixCreditButton!
-        
-        if inspiredBy == nil {
-            fromButton = SprubixCreditButton(frame: CGRect(x: screenWidth/2, y: 0, width: screenWidth/2, height: creditsViewHeight), buttonLabel: "inspired by", username: user["username"] as! String, userThumbnail: user["image"] as! String)
-        } else {
-            fromButton = SprubixCreditButton(frame: CGRect(x: screenWidth/2, y: 0, width: screenWidth/2, height: creditsViewHeight), buttonLabel: "inspired by", username: inspiredBy["username"] as! String, userThumbnail: inspiredBy["image"] as! String)
-        }*/
-        
         creditsView.addSubview(postedByButton)
-        //creditsView.addSubview(fromButton)
         
         pieceDetailInfoView.addSubview(creditsView)
         
         // init piece specifications
         let itemSpecHeight:CGFloat = 55
-        let itemSpecHeightTotal:CGFloat = itemSpecHeight * 5
+        var itemSpecHeightTotal:CGFloat = piece["quantity"] as! Int > 0 ? itemSpecHeight * 6 : itemSpecHeight * 5
         
         var pieceSpecsView:UIView = UIView(frame: CGRect(x: 0, y: screenWidth + creditsViewHeight, width: screenWidth, height: itemSpecHeightTotal))
         pieceSpecsView.backgroundColor = UIColor.whiteColor()
@@ -304,6 +383,55 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         
         pieceDetailInfoView.addSubview(pieceSpecsView)
         
+        if piece["price"] as! String != "0.00" {
+            if piece["quantity"] as! Int > 0 {
+                // price label
+                let padding: CGFloat = 10
+                let priceLabelHeight: CGFloat = 35
+                priceLabel = UILabel()
+                priceLabel.textAlignment = NSTextAlignment.Center
+                priceLabel.font = UIFont.boldSystemFontOfSize(18.0)
+                
+                let price = piece["price"] as! String
+                priceLabel.text = "$\(price)"
+                priceLabel.frame = CGRectMake(screenWidth - (priceLabel.intrinsicContentSize().width + 20.0) - padding, padding, (priceLabel.intrinsicContentSize().width + 20.0), priceLabelHeight)
+                
+                priceLabel.layer.cornerRadius = priceLabelHeight / 2
+                priceLabel.clipsToBounds = true
+                priceLabel.textColor = UIColor.whiteColor()
+                priceLabel.backgroundColor = sprubixColor
+                
+                pieceDetailInfoView.addSubview(priceLabel)
+                
+                // quantity spec
+                var itemQuantityImage = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+                itemQuantityImage.setImage(UIImage(named: "view-item-quantity"), forState: UIControlState.Normal)
+                itemQuantityImage.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+                itemQuantityImage.frame = CGRect(x: 0, y: itemSpecHeight * 5, width: itemImageViewWidth, height: itemSpecHeight)
+                itemQuantityImage.imageEdgeInsets = UIEdgeInsetsMake(10, 10, 10, 0)
+                
+                Glow.addGlow(itemQuantityImage)
+                
+                var itemQuantityLabel:UILabel = UILabel(frame: CGRect(x: itemImageViewWidth, y: itemSpecHeight * 5, width: screenWidth - itemImageViewWidth, height: itemSpecHeight))
+                var pieceQuantity = piece["quantity"] as! Int
+                itemQuantityLabel.text = "\(pieceQuantity) left in stock"
+                
+                pieceSpecsView.addSubview(itemQuantityImage)
+                pieceSpecsView.addSubview(itemQuantityLabel)
+                
+                // add to bag CTA button
+                addToBagButton = UIButton(frame: CGRect(x: 0, y: screenHeight - navigationHeight, width: screenWidth, height: navigationHeight))
+                addToBagButton.backgroundColor = sprubixColor
+                addToBagButton.titleLabel?.font = UIFont.boldSystemFontOfSize(18.0)
+                addToBagButton.setTitle("Buy Now", forState: UIControlState.Normal)
+                addToBagButton.addTarget(self, action: "addToBagButtonPressed:", forControlEvents: UIControlEvents.TouchUpInside)
+                
+                addSubview(addToBagButton)
+            } else {
+                println("quantity is 0, not enough for sale")
+            }
+        }
+        
         // init piece description
         var itemDescription:SprubixItemDescription = SprubixItemDescription()
         itemDescription.lineBreakMode = NSLineBreakMode.ByWordWrapping
@@ -312,7 +440,7 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         itemDescription.text = piece["description"] as? String
         itemDescription.textColor = UIColor.darkGrayColor()
         
-        var itemDescriptionHeight = heightForTextLabel(itemDescription.text!, font: itemDescription.font, width: screenWidth, hasInsets: true)
+        var itemDescriptionHeight = heightForTextLabel(itemDescription.text!, font: itemDescription.font, width: screenWidth - 40, padding: 20)
         
         itemDescription.frame = CGRect(x: 0, y: screenWidth + creditsViewHeight + itemSpecHeightTotal, width: screenWidth, height: itemDescriptionHeight)
         itemDescription.drawTextInRect(CGRect(x: 0, y: screenWidth + creditsViewHeight + itemSpecHeightTotal, width: screenWidth, height: itemDescriptionHeight))
@@ -337,7 +465,7 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         viewAllComments.addTarget(self, action: "addComments:", forControlEvents: UIControlEvents.TouchUpInside)
         
         var viewMore: UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
-        var image = UIImage(named: "more-dots")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
+        image = UIImage(named: "more-dots")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
         viewMore.frame = CGRectMake(viewAllComments.frame.size.width, 0, screenWidth - viewAllComments.frame.size.width, viewAllCommentsHeight)
         viewMore.setImage(image, forState: UIControlState.Normal)
         viewMore.imageEdgeInsets = UIEdgeInsetsMake(0, 0, 0, 16)
@@ -369,6 +497,7 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         
         var outfitsUsingLabel:UILabel = UILabel(frame: CGRectInset(CGRect(x: 0, y: commentYPos + commentSectionHeight, width: screenWidth, height: 70), 20, 15))
         outfitsUsingLabel.text = "Outfits using this item"
+        outfitsUsingLabel.font = UIFont.boldSystemFontOfSize(outfitsUsingLabel.font.pointSize)
         outfitsUsingLabel.textColor = UIColor.grayColor()
         
         pieceDetailInfoView.addSubview(outfitsUsingLabel)
@@ -484,7 +613,7 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         var relatedOutfitsLayout = CHTCollectionViewWaterfallLayout()
         
         relatedOutfitsLayout.sectionInset = UIEdgeInsetsMake(headerHeight + padding, 10, 10, 10)
-        relatedOutfitsLayout.footerHeight = 10
+        relatedOutfitsLayout.footerHeight = 10 + navigationHeight // navigationHeight is height of buy CTA
         relatedOutfitsLayout.minimumColumnSpacing = 10
         relatedOutfitsLayout.minimumInteritemSpacing = 10
         relatedOutfitsLayout.columnCount = 2
@@ -560,7 +689,7 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         return flowLayout
     }
     
-    func heightForTextLabel(text:String, font:UIFont, width:CGFloat, hasInsets:Bool) -> CGFloat{
+    func heightForTextLabel(text:String, font:UIFont, width:CGFloat, padding: CGFloat) -> CGFloat{
         let label:UILabel = UILabel(frame: CGRectMake(0, 0, width, CGFloat.max))
         label.numberOfLines = 0
         label.lineBreakMode = NSLineBreakMode.ByWordWrapping
@@ -568,10 +697,326 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         label.text = text
         
         label.sizeToFit()
-        return hasInsets ? label.frame.height + 70 : label.frame.height // + 70 because of the custom insets from SprubixItemDescription
+        return label.frame.height + padding
+    }
+    
+    // gesture recognizers 
+    func wasDoubleTapped(gesture: UITapGestureRecognizer) {
+        likeButton.selected = true
+        doubleTappedAction?(like: true)
+        animateHeart()
+    }
+    
+    func togglePieceLike(sender: UIButton) {
+        if sender.selected != true {
+            sender.selected = true
+            
+            doubleTappedAction?(like: true)
+            animateHeart()
+        } else {
+            sender.selected = false
+            
+            doubleTappedAction?(like: false)
+        }
+    }
+    
+    func animateHeart() {
+        if likeImageView != nil {
+            UIView.animateWithDuration(0.3, delay: 0.2, usingSpringWithDamping: 0.9, initialSpringVelocity: 0, options: .CurveEaseInOut, animations: {
+                self.likeImageView!.alpha = 1.0
+                }, completion: { finished in
+                    if finished {
+                        UIView.animateWithDuration(0.3, delay: 0.2, usingSpringWithDamping: 0.9, initialSpringVelocity: 0, options: .CurveEaseInOut, animations: {
+                            self.likeImageView!.alpha = 0.0
+                            }, completion: nil)
+                    }
+            })
+        }
     }
     
     // button callbacks
+    func addToBagButtonPressed(sender: UIButton) {
+        let itemSpecHeight:CGFloat = 45
+        let popupWidth: CGFloat = screenWidth - 100
+        let popupHeight: CGFloat = popupWidth + itemSpecHeight * 3 + navigationHeight
+        let itemImageViewWidth:CGFloat = 0.25 * popupWidth
+        
+        let popupContentView: UIView = UIView(frame: CGRectMake(0, 0, popupWidth, popupHeight))
+        popupContentView.backgroundColor = UIColor.whiteColor()
+        popupContentView.layer.cornerRadius = 12.0
+        
+        let buyPieceView: UIView = UIView(frame: popupContentView.bounds)
+        
+        // add content to popupContentView
+        var buyPiecesScrollView = UIScrollView(frame: CGRectMake(0, 0, popupWidth, popupHeight))
+        buyPiecesScrollView.layer.cornerRadius = 12.0
+        buyPiecesScrollView.pagingEnabled = true
+        buyPiecesScrollView.alwaysBounceHorizontal = true
+        
+        var pieceImagesString = piece["images"] as! String
+        var pieceImagesData:NSData = pieceImagesString.dataUsingEncoding(NSUTF8StringEncoding)!
+        
+        var pieceImagesDict: NSDictionary = NSJSONSerialization.JSONObjectWithData(pieceImagesData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSDictionary
+
+        let imageURL = NSURL(string: pieceImagesDict["cover"] as! String)
+        
+        // cover image
+        var buyPieceImage: UIImageView = UIImageView(frame: CGRectMake(0, 0, popupWidth, popupWidth))
+        buyPieceImage.backgroundColor = sprubixGray
+        buyPieceImage.contentMode = UIViewContentMode.ScaleAspectFit
+        buyPieceImage.setImageWithURL(imageURL)
+        
+        // price label
+        let padding: CGFloat = 10
+        let priceLabelHeight: CGFloat = 35
+        var buyPriceLabel = UILabel()
+        buyPriceLabel.textAlignment = NSTextAlignment.Center
+        buyPriceLabel.font = UIFont.boldSystemFontOfSize(18.0)
+        
+        let price = piece["price"] as! String
+        buyPriceLabel.text = "$\(price)"
+        buyPriceLabel.frame = CGRectMake(buyPieceImage.frame.width - (buyPriceLabel.intrinsicContentSize().width + 20.0) - padding, padding, (buyPriceLabel.intrinsicContentSize().width + 20.0), priceLabelHeight)
+        
+        buyPriceLabel.layer.cornerRadius = priceLabelHeight / 2
+        buyPriceLabel.clipsToBounds = true
+        buyPriceLabel.textColor = UIColor.whiteColor()
+        buyPriceLabel.backgroundColor = sprubixColor
+        
+        buyPieceImage.addSubview(buyPriceLabel)
+        
+        buyPieceView.addSubview(buyPieceImage)
+        
+        // size
+        var itemSizeImage = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+        itemSizeImage.setImage(UIImage(named: "view-item-size"), forState: UIControlState.Normal)
+        itemSizeImage.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+        itemSizeImage.frame = CGRect(x: 0, y: popupWidth, width: itemImageViewWidth, height: itemSpecHeight)
+        itemSizeImage.imageEdgeInsets = UIEdgeInsetsMake(10, 0, 10, 0)
+        
+        Glow.addGlow(itemSizeImage)
+        
+        var itemSizeButton: UIButton = UIButton(frame: CGRect(x: itemImageViewWidth, y: popupWidth, width: popupWidth - itemImageViewWidth, height: itemSpecHeight))
+        itemBuySizeLabel = UILabel(frame: itemSizeButton.bounds)
+        itemBuySizeLabel.text = "Select size"
+        itemBuySizeLabel.font = UIFont.systemFontOfSize(14.0)
+        itemBuySizeLabel.textColor = UIColor.lightGrayColor()
+        
+        itemSizeButton.addSubview(itemBuySizeLabel)
+        itemSizeButton.addTarget(self, action: "selectBuySize:", forControlEvents: UIControlEvents.TouchUpInside)
+        
+        // quantity
+        var itemQuantityImage = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+        itemQuantityImage.setImage(UIImage(named: "view-item-quantity"), forState: UIControlState.Normal)
+        itemQuantityImage.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+        itemQuantityImage.frame = CGRect(x: 0, y: popupWidth + itemSpecHeight, width: itemImageViewWidth, height: itemSpecHeight)
+        itemQuantityImage.imageEdgeInsets = UIEdgeInsetsMake(10, 0, 10, 0)
+        
+        Glow.addGlow(itemQuantityImage)
+        
+        var itemQuantityButton: UIButton = UIButton(frame: CGRect(x: itemImageViewWidth, y: popupWidth + itemSpecHeight, width: popupWidth - itemImageViewWidth, height: itemSpecHeight))
+        itemBuyQuantityLabel = UILabel(frame: itemQuantityButton.bounds)
+        itemBuyQuantityLabel.text = "Select quantity"
+        itemBuyQuantityLabel.font = UIFont.systemFontOfSize(14.0)
+        itemBuyQuantityLabel.textColor = UIColor.lightGrayColor()
+        
+        itemQuantityButton.addSubview(itemBuyQuantityLabel)
+        itemQuantityButton.addTarget(self, action: "selectBuyQuantity:", forControlEvents: UIControlEvents.TouchUpInside)
+        
+        // delivery method
+        var itemDeliveryImage = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+        var deliveryImage: UIImage = UIImage(named: "sidemenu-fulfilment")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
+        itemDeliveryImage.setImage(deliveryImage, forState: UIControlState.Normal)
+        itemDeliveryImage.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+        itemDeliveryImage.imageView?.tintColor = UIColor.whiteColor()
+        itemDeliveryImage.frame = CGRect(x: 0, y: popupWidth + itemSpecHeight * 2, width: itemImageViewWidth, height: itemSpecHeight)
+        itemQuantityImage.imageEdgeInsets = UIEdgeInsetsMake(10, 0, 10, 0)
+        
+        Glow.addGlow(itemDeliveryImage)
+        
+        var itemDeliveryButton: UIButton = UIButton(frame: CGRect(x: itemImageViewWidth, y: popupWidth + itemSpecHeight * 2, width: popupWidth - itemImageViewWidth, height: itemSpecHeight))
+        itemBuyDeliveryLabel = UILabel(frame: itemDeliveryButton.bounds)
+        itemBuyDeliveryLabel.text = "Select delivery method"
+        itemBuyDeliveryLabel.font = UIFont.systemFontOfSize(14.0)
+        itemBuyDeliveryLabel.textColor = UIColor.lightGrayColor()
+        
+        itemDeliveryButton.addSubview(itemBuyDeliveryLabel)
+        itemDeliveryButton.addTarget(self, action: "selectBuyDeliveryMethod:", forControlEvents: UIControlEvents.TouchUpInside)
+
+        buyPieceView.addSubview(itemSizeImage)
+        buyPieceView.addSubview(itemSizeButton)
+        
+        buyPieceView.addSubview(itemQuantityImage)
+        buyPieceView.addSubview(itemQuantityButton)
+        
+        buyPieceView.addSubview(itemDeliveryImage)
+        buyPieceView.addSubview(itemDeliveryButton)
+        
+        buyPiecesScrollView.addSubview(buyPieceView)
+        popupContentView.addSubview(buyPiecesScrollView)
+        
+        // add to cart button
+        var addToCart: UIButton = UIButton(frame: CGRectMake(0, popupHeight - navigationHeight, popupWidth, navigationHeight))
+        addToCart.backgroundColor = sprubixColor
+        addToCart.setTitle("Add to Cart", forState: UIControlState.Normal)
+        addToCart.titleLabel?.font = UIFont.boldSystemFontOfSize(addToCart.titleLabel!.font.pointSize)
+        
+        buyPieceView.addSubview(addToCart)
+        
+        let popup: KLCPopup = KLCPopup(contentView: popupContentView, showType: KLCPopupShowType.BounceInFromTop, dismissType: KLCPopupDismissType.BounceOutToTop, maskType: KLCPopupMaskType.Dimmed, dismissOnBackgroundTouch: true, dismissOnContentTouch: false)
+        
+        popup.show()
+    }
+    
+    func selectBuySize(sender: UIButton) {
+        var sizes: String? = piece["size"] as? String
+        
+        if sizes != nil {
+            var sizes = split(sizes!) {$0 == ","}
+            var sizesArray: [String] = [String]()
+            
+            for size in sizes {
+                sizesArray.append(size.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet()))
+            }
+            
+            let picker: ActionSheetStringPicker = ActionSheetStringPicker(title: "Size", rows: sizesArray, initialSelection: 0,
+                doneBlock: { actionSheetPicker, selectedIndex, selectedValue in
+                    
+                    self.itemBuySizeLabel.text = "\(selectedValue)"
+                    self.itemBuySizeLabel.textColor = UIColor.blackColor()
+                    
+                }, cancelBlock: nil, origin: sender)
+            
+            // custom done button
+            let doneButton = UIBarButtonItem(title: "done", style: UIBarButtonItemStyle.Plain, target: nil, action: nil)
+            
+            doneButton.setTitleTextAttributes([
+                NSForegroundColorAttributeName: sprubixColor,
+                ], forState: UIControlState.Normal)
+            
+            picker.setDoneButton(doneButton)
+            
+            // custom cancel button
+            var cancelButton:UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+            
+            cancelButton.setTitle("X", forState: UIControlState.Normal)
+            cancelButton.setTitleColor(sprubixColor, forState: UIControlState.Normal)
+            cancelButton.frame = CGRect(x: 0, y: 0, width: 20, height: 20)
+            
+            picker.setCancelButton(UIBarButtonItem(customView: cancelButton))
+            
+            picker.showActionSheetPicker()
+        }
+    }
+    
+    func selectBuyQuantity(sender: UIButton) {
+        // create quantity array
+        var quantityArray: [Int] = [Int]()
+        
+        for var i = 1; i <= piece["quantity"] as! Int; i++ {
+            quantityArray.append(i)
+        }
+        
+        let picker: ActionSheetStringPicker = ActionSheetStringPicker(title: "Quantity", rows: quantityArray, initialSelection: 0,
+            doneBlock: { actionSheetPicker, selectedIndex, selectedValue in
+                
+                self.itemBuyQuantityLabel.text = "\(selectedValue)"
+                self.itemBuyQuantityLabel.textColor = UIColor.blackColor()
+                
+            }, cancelBlock: nil, origin: sender)
+        
+        // custom done button
+        let doneButton = UIBarButtonItem(title: "done", style: UIBarButtonItemStyle.Plain, target: nil, action: nil)
+        
+        doneButton.setTitleTextAttributes([
+            NSForegroundColorAttributeName: sprubixColor,
+            ], forState: UIControlState.Normal)
+        
+        picker.setDoneButton(doneButton)
+        
+        // custom cancel button
+        var cancelButton:UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+        
+        cancelButton.setTitle("X", forState: UIControlState.Normal)
+        cancelButton.setTitleColor(sprubixColor, forState: UIControlState.Normal)
+        cancelButton.frame = CGRect(x: 0, y: 0, width: 20, height: 20)
+        
+        picker.setCancelButton(UIBarButtonItem(customView: cancelButton))
+        
+        picker.showActionSheetPicker()
+    }
+    
+    func selectBuyDeliveryMethod(sender: UIButton) {
+        if deliveryMethods == nil {
+            // REST call to server to retrieve delivery methods
+            var shopId: Int? = user["id"] as? Int
+            
+            println(shopId)
+            
+            if shopId != nil {
+                manager.POST(SprubixConfig.URL.api + "/delivery/options",
+                    parameters: [
+                        "user_id": shopId!
+                    ],
+                    success: { (operation: AFHTTPRequestOperation!, responseObject:
+                        AnyObject!) in
+                        
+                        println(responseObject["data"])
+                        
+                        self.deliveryMethods = responseObject["data"] as? [NSDictionary]
+                        
+                        self.showBuyDeliveryMethodPicker(sender)
+                    },
+                    failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                        println("Error: " + error.localizedDescription)
+                })
+            } else {
+                println("userId not found, please login or create an account")
+            }
+        } else {
+            showBuyDeliveryMethodPicker(sender)
+        }
+    }
+    
+    private func showBuyDeliveryMethodPicker(sender: UIButton) {
+        // create delivery array
+        var deliveryArray: [String] = [String]()
+        
+        for deliveryOption in deliveryMethods! {
+            let deliveryOptionName = deliveryOption["name"] as! String
+            let deliveryOptionPrice = deliveryOption["price"] as! String
+        
+            deliveryArray.append("\(deliveryOptionName) ($\(deliveryOptionPrice))")
+        }
+        
+        let picker: ActionSheetStringPicker = ActionSheetStringPicker(title: "Delivery method", rows: deliveryArray, initialSelection: 0,
+            doneBlock: { actionSheetPicker, selectedIndex, selectedValue in
+                
+                self.itemBuyDeliveryLabel.text = "\(selectedValue)"
+                self.itemBuyDeliveryLabel.textColor = UIColor.blackColor()
+                
+            }, cancelBlock: nil, origin: sender)
+        
+        // custom done button
+        let doneButton = UIBarButtonItem(title: "done", style: UIBarButtonItemStyle.Plain, target: nil, action: nil)
+        
+        doneButton.setTitleTextAttributes([
+            NSForegroundColorAttributeName: sprubixColor,
+            ], forState: UIControlState.Normal)
+        
+        picker.setDoneButton(doneButton)
+        
+        // custom cancel button
+        var cancelButton:UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+        
+        cancelButton.setTitle("X", forState: UIControlState.Normal)
+        cancelButton.setTitleColor(sprubixColor, forState: UIControlState.Normal)
+        cancelButton.frame = CGRect(x: 0, y: 0, width: 20, height: 20)
+        
+        picker.setCancelButton(UIBarButtonItem(customView: cancelButton))
+        
+        picker.showActionSheetPicker()
+    }
+    
     func showMoreOptions(sender: UIButton) {
         let ownerId = user["id"] as! Int
         let pieceId = piece["id"] as! Int

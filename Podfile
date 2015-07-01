@@ -21,6 +21,7 @@ target "Sprubix" do
   pod 'AMTagListView', '~> 0.6.3'
   pod 'ActionSheetPicker-3.0', '~> 1.6.2'
   pod 'MLPAutoCompleteTextField', '~> 1.5'
+  pod 'KLCPopup', '~> 1.0'
 end
 
 target "SprubixTests" do

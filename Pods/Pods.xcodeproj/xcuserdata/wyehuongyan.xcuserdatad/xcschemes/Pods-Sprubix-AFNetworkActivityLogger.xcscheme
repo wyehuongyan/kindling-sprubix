@@ -14,7 +14,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "624F7D36B945E09FA2FEB387"
+               BlueprintIdentifier = "F06EAA180A95EDF89C967B96"
                BuildableName = "AFNetworkActivityLogger.framework"
                BlueprintName = "Pods-Sprubix-AFNetworkActivityLogger"
                ReferencedContainer = "container:Pods.xcodeproj">

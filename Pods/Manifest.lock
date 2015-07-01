@@ -29,6 +29,7 @@ PODS:
   - DZNEmptyDataSet (1.5.2)
   - Firebase (2.2.2)
   - GPUImage (0.1.6)
+  - KLCPopup (1.0)
   - MLPAutoCompleteTextField (1.5)
   - MRProgress/ActivityIndicator (0.8.2):
     - MRProgress/Stopable
@@ -91,6 +92,7 @@ DEPENDENCIES:
   - DZNEmptyDataSet (~> 1.5.2)
   - Firebase (>= 2.2.2)
   - GPUImage (~> 0.1.4)
+  - KLCPopup (~> 1.0)
   - MLPAutoCompleteTextField (~> 1.5)
   - MRProgress/AFNetworking (~> 0.8.2)
   - PermissionScope (~> 0.6)
@@ -108,6 +110,7 @@ SPEC CHECKSUMS:
   DZNEmptyDataSet: 741da409081a4bf707c949c964623a6ad1799772
   Firebase: e35cdd2561bf4fea9c1e384e9400a9c173d19e47
   GPUImage: 4675ce4a5370ca92fcea8623b2a08b8f0c51b940
+  KLCPopup: 76c5a19227977f1e53d85236f9ef42257c168d98
   MLPAutoCompleteTextField: ba4d507bbff2bd4f139d4197814fc8dd39caf77e
   MRProgress: f4cfe862082418e8f542f077772283f425d6c699
   PermissionScope: 90a0d5261633d2292c02f3d419fbb4a1e1f4f5bf

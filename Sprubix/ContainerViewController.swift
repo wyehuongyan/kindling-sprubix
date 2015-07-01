@@ -37,6 +37,7 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
     var settingsViewController: SettingsViewController?
     var inventoryViewController: InventoryViewController?
     var deliveryOptionsViewController: DeliveryOptionsViewController?
+    var cartViewController: CartViewController?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -126,6 +127,15 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
         
         sprubixNavigationController.delegate = nil
         sprubixNavigationController.pushViewController(deliveryOptionsViewController!, animated: true)
+    }
+    
+    func showCart() {
+        cartViewController = UIStoryboard.cartViewController()
+        
+        self.closeSidePanel()
+        
+        sprubixNavigationController.delegate = nil
+        sprubixNavigationController.pushViewController(cartViewController!, animated: true)
     }
     
     // SprubixFeedControllerDelegate
@@ -296,5 +306,9 @@ extension UIStoryboard {
     
     class func deliveryOptionsViewController() -> DeliveryOptionsViewController? {
         return mainStoryboard().instantiateViewControllerWithIdentifier("DeliveryOptionsView") as? DeliveryOptionsViewController
+    }
+    
+    class func cartViewController() -> CartViewController? {
+        return mainStoryboard().instantiateViewControllerWithIdentifier("CartView") as? CartViewController
     }
 }

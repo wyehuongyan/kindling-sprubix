@@ -74,7 +74,7 @@ class SignInViewController: UIViewController, UITextFieldDelegate, UITableViewDa
             
             userNameText.tintColor = sprubixColor
             userNameText.placeholder = "Username or email"
-            userNameText.text = "jasmine" // tentative default for ease of use
+            userNameText.text = "cameron" // tentative default for ease of use
             userNameCell.addSubview(userNameText)
             
             return userNameCell

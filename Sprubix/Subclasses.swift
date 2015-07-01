@@ -70,8 +70,11 @@ class SprubixItemCommentRow: UIView {
             postCommentButton = UIButton.buttonWithType(UIButtonType.System) as! UIButton
             postCommentButton.frame = CGRect(x: commentImageViewWidth + 28, y: 0, width: screenWidth - (commentImageViewWidth + 50), height: commentImageViewWidth)
             postCommentButton.setTitle("Add a comment", forState: UIControlState.Normal)
-            postCommentButton.setTitleColor(UIColor.whiteColor(), forState: UIControlState.Normal)
-            postCommentButton.backgroundColor = sprubixColor
+            postCommentButton.setTitleColor(sprubixColor, forState: UIControlState.Normal)
+            postCommentButton.backgroundColor = UIColor.whiteColor()
+            postCommentButton.layer.cornerRadius = commentImageViewWidth / 2
+            postCommentButton.layer.borderWidth = 2.0
+            postCommentButton.layer.borderColor = sprubixColor.CGColor
             postCommentButton.exclusiveTouch = true
             
             commentRowView.addSubview(postCommentButton)

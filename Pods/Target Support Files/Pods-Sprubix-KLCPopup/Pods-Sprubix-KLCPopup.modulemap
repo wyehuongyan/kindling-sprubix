@@ -1,0 +1,6 @@
+framework module KLCPopup {
+  umbrella header "Pods-Sprubix-KLCPopup-umbrella.h"
+
+  export *
+  module * { export * }
+}

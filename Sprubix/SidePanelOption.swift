@@ -26,6 +26,7 @@ class SidePanelOption {
         case Favorites
         case Settings
         case Inventory
+        case Cart
         case Orders
         case DeliveryOptions
         
@@ -43,6 +44,8 @@ class SidePanelOption {
                 return "Settings"
             case .Inventory:
                 return "Inventory"
+            case .Cart:
+                return "My Cart"
             case .Orders:
                 return "Orders"
             case .DeliveryOptions:
@@ -89,6 +92,7 @@ class SidePanelOption {
             SidePanelOption(option: Option.Notifications, image: UIImage(named: "sidemenu-notifications")),
             SidePanelOption(option: Option.CreateOutfit, image: UIImage(named: "sidemenu-create")),
             SidePanelOption(option: Option.Favorites, image: UIImage(named: "sidemenu-likes")),
+            SidePanelOption(option: Option.Cart, image: UIImage(named: "icon-placeholder.png")),
             SidePanelOption(option: Option.Orders, image: UIImage(named: "sidemenu-orders")),
             SidePanelOption(option: Option.Settings, image: UIImage(named: "sidemenu-settings"))
         ]
