@@ -1167,6 +1167,15 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
         popup.show()
     }
     
+    func selectBuySize(sender: UIButton) {
+    }
+    
+    func selectBuyQuantity(sender: UIButton) {
+    }
+    
+    func selectBuyDeliveryMethod(sender: UIButton) {
+    }
+    
     func addCommentsPiece(sender: UIButton) {
         var parentView: UIView? = sender.superview
         
