@@ -164,10 +164,11 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         
         // 2. right bar button for discover feed
         var discoverFeedButton: UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
-        var image: UIImage = UIImage(named: "profile-myoutfits")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
+        var image: UIImage = UIImage(named: "main-discover")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
         discoverFeedButton.setImage(image, forState: UIControlState.Normal)
         discoverFeedButton.frame = CGRect(x: 0, y: 0, width: 30, height: 30)
         discoverFeedButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+        discoverFeedButton.imageView?.tintColor = UIColor.lightGrayColor()
         discoverFeedButton.addTarget(self, action: "discoverFeedTapped:", forControlEvents: UIControlEvents.TouchUpInside)
         
         var discoverFeedBarButton: UIBarButtonItem = UIBarButtonItem(customView: discoverFeedButton)
@@ -268,16 +269,17 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         
         createOutfitButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
         createOutfitButton.frame = CGRect(x: screenWidth - createOutfitButtonWidth - createOutfitButtonPadding, y: screenHeight - createOutfitButtonWidth - createOutfitButtonPadding, width: createOutfitButtonWidth, height: createOutfitButtonWidth)
-        createOutfitButton.backgroundColor = UIColor.whiteColor()
-        createOutfitButton.setImage(UIImage(named: "main-cta-add"), forState: UIControlState.Normal)
-        createOutfitButton.imageView?.backgroundColor = UIColor.clearColor()
+        var image: UIImage = UIImage(named: "main-cta-add")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
+        createOutfitButton.backgroundColor = sprubixColor
+        createOutfitButton.setImage(image, forState: UIControlState.Normal)
+        createOutfitButton.imageView?.tintColor = UIColor.whiteColor()
         createOutfitButton.addTarget(self, action: "createOutfit:", forControlEvents: UIControlEvents.TouchUpInside)
         
         // circle mask
         createOutfitButton.layer.cornerRadius = createOutfitButton.frame.size.width / 2
         createOutfitButton.clipsToBounds = true
         createOutfitButton.layer.borderWidth = 1.0
-        createOutfitButton.layer.borderColor = UIColor.lightGrayColor().CGColor
+        createOutfitButton.layer.borderColor = sprubixLightGray.CGColor
         createOutfitButton.layer.shadowOpacity = 0.6;
         createOutfitButton.layer.shadowRadius = 10.0;
         createOutfitButton.layer.shadowColor = UIColor.blackColor().CGColor;

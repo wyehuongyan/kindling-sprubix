@@ -178,7 +178,61 @@ class DeliveryOptionsViewController: UIViewController, UITableViewDataSource, UI
         cell.deliveryOptionName.text = option["name"] as? String
         cell.deliveryOptionPrice.text = "$\(price)"
         
+        cell.editDeliveryAction = { Void in
+            
+            let deliveryOptionsDetailsViewController = DeliveryOptionsDetailsViewController()
+            
+            deliveryOptionsDetailsViewController.deliveryOption = option
+            
+            self.navigationController?.pushViewController(deliveryOptionsDetailsViewController, animated: true)
+            
+            return
+        }
+        
+        cell.deleteDeliveryAction = { Void in
+
+            var alert = UIAlertController(title: "Confirm delete?", message: "This action cannot be undone", preferredStyle: UIAlertControllerStyle.Alert)
+            alert.view.tintColor = sprubixColor
+            
+            // Yes
+            alert.addAction(UIAlertAction(title: "Delete", style: UIAlertActionStyle.Default, handler: { action in
+                
+                self.deleteDeliveryOption(option)
+            }))
+            
+            // No
+            alert.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Cancel, handler: nil))
+            
+            self.presentViewController(alert, animated: true, completion: nil)
+            
+            return
+        }
+        
         return cell
+    }
+    
+    private func deleteDeliveryOption(option: NSDictionary) {
+        let userId:Int? = defaults.objectForKey("userId") as? Int
+        
+        if userId != nil {
+            let deliveryOptionId = option["id"] as! Int
+            
+            manager.DELETE(SprubixConfig.URL.api + "/delivery/option/\(deliveryOptionId)",
+                parameters: [
+                    "owner_id": userId!
+                ],
+                success: { (operation: AFHTTPRequestOperation!, responseObject:
+                    AnyObject!) in
+                    
+                    // refresh table
+                    self.retrieveDeliveryOptions()
+                },
+                failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                    println("Error: " + error.localizedDescription)
+            })
+        } else {
+            println("userId not found, please login or create an account")
+        }
     }
     
     // nav bar button callbacks

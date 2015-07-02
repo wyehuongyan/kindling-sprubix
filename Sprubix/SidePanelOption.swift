@@ -92,7 +92,7 @@ class SidePanelOption {
             SidePanelOption(option: Option.Notifications, image: UIImage(named: "sidemenu-notifications")),
             SidePanelOption(option: Option.CreateOutfit, image: UIImage(named: "sidemenu-create")),
             SidePanelOption(option: Option.Favorites, image: UIImage(named: "sidemenu-likes")),
-            SidePanelOption(option: Option.Cart, image: UIImage(named: "icon-placeholder.png")),
+            SidePanelOption(option: Option.Cart, image: UIImage(named: "sidemenu-cart")),
             SidePanelOption(option: Option.Orders, image: UIImage(named: "sidemenu-orders")),
             SidePanelOption(option: Option.Settings, image: UIImage(named: "sidemenu-settings"))
         ]

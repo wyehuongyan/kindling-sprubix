@@ -13,28 +13,29 @@ protocol SpruceViewProtocol {
     func dismissSpruceView()
 }
 
-class SpruceViewController: UIViewController, UIScrollViewDelegate, UITextViewDelegate, SprucePieceFeedProtocol, SpruceSelectedPiecesProtocol {
+class SpruceViewController: UIViewController, UIScrollViewDelegate, SprucePieceFeedProtocol, SpruceSelectedPiecesProtocol {
     var delegate: SpruceViewProtocol?
     
     var userIdFrom: Int!
     var usernameFrom: String!
     var userThumbnailFrom: String!
     
-    var outfit: NSDictionary!
+    var outfit: NSDictionary?
     var pieces: [NSDictionary]!
     var currentSprucePieceTypes: [String] = [String]() // contains the types of pieces in the current outfit
     
     var scrollView: UIScrollView = UIScrollView()
     var creditsView:UIView!
     let creditsViewHeight:CGFloat = 80
-    let descriptionHeight:CGFloat = 50
 
-    let outfitHeight: CGFloat = screenWidth / 0.75
+    let outfitHeight: CGFloat = screenHeight - (navigationHeight * 2) - 80//screenWidth / 0.75
     
     var childControllers:[SprucePieceFeedController] = [SprucePieceFeedController]()
     
     var addRemovePieceActionSheet: UIActionSheet!
     var actionSheetButtonNames: [String]! = ["HEAD", "TOP", "BOTTOM", "FEET"] // contains the types of pieces NOT in the current outfit
+    var defaultPieceTypes: [String]! = ["HEAD", "TOP", "BOTTOM", "FEET"]
+    var defaultPieceHeights: [CGFloat]! = [120.0, 147.0, 135, 98.0]
     
     var toggleRemovePieceFeed: Bool = false
     
@@ -88,7 +89,6 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, UITextViewDe
     var newNavBar:UINavigationBar!
     var newNavItem:UINavigationItem!
     
-    var descriptionText:UITextView!
     var placeholderText:String = "Tell us more about this outfit!"
     
     override func viewDidLoad() {
@@ -120,51 +120,95 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, UITextViewDe
         scrollView.backgroundColor = sprubixGray
         scrollView.delegate = self
         
-        // depending on piece type (HEAD, TOP, BOTTOM, FEET)
-        // instantiate an instance of SprucePieceFeedController
-        pieces = outfit["pieces"] as! [NSDictionary]
-        
-        let totalHeight: CGFloat = outfit["height"] as! CGFloat
         var prevPieceHeight: CGFloat = 0
         
-        for piece in pieces {
-            var pieceType: String = piece["type"] as! String
-            var position = find(actionSheetButtonNames, pieceType)
+        if outfit != nil {
+            // depending on piece type (HEAD, TOP, BOTTOM, FEET)
+            // instantiate an instance of SprucePieceFeedController
+            pieces = outfit!["pieces"] as! [NSDictionary]
             
-            if position != nil {
-                actionSheetButtonNames.removeAtIndex(position!) // contains the types of pieces NOT in the current outfit
-            }
+            let totalHeight: CGFloat = outfit!["height"] as! CGFloat
             
-            currentSprucePieceTypes.append(pieceType) // contains the types of pieces in the current outfit
-            
-            // calculate height percentages
-            var pieceHeight: CGFloat = piece["height"] as! CGFloat / totalHeight * outfitHeight
-            
-            let sprucePieceFeedController = SprucePieceFeedController(collectionViewLayout: sprucePieceFeedControllerLayout(pieceHeight), pieceType: pieceType, pieceHeight: pieceHeight)
+            for piece in pieces {
+                var pieceType: String = piece["type"] as! String
+                var position = find(actionSheetButtonNames, pieceType)
+                
+                if position != nil {
+                    actionSheetButtonNames.removeAtIndex(position!) // contains the types of pieces NOT in the current outfit
+                }
+                
+                currentSprucePieceTypes.append(pieceType) // contains the types of pieces in the current outfit
+                
+                // calculate height percentages
+                var pieceHeight: CGFloat = piece["height"] as! CGFloat / totalHeight * outfitHeight
+                
+                let sprucePieceFeedController = SprucePieceFeedController(collectionViewLayout: sprucePieceFeedControllerLayout(pieceHeight), pieceType: pieceType, pieceHeight: pieceHeight)
 
-            if piece["deleted_at"]!.isKindOfClass(NSNull) {
-                sprucePieceFeedController.piece = piece
-                sprucePieceFeedController.sprucePieces.insert(piece, atIndex: 0)
+                if piece["deleted_at"]!.isKindOfClass(NSNull) {
+                    sprucePieceFeedController.piece = piece
+                    sprucePieceFeedController.sprucePieces.insert(piece, atIndex: 0)
+                }
+                
+                sprucePieceFeedController.delegate = self
+                
+                sprucePieceFeedController.willMoveToParentViewController(self)
+                self.addChildViewController(sprucePieceFeedController)
+                sprucePieceFeedController.view.frame = CGRect(x: 0, y: navigationHeight + prevPieceHeight, width: screenWidth, height: pieceHeight)
+                sprucePieceFeedController.view.alpha = 0
+                scrollView.addSubview(sprucePieceFeedController.view)
+                
+                // there's this annoying flashing due to view.addsubview (previous line) no idea why, could be a ios bug
+                UIView.animateWithDuration(0.3, delay: 0.2, usingSpringWithDamping: 0.9, initialSpringVelocity: 0, options: .CurveEaseInOut, animations: {
+                    sprucePieceFeedController.view.alpha = 1.0
+                    }, completion: nil)
+                
+                sprucePieceFeedController.didMoveToParentViewController(self)
+                
+                childControllers.append(sprucePieceFeedController)
+                
+                prevPieceHeight += pieceHeight
+            }
+        } else {
+            // outfit == nil
+            // // came from create outfit
+            for var i = 0; i < defaultPieceTypes.count; i++ {
+                var pieceType: String = defaultPieceTypes[i]
+                var position = find(actionSheetButtonNames, pieceType)
+                
+                if position != nil {
+                    actionSheetButtonNames.removeAtIndex(position!) // contains the types of pieces NOT in the current outfit
+                }
+                
+                currentSprucePieceTypes.append(pieceType) // contains the types of pieces in the current outfit
+                
+                // calculate height percentages
+                var pieceHeight: CGFloat = defaultPieceHeights[i]
+                
+                let sprucePieceFeedController = SprucePieceFeedController(collectionViewLayout: sprucePieceFeedControllerLayout(pieceHeight), pieceType: pieceType, pieceHeight: pieceHeight)
+                
+                sprucePieceFeedController.delegate = self
+                
+                sprucePieceFeedController.willMoveToParentViewController(self)
+                self.addChildViewController(sprucePieceFeedController)
+                sprucePieceFeedController.view.frame = CGRect(x: 0, y: navigationHeight + prevPieceHeight, width: screenWidth, height: pieceHeight)
+                sprucePieceFeedController.view.alpha = 0
+                scrollView.addSubview(sprucePieceFeedController.view)
+                
+                // there's this annoying flashing due to view.addsubview (previous line) no idea why, could be a ios bug
+                UIView.animateWithDuration(0.3, delay: 0.2, usingSpringWithDamping: 0.9, initialSpringVelocity: 0, options: .CurveEaseInOut, animations: {
+                    sprucePieceFeedController.view.alpha = 1.0
+                    }, completion: nil)
+                
+                sprucePieceFeedController.didMoveToParentViewController(self)
+                
+                childControllers.append(sprucePieceFeedController)
+                
+                prevPieceHeight += pieceHeight
             }
             
-            sprucePieceFeedController.delegate = self
-            
-            sprucePieceFeedController.willMoveToParentViewController(self)
-            self.addChildViewController(sprucePieceFeedController)
-            sprucePieceFeedController.view.frame = CGRect(x: 0, y: navigationHeight + prevPieceHeight, width: screenWidth, height: pieceHeight)
-            sprucePieceFeedController.view.alpha = 0
-            scrollView.addSubview(sprucePieceFeedController.view)
-            
-            // there's this annoying flashing due to view.addsubview (previous line) no idea why, could be a ios bug
-            UIView.animateWithDuration(0.3, delay: 0.2, usingSpringWithDamping: 0.9, initialSpringVelocity: 0, options: .CurveEaseInOut, animations: {
-                sprucePieceFeedController.view.alpha = 1.0
-                }, completion: nil)
-            
-            sprucePieceFeedController.didMoveToParentViewController(self)
-            
-            childControllers.append(sprucePieceFeedController)
-            
-            prevPieceHeight += pieceHeight
+            Delay.delay(0.6) {
+                self.closetSelection(UIButton()) // show closet selection
+            }
         }
         
         if actionSheetButtonNames.count <= 0 {
@@ -185,17 +229,7 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, UITextViewDe
         
         scrollView.addSubview(creditsView)
         
-        descriptionText = UITextView(frame: CGRectInset(CGRect(x: 0, y: navigationHeight + prevPieceHeight + creditsViewHeight, width: screenWidth, height: descriptionHeight), 15, 0))
-
-        descriptionText.tintColor = sprubixColor
-        descriptionText.text = placeholderText
-        descriptionText.textColor = UIColor.lightGrayColor()
-        descriptionText.font = UIFont(name: descriptionText.font.fontName, size: 17)
-        descriptionText.delegate = self
-        
-        //scrollView.addSubview(descriptionText)
-        
-        scrollView.contentSize = CGSize(width: screenWidth, height: navigationHeight + prevPieceHeight + creditsViewHeight)// + descriptionHeight + 100)
+        scrollView.contentSize = CGSize(width: screenWidth, height: navigationHeight + prevPieceHeight + creditsViewHeight)
         
         view.insertSubview(scrollView, atIndex: 0)
     }
@@ -643,24 +677,6 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, UITextViewDe
         }
     }
     
-    // UITextViewDelegate
-    func textViewShouldBeginEditing(textView: UITextView) -> Bool {
-        if textView.text == placeholderText {
-            descriptionText.text = ""
-            descriptionText.textColor = UIColor.blackColor()
-        }
-        
-        return true
-    }
-    
-    func textViewDidEndEditing(textView: UITextView) {
-        if textView.text == "" {
-            descriptionText.text = "Tell us more about this outfit!"
-            descriptionText.textColor = UIColor.lightGrayColor()
-            descriptionText.resignFirstResponder()
-        }
-    }
-    
     /**
     * Called when the user click on the view (outside the UITextField).
     */
@@ -734,10 +750,6 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, UITextViewDe
         spruceShareViewController.userThumbnailFrom = userThumbnailFrom
         spruceShareViewController.pieces = sprucedPieces
         spruceShareViewController.numPieces = images.count
-        
-        if descriptionText.text != placeholderText {
-            spruceShareViewController.descriptionCellText = descriptionText.text
-        }
         
         self.navigationController?.pushViewController(spruceShareViewController, animated: true)
     }

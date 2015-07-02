@@ -364,7 +364,13 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         Glow.addGlow(itemSizeImage)
         
         var itemSizeLabel:UILabel = UILabel(frame: CGRect(x: itemImageViewWidth, y: itemSpecHeight * 4, width: screenWidth - itemImageViewWidth, height: itemSpecHeight))
-        itemSizeLabel.text = piece["size"] as? String
+        
+        var pieceSizesString = piece["size"] as! String
+        var pieceSizesData:NSData = pieceSizesString.dataUsingEncoding(NSUTF8StringEncoding)!
+        
+        var pieceSizesArray: NSArray = NSJSONSerialization.JSONObjectWithData(pieceSizesData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSArray
+        
+        itemSizeLabel.text = pieceSizesArray.componentsJoinedByString("/")
         
         pieceSpecsView.addSubview(itemLikesImage)
         pieceSpecsView.addSubview(itemLikesLabel)
@@ -949,8 +955,6 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         if deliveryMethods == nil {
             // REST call to server to retrieve delivery methods
             var shopId: Int? = user["id"] as? Int
-            
-            println(shopId)
             
             if shopId != nil {
                 manager.POST(SprubixConfig.URL.api + "/delivery/options",

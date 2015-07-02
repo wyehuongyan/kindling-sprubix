@@ -11,6 +11,8 @@ import AFNetworking
 
 class DeliveryOptionsDetailsViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UITextFieldDelegate {
     
+    var deliveryOption: NSDictionary?
+    
     var deliveryOptionTable: UITableView!
     var deliveryNameCell: UITableViewCell = UITableViewCell()
     var deliveryPriceCell: UITableViewCell = UITableViewCell()
@@ -132,6 +134,10 @@ class DeliveryOptionsDetailsViewController: UIViewController, UITableViewDataSou
             deliveryNameText.delegate = self
             deliveryNameCell.addSubview(deliveryNameText)
             
+            if deliveryOption != nil {
+                deliveryNameText.text = deliveryOption!["name"] as! String
+            }
+            
             return deliveryNameCell
         case 1:
             deliveryPriceText = UITextField(frame: CGRectInset(deliveryPriceCell.contentView.bounds, 20, 0))
@@ -141,6 +147,11 @@ class DeliveryOptionsDetailsViewController: UIViewController, UITableViewDataSou
             deliveryPriceText.keyboardType = UIKeyboardType.DecimalPad
             deliveryPriceText.delegate = self
             deliveryPriceCell.addSubview(deliveryPriceText)
+            
+            if deliveryOption != nil {
+                addTextLeftView()
+                deliveryPriceText.text = deliveryOption!["price"] as! String
+            }
             
             return deliveryPriceCell
         default:
@@ -156,19 +167,23 @@ class DeliveryOptionsDetailsViewController: UIViewController, UITableViewDataSou
     func textFieldDidBeginEditing(textField: UITextField) {
         
         if textField == deliveryPriceText && deliveryPriceText.text == "" {
-            var dollarLabel: UILabel = UILabel(frame: CGRectMake(0, -1, 10, deliveryPriceText.frame.height))
-            dollarLabel.text = "$"
-            dollarLabel.textColor = UIColor.lightGrayColor()
-            dollarLabel.textAlignment = NSTextAlignment.Left
-            
-            var offsetView: UIView = UIView(frame: dollarLabel.bounds)
-            offsetView.addSubview(dollarLabel)
-            
-            deliveryPriceText.leftView = offsetView
-            deliveryPriceText.leftViewMode = UITextFieldViewMode.Always
-            
-            deliveryPriceText.placeholder = ""
+            addTextLeftView()
         }
+    }
+    
+    private func addTextLeftView() {
+        var dollarLabel: UILabel = UILabel(frame: CGRectMake(0, -1, 10, deliveryPriceText.frame.height))
+        dollarLabel.text = "$"
+        dollarLabel.textColor = UIColor.lightGrayColor()
+        dollarLabel.textAlignment = NSTextAlignment.Left
+        
+        var offsetView: UIView = UIView(frame: dollarLabel.bounds)
+        offsetView.addSubview(dollarLabel)
+        
+        deliveryPriceText.leftView = offsetView
+        deliveryPriceText.leftViewMode = UITextFieldViewMode.Always
+        
+        deliveryPriceText.placeholder = ""
     }
     
     func textFieldDidEndEditing(textField: UITextField) {
@@ -184,14 +199,13 @@ class DeliveryOptionsDetailsViewController: UIViewController, UITableViewDataSou
         // validate
         if deliveryPriceText.text != "" && deliveryNameText.text != "" {
             
-            let userId:Int? = defaults.objectForKey("userId") as? Int
-            
-            if userId != nil {
-                manager.POST(SprubixConfig.URL.api + "/delivery/option/create",
+            if deliveryOption != nil {
+                let deliveryOptionId = deliveryOption!["id"] as! Int
+                
+                manager.POST(SprubixConfig.URL.api + "/delivery/option/edit/\(deliveryOptionId)",
                     parameters: [
                         "name": deliveryNameText.text,
-                        "price": deliveryPriceText.text,
-                        "user_id": userId!
+                        "price": deliveryPriceText.text
                     ],
                     success: { (operation: AFHTTPRequestOperation!, responseObject:
                         AnyObject!) in
@@ -203,7 +217,27 @@ class DeliveryOptionsDetailsViewController: UIViewController, UITableViewDataSou
                         println("Error: " + error.localizedDescription)
                 })
             } else {
-                println("userId not found, please login or create an account")
+                let userId:Int? = defaults.objectForKey("userId") as? Int
+                
+                if userId != nil {
+                    manager.POST(SprubixConfig.URL.api + "/delivery/option/create",
+                        parameters: [
+                            "name": deliveryNameText.text,
+                            "price": deliveryPriceText.text,
+                            "user_id": userId!
+                        ],
+                        success: { (operation: AFHTTPRequestOperation!, responseObject:
+                            AnyObject!) in
+                            
+                            // add notification for success
+                            self.navigationController?.popViewControllerAnimated(true)
+                        },
+                        failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                            println("Error: " + error.localizedDescription)
+                    })
+                } else {
+                    println("userId not found, please login or create an account")
+                }
             }
         }
     }

@@ -3,17 +3,17 @@
     {
       "idiom" : "universal",
       "scale" : "1x",
-      "filename" : "main_cta_plus@1x.png"
+      "filename" : "main_following@1x.png"
     },
     {
       "idiom" : "universal",
       "scale" : "2x",
-      "filename" : "main_cta_plus@2x.png"
+      "filename" : "main_following@2x.png"
     },
     {
       "idiom" : "universal",
       "scale" : "3x",
-      "filename" : "main_cta_plus@3x.png"
+      "filename" : "main_following@3x.png"
     }
   ],
   "info" : {

@@ -94,6 +94,10 @@ class SettingsViewController: UITableViewController {
                 let storyboard = UIStoryboard(name: "Main", bundle: nil)
                 let signInVC = storyboard.instantiateViewControllerWithIdentifier("SignInNav") as! UIViewController
 
+                sprubixNotificationViewController?.removeFromParentViewController()
+                sprubixNotificationViewController = nil
+                SidePanelOption.alerts.counter[SidePanelOption.Option.Notifications.toString()] = 0
+                
                 self.navigationController?.presentViewController(signInVC, animated: true, completion: nil)
                 self.navigationController?.popViewControllerAnimated(true) // pop settings view controller
                 

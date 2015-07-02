@@ -32,6 +32,7 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
     
     // side panel
     var userProfileViewController: UserProfileViewController?
+    var createOutfitViewController: CreateOutfitViewController?
     var sprubixCameraViewController: SprubixCameraViewController?
     var favoritesViewController: FavoritesViewController?
     var settingsViewController: SettingsViewController?
@@ -74,11 +75,14 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
     }
     
     func showCreateOutfit() {
-        sprubixCameraViewController = UIStoryboard.sprubixCameraViewController()
+        if createOutfitViewController == nil {
+            createOutfitViewController = CreateOutfitViewController()
+        }
         
         self.closeSidePanel()
         
-        sprubixNavigationController.pushViewController(sprubixCameraViewController!, animated: false)
+        sprubixNavigationController.delegate = nil
+        sprubixNavigationController.pushViewController(createOutfitViewController!, animated: true)
     }
     
     func showNotifications() {

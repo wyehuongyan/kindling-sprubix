@@ -135,16 +135,17 @@ class DiscoverFeedController: UIViewController, UITextFieldDelegate, UICollectio
         sideMenuButtonItem.tintColor = UIColor(red: 170/255, green: 170/255, blue: 170/255, alpha: 1.0)
         
         var negativeSpacerItem: UIBarButtonItem = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.FixedSpace, target: nil, action: nil)
-        negativeSpacerItem.width = -20
+        negativeSpacerItem.width = -16
         
         self.navigationItem.leftBarButtonItems = [negativeSpacerItem, sideMenuButtonItem]
         
         // 5. go back to main feed buton
         var mainFeedButton:UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
-        var image: UIImage = UIImage(named: "profile-myoutfits")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
+        var image: UIImage = UIImage(named: "main-following")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
         mainFeedButton.setImage(image, forState: UIControlState.Normal)
         mainFeedButton.frame = CGRect(x: 0, y: 0, width: 30, height: 30)
         mainFeedButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+        mainFeedButton.imageView?.tintColor = UIColor.lightGrayColor()
         mainFeedButton.addTarget(self, action: "mainFeedTapped:", forControlEvents: UIControlEvents.TouchUpInside)
         
         var mainFeedBarButtonItem:UIBarButtonItem = UIBarButtonItem(customView: mainFeedButton)

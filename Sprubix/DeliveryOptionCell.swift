@@ -17,17 +17,25 @@ class DeliveryOptionCell: UITableViewCell {
     @IBOutlet var deleteDeliveryOptionButton: UIButton!
     
     @IBAction func editDeliveryOption(sender: AnyObject) {
-        println("edit delivery option")
+        editDeliveryAction?()
     }
     
     @IBAction func deleteDeliveryOption(sender: AnyObject) {
-        println("delete delivery option")
+        deleteDeliveryAction?()
     }
+    
+    var editDeliveryAction: (() -> Void)?
+    var deleteDeliveryAction: (() -> Void)?
     
     override func awakeFromNib() {
         super.awakeFromNib()
         
+        editDeliveryOptionButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+        editDeliveryOptionButton.imageEdgeInsets = UIEdgeInsetsMake(5, 5, 5, 5)
         Glow.addGlow(editDeliveryOptionButton)
+
+        deleteDeliveryOptionButton.imageEdgeInsets = UIEdgeInsetsMake(9, 8, 7, 8)
+        deleteDeliveryOptionButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
         Glow.addGlow(deleteDeliveryOptionButton)
     }
 }

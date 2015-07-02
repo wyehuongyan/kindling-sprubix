@@ -47,16 +47,25 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
         
         camera?.stopCamera()
         
-        self.navigationController!.delegate = nil
-        
-        let transition = CATransition()
-        transition.duration = 0.3
-        transition.type = kCATransitionReveal
-        transition.subtype = kCATransitionFromBottom
-        transition.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
-        
-        self.navigationController?.view.layer.addAnimation(transition, forKey: kCATransition)
-        self.navigationController!.popViewControllerAnimated(false)
+        if fromAddDetails {
+            self.navigationController!.delegate = nil
+            
+            let transition = CATransition()
+            transition.duration = 0.3
+            transition.type = kCATransitionReveal
+            transition.subtype = kCATransitionFromBottom
+            transition.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
+            
+            self.navigationController?.view.layer.addAnimation(transition, forKey: kCATransition)
+            
+            self.navigationController!.popViewControllerAnimated(false)
+        } else {
+            /*
+            // pop to main feed
+            self.navigationController!.popToViewController(self.navigationController!.viewControllers[self.navigationController!.viewControllers.count - 3] as! UIViewController, animated: false)
+            */
+            self.navigationController!.popViewControllerAnimated(true)
+        }
     }
     
     var preview: AVCaptureVideoPreviewLayer?

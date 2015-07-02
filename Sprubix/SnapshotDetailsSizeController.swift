@@ -10,11 +10,13 @@ import UIKit
 import AMTagListView
 
 protocol AddMoreSizesProtocol {
-    func setMoreSizes(sizes: [String])
+    func setMoreSizes(sizes: NSArray)
 }
 
 class SnapshotDetailsSizeController: UIViewController, UITextFieldDelegate {
 
+    var delegate: AddMoreSizesProtocol?
+    
     let addSizeViewHeight: CGFloat = 44
     let addSizeTextFieldHeight: CGFloat = 24
     var addSizeTextField: UITextField!
@@ -140,13 +142,15 @@ class SnapshotDetailsSizeController: UIViewController, UITextFieldDelegate {
     
     // nav bar button callbacks
     func doneTapped(sender: UIBarButtonItem) {
-        println("done")
-        
         let searchTags = tagListView.tags
+        var sizes = NSMutableArray()
         
         for searchTag in searchTags {
-            println(searchTag.tagText())
+            sizes.addObject(searchTag.tagText())
         }
+        
+        delegate?.setMoreSizes(sizes)
+        self.navigationController?.popViewControllerAnimated(true)
     }
     
     func backTapped(sender: UIBarButtonItem) {

@@ -35,7 +35,7 @@ protocol SprubixPieceProtocol {
     func setSprubixPiece(sprubixPiece: SprubixPiece, position: Int)
 }
 
-class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableViewDataSource, UITextViewDelegate, UITextFieldDelegate, MLPAutoCompleteTextFieldDataSource, MLPAutoCompleteTextFieldDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate, SnapshotDetailsProtocol {
+class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableViewDataSource, UITextViewDelegate, UITextFieldDelegate, MLPAutoCompleteTextFieldDataSource, MLPAutoCompleteTextFieldDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate, SnapshotDetailsProtocol, AddMoreSizesProtocol {
     
     var delegate: SprubixPieceProtocol?
     var pos: Int!
@@ -775,11 +775,18 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
         newNavBar.setItems([newNavItem], animated: true)
     }
     
+    // AddMoreSizesProtocol
+    func setMoreSizes(sizes: NSArray) {
+        itemDetailsSize.text = sizes.componentsJoinedByString("/")
+    }
+    
     // button callbacks
     func addMoreSizesPressed(sender: UIButton) {
         if snapshotDetailsSizeController == nil {
             snapshotDetailsSizeController = SnapshotDetailsSizeController()
         }
+        
+        snapshotDetailsSizeController?.delegate = self
         
         self.navigationController?.pushViewController(snapshotDetailsSizeController!, animated: true)
     }
@@ -912,7 +919,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
                     // success block
                     println("Upload Success")
                     
-                    self.delay(0.6) {
+                    Delay.delay(0.6) {
                         // go back to main feed
                         self.navigationController!.delegate = nil
                         
@@ -1020,7 +1027,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
                         // success block
                         println("Upload Success")
                         
-                        self.delay(0.6) {
+                        Delay.delay(0.6) {
                             self.navigationController?.popViewControllerAnimated(true)
                         }
                         
@@ -1067,14 +1074,5 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
         UIGraphicsEndImageContext()
         
         return finalImage
-    }
-    
-    func delay(delay:Double, closure:()->()) {
-        dispatch_after(
-            dispatch_time(
-                DISPATCH_TIME_NOW,
-                Int64(delay * Double(NSEC_PER_SEC))
-            ),
-            dispatch_get_main_queue(), closure)
     }
 }
