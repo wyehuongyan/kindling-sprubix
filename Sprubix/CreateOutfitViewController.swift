@@ -101,6 +101,8 @@ class CreateOutfitViewController: UIViewController {
         snapFromCameraButton.layer.cornerRadius = 12.0
         
         snapFromCameraButton.addTarget(self, action: "snapFromCamera:", forControlEvents: UIControlEvents.TouchUpInside)
+        snapFromCameraButton.addTarget(self, action: "highlightButton:", forControlEvents: UIControlEvents.TouchDown)
+        snapFromCameraButton.addTarget(self, action: "unHighlightButton:", forControlEvents: UIControlEvents.TouchUpOutside)
         
         // // icon image
         let snapFromCameraImageWidth = buttonWidth / 2
@@ -131,6 +133,8 @@ class CreateOutfitViewController: UIViewController {
         myClosetItemsButton.layer.cornerRadius = 12.0
         
         myClosetItemsButton.addTarget(self, action: "spruceCloset:", forControlEvents: UIControlEvents.TouchUpInside)
+        myClosetItemsButton.addTarget(self, action: "highlightButton:", forControlEvents: UIControlEvents.TouchDown)
+        myClosetItemsButton.addTarget(self, action: "unHighlightButton:", forControlEvents: UIControlEvents.TouchUpOutside)
         
         // // icon image
         let myClosetItemsImageWidth = buttonWidth / 2
@@ -164,7 +168,16 @@ class CreateOutfitViewController: UIViewController {
     }
     
     // button callbacks
+    func highlightButton(sender: UIButton) {
+        sender.backgroundColor = sprubixColor
+    }
+    
+    func unHighlightButton(sender: UIButton) {
+        sender.backgroundColor = UIColor.whiteColor()
+    }
+    
     func snapFromCamera(sender: UIButton) {
+        sender.backgroundColor = UIColor.whiteColor()
         sender.layer.borderColor = sprubixColor.CGColor
         
         let sprubixCameraViewController = UIStoryboard.sprubixCameraViewController()
@@ -174,6 +187,7 @@ class CreateOutfitViewController: UIViewController {
     
     func spruceCloset(sender: UIButton) {
         // spruce mode
+        sender.backgroundColor = UIColor.whiteColor()
         sender.layer.borderColor = sprubixColor.CGColor
         
         let userData: NSDictionary? = defaults.dictionaryForKey("userData")

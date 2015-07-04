@@ -55,6 +55,7 @@ if [[ "$CONFIGURATION" == "Debug" ]]; then
   install_framework 'CHTCollectionViewWaterfallLayout.framework'
   install_framework 'DZNEmptyDataSet.framework'
   install_framework 'GPUImage.framework'
+  install_framework 'HexColors.framework'
   install_framework 'KLCPopup.framework'
   install_framework 'MLPAutoCompleteTextField.framework'
   install_framework 'MRProgress.framework'
@@ -63,6 +64,7 @@ if [[ "$CONFIGURATION" == "Debug" ]]; then
   install_framework 'STTweetLabel.framework'
   install_framework 'SVPullToRefresh.framework'
   install_framework 'TLYShyNavBar.framework'
+  install_framework 'TSMessages.framework'
 fi
 if [[ "$CONFIGURATION" == "Release" ]]; then
   install_framework 'AFNetworkActivityLogger.framework'
@@ -72,6 +74,7 @@ if [[ "$CONFIGURATION" == "Release" ]]; then
   install_framework 'CHTCollectionViewWaterfallLayout.framework'
   install_framework 'DZNEmptyDataSet.framework'
   install_framework 'GPUImage.framework'
+  install_framework 'HexColors.framework'
   install_framework 'KLCPopup.framework'
   install_framework 'MLPAutoCompleteTextField.framework'
   install_framework 'MRProgress.framework'
@@ -80,4 +83,5 @@ if [[ "$CONFIGURATION" == "Release" ]]; then
   install_framework 'STTweetLabel.framework'
   install_framework 'SVPullToRefresh.framework'
   install_framework 'TLYShyNavBar.framework'
+  install_framework 'TSMessages.framework'
 fi

@@ -208,6 +208,8 @@ class DeliveryOptionsViewController: UIViewController, UITableViewDataSource, UI
             return
         }
         
+        cell.selectionStyle = UITableViewCellSelectionStyle.None
+        
         return cell
     }
     

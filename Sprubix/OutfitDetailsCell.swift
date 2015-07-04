@@ -10,6 +10,7 @@ import UIKit
 import AFNetworking
 import KLCPopup
 import ActionSheetPicker_3_0
+import TSMessages
 
 protocol DetailsCellActions {
     func showMoreOptions(ownerId: Int, targetId: Int)
@@ -69,8 +70,19 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
     var itemBuySizeLabel: UILabel!
     var itemBuyQuantityLabel: UILabel!
     var itemBuyDeliveryLabel: UILabel!
+    
+    var itemBuySizeLabels: [UILabel] = [UILabel]()
+    var itemBuyQuantityLabels: [UILabel] = [UILabel]()
+    var itemBuyDeliveryLabels: [UILabel] = [UILabel]()
+    
     var buyPieceViews: [UIView] = [UIView]()
+    
     var deliveryMethods: [NSDictionary]?
+    var buyPieceInfo: NSMutableDictionary?
+    var buyPiecesInfo: NSMutableDictionary = NSMutableDictionary()
+    var buyPopup: KLCPopup?
+    
+    var darkenedOverlay: UIView?
     
     let itemSpecHeight: CGFloat = 55
     let viewAllCommentsHeight: CGFloat = 40
@@ -303,6 +315,14 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
                             pieceImageView.addSubview(priceLabel)
                             
                             purchasable = true
+                            
+                            // add info into buyPieceInfo
+                            buyPieceInfo = NSMutableDictionary()
+                            buyPieceInfo?.setObject(piece["id"] as! Int, forKey: "piece_id")
+                            buyPieceInfo?.setObject(user["id"] as! Int, forKey: "seller_id")
+                            
+                            buyPiecesInfo.setObject(buyPieceInfo!, forKey: pieceId)
+                            
                         } else {
                             println("quantity is 0, not enough for sale")
                         }
@@ -395,6 +415,13 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
                 addToBagButton.addTarget(self, action: "addToBagButtonPressed:", forControlEvents: UIControlEvents.TouchUpInside)
                 
                 contentView.addSubview(addToBagButton)
+                
+                // manual dim background because of TSMessage being blocked
+                darkenedOverlay = UIView(frame: CGRectMake(0, 0, screenWidth, screenHeight))
+                darkenedOverlay?.backgroundColor = UIColor.blackColor()
+                darkenedOverlay?.alpha = 0
+                
+                contentView.addSubview(darkenedOverlay!)
             }
             
             return outfitImageCell
@@ -1133,6 +1160,7 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
             
             itemSizeButton.addSubview(itemBuySizeLabel)
             itemSizeButton.addTarget(self, action: "selectBuySize:", forControlEvents: UIControlEvents.TouchUpInside)
+            itemBuySizeLabels.append(itemBuySizeLabel)
             
             // quantity
             var itemQuantityImage = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
@@ -1151,6 +1179,7 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
             
             itemQuantityButton.addSubview(itemBuyQuantityLabel)
             itemQuantityButton.addTarget(self, action: "selectBuyQuantity:", forControlEvents: UIControlEvents.TouchUpInside)
+            itemBuyQuantityLabels.append(itemBuyQuantityLabel)
             
             // delivery method
             var itemDeliveryImage = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
@@ -1171,6 +1200,7 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
             
             itemDeliveryButton.addSubview(itemBuyDeliveryLabel)
             itemDeliveryButton.addTarget(self, action: "selectBuyDeliveryMethod:", forControlEvents: UIControlEvents.TouchUpInside)
+            itemBuyDeliveryLabels.append(itemBuyDeliveryLabel)
             
             buyPieceView.addSubview(itemSizeImage)
             buyPieceView.addSubview(itemSizeButton)
@@ -1192,36 +1222,50 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
             addToCart.backgroundColor = sprubixColor
             addToCart.setTitle("Add to Cart", forState: UIControlState.Normal)
             addToCart.titleLabel?.font = UIFont.boldSystemFontOfSize(addToCart.titleLabel!.font.pointSize)
+            addToCart.addTarget(self, action: "addToCartPressed:", forControlEvents: UIControlEvents.TouchUpInside)
             
             buyPieceView.addSubview(addToCart)
             
             buyPieceViews.append(buyPieceView)
         }
         
-        let popup: KLCPopup = KLCPopup(contentView: popupContentView, showType: KLCPopupShowType.BounceInFromTop, dismissType: KLCPopupDismissType.BounceOutToTop, maskType: KLCPopupMaskType.Dimmed, dismissOnBackgroundTouch: true, dismissOnContentTouch: false)
+        buyPopup = KLCPopup(contentView: popupContentView, showType: KLCPopupShowType.BounceInFromTop, dismissType: KLCPopupDismissType.BounceOutToTop, maskType: KLCPopupMaskType.Clear, dismissOnBackgroundTouch: true, dismissOnContentTouch: false)
         
-        popup.show()
+        // dim background
+        UIView.animateWithDuration(0.5, delay: 0.0, usingSpringWithDamping: 0.9, initialSpringVelocity: 0, options: .CurveEaseInOut, animations: {
+            darkenedOverlay?.alpha = 0.5
+            }, completion: nil)
+        
+        buyPopup?.willStartDismissingCompletion = {
+            // brighten background
+            UIView.animateWithDuration(0.5, delay: 0.0, usingSpringWithDamping: 0.9, initialSpringVelocity: 0, options: .CurveEaseInOut, animations: {
+                darkenedOverlay?.alpha = 0.0
+                }, completion: nil)
+        }
+        
+        buyPopup?.show()
     }
     
     func selectBuySize(sender: UIButton) {
         let pos = find(buyPieceViews, sender.superview!)
         let piece: NSDictionary = pieces[pos!] as NSDictionary
-     
-        var sizes: String? = piece["size"] as? String
+        let buyPieceInfo = buyPiecesInfo[piece["id"] as! Int] as? NSMutableDictionary
         
-        if sizes != nil {
-            var sizes = split(sizes!) {$0 == ","}
-            var sizesArray: [String] = [String]()
+        var pieceSizesString: String? = piece["size"] as? String
+        
+        if pieceSizesString != nil {
+            var pieceSizesData:NSData = pieceSizesString!.dataUsingEncoding(NSUTF8StringEncoding)!
             
-            for size in sizes {
-                sizesArray.append(size.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet()))
-            }
+            var pieceSizesArray: NSArray = NSJSONSerialization.JSONObjectWithData(pieceSizesData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSArray
             
-            let picker: ActionSheetStringPicker = ActionSheetStringPicker(title: "Size", rows: sizesArray, initialSelection: 0,
+            let picker: ActionSheetStringPicker = ActionSheetStringPicker(title: "Size", rows: pieceSizesArray as! [String], initialSelection: 0,
                 doneBlock: { actionSheetPicker, selectedIndex, selectedValue in
                     
-                    self.itemBuySizeLabel.text = "\(selectedValue)"
-                    self.itemBuySizeLabel.textColor = UIColor.blackColor()
+                    // add info to buyPieceInfo
+                    buyPieceInfo?.setObject(selectedValue, forKey: "size")
+                    
+                    (self.itemBuySizeLabels[pos!] as UILabel).text = "\(selectedValue)"
+                    (self.itemBuySizeLabels[pos!] as UILabel).textColor = UIColor.blackColor()
                     
                 }, cancelBlock: nil, origin: sender)
             
@@ -1250,6 +1294,7 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
     func selectBuyQuantity(sender: UIButton) {
         let pos = find(buyPieceViews, sender.superview!)
         let piece: NSDictionary = pieces[pos!] as NSDictionary
+        let buyPieceInfo = buyPiecesInfo[piece["id"] as! Int] as? NSMutableDictionary
         
         // create quantity array
         var quantityArray: [Int] = [Int]()
@@ -1261,8 +1306,11 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
         let picker: ActionSheetStringPicker = ActionSheetStringPicker(title: "Quantity", rows: quantityArray, initialSelection: 0,
             doneBlock: { actionSheetPicker, selectedIndex, selectedValue in
                 
-                self.itemBuyQuantityLabel.text = "\(selectedValue)"
-                self.itemBuyQuantityLabel.textColor = UIColor.blackColor()
+                // add info to buyPieceInfo
+                buyPieceInfo?.setObject(selectedValue, forKey: "quantity")
+                
+                (self.itemBuyQuantityLabels[pos!] as UILabel).text = "\(selectedValue)"
+                (self.itemBuyQuantityLabels[pos!] as UILabel).textColor = UIColor.blackColor()
                 
             }, cancelBlock: nil, origin: sender)
         
@@ -1288,9 +1336,6 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
     }
     
     func selectBuyDeliveryMethod(sender: UIButton) {
-        let pos = find(buyPieceViews, sender.superview!)
-        let piece: NSDictionary = pieces[pos!] as NSDictionary
-        
         if deliveryMethods == nil {
             // REST call to server to retrieve delivery methods
             var shopId: Int? = user["id"] as? Int
@@ -1302,8 +1347,6 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
                     ],
                     success: { (operation: AFHTTPRequestOperation!, responseObject:
                         AnyObject!) in
-                        
-                        println(responseObject["data"])
                         
                         self.deliveryMethods = responseObject["data"] as? [NSDictionary]
                         
@@ -1321,21 +1364,33 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
     }
     
     private func showBuyDeliveryMethodPicker(sender: UIButton) {
+        let pos = find(buyPieceViews, sender.superview!)
+        let piece: NSDictionary = pieces[pos!] as NSDictionary
+        let buyPieceInfo = buyPiecesInfo[piece["id"] as! Int] as? NSMutableDictionary
+        
         // create delivery array
         var deliveryArray: [String] = [String]()
+        var deliveryIdsArray: [Int] = [Int]()
         
         for deliveryOption in deliveryMethods! {
             let deliveryOptionName = deliveryOption["name"] as! String
             let deliveryOptionPrice = deliveryOption["price"] as! String
+            let deliveryOptionId = deliveryOption["id"] as! Int
             
             deliveryArray.append("\(deliveryOptionName) ($\(deliveryOptionPrice))")
+            deliveryIdsArray.append(deliveryOptionId)
         }
         
         let picker: ActionSheetStringPicker = ActionSheetStringPicker(title: "Delivery method", rows: deliveryArray, initialSelection: 0,
             doneBlock: { actionSheetPicker, selectedIndex, selectedValue in
                 
-                self.itemBuyDeliveryLabel.text = "\(selectedValue)"
-                self.itemBuyDeliveryLabel.textColor = UIColor.blackColor()
+                let selectedDeliveryId = deliveryIdsArray[selectedIndex]
+                
+                // add info to buyPieceInfo
+                buyPieceInfo?.setObject(selectedDeliveryId, forKey: "delivery_option_id")
+                
+                (self.itemBuyDeliveryLabels[pos!] as UILabel).text = "\(selectedValue)"
+                (self.itemBuyDeliveryLabels[pos!] as UILabel).textColor = UIColor.blackColor()
                 
             }, cancelBlock: nil, origin: sender)
         
@@ -1358,6 +1413,39 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
         picker.setCancelButton(UIBarButtonItem(customView: cancelButton))
         
         picker.showActionSheetPicker()
+    }
+    
+    func addToCartPressed(sender: UIButton) {
+        let pos = find(buyPieceViews, sender.superview!)
+        let piece: NSDictionary = pieces[pos!] as NSDictionary
+        let buyPieceInfo = buyPiecesInfo[piece["id"] as! Int] as? NSMutableDictionary
+        
+        let userId: Int? = defaults.objectForKey("userId") as? Int
+        
+        if userId != nil && buyPieceInfo != nil {
+            buyPieceInfo?.setObject(userId!, forKey: "buyer_id")
+            
+            // REST call to server to create cart item and add to user's cart
+            manager.POST(SprubixConfig.URL.api + "/cart/item/add",
+                parameters: buyPieceInfo!,
+                success: { (operation: AFHTTPRequestOperation!, responseObject:
+                    AnyObject!) in
+                    
+                    var status = responseObject["status"] as! String
+                    var automatic: NSTimeInterval = 0
+                    
+                    if status == "200" {
+                        // success
+                        TSMessage.showNotificationInViewController(                        TSMessage.defaultViewController(), title: "Success!", subtitle: "Item added to cart", image: UIImage(named: "filter-check"), type: TSMessageNotificationType.Success, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: true)
+                    } else {
+                        // error exception
+                        TSMessage.showNotificationInViewController(                        TSMessage.defaultViewController(), title: "Error", subtitle: "Something went wrong", image: UIImage(named: "filter-cross"), type: TSMessageNotificationType.Error, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: true)
+                    }
+                },
+                failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                    println("Error: " + error.localizedDescription)
+            })
+        }
     }
     
     func addCommentsPiece(sender: UIButton) {

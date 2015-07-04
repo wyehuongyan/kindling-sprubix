@@ -29,6 +29,7 @@ PODS:
   - DZNEmptyDataSet (1.5.2)
   - Firebase (2.2.2)
   - GPUImage (0.1.6)
+  - HexColors (2.2.1)
   - KLCPopup (1.0)
   - MLPAutoCompleteTextField (1.5)
   - MRProgress/ActivityIndicator (0.8.2):
@@ -82,6 +83,8 @@ PODS:
   - STTweetLabel (3.1.20)
   - SVPullToRefresh (0.4.1)
   - TLYShyNavBar (0.9.10)
+  - TSMessages (0.9.12):
+    - HexColors
 
 DEPENDENCIES:
   - ActionSheetPicker-3.0 (~> 1.6.2)
@@ -100,6 +103,16 @@ DEPENDENCIES:
   - STTweetLabel (~> 3.1.2)
   - SVPullToRefresh (~> 0.4.1)
   - TLYShyNavBar (~> 0.9.8)
+  - TSMessages (from `https://github.com/KrauseFx/TSMessages.git`)
+
+EXTERNAL SOURCES:
+  TSMessages:
+    :git: https://github.com/KrauseFx/TSMessages.git
+
+CHECKOUT OPTIONS:
+  TSMessages:
+    :commit: cbcbd0b397a6f4b167fdce6bc6379b68aa5bff95
+    :git: https://github.com/KrauseFx/TSMessages.git
 
 SPEC CHECKSUMS:
   ActionSheetPicker-3.0: cc9f90ae785070623e9b972270013c3242190fb0
@@ -110,6 +123,7 @@ SPEC CHECKSUMS:
   DZNEmptyDataSet: 741da409081a4bf707c949c964623a6ad1799772
   Firebase: e35cdd2561bf4fea9c1e384e9400a9c173d19e47
   GPUImage: 4675ce4a5370ca92fcea8623b2a08b8f0c51b940
+  HexColors: abfd172e329dab59888614ccba6f216cec59289d
   KLCPopup: 76c5a19227977f1e53d85236f9ef42257c168d98
   MLPAutoCompleteTextField: ba4d507bbff2bd4f139d4197814fc8dd39caf77e
   MRProgress: f4cfe862082418e8f542f077772283f425d6c699
@@ -118,5 +132,6 @@ SPEC CHECKSUMS:
   STTweetLabel: 52f443aa81eea297285150e343c0d49284df7dfe
   SVPullToRefresh: ba2e718695a43253d8bea6852d2960097dc15d8c
   TLYShyNavBar: 297414e49b9f779655cbe128d167f8227a30bae8
+  TSMessages: 2a52642128d7ab15b46930c810b9c9403a2b58f3
 
 COCOAPODS: 0.37.2

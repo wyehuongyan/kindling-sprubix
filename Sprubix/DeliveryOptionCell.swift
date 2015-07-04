@@ -34,8 +34,8 @@ class DeliveryOptionCell: UITableViewCell {
         editDeliveryOptionButton.imageEdgeInsets = UIEdgeInsetsMake(5, 5, 5, 5)
         Glow.addGlow(editDeliveryOptionButton)
 
-        deleteDeliveryOptionButton.imageEdgeInsets = UIEdgeInsetsMake(9, 8, 7, 8)
         deleteDeliveryOptionButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+        deleteDeliveryOptionButton.imageEdgeInsets = UIEdgeInsetsMake(9, 8, 7, 8)
         Glow.addGlow(deleteDeliveryOptionButton)
     }
 }

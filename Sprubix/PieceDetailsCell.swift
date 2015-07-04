@@ -11,6 +11,7 @@ import CHTCollectionViewWaterfallLayout
 import AFNetworking
 import KLCPopup
 import ActionSheetPicker_3_0
+import TSMessages
 
 protocol PieceDetailsOutfitProtocol {
     func relevantOutfitSelected(collectionView: UICollectionView, index: NSIndexPath)
@@ -67,6 +68,10 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
     var itemBuyDeliveryLabel: UILabel!
     
     var deliveryMethods: [NSDictionary]?
+    var buyPieceInfo: NSMutableDictionary?
+    var buyPopup: KLCPopup?
+    
+    var darkenedOverlay: UIView?
     
     // firebase
     var childAddedHandle: UInt?
@@ -136,6 +141,13 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         addSubview(singlePieceCollectionView)
         
         initPieceDetails()
+        
+        // manual dim background because of TSMessage being blocked
+        darkenedOverlay = UIView(frame: CGRectMake(0, 0, screenWidth, screenHeight))
+        darkenedOverlay?.backgroundColor = UIColor.blackColor()
+        darkenedOverlay?.alpha = 0
+        
+        addSubview(darkenedOverlay!)
     }
     
     func initPieceDetails() {
@@ -433,6 +445,12 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
                 addToBagButton.addTarget(self, action: "addToBagButtonPressed:", forControlEvents: UIControlEvents.TouchUpInside)
                 
                 addSubview(addToBagButton)
+                
+                // add info into buyPieceInfo
+                buyPieceInfo = NSMutableDictionary()
+                buyPieceInfo?.setObject(piece["id"] as! Int, forKey: "piece_id")
+                buyPieceInfo?.setObject(user["id"] as! Int, forKey: "seller_id")
+                
             } else {
                 println("quantity is 0, not enough for sale")
             }
@@ -865,27 +883,40 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         addToCart.backgroundColor = sprubixColor
         addToCart.setTitle("Add to Cart", forState: UIControlState.Normal)
         addToCart.titleLabel?.font = UIFont.boldSystemFontOfSize(addToCart.titleLabel!.font.pointSize)
+        addToCart.addTarget(self, action: "addToCartPressed:", forControlEvents: UIControlEvents.TouchUpInside)
         
         buyPieceView.addSubview(addToCart)
         
-        let popup: KLCPopup = KLCPopup(contentView: popupContentView, showType: KLCPopupShowType.BounceInFromTop, dismissType: KLCPopupDismissType.BounceOutToTop, maskType: KLCPopupMaskType.Dimmed, dismissOnBackgroundTouch: true, dismissOnContentTouch: false)
+        buyPopup = KLCPopup(contentView: popupContentView, showType: KLCPopupShowType.BounceInFromTop, dismissType: KLCPopupDismissType.BounceOutToTop, maskType: KLCPopupMaskType.Clear, dismissOnBackgroundTouch: true, dismissOnContentTouch: false)
         
-        popup.show()
+        // dim background
+        UIView.animateWithDuration(0.5, delay: 0.0, usingSpringWithDamping: 0.9, initialSpringVelocity: 0, options: .CurveEaseInOut, animations: {
+            darkenedOverlay?.alpha = 0.5
+            }, completion: nil)
+        
+        buyPopup?.willStartDismissingCompletion = {
+            // brighten background
+            UIView.animateWithDuration(0.5, delay: 0.0, usingSpringWithDamping: 0.9, initialSpringVelocity: 0, options: .CurveEaseInOut, animations: {
+                darkenedOverlay?.alpha = 0.0
+                }, completion: nil)
+        }
+        
+        buyPopup?.show()
     }
     
     func selectBuySize(sender: UIButton) {
-        var sizes: String? = piece["size"] as? String
+        var pieceSizesString = piece["size"] as? String
         
-        if sizes != nil {
-            var sizes = split(sizes!) {$0 == ","}
-            var sizesArray: [String] = [String]()
+        if pieceSizesString != nil {
+            var pieceSizesData:NSData = pieceSizesString!.dataUsingEncoding(NSUTF8StringEncoding)!
             
-            for size in sizes {
-                sizesArray.append(size.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet()))
-            }
+            var pieceSizesArray: NSArray = NSJSONSerialization.JSONObjectWithData(pieceSizesData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSArray
             
-            let picker: ActionSheetStringPicker = ActionSheetStringPicker(title: "Size", rows: sizesArray, initialSelection: 0,
+            let picker: ActionSheetStringPicker = ActionSheetStringPicker(title: "Size", rows: pieceSizesArray as! [String], initialSelection: 0,
                 doneBlock: { actionSheetPicker, selectedIndex, selectedValue in
+                    
+                    // add info to buyPieceInfo
+                    self.buyPieceInfo?.setObject(selectedValue, forKey: "size")
                     
                     self.itemBuySizeLabel.text = "\(selectedValue)"
                     self.itemBuySizeLabel.textColor = UIColor.blackColor()
@@ -924,6 +955,9 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         
         let picker: ActionSheetStringPicker = ActionSheetStringPicker(title: "Quantity", rows: quantityArray, initialSelection: 0,
             doneBlock: { actionSheetPicker, selectedIndex, selectedValue in
+                
+                // add info to buyPieceInfo
+                self.buyPieceInfo?.setObject(selectedValue, forKey: "quantity")
                 
                 self.itemBuyQuantityLabel.text = "\(selectedValue)"
                 self.itemBuyQuantityLabel.textColor = UIColor.blackColor()
@@ -964,8 +998,6 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
                     success: { (operation: AFHTTPRequestOperation!, responseObject:
                         AnyObject!) in
                         
-                        println(responseObject["data"])
-                        
                         self.deliveryMethods = responseObject["data"] as? [NSDictionary]
                         
                         self.showBuyDeliveryMethodPicker(sender)
@@ -984,16 +1016,24 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
     private func showBuyDeliveryMethodPicker(sender: UIButton) {
         // create delivery array
         var deliveryArray: [String] = [String]()
+        var deliveryIdsArray: [Int] = [Int]()
         
         for deliveryOption in deliveryMethods! {
             let deliveryOptionName = deliveryOption["name"] as! String
             let deliveryOptionPrice = deliveryOption["price"] as! String
-        
+            let deliveryOptionId = deliveryOption["id"] as! Int
+            
             deliveryArray.append("\(deliveryOptionName) ($\(deliveryOptionPrice))")
+            deliveryIdsArray.append(deliveryOptionId)
         }
         
         let picker: ActionSheetStringPicker = ActionSheetStringPicker(title: "Delivery method", rows: deliveryArray, initialSelection: 0,
             doneBlock: { actionSheetPicker, selectedIndex, selectedValue in
+                
+                let selectedDeliveryId = deliveryIdsArray[selectedIndex]
+
+                // add info to buyPieceInfo
+                self.buyPieceInfo?.setObject(selectedDeliveryId, forKey: "delivery_option_id")
                 
                 self.itemBuyDeliveryLabel.text = "\(selectedValue)"
                 self.itemBuyDeliveryLabel.textColor = UIColor.blackColor()
@@ -1019,6 +1059,35 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         picker.setCancelButton(UIBarButtonItem(customView: cancelButton))
         
         picker.showActionSheetPicker()
+    }
+    
+    func addToCartPressed(sender: UIButton) {
+        let userId: Int? = defaults.objectForKey("userId") as? Int
+        
+        if userId != nil && buyPieceInfo != nil {
+            buyPieceInfo?.setObject(userId!, forKey: "buyer_id")
+            
+            // REST call to server to create cart item and add to user's cart
+            manager.POST(SprubixConfig.URL.api + "/cart/item/add",
+                parameters: buyPieceInfo!,
+                success: { (operation: AFHTTPRequestOperation!, responseObject:
+                    AnyObject!) in
+                    
+                    var status = responseObject["status"] as! String
+                    var automatic: NSTimeInterval = 0
+                    
+                    if status == "200" {
+                        // success
+                        TSMessage.showNotificationInViewController(                        TSMessage.defaultViewController(), title: "Success!", subtitle: "Item added to cart", image: UIImage(named: "filter-check"), type: TSMessageNotificationType.Success, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: true)
+                    } else {
+                        // error exception
+                        TSMessage.showNotificationInViewController(                        TSMessage.defaultViewController(), title: "Error", subtitle: "Something went wrong", image: UIImage(named: "filter-cross"), type: TSMessageNotificationType.Error, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: true)
+                    }
+                },
+                failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                    println("Error: " + error.localizedDescription)
+            })
+        }
     }
     
     func showMoreOptions(sender: UIButton) {

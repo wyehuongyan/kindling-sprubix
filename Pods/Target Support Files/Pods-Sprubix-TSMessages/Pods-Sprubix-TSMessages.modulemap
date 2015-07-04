@@ -1,0 +1,6 @@
+framework module TSMessages {
+  umbrella header "Pods-Sprubix-TSMessages-umbrella.h"
+
+  export *
+  module * { export * }
+}

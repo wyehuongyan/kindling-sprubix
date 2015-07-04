@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import TSMessages
 
 enum SlideOutState {
     case Collapsed
@@ -54,8 +55,12 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
         
         sprubixNavigationController.didMoveToParentViewController(self)
         
-        //let panGestureRecognizer = UIPanGestureRecognizer(target: self, action: "handlePanGesture:")
-        //sprubixNavigationController.view.addGestureRecognizer(panGestureRecognizer)
+        // all notification overlays will be shown in this controller
+        TSMessage.setDefaultViewController(sprubixNavigationController)
+        
+        
+        let panGestureRecognizer = UIPanGestureRecognizer(target: self, action: "handlePanGesture:")
+        mainFeedController.view.addGestureRecognizer(panGestureRecognizer)
     }
     
     override func prefersStatusBarHidden() -> Bool {

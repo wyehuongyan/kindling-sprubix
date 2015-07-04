@@ -22,6 +22,7 @@ target "Sprubix" do
   pod 'ActionSheetPicker-3.0', '~> 1.6.2'
   pod 'MLPAutoCompleteTextField', '~> 1.5'
   pod 'KLCPopup', '~> 1.0'
+  pod 'TSMessages', :git => 'https://github.com/KrauseFx/TSMessages.git'
 end
 
 target "SprubixTests" do
