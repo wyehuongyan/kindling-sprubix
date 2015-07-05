@@ -29,6 +29,7 @@ class CartItemCell: UITableViewCell {
     
     var editCartItemAction: (() -> Void)?
     var deleteCartItemAction: (() -> Void)?
+    var tappedOnImageAction: (() -> Void)?
     
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -39,11 +40,22 @@ class CartItemCell: UITableViewCell {
         cartItemImageView.clipsToBounds = true
         
         editCartItemButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
-        editCartItemButton.imageEdgeInsets = UIEdgeInsetsMake(5, 5, 5, 5)
+        //editCartItemButton.imageEdgeInsets = UIEdgeInsetsMake(5, 5, 5, 5)
+        editCartItemButton.imageEdgeInsets = UIEdgeInsetsMake(0, 2, 2, 0)
         Glow.addGlow(editCartItemButton)
         
         deleteCartItemButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
-        deleteCartItemButton.imageEdgeInsets = UIEdgeInsetsMake(9, 8, 7, 8)
+        // top, left, bottom, right
+        deleteCartItemButton.imageEdgeInsets = UIEdgeInsetsMake(6, 8, 4, 2)
         Glow.addGlow(deleteCartItemButton)
+        
+        // gesture recognizer for item imageview
+        let singleTapGestureRecognizer: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: "imageTapped:")
+        cartItemImageView.addGestureRecognizer(singleTapGestureRecognizer)
+        cartItemImageView.userInteractionEnabled = true
+    }
+    
+    func imageTapped(gesture: UITapGestureRecognizer) {
+        tappedOnImageAction?()
     }
 }

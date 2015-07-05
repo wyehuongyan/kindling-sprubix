@@ -58,7 +58,7 @@ class DeliveryOptionsDetailsViewController: UIViewController, UITableViewDataSou
         
         // 3. add a new navigation item w/title to the new nav bar
         newNavItem = UINavigationItem()
-        newNavItem.title = "Add Delivery Option"
+        newNavItem.title = deliveryOption != nil ? "Edit Delivery Option" : "Add Delivery Option"
         
         // 4. create a custom back button
         var backButton:UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
@@ -172,7 +172,7 @@ class DeliveryOptionsDetailsViewController: UIViewController, UITableViewDataSou
     }
     
     private func addTextLeftView() {
-        var dollarLabel: UILabel = UILabel(frame: CGRectMake(0, -1, 10, deliveryPriceText.frame.height))
+        var dollarLabel: UILabel = UILabel(frame: CGRectMake(0, -0.5, 10, deliveryPriceText.frame.height))
         dollarLabel.text = "$"
         dollarLabel.textColor = UIColor.lightGrayColor()
         dollarLabel.textAlignment = NSTextAlignment.Left

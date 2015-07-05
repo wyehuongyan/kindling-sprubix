@@ -31,11 +31,14 @@ class DeliveryOptionCell: UITableViewCell {
         super.awakeFromNib()
         
         editDeliveryOptionButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
-        editDeliveryOptionButton.imageEdgeInsets = UIEdgeInsetsMake(5, 5, 5, 5)
+        //editCartItemButton.imageEdgeInsets = UIEdgeInsetsMake(5, 5, 5, 5)
+        editDeliveryOptionButton.imageEdgeInsets = UIEdgeInsetsMake(0, 2, 2, 0)
         Glow.addGlow(editDeliveryOptionButton)
 
         deleteDeliveryOptionButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
-        deleteDeliveryOptionButton.imageEdgeInsets = UIEdgeInsetsMake(9, 8, 7, 8)
+        // top, left, bottom, right
+        deleteDeliveryOptionButton.imageEdgeInsets = UIEdgeInsetsMake(6, 8, 4, 2)
+        //deleteDeliveryOptionButton.imageEdgeInsets = UIEdgeInsetsMake(9, 8, 7, 8)
         Glow.addGlow(deleteDeliveryOptionButton)
     }
 }

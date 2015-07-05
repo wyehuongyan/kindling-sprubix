@@ -25,6 +25,11 @@ class NotificationViewController: UIViewController, DZNEmptyDataSetSource, DZNEm
     var notifications: [NSDictionary] = [NSDictionary]()
     var notificationKeyPositions: [String] = [String]()
     
+    // firebase
+    var childAddedHandle: UInt?
+    var childRemovedHandle: UInt?
+    var userNotificationsRef: Firebase!
+    
     required init(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
         
@@ -36,10 +41,10 @@ class NotificationViewController: UIViewController, DZNEmptyDataSetSource, DZNEm
         if userData != nil {
             let username = userData!["username"] as! String
             
-            let userNotificationsRef = firebaseRef.childByAppendingPath("users/\(username)/notifications")
+            userNotificationsRef = firebaseRef.childByAppendingPath("users/\(username)/notifications")
             
             // Firebase Listener: child added
-            userNotificationsRef.queryOrderedByChild("created_at").queryLimitedToLast(50).observeEventType(.ChildAdded, withBlock: {
+            childAddedHandle = userNotificationsRef.queryOrderedByChild("created_at").queryLimitedToLast(50).observeEventType(.ChildAdded, withBlock: {
                 snapshot in
                 
                 //println("key: \(snapshot.key)")
@@ -80,7 +85,7 @@ class NotificationViewController: UIViewController, DZNEmptyDataSetSource, DZNEm
             })
             
             // Firebase Listener: child removed
-            userNotificationsRef.observeEventType(.ChildRemoved, withBlock: {
+            childRemovedHandle = userNotificationsRef.observeEventType(.ChildRemoved, withBlock: {
                 snapshot in
                 println("\(snapshot.key) was removed from user notifications.")
                 
@@ -202,6 +207,18 @@ class NotificationViewController: UIViewController, DZNEmptyDataSetSource, DZNEm
             notificationTableView.deleteRowsAtIndexPaths([nsPath], withRowAnimation: UITableViewRowAnimation.Fade)
             
             notificationTableView.endUpdates()
+        }
+    }
+    
+    func removeFirebaseListeners() {
+        if childAddedHandle != nil {
+            userNotificationsRef.removeObserverWithHandle(childAddedHandle!)
+            println("Removed: notification added listener")
+        }
+        
+        if childRemovedHandle != nil {
+            userNotificationsRef.removeObserverWithHandle(childRemovedHandle!)
+            println("Removed: notification removed listener")
         }
     }
     

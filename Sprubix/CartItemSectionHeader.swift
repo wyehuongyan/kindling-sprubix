@@ -12,6 +12,8 @@ class CartItemSectionHeader: UITableViewCell {
     @IBOutlet var sellerImageView: UIImageView!
     @IBOutlet var sellerName: UILabel!
     
+    var tappedOnSellerAction: (() -> Void)?
+    
     override func awakeFromNib() {
         sellerImageView.layer.cornerRadius = sellerImageView.frame.size.width / 2
         sellerImageView.layer.borderColor = UIColor.lightGrayColor().CGColor
@@ -19,5 +21,19 @@ class CartItemSectionHeader: UITableViewCell {
         sellerImageView.clipsToBounds = true
         
         contentView.backgroundColor = sprubixLightGray
+        
+        // gesture recognizer for seller imageview
+        let sellerImageSingleTapGestureRecognizer: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: "sellerTapped:")
+        sellerImageView.addGestureRecognizer(sellerImageSingleTapGestureRecognizer)
+        sellerImageView.userInteractionEnabled = true
+        
+        // // gesture recognizer for seller username
+        let sellerNameSingleTapGestureRecognizer: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: "sellerTapped:")
+        sellerName.addGestureRecognizer(sellerNameSingleTapGestureRecognizer)
+        sellerName.userInteractionEnabled = true
+    }
+    
+    func sellerTapped(gesture: UITapGestureRecognizer) {
+        tappedOnSellerAction?()
     }
 }

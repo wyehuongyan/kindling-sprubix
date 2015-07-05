@@ -10,10 +10,6 @@ import UIKit
 import SSKeychain
 
 class SettingsViewController: UITableViewController {
-
-    // custom nav bar
-    var newNavBar: UINavigationBar!
-    var newNavItem: UINavigationItem!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -66,6 +62,20 @@ class SettingsViewController: UITableViewController {
                 fatalError("Unknown static cell for settings.")
             }
         case 1:
+            // biling & delivery
+            switch indexPath.row {
+            case 0:
+                println("Payment Methods")
+            case 1:
+                println("Delivery Addresses")
+                
+                let deliveryAddressesViewController = UIStoryboard.deliveryAddressesViewController()
+                
+                self.navigationController?.pushViewController(deliveryAddressesViewController!, animated: true)
+            default:
+                fatalError("Unknown static cell for settings.")
+            }
+        case 2:
             // support
             switch indexPath.row {
             case 0:
@@ -75,7 +85,7 @@ class SettingsViewController: UITableViewController {
             default:
                 fatalError("Unknown static cell for settings.")
             }
-        case 2:
+        case 3:
             // logout
             switch indexPath.row {
             case 0:
@@ -94,6 +104,7 @@ class SettingsViewController: UITableViewController {
                 let storyboard = UIStoryboard(name: "Main", bundle: nil)
                 let signInVC = storyboard.instantiateViewControllerWithIdentifier("SignInNav") as! UIViewController
 
+                sprubixNotificationViewController?.removeFirebaseListeners()
                 sprubixNotificationViewController?.removeFromParentViewController()
                 sprubixNotificationViewController = nil
                 SidePanelOption.alerts.counter[SidePanelOption.Option.Notifications.toString()] = 0

@@ -32,6 +32,9 @@
 		847D05881AD58DDA005E09AB /* user6-melody.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 847D05851AD58DDA005E09AB /* user6-melody.jpg */; };
 		8482B8661B476A280017CEEF /* CartItemSectionHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8482B8651B476A280017CEEF /* CartItemSectionHeader.swift */; };
 		8482B8681B47B3FF0017CEEF /* CartItemSectionFooter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8482B8671B47B3FF0017CEEF /* CartItemSectionFooter.swift */; };
+		8482B86B1B490F930017CEEF /* DeliveryAddressesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8482B86A1B490F930017CEEF /* DeliveryAddressesViewController.swift */; };
+		8482B86E1B4926CC0017CEEF /* DeliveryAddressCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8482B86D1B4926CC0017CEEF /* DeliveryAddressCell.swift */; };
+		8482B8701B493B1F0017CEEF /* DeliveryAddressesDetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8482B86F1B493B1F0017CEEF /* DeliveryAddressesDetailsViewController.swift */; };
 		8486D4161B04774800ED31BA /* SprubixPiece.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8486D4151B04774800ED31BA /* SprubixPiece.swift */; };
 		8488717A1B32996E001D60A1 /* SpruceSearchResultsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 848871791B32996E001D60A1 /* SpruceSearchResultsViewController.swift */; };
 		8488717C1B32D163001D60A1 /* DiscoverFeedController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8488717B1B32D163001D60A1 /* DiscoverFeedController.swift */; };
@@ -118,6 +121,9 @@
 		847D05851AD58DDA005E09AB /* user6-melody.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "user6-melody.jpg"; sourceTree = "<group>"; };
 		8482B8651B476A280017CEEF /* CartItemSectionHeader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CartItemSectionHeader.swift; sourceTree = "<group>"; };
 		8482B8671B47B3FF0017CEEF /* CartItemSectionFooter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CartItemSectionFooter.swift; sourceTree = "<group>"; };
+		8482B86A1B490F930017CEEF /* DeliveryAddressesViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeliveryAddressesViewController.swift; sourceTree = "<group>"; };
+		8482B86D1B4926CC0017CEEF /* DeliveryAddressCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeliveryAddressCell.swift; sourceTree = "<group>"; };
+		8482B86F1B493B1F0017CEEF /* DeliveryAddressesDetailsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeliveryAddressesDetailsViewController.swift; sourceTree = "<group>"; };
 		8486D4151B04774800ED31BA /* SprubixPiece.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SprubixPiece.swift; sourceTree = "<group>"; };
 		848871791B32996E001D60A1 /* SpruceSearchResultsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpruceSearchResultsViewController.swift; sourceTree = "<group>"; };
 		8488717B1B32D163001D60A1 /* DiscoverFeedController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DiscoverFeedController.swift; sourceTree = "<group>"; };
@@ -289,6 +295,23 @@
 			name = Spruce;
 			sourceTree = "<group>";
 		};
+		8482B8691B490F330017CEEF /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				8482B86A1B490F930017CEEF /* DeliveryAddressesViewController.swift */,
+				8482B86F1B493B1F0017CEEF /* DeliveryAddressesDetailsViewController.swift */,
+			);
+			name = Settings;
+			sourceTree = "<group>";
+		};
+		8482B86C1B4926AD0017CEEF /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				8482B86D1B4926CC0017CEEF /* DeliveryAddressCell.swift */,
+			);
+			name = Settings;
+			sourceTree = "<group>";
+		};
 		8488717D1B369995001D60A1 /* Shop */ = {
 			isa = PBXGroup;
 			children = (
@@ -436,6 +459,7 @@
 			children = (
 				84B334E91AAB0CC900B9707D /* SidePanelCell.swift */,
 				84FDB95F1B1595FA00E8D720 /* NotificationCell.swift */,
+				8482B86C1B4926AD0017CEEF /* Settings */,
 			);
 			name = Menu;
 			sourceTree = "<group>";
@@ -482,6 +506,7 @@
 				84FDB9621B15A63700E8D720 /* NotificationViewController.swift */,
 				8475ECFA1B24055D0000111A /* FavoritesViewController.swift */,
 				8475ECFC1B25D4F80000111A /* SettingsViewController.swift */,
+				8482B8691B490F330017CEEF /* Settings */,
 			);
 			name = Menu;
 			sourceTree = "<group>";
@@ -666,6 +691,7 @@
 				8482B8681B47B3FF0017CEEF /* CartItemSectionFooter.swift in Sources */,
 				848871821B36A140001D60A1 /* InventoryViewController.swift in Sources */,
 				84B334EA1AAB0CC900B9707D /* SidePanelCell.swift in Sources */,
+				8482B86E1B4926CC0017CEEF /* DeliveryAddressCell.swift in Sources */,
 				84C664901B3AD7EB00E18FF7 /* DeliveryOptionCell.swift in Sources */,
 				845048B41A9ECC81008BDBAA /* AppDelegate.swift in Sources */,
 				84FDB9601B1595FA00E8D720 /* NotificationCell.swift in Sources */,
@@ -680,6 +706,7 @@
 				84B3354E1AB4520C00B9707D /* PieceDetailsCell.swift in Sources */,
 				8486D4161B04774800ED31BA /* SprubixPiece.swift in Sources */,
 				846C979D1ABD68A80050D0BC /* SprucePieceFeedController.swift in Sources */,
+				8482B86B1B490F930017CEEF /* DeliveryAddressesViewController.swift in Sources */,
 				84B335321AAF095900B9707D /* SprubixStretchyHeader.swift in Sources */,
 				843B81A31AFDF22200FA2DD2 /* SnapshotDetailsController.swift in Sources */,
 				8488717A1B32996E001D60A1 /* SpruceSearchResultsViewController.swift in Sources */,
@@ -696,6 +723,7 @@
 				84B3354C1AB449F500B9707D /* PieceDetailsViewController.swift in Sources */,
 				8482B8661B476A280017CEEF /* CartItemSectionHeader.swift in Sources */,
 				84B3352E1AAEEA1000B9707D /* UserProfileFooter.swift in Sources */,
+				8482B8701B493B1F0017CEEF /* DeliveryAddressesDetailsViewController.swift in Sources */,
 				84B334E81AAB0C7D00B9707D /* SidePanelOption.swift in Sources */,
 				84B3354A1AB4035A00B9707D /* OutfitDetailsCell.swift in Sources */,
 				84B335441AB2BD0700B9707D /* Extension.swift in Sources */,

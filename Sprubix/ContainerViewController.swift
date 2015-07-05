@@ -140,6 +140,7 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
     
     func showCart() {
         cartViewController = UIStoryboard.cartViewController()
+        cartViewController!.delegate = self
         
         self.closeSidePanel()
         
@@ -319,5 +320,9 @@ extension UIStoryboard {
     
     class func cartViewController() -> CartViewController? {
         return mainStoryboard().instantiateViewControllerWithIdentifier("CartView") as? CartViewController
+    }
+    
+    class func deliveryAddressesViewController() -> DeliveryAddressesViewController? {
+        return mainStoryboard().instantiateViewControllerWithIdentifier("DeliveryAddressesView") as? DeliveryAddressesViewController
     }
 }

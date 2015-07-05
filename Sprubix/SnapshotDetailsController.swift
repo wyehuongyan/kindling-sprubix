@@ -75,14 +75,18 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
     // itemDetails textfields
     var pieceSpecsView: UIView!
     var itemDetailsName: UITextField!
-    var itemDetailsCategory: UIButton!
-    var itemDetailsCategoryText: UITextField!
+    var itemDetailsCategoryButton: UIButton!
+    var itemDetailsCategory: UITextField!
     var itemDetailsBrand: MLPAutoCompleteTextField!
     var itemDetailsSize: UITextField!
+    var itemDetailsSizeButton: UIButton!
     var itemDetailsQuantity: UITextField!
     var itemDetailsPrice: UITextField!
     var itemIsDress: Bool = false
     var itemSpecHeightTotal: CGFloat = 220
+    
+    // to be pushed downwards when quantity increases in rows
+    var itemPriceImage: UIButton!
     
     var isShop: Bool = false
     var snapshotDetailsSizeController: SnapshotDetailsSizeController?
@@ -371,16 +375,16 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
             
             Glow.addGlow(itemCategoryImage)
             
-            itemDetailsCategory = UIButton(frame: CGRectMake(itemImageViewWidth, itemSpecHeight, screenWidth - itemImageViewWidth, itemSpecHeight))
-            itemDetailsCategoryText = UITextField(frame: CGRectMake(0, 0, screenWidth - itemImageViewWidth, itemSpecHeight))
-            itemDetailsCategoryText.tintColor = sprubixColor
-            itemDetailsCategoryText.placeholder = "Which category is it from?"
-            itemDetailsCategoryText.enabled = false
-            itemDetailsCategory.addSubview(itemDetailsCategoryText)
-            itemDetailsCategory.addTarget(self, action: "itemDetailsCategoryPressed:", forControlEvents: UIControlEvents.TouchUpInside)
+            itemDetailsCategoryButton = UIButton(frame: CGRectMake(itemImageViewWidth, itemSpecHeight, screenWidth - itemImageViewWidth, itemSpecHeight))
+            itemDetailsCategory = UITextField(frame: CGRectMake(0, 0, screenWidth - itemImageViewWidth, itemSpecHeight))
+            itemDetailsCategory.tintColor = sprubixColor
+            itemDetailsCategory.placeholder = "Which category is it from?"
+            itemDetailsCategory.enabled = false
+            itemDetailsCategoryButton.addSubview(itemDetailsCategory)
+            itemDetailsCategoryButton.addTarget(self, action: "itemDetailsCategoryPressed:", forControlEvents: UIControlEvents.TouchUpInside)
             
             if sprubixPiece.category != nil {
-                itemDetailsCategoryText.text = sprubixPiece.category
+                itemDetailsCategory.text = sprubixPiece.category
             }
             
             // brand
@@ -418,17 +422,41 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
             
             Glow.addGlow(itemSizeImage)
             
-            itemDetailsSize = UITextField(frame: CGRectMake(itemImageViewWidth, itemSpecHeight * 3, screenWidth - itemImageViewWidth - 20, itemSpecHeight))
-            itemDetailsSize.tintColor = sprubixColor
-            itemDetailsSize.placeholder = "What size is it?"
-            itemDetailsSize.returnKeyType = UIReturnKeyType.Done
-            itemDetailsSize.delegate = self
-            
-            if sprubixPiece.size != nil {
-                itemDetailsSize.text = sprubixPiece.size
-            }
-            
-            if isShop == true {
+            if isShop != true {
+                itemDetailsSize = UITextField(frame: CGRectMake(itemImageViewWidth, itemSpecHeight * 3, screenWidth - itemImageViewWidth - 20, itemSpecHeight))
+                itemDetailsSize.tintColor = sprubixColor
+                itemDetailsSize.placeholder = "What size is it?"
+                itemDetailsSize.returnKeyType = UIReturnKeyType.Done
+                itemDetailsSize.delegate = self
+                
+                if sprubixPiece.size != nil {
+                    var pieceSizesString = sprubixPiece.size
+                    var pieceSizesData:NSData = pieceSizesString.dataUsingEncoding(NSUTF8StringEncoding)!
+                    
+                    var pieceSizesArray: NSArray = NSJSONSerialization.JSONObjectWithData(pieceSizesData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSArray
+                    
+                    itemDetailsSize.text = pieceSizesArray.componentsJoinedByString("/")
+                }
+                
+                pieceSpecsView.addSubview(itemDetailsSize)
+            } else {
+                itemDetailsSizeButton = UIButton(frame: CGRectMake(itemImageViewWidth, itemSpecHeight * 3, screenWidth - itemImageViewWidth - 20, itemSpecHeight))
+                itemDetailsSize = UITextField(frame: CGRectMake(0, 0, screenWidth - itemImageViewWidth - 20, itemSpecHeight))
+                itemDetailsSize.tintColor = sprubixColor
+                itemDetailsSize.placeholder = "What size is it?"
+                itemDetailsSize.enabled = false
+                itemDetailsSizeButton.addSubview(itemDetailsSize)
+                itemDetailsSizeButton.addTarget(self, action: "addMoreSizesPressed:", forControlEvents: UIControlEvents.TouchUpInside)
+                
+                if sprubixPiece.size != nil {
+                    var pieceSizesString = sprubixPiece.size
+                    var pieceSizesData:NSData = pieceSizesString.dataUsingEncoding(NSUTF8StringEncoding)!
+                    
+                    var pieceSizesArray: NSArray = NSJSONSerialization.JSONObjectWithData(pieceSizesData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSArray
+                    
+                    itemDetailsSize.text = pieceSizesArray.componentsJoinedByString("/")
+                }
+                
                 // add more sizes
                 let addMoreSizesWidth: CGFloat = 25
                 var addMoreSizes = UIButton(frame: CGRectMake(0, -1, addMoreSizesWidth, addMoreSizesWidth))
@@ -444,6 +472,8 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
                 
                 itemDetailsSize.rightView = offsetView
                 itemDetailsSize.rightViewMode = UITextFieldViewMode.Always
+                
+                pieceSpecsView.addSubview(itemDetailsSizeButton)
                 
                 // quantity
                 var itemQuantityImage = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
@@ -466,7 +496,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
                 }
                 
                 // price
-                var itemPriceImage = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+                itemPriceImage = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
                 itemPriceImage.setImage(UIImage(named: "view-item-price"), forState: UIControlState.Normal)
                 itemPriceImage.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
                 itemPriceImage.frame = CGRect(x: 0, y: itemSpecHeight * 5, width: itemImageViewWidth, height: itemSpecHeight)
@@ -483,6 +513,17 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
                 
                 if sprubixPiece.price != nil {
                     itemDetailsPrice.text = sprubixPiece.price
+                    
+                    var dollarLabel: UILabel = UILabel(frame: CGRectMake(0, 0, 10, itemDetailsPrice.frame.height))
+                    dollarLabel.text = "$"
+                    dollarLabel.textColor = UIColor.lightGrayColor()
+                    dollarLabel.textAlignment = NSTextAlignment.Left
+                    
+                    var offsetView: UIView = UIView(frame: dollarLabel.bounds)
+                    offsetView.addSubview(dollarLabel)
+                    
+                    itemDetailsPrice.leftView = offsetView
+                    itemDetailsPrice.leftViewMode = UITextFieldViewMode.Always
                 }
                 
                 pieceSpecsView.addSubview(itemQuantityImage)
@@ -496,15 +537,15 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
             pieceSpecsView.addSubview(itemDetailsName)
             
             pieceSpecsView.addSubview(itemCategoryImage)
-            pieceSpecsView.addSubview(itemDetailsCategory)
+            pieceSpecsView.addSubview(itemDetailsCategoryButton)
             
             pieceSpecsView.addSubview(itemBrandImage)
             pieceSpecsView.addSubview(itemDetailsBrand)
             
             pieceSpecsView.addSubview(itemSizeImage)
-            pieceSpecsView.addSubview(itemDetailsSize)
             
             itemDetailsCell.addSubview(pieceSpecsView)
+            itemDetailsCell.selectionStyle = UITableViewCellSelectionStyle.None
             
             return itemDetailsCell
             
@@ -711,7 +752,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
             navBarTitle = "Item Price"
             
             if itemDetailsPrice.text == "" {
-                var dollarLabel: UILabel = UILabel(frame: CGRectMake(0, -1, 10, itemDetailsPrice.frame.height))
+                var dollarLabel: UILabel = UILabel(frame: CGRectMake(0, 0, 10, itemDetailsPrice.frame.height))
                 dollarLabel.text = "$"
                 dollarLabel.textColor = UIColor.lightGrayColor()
                 dollarLabel.textAlignment = NSTextAlignment.Left
@@ -778,6 +819,10 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
     // AddMoreSizesProtocol
     func setMoreSizes(sizes: NSArray) {
         itemDetailsSize.text = sizes.componentsJoinedByString("/")
+        
+        // increase the number of rows for quantity
+        // // itemDetailsQuantity frame height ++
+        // // itemPriceImage and itemDetailsPrice posY ++ by height increment
     }
     
     // button callbacks
@@ -810,7 +855,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
                     self.itemIsDress = false
                 }
                 
-                self.itemDetailsCategoryText.text = "\(selectedValue)"
+                self.itemDetailsCategory.text = "\(selectedValue)"
                 
             }, cancelBlock: nil, origin: sender)
         
@@ -865,7 +910,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
             
             // item details
             sprubixPiece.name = (itemDetailsName != nil) ? itemDetailsName.text : ""
-            sprubixPiece.category = (itemDetailsCategoryText != nil) ? itemDetailsCategoryText.text : ""
+            sprubixPiece.category = (itemDetailsCategory != nil) ? itemDetailsCategory.text : ""
             sprubixPiece.brand = (itemDetailsBrand != nil) ? itemDetailsBrand.text : ""
             sprubixPiece.size = (itemDetailsSize != nil) ? itemDetailsSize.text : ""
             sprubixPiece.quantity = itemDetailsQuantity != nil ? itemDetailsQuantity.text.toInt() : 0
@@ -965,7 +1010,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
             
             // item details
             sprubixPiece.name = (itemDetailsName != nil) ? itemDetailsName.text : ""
-            sprubixPiece.category = (itemDetailsCategoryText != nil) ? itemDetailsCategoryText.text : ""
+            sprubixPiece.category = (itemDetailsCategory != nil) ? itemDetailsCategory.text : ""
             sprubixPiece.brand = (itemDetailsBrand != nil) ? itemDetailsBrand.text : ""
             sprubixPiece.size = (itemDetailsSize != nil) ? itemDetailsSize.text : ""
             sprubixPiece.quantity = itemDetailsQuantity != nil ? itemDetailsQuantity.text.toInt() : 0

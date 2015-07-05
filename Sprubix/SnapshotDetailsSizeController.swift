@@ -50,7 +50,7 @@ class SnapshotDetailsSizeController: UIViewController, UITextFieldDelegate {
         
         // 3. add a new navigation item w/title to the new nav bar
         newNavItem = UINavigationItem()
-        newNavItem.title = "Add More Sizes"
+        newNavItem.title = "Add Size"
         
         // 4. create a custom back button
         var backButton:UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
@@ -142,6 +142,8 @@ class SnapshotDetailsSizeController: UIViewController, UITextFieldDelegate {
     
     // nav bar button callbacks
     func doneTapped(sender: UIBarButtonItem) {
+        textFieldShouldReturn(addSizeTextField) // flush any text in the textfield into tagListView
+        
         let searchTags = tagListView.tags
         var sizes = NSMutableArray()
         
