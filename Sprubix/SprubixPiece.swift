@@ -22,6 +22,6 @@ class SprubixPiece: NSObject {
     var desc: String!
     
     // if shop
-    var quantity: Int!
+    var quantity: NSDictionary!
     var price: String!
 }

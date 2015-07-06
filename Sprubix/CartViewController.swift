@@ -36,6 +36,7 @@ class CartViewController: UIViewController, UITableViewDataSource, UITableViewDe
     var buyPieceInfo: NSMutableDictionary?
     var buyPopup: KLCPopup?
     
+    var selectedSize: String?
     var darkenedOverlay: UIView?
     var currentEditPiece: NSDictionary!
     var currentSeller: NSDictionary!
@@ -387,7 +388,10 @@ class CartViewController: UIViewController, UITableViewDataSource, UITableViewDe
         buyPieceInfo?.setObject(seller["id"] as! Int, forKey: "seller_id")
         
         let quantity = cartItem["quantity"] as! Int
+        
         let size = cartItem["size"] as? String
+        selectedSize = size
+        
         let deliveryOption = cartItem["delivery_option"] as! NSDictionary
         let deliveryOptionName = deliveryOption["name"] as! String
         let deliveryOptionPrice = deliveryOption["price"] as! String
@@ -532,6 +536,8 @@ class CartViewController: UIViewController, UITableViewDataSource, UITableViewDe
             UIView.animateWithDuration(0.5, delay: 0.0, usingSpringWithDamping: 0.9, initialSpringVelocity: 0, options: .CurveEaseInOut, animations: {
                 darkenedOverlay?.alpha = 0.0
                 }, completion: nil)
+            
+            self.selectedSize = nil
         }
         
         buyPopup?.show()
@@ -553,6 +559,8 @@ class CartViewController: UIViewController, UITableViewDataSource, UITableViewDe
                     
                     self.itemBuySizeLabel.text = "\(selectedValue)"
                     self.itemBuySizeLabel.textColor = UIColor.blackColor()
+                    
+                    self.selectedSize = selectedValue as? String
                     
                 }, cancelBlock: nil, origin: sender)
             
@@ -579,43 +587,54 @@ class CartViewController: UIViewController, UITableViewDataSource, UITableViewDe
     }
     
     func selectBuyQuantity(sender: UIButton) {
-        // create quantity array
-        var quantityArray: [Int] = [Int]()
+        if selectedSize != nil {
+            // create quantity array
+            var quantityArray: [Int] = [Int]()
+            
+            if !currentEditPiece["quantity"]!.isKindOfClass(NSNull) {
+                var pieceQuantityString = currentEditPiece["quantity"] as! String
+                var pieceQuantityData:NSData = pieceQuantityString.dataUsingEncoding(NSUTF8StringEncoding)!
+                
+                var pieceQuantityDict = NSJSONSerialization.JSONObjectWithData(pieceQuantityData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSDictionary
+                
+                for var i = 1; i <= (pieceQuantityDict[selectedSize!] as! String).toInt(); i++ {
+                    quantityArray.append(i)
+                }
         
-        for var i = 1; i <= currentEditPiece["quantity"] as! Int; i++ {
-            quantityArray.append(i)
+                let picker: ActionSheetStringPicker = ActionSheetStringPicker(title: "Quantity", rows: quantityArray, initialSelection: 0,
+                    doneBlock: { actionSheetPicker, selectedIndex, selectedValue in
+                        
+                        // add info to buyPieceInfo
+                        self.buyPieceInfo?.setObject(selectedValue, forKey: "quantity")
+                        
+                        self.itemBuyQuantityLabel.text = "\(selectedValue)"
+                        self.itemBuyQuantityLabel.textColor = UIColor.blackColor()
+                        
+                    }, cancelBlock: nil, origin: sender)
+                
+                // custom done button
+                let doneButton = UIBarButtonItem(title: "done", style: UIBarButtonItemStyle.Plain, target: nil, action: nil)
+                
+                doneButton.setTitleTextAttributes([
+                    NSForegroundColorAttributeName: sprubixColor,
+                    ], forState: UIControlState.Normal)
+                
+                picker.setDoneButton(doneButton)
+                
+                // custom cancel button
+                var cancelButton:UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+                
+                cancelButton.setTitle("X", forState: UIControlState.Normal)
+                cancelButton.setTitleColor(sprubixColor, forState: UIControlState.Normal)
+                cancelButton.frame = CGRect(x: 0, y: 0, width: 20, height: 20)
+                
+                picker.setCancelButton(UIBarButtonItem(customView: cancelButton))
+                
+                picker.showActionSheetPicker()
+            }
+        } else {
+            println("Please select size first")
         }
-        
-        let picker: ActionSheetStringPicker = ActionSheetStringPicker(title: "Quantity", rows: quantityArray, initialSelection: 0,
-            doneBlock: { actionSheetPicker, selectedIndex, selectedValue in
-                
-                // add info to buyPieceInfo
-                self.buyPieceInfo?.setObject(selectedValue, forKey: "quantity")
-                
-                self.itemBuyQuantityLabel.text = "\(selectedValue)"
-                self.itemBuyQuantityLabel.textColor = UIColor.blackColor()
-                
-            }, cancelBlock: nil, origin: sender)
-        
-        // custom done button
-        let doneButton = UIBarButtonItem(title: "done", style: UIBarButtonItemStyle.Plain, target: nil, action: nil)
-        
-        doneButton.setTitleTextAttributes([
-            NSForegroundColorAttributeName: sprubixColor,
-            ], forState: UIControlState.Normal)
-        
-        picker.setDoneButton(doneButton)
-        
-        // custom cancel button
-        var cancelButton:UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
-        
-        cancelButton.setTitle("X", forState: UIControlState.Normal)
-        cancelButton.setTitleColor(sprubixColor, forState: UIControlState.Normal)
-        cancelButton.frame = CGRect(x: 0, y: 0, width: 20, height: 20)
-        
-        picker.setCancelButton(UIBarButtonItem(customView: cancelButton))
-        
-        picker.showActionSheetPicker()
     }
     
     func selectBuyDeliveryMethod(sender: UIButton) {

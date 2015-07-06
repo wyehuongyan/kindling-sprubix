@@ -71,6 +71,7 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
     var buyPieceInfo: NSMutableDictionary?
     var buyPopup: KLCPopup?
     
+    var selectedSize: String?
     var darkenedOverlay: UIView?
     
     // firebase
@@ -302,7 +303,7 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         
         // init piece specifications
         let itemSpecHeight:CGFloat = 55
-        var itemSpecHeightTotal:CGFloat = piece["quantity"] as! Int > 0 ? itemSpecHeight * 6 : itemSpecHeight * 5
+        var itemSpecHeightTotal:CGFloat = !piece["quantity"]!.isKindOfClass(NSNull) ? itemSpecHeight * 6 : itemSpecHeight * 5
         
         var pieceSpecsView:UIView = UIView(frame: CGRect(x: 0, y: screenWidth + creditsViewHeight, width: screenWidth, height: itemSpecHeightTotal))
         pieceSpecsView.backgroundColor = UIColor.whiteColor()
@@ -402,7 +403,7 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         pieceDetailInfoView.addSubview(pieceSpecsView)
         
         if piece["price"] as! String != "0.00" {
-            if piece["quantity"] as! Int > 0 {
+            if !piece["quantity"]!.isKindOfClass(NSNull) {
                 // price label
                 let padding: CGFloat = 10
                 let priceLabelHeight: CGFloat = 35
@@ -431,8 +432,19 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
                 Glow.addGlow(itemQuantityImage)
                 
                 var itemQuantityLabel:UILabel = UILabel(frame: CGRect(x: itemImageViewWidth, y: itemSpecHeight * 5, width: screenWidth - itemImageViewWidth, height: itemSpecHeight))
-                var pieceQuantity = piece["quantity"] as! Int
-                itemQuantityLabel.text = "\(pieceQuantity) left in stock"
+
+                var pieceQuantityString = piece["quantity"] as! String
+                var pieceQuantityData:NSData = pieceQuantityString.dataUsingEncoding(NSUTF8StringEncoding)!
+                
+                var pieceQuantityDict = NSJSONSerialization.JSONObjectWithData(pieceQuantityData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSDictionary
+                
+                var total = 0
+                
+                for (size, pieceQuantity) in pieceQuantityDict {
+                    total += (pieceQuantity as! String).toInt()!
+                }
+                
+                itemQuantityLabel.text = "\(total) left in stock"
                 
                 pieceSpecsView.addSubview(itemQuantityImage)
                 pieceSpecsView.addSubview(itemQuantityLabel)
@@ -899,6 +911,8 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
             UIView.animateWithDuration(0.5, delay: 0.0, usingSpringWithDamping: 0.9, initialSpringVelocity: 0, options: .CurveEaseInOut, animations: {
                 darkenedOverlay?.alpha = 0.0
                 }, completion: nil)
+            
+            self.selectedSize = nil
         }
         
         buyPopup?.show()
@@ -920,6 +934,8 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
                     
                     self.itemBuySizeLabel.text = "\(selectedValue)"
                     self.itemBuySizeLabel.textColor = UIColor.blackColor()
+                    
+                    self.selectedSize = selectedValue as? String
                     
                 }, cancelBlock: nil, origin: sender)
             
@@ -946,43 +962,54 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
     }
     
     func selectBuyQuantity(sender: UIButton) {
-        // create quantity array
-        var quantityArray: [Int] = [Int]()
-        
-        for var i = 1; i <= piece["quantity"] as! Int; i++ {
-            quantityArray.append(i)
+        if selectedSize != nil {
+            // create quantity array
+            var quantityArray: [Int] = [Int]()
+            
+            if !piece["quantity"]!.isKindOfClass(NSNull) {
+                var pieceQuantityString = piece["quantity"] as! String
+                var pieceQuantityData:NSData = pieceQuantityString.dataUsingEncoding(NSUTF8StringEncoding)!
+                
+                var pieceQuantityDict = NSJSONSerialization.JSONObjectWithData(pieceQuantityData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSDictionary
+            
+                for var i = 1; i <= (pieceQuantityDict[selectedSize!] as! String).toInt(); i++ {
+                    quantityArray.append(i)
+                }
+                
+                let picker: ActionSheetStringPicker = ActionSheetStringPicker(title: "Quantity", rows: quantityArray, initialSelection: 0,
+                    doneBlock: { actionSheetPicker, selectedIndex, selectedValue in
+                        
+                        // add info to buyPieceInfo
+                        self.buyPieceInfo?.setObject(selectedValue, forKey: "quantity")
+                        
+                        self.itemBuyQuantityLabel.text = "\(selectedValue)"
+                        self.itemBuyQuantityLabel.textColor = UIColor.blackColor()
+                        
+                    }, cancelBlock: nil, origin: sender)
+                
+                // custom done button
+                let doneButton = UIBarButtonItem(title: "done", style: UIBarButtonItemStyle.Plain, target: nil, action: nil)
+                
+                doneButton.setTitleTextAttributes([
+                    NSForegroundColorAttributeName: sprubixColor,
+                    ], forState: UIControlState.Normal)
+                
+                picker.setDoneButton(doneButton)
+                
+                // custom cancel button
+                var cancelButton:UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+                
+                cancelButton.setTitle("X", forState: UIControlState.Normal)
+                cancelButton.setTitleColor(sprubixColor, forState: UIControlState.Normal)
+                cancelButton.frame = CGRect(x: 0, y: 0, width: 20, height: 20)
+                
+                picker.setCancelButton(UIBarButtonItem(customView: cancelButton))
+                
+                picker.showActionSheetPicker()
+            }
+        } else {
+            println("Please select size first")
         }
-        
-        let picker: ActionSheetStringPicker = ActionSheetStringPicker(title: "Quantity", rows: quantityArray, initialSelection: 0,
-            doneBlock: { actionSheetPicker, selectedIndex, selectedValue in
-                
-                // add info to buyPieceInfo
-                self.buyPieceInfo?.setObject(selectedValue, forKey: "quantity")
-                
-                self.itemBuyQuantityLabel.text = "\(selectedValue)"
-                self.itemBuyQuantityLabel.textColor = UIColor.blackColor()
-                
-            }, cancelBlock: nil, origin: sender)
-        
-        // custom done button
-        let doneButton = UIBarButtonItem(title: "done", style: UIBarButtonItemStyle.Plain, target: nil, action: nil)
-        
-        doneButton.setTitleTextAttributes([
-            NSForegroundColorAttributeName: sprubixColor,
-            ], forState: UIControlState.Normal)
-        
-        picker.setDoneButton(doneButton)
-        
-        // custom cancel button
-        var cancelButton:UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
-        
-        cancelButton.setTitle("X", forState: UIControlState.Normal)
-        cancelButton.setTitleColor(sprubixColor, forState: UIControlState.Normal)
-        cancelButton.frame = CGRect(x: 0, y: 0, width: 20, height: 20)
-        
-        picker.setCancelButton(UIBarButtonItem(customView: cancelButton))
-        
-        picker.showActionSheetPicker()
     }
     
     func selectBuyDeliveryMethod(sender: UIButton) {

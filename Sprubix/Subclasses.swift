@@ -178,6 +178,8 @@ class SprubixHandleBarSeperator: UIView {
 }
 
 class SprubixCreditButton: UIButton {
+    var user: NSDictionary?
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
     }

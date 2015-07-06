@@ -15,6 +15,7 @@ protocol AddMoreSizesProtocol {
 
 class SnapshotDetailsSizeController: UIViewController, UITextFieldDelegate {
 
+    var pieceSizesArray: NSArray?
     var delegate: AddMoreSizesProtocol?
     
     let addSizeViewHeight: CGFloat = 44
@@ -38,6 +39,18 @@ class SnapshotDetailsSizeController: UIViewController, UITextFieldDelegate {
         super.viewWillAppear(animated)
         
         initNavBar()
+        
+        self.tagListView.removeAllTags()
+        
+        if pieceSizesArray != nil {
+            self.tagListView.addTags(pieceSizesArray as! [String])
+        }
+    }
+    
+    override func viewDidAppear(animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        addSizeTextField.becomeFirstResponder()
     }
     
     func initNavBar() {

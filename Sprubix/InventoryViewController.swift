@@ -244,11 +244,24 @@ class InventoryViewController: UIViewController, UITableViewDataSource, UITableV
         
         let piece = pieces[indexPath.row] as NSDictionary
         var piecePrice = piece["price"] as! String
-        var pieceQuantity = piece["quantity"] as! Int
+        
+        if !piece["quantity"]!.isKindOfClass(NSNull) {
+            var pieceQuantityString = piece["quantity"] as! String
+            var pieceQuantityData:NSData = pieceQuantityString.dataUsingEncoding(NSUTF8StringEncoding)!
+            
+            var pieceQuantityDict = NSJSONSerialization.JSONObjectWithData(pieceQuantityData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSDictionary
+            
+            var total = 0
+            
+            for (size, pieceQuantity) in pieceQuantityDict {
+                total += (pieceQuantity as! String).toInt()!
+            }
+            
+            cell.inventoryQuantity.text = "\(total) left in stock"
+        }
         
         cell.inventoryName.text = piece["name"] as? String
         cell.inventoryPrice.text = "$\(piecePrice)"
-        cell.inventoryQuantity.text = "\(pieceQuantity) left in stock"
         
         let pieceImagesString = piece["images"] as! NSString
         let pieceImagesData:NSData = pieceImagesString.dataUsingEncoding(NSUTF8StringEncoding)!
@@ -307,7 +320,16 @@ class InventoryViewController: UIViewController, UITableViewDataSource, UITableV
         sprubixPiece.brand = pieceBrand?["name"] as? String
     
         sprubixPiece.size = piece["size"] as? String
-        sprubixPiece.quantity = piece["quantity"] as? Int
+        
+        if !piece["quantity"]!.isKindOfClass(NSNull) {
+            var pieceQuantityString = piece["quantity"] as! String
+            var pieceQuantityData:NSData = pieceQuantityString.dataUsingEncoding(NSUTF8StringEncoding)!
+            
+            var pieceQuantityDict = NSJSONSerialization.JSONObjectWithData(pieceQuantityData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSDictionary
+        
+            sprubixPiece.quantity = pieceQuantityDict
+        }
+        
         sprubixPiece.price = piece["price"] as? String
         sprubixPiece.desc = piece["description"] as? String
         sprubixPiece.isDress = piece["is_dress"] as? Bool

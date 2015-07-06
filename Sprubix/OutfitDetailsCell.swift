@@ -43,6 +43,10 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
     var itemLikesLabel: UILabel?
     var numTotalLikes: Int = 0
     
+    // credits
+    var postedByButton: SprubixCreditButton!
+    var fromButton: SprubixCreditButton!
+    
     var pieceImageView: UIImageView!
     var pieceImages: [UIImageView] = [UIImageView]()
     var likeImageView: UIImageView!
@@ -82,6 +86,7 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
     var buyPiecesInfo: NSMutableDictionary = NSMutableDictionary()
     var buyPopup: KLCPopup?
     
+    var selectedSizes: [String] = [String]()
     var darkenedOverlay: UIView?
     
     let itemSpecHeight: CGFloat = 55
@@ -294,7 +299,7 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
                     
                     // price label and buy button if outfit has price and quantity
                     if piece["price"] as! String != "0.00" {
-                        if piece["quantity"] as! Int > 0 {
+                        if !piece["quantity"]!.isKindOfClass(NSNull) {
                             // price label
                             let priceLabelHeight: CGFloat = 35
                             priceLabel = UILabel()
@@ -430,17 +435,26 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
             let creditsViewHeight:CGFloat = 80
             var creditsView:UIView = UIView(frame: CGRect(x: 0, y: 0, width: screenWidth, height: creditsViewHeight))
             
-            var postedByButton:SprubixCreditButton = SprubixCreditButton(frame: CGRect(x: 0, y: 0, width: screenWidth/2, height: creditsViewHeight), buttonLabel: "posted by", username: user["username"] as! String, userThumbnail: user["image"] as! String)
+            postedByButton = SprubixCreditButton(frame: CGRect(x: 0, y: 0, width: screenWidth/2, height: creditsViewHeight), buttonLabel: "posted by", username: user["username"] as! String, userThumbnail: user["image"] as! String)
+            
+            postedByButton.user = user
             
             // if no inspired by, it is original
             // inspired by = parent, always credit parent
-            var fromButton:SprubixCreditButton!
             
             if inspiredBy == nil {
                 fromButton = SprubixCreditButton(frame: CGRect(x: screenWidth/2, y: 0, width: screenWidth/2, height: creditsViewHeight), buttonLabel: "inspired by", username: user["username"] as! String, userThumbnail: user["image"] as! String)
+                
+                fromButton.user = user
             } else {
                 fromButton = SprubixCreditButton(frame: CGRect(x: screenWidth/2, y: 0, width: screenWidth/2, height: creditsViewHeight), buttonLabel: "inspired by", username: inspiredBy["username"] as! String, userThumbnail: inspiredBy["image"] as! String)
+                
+                fromButton.user = inspiredBy
             }
+            
+            postedByButton.addTarget(self, action: "creditsShowProfile:", forControlEvents: UIControlEvents.TouchUpInside)
+            
+            fromButton.addTarget(self, action: "creditsShowProfile:", forControlEvents: UIControlEvents.TouchUpInside)
             
             creditsView.addSubview(postedByButton)
             creditsView.addSubview(fromButton)
@@ -612,6 +626,14 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
                
                 likedPiece(piece)
             }
+        }
+    }
+    
+    func creditsShowProfile(sender: UIButton) {
+        if sender == postedByButton {
+            containerViewController.showUserProfile(postedByButton.user!)
+        } else if sender == fromButton {
+            containerViewController.showUserProfile(fromButton.user!)
         }
     }
     
@@ -1062,6 +1084,11 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
     // piece button callbacks
     func addToBagButtonPressed(sender: UIButton) {
         
+        // reset arrays
+        itemBuySizeLabels.removeAll()
+        itemBuyQuantityLabels.removeAll()
+        itemBuyDeliveryLabels.removeAll()
+        
         let itemSpecHeight:CGFloat = 45
         let popupWidth: CGFloat = screenWidth - 100
         let popupHeight: CGFloat = popupWidth + itemSpecHeight * 3 + navigationHeight
@@ -1227,6 +1254,9 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
             buyPieceView.addSubview(addToCart)
             
             buyPieceViews.append(buyPieceView)
+            
+            var selectedSize: String = ""
+            selectedSizes.append(selectedSize)
         }
         
         buyPopup = KLCPopup(contentView: popupContentView, showType: KLCPopupShowType.BounceInFromTop, dismissType: KLCPopupDismissType.BounceOutToTop, maskType: KLCPopupMaskType.Clear, dismissOnBackgroundTouch: true, dismissOnContentTouch: false)
@@ -1241,6 +1271,8 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
             UIView.animateWithDuration(0.5, delay: 0.0, usingSpringWithDamping: 0.9, initialSpringVelocity: 0, options: .CurveEaseInOut, animations: {
                 darkenedOverlay?.alpha = 0.0
                 }, completion: nil)
+            
+            self.selectedSizes.removeAll()
         }
         
         buyPopup?.show()
@@ -1266,6 +1298,8 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
                     
                     (self.itemBuySizeLabels[pos!] as UILabel).text = "\(selectedValue)"
                     (self.itemBuySizeLabels[pos!] as UILabel).textColor = UIColor.blackColor()
+                    
+                    self.selectedSizes[pos!] = selectedValue as! String
                     
                 }, cancelBlock: nil, origin: sender)
             
@@ -1295,44 +1329,56 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
         let pos = find(buyPieceViews, sender.superview!)
         let piece: NSDictionary = pieces[pos!] as NSDictionary
         let buyPieceInfo = buyPiecesInfo[piece["id"] as! Int] as? NSMutableDictionary
+        let selectedSize: String = selectedSizes[pos!]
         
         // create quantity array
         var quantityArray: [Int] = [Int]()
         
-        for var i = 1; i <= piece["quantity"] as! Int; i++ {
-            quantityArray.append(i)
+        if selectedSize != "" {
+            if !piece["quantity"]!.isKindOfClass(NSNull) {
+                var pieceQuantityString = piece["quantity"] as! String
+                var pieceQuantityData:NSData = pieceQuantityString.dataUsingEncoding(NSUTF8StringEncoding)!
+                
+                var pieceQuantityDict = NSJSONSerialization.JSONObjectWithData(pieceQuantityData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSDictionary
+                
+                for var i = 1; i <= (pieceQuantityDict[selectedSize] as! String).toInt(); i++ {
+                    quantityArray.append(i)
+                }
+            
+                let picker: ActionSheetStringPicker = ActionSheetStringPicker(title: "Quantity", rows: quantityArray, initialSelection: 0,
+                    doneBlock: { actionSheetPicker, selectedIndex, selectedValue in
+                        
+                        // add info to buyPieceInfo
+                        buyPieceInfo?.setObject(selectedValue, forKey: "quantity")
+                        
+                        (self.itemBuyQuantityLabels[pos!] as UILabel).text = "\(selectedValue)"
+                        (self.itemBuyQuantityLabels[pos!] as UILabel).textColor = UIColor.blackColor()
+                        
+                    }, cancelBlock: nil, origin: sender)
+                
+                // custom done button
+                let doneButton = UIBarButtonItem(title: "done", style: UIBarButtonItemStyle.Plain, target: nil, action: nil)
+                
+                doneButton.setTitleTextAttributes([
+                    NSForegroundColorAttributeName: sprubixColor,
+                    ], forState: UIControlState.Normal)
+                
+                picker.setDoneButton(doneButton)
+                
+                // custom cancel button
+                var cancelButton:UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+                
+                cancelButton.setTitle("X", forState: UIControlState.Normal)
+                cancelButton.setTitleColor(sprubixColor, forState: UIControlState.Normal)
+                cancelButton.frame = CGRect(x: 0, y: 0, width: 20, height: 20)
+                
+                picker.setCancelButton(UIBarButtonItem(customView: cancelButton))
+                
+                picker.showActionSheetPicker()
+            }
+        } else {
+            println("Please select size first")
         }
-        
-        let picker: ActionSheetStringPicker = ActionSheetStringPicker(title: "Quantity", rows: quantityArray, initialSelection: 0,
-            doneBlock: { actionSheetPicker, selectedIndex, selectedValue in
-                
-                // add info to buyPieceInfo
-                buyPieceInfo?.setObject(selectedValue, forKey: "quantity")
-                
-                (self.itemBuyQuantityLabels[pos!] as UILabel).text = "\(selectedValue)"
-                (self.itemBuyQuantityLabels[pos!] as UILabel).textColor = UIColor.blackColor()
-                
-            }, cancelBlock: nil, origin: sender)
-        
-        // custom done button
-        let doneButton = UIBarButtonItem(title: "done", style: UIBarButtonItemStyle.Plain, target: nil, action: nil)
-        
-        doneButton.setTitleTextAttributes([
-            NSForegroundColorAttributeName: sprubixColor,
-            ], forState: UIControlState.Normal)
-        
-        picker.setDoneButton(doneButton)
-        
-        // custom cancel button
-        var cancelButton:UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
-        
-        cancelButton.setTitle("X", forState: UIControlState.Normal)
-        cancelButton.setTitleColor(sprubixColor, forState: UIControlState.Normal)
-        cancelButton.frame = CGRect(x: 0, y: 0, width: 20, height: 20)
-        
-        picker.setCancelButton(UIBarButtonItem(customView: cancelButton))
-        
-        picker.showActionSheetPicker()
     }
     
     func selectBuyDeliveryMethod(sender: UIButton) {
@@ -1415,6 +1461,22 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
         picker.showActionSheetPicker()
     }
     
+    func showProfile(gesture: UITapGestureRecognizer) {
+        var parentView: UIView? = (gesture.view)?.superview
+        
+        if parentView != nil {
+            let pos: Int? = find(pieceImages, (parentView as! UIImageView))
+            
+            if pos != nil {
+                let pos = find(pieceImages, (parentView as! UIImageView))
+                let piece: NSDictionary = pieces[pos!] as NSDictionary
+                let user = piece["user"] as! NSDictionary
+                
+                containerViewController.showUserProfile(user)
+            }
+        }
+    }
+    
     func addToCartPressed(sender: UIButton) {
         let pos = find(buyPieceViews, sender.superview!)
         let piece: NSDictionary = pieces[pos!] as NSDictionary
@@ -1455,8 +1517,6 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
             let pos: Int? = find(pieceImages, (parentView as! UIImageView))
             
             if pos != nil {
-                println(pieces[pos!])
-                
                 let piece = pieces[pos!]
                 
                 // init
