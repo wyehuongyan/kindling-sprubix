@@ -16,7 +16,7 @@ class SprubixPiece: NSObject {
     var name: String!
     var category: String!
     var type: String!
-    var isDress: Bool!
+    var isDress: Bool = false
     var brand: String!
     var size: String!
     var desc: String!

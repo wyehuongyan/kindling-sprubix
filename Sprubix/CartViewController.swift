@@ -8,11 +8,12 @@
 
 import UIKit
 import AFNetworking
+import DZNEmptyDataSet
 import KLCPopup
 import ActionSheetPicker_3_0
 import TSMessages
 
-class CartViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
+class CartViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, DZNEmptyDataSetSource, DZNEmptyDataSetDelegate {
     
     var delegate: SidePanelViewControllerDelegate?
     var cartData: NSDictionary = NSDictionary()
@@ -55,6 +56,10 @@ class CartViewController: UIViewController, UITableViewDataSource, UITableViewDe
         
         view.backgroundColor = sprubixGray
         
+        // empty dataset
+        cartTableView.emptyDataSetSource = self
+        cartTableView.emptyDataSetDelegate = self
+        
         // get rid of line seperator for empty cells
         cartTableView.backgroundColor = sprubixGray
         cartTableView.tableFooterView = UIView(frame: CGRectZero)
@@ -76,6 +81,7 @@ class CartViewController: UIViewController, UITableViewDataSource, UITableViewDe
         
         tableFooterView.addSubview(grandTotal)
         tableFooterView.addSubview(grandTotalAmount)
+        tableFooterView.alpha = 0.0
         
         cartTableView.tableFooterView = tableFooterView
         
@@ -139,6 +145,58 @@ class CartViewController: UIViewController, UITableViewDataSource, UITableViewDe
         
         // 5. add the nav bar to the main view
         self.view.addSubview(newNavBar)
+    }
+    
+    // DZNEmptyDataSetSource
+    func titleForEmptyDataSet(scrollView: UIScrollView!) -> NSAttributedString! {
+        let text: String = "Title For Empty Data Set"
+        
+        let attributes: NSDictionary = [
+            NSFontAttributeName: UIFont.boldSystemFontOfSize(18.0),
+            NSForegroundColorAttributeName: UIColor.darkGrayColor()
+        ]
+        
+        let attributedString: NSAttributedString = NSAttributedString(string: text, attributes: attributes as [NSObject : AnyObject])
+        
+        return attributedString
+    }
+    
+    func descriptionForEmptyDataSet(scrollView: UIScrollView!) -> NSAttributedString! {
+        let text: String = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+        
+        var paragraph: NSMutableParagraphStyle = NSMutableParagraphStyle.new()
+        paragraph.lineBreakMode = NSLineBreakMode.ByWordWrapping
+        paragraph.alignment = NSTextAlignment.Center
+        
+        let attributes: NSDictionary = [
+            NSFontAttributeName: UIFont.boldSystemFontOfSize(14.0),
+            NSForegroundColorAttributeName: UIColor.lightGrayColor(),
+            NSParagraphStyleAttributeName: paragraph
+        ]
+        
+        let attributedString: NSAttributedString = NSAttributedString(string: text, attributes: attributes as [NSObject : AnyObject])
+        
+        return attributedString
+    }
+    
+    func buttonTitleForEmptyDataSet(scrollView: UIScrollView!, forState state: UIControlState) -> NSAttributedString! {
+        let text: String = "Button Title"
+        
+        let attributes: NSDictionary = [
+            NSFontAttributeName: UIFont.boldSystemFontOfSize(17.0)
+        ]
+        
+        let attributedString: NSAttributedString = NSAttributedString(string: text, attributes: attributes as [NSObject : AnyObject])
+        
+        return attributedString
+    }
+    
+    func imageForEmptyDataSet(scrollView: UIScrollView!) -> UIImage! {
+        return UIImage(named: "main-like-filled-large")
+    }
+    
+    func backgroundColorForEmptyDataSet(scrollView: UIScrollView!) -> UIColor! {
+        return sprubixGray
     }
     
     // MARK: UITableViewDataSource
@@ -309,59 +367,64 @@ class CartViewController: UIViewController, UITableViewDataSource, UITableViewDe
         
         let cartItemData = cartData["cart_items"] as! [NSDictionary]
 
-        for cartItem in cartItemData {
-            let seller = cartItem["seller"] as! NSDictionary
-            
-            var cartItems: [NSDictionary]? = sellerCartItemDictionary.objectForKey(seller) as? [NSDictionary]
-            
-            if cartItems == nil {
-                cartItems = [NSDictionary]()
-            }
-            
-            cartItems?.append(cartItem)
-            
-            // formatted into key: seller, value: [cartItem, cartItem]
-            sellerCartItemDictionary.setObject(cartItems!, forKey: seller)
-        }
-        
-        var grandTotal: Float = 0
-        
-        for (seller, cartItems) in sellerCartItemDictionary {
-            sellers.append(seller as! NSDictionary)
-            
-            var highestDeliveryOption: String = ""
-            var highestDeliveryOptionCost: Float = 0
-            var subtotal: Float = 0
-            
-            for cartItem in cartItems as! [NSDictionary] {
-                // compare delivery costs
-                // // always take the higher cost
-                let deliveryOption = cartItem["delivery_option"] as! NSDictionary
-
-                let currentDeliveryOptionCost = (deliveryOption["price"] as! NSString).floatValue
+        if cartItemData.count > 0 {
+            for cartItem in cartItemData {
+                let seller = cartItem["seller"] as! NSDictionary
                 
-                if currentDeliveryOptionCost > highestDeliveryOptionCost {
-                    highestDeliveryOptionCost = currentDeliveryOptionCost
-                    highestDeliveryOption = deliveryOption["name"] as! String
+                var cartItems: [NSDictionary]? = sellerCartItemDictionary.objectForKey(seller) as? [NSDictionary]
+                
+                if cartItems == nil {
+                    cartItems = [NSDictionary]()
                 }
                 
-                // add up costs of items
-                let piece = cartItem["piece"] as! NSDictionary
-                subtotal += (piece["price"] as! NSString).floatValue
+                cartItems?.append(cartItem)
+                
+                // formatted into key: seller, value: [cartItem, cartItem]
+                sellerCartItemDictionary.setObject(cartItems!, forKey: seller)
             }
             
-            sellerDeliveryMethods.append(highestDeliveryOption)
-            sellerShippingRate.append(highestDeliveryOptionCost)
-            sellerSubtotal.append(subtotal)
+            var grandTotal: Float = 0
             
-            grandTotal += subtotal + highestDeliveryOptionCost
+            for (seller, cartItems) in sellerCartItemDictionary {
+                sellers.append(seller as! NSDictionary)
+                
+                var highestDeliveryOption: String = ""
+                var highestDeliveryOptionCost: Float = 0
+                var subtotal: Float = 0
+                
+                for cartItem in cartItems as! [NSDictionary] {
+                    // compare delivery costs
+                    // // always take the higher cost
+                    let deliveryOption = cartItem["delivery_option"] as! NSDictionary
+
+                    let currentDeliveryOptionCost = (deliveryOption["price"] as! NSString).floatValue
+                    
+                    if currentDeliveryOptionCost > highestDeliveryOptionCost {
+                        highestDeliveryOptionCost = currentDeliveryOptionCost
+                        highestDeliveryOption = deliveryOption["name"] as! String
+                    }
+                    
+                    // add up costs of items
+                    let piece = cartItem["piece"] as! NSDictionary
+                    subtotal += (piece["price"] as! NSString).floatValue
+                }
+                
+                sellerDeliveryMethods.append(highestDeliveryOption)
+                sellerShippingRate.append(highestDeliveryOptionCost)
+                sellerSubtotal.append(subtotal)
+                
+                grandTotal += subtotal + highestDeliveryOptionCost
+            }
+            
+            cartTableView.reloadData()
+            
+            // set grandTotalAmount and refresh tableFooterView
+            grandTotalAmount.text = String(format: "$%.2f", grandTotal)
+            tableFooterView.setNeedsLayout()
+            tableFooterView.alpha = 1.0
+        } else {
+            println("Cart is empty")
         }
-        
-        cartTableView.reloadData()
-        
-        // set grandTotalAmount and refresh tableFooterView
-        grandTotalAmount.text = String(format: "$%.2f", grandTotal)
-        tableFooterView.setNeedsLayout()
     }
     
     func detailsViewControllerLayout () -> UICollectionViewFlowLayout {

@@ -129,6 +129,7 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
         }
         
         numTotalLikes = 0
+        purchasable = false
     }
     
     func initOutfitTableView() {
@@ -1055,14 +1056,14 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
     }
     
     func completeOutfit(sender: UIButton) {
-        let spruceViewController = UIStoryboard(name: "Main", bundle: NSBundle.mainBundle()).instantiateViewControllerWithIdentifier("SpruceView") as? SpruceViewController
-        spruceViewController?.outfit = outfit
-        spruceViewController?.userIdFrom = user["id"] as! Int
-        spruceViewController?.usernameFrom = user["username"] as! String
-        spruceViewController?.userThumbnailFrom = user["image"] as! String
+        let spruceViewController = SpruceViewController()
+        spruceViewController.outfit = outfit
+        spruceViewController.userIdFrom = user["id"] as! Int
+        spruceViewController.usernameFrom = user["username"] as! String
+        spruceViewController.userThumbnailFrom = user["image"] as! String
         
         navController?.delegate = nil
-        navController?.pushViewController(spruceViewController!, animated: true)
+        navController?.pushViewController(spruceViewController, animated: true)
     }
     
     func findSimilar(sender: UIButton) {

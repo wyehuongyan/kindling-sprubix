@@ -21,8 +21,8 @@ class MyClosetViewController: UIViewController, UICollectionViewDataSource,  CHT
     let toolBarHeight: CGFloat = 70
     
     var results: [NSDictionary] = [NSDictionary]()
-    var currentPage: Int!
-    var lastPage: Int!
+    var currentPage: Int = 0
+    var lastPage: Int = 0
     
     var resultsLayout: SprubixStretchyHeader!
     var resultsCollectionView: UICollectionView!
@@ -322,8 +322,8 @@ class MyClosetViewController: UIViewController, UICollectionViewDataSource,  CHT
                 success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
                     
                     self.results = responseObject["data"] as! [NSDictionary]
-                    self.currentPage = responseObject["current_page"] as? Int
-                    self.lastPage = responseObject["last_page"] as? Int
+                    self.currentPage = responseObject["current_page"] as! Int
+                    self.lastPage = responseObject["last_page"] as! Int
                     
                     self.resultsCollectionView.reloadData()
                     self.activityView.stopAnimating()
@@ -349,7 +349,7 @@ class MyClosetViewController: UIViewController, UICollectionViewDataSource,  CHT
             let userId:Int? = defaults.objectForKey("userId") as? Int
             
             if userId != nil {
-                let nextPage = currentPage! + 1
+                let nextPage = currentPage + 1
                 
                 manager.POST(SprubixConfig.URL.api + "/pieces?page=\(nextPage)",
                     parameters: [

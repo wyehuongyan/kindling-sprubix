@@ -39,16 +39,20 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, SprucePieceF
     
     var toggleRemovePieceFeed: Bool = false
     
-    @IBOutlet var trashPieceButton: UIBarButtonItem!
-    @IBOutlet var searchButton: UIBarButtonItem!
-    @IBOutlet var closetButton: UIBarButtonItem!
-    @IBOutlet var addPieceButton: UIBarButtonItem!
+    var trashPieceBarButton: UIBarButtonItem!
+    var trashPieceButton: UIButton!
+    var searchBarButton: UIBarButtonItem!
+    var searchButton: UIButton!
+    var closetBarButton: UIBarButtonItem!
+    var closetButton: UIButton!
+    var addPieceBarButton: UIBarButtonItem!
+    var addPieceButton: UIButton!
     
-    @IBAction func trashPiece(sender: AnyObject) {
+    func trashPiece(sender: AnyObject) {
         toggleDeletePieceCrosses()
     }
     
-    @IBAction func searchPieces(sender: AnyObject) {
+    func searchPieces(sender: AnyObject) {
         // SpruceSearchViewController
         let spruceSearchViewController = SpruceSearchViewController()
         
@@ -64,7 +68,7 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, SprucePieceF
         self.navigationController?.pushViewController(spruceSearchViewController, animated: false)
     }
     
-    @IBAction func closetSelection(sender: AnyObject) {
+    func closetSelection(sender: AnyObject) {
         // SpruceSearchResultsViewController 
         let myClosetViewController = MyClosetViewController()
         myClosetViewController.delegate = self
@@ -81,7 +85,7 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, SprucePieceF
         self.navigationController?.pushViewController(myClosetViewController, animated: false)
     }
     
-    @IBAction func addPiece(sender: AnyObject) {
+    func addPiece(sender: AnyObject) {
         showAddPieceActionSheet()
     }
     
@@ -99,6 +103,61 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, SprucePieceF
         self.view.addGestureRecognizer(tableTapGestureRecognizer)
         
         view.backgroundColor = UIColor.whiteColor()
+        
+        // create uitoolbar programmatically
+        let spruceToolbar: UIToolbar = UIToolbar(frame: CGRectMake(0, screenHeight - navigationHeight, screenWidth, navigationHeight))
+        
+        // trash piece
+        trashPieceButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+        trashPieceButton.frame = CGRect(x: 0, y: 0, width: 30, height: 30)
+        var image: UIImage = UIImage(named: "details-thumbnail-trash")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
+        trashPieceButton.setImage(image, forState: UIControlState.Normal)
+        trashPieceButton.tintColor = UIColor.lightGrayColor()
+        trashPieceButton.contentMode = UIViewContentMode.ScaleAspectFit
+        trashPieceButton.addTarget(self, action: "trashPiece:", forControlEvents: UIControlEvents.TouchUpInside)
+        
+        trashPieceBarButton = UIBarButtonItem(customView: trashPieceButton)
+        
+        // search
+        searchButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+        searchButton.frame = CGRect(x: 0, y: 0, width: 25, height: 25)
+        image = UIImage(named: "spruce-search")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
+        searchButton.setImage(image, forState: UIControlState.Normal)
+        searchButton.tintColor = UIColor.lightGrayColor()
+        searchButton.contentMode = UIViewContentMode.ScaleAspectFit
+        searchButton.addTarget(self, action: "searchPieces:", forControlEvents: UIControlEvents.TouchUpInside)
+        
+        searchBarButton = UIBarButtonItem(customView: searchButton)
+        
+        // my closet
+        closetButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+        closetButton.frame = CGRect(x: 0, y: 0, width: 35, height: 35)
+        image = UIImage(named: "profile-mycloset")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
+        closetButton.setImage(image, forState: UIControlState.Normal)
+        closetButton.tintColor = UIColor.lightGrayColor()
+        closetButton.contentMode = UIViewContentMode.ScaleAspectFit
+        closetButton.addTarget(self, action: "closetSelection:", forControlEvents: UIControlEvents.TouchUpInside)
+        closetButton.imageEdgeInsets = UIEdgeInsetsMake(0, -2, 2, 0)
+        
+        closetBarButton = UIBarButtonItem(customView: closetButton)
+        
+        // add piece
+        addPieceButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+        addPieceButton.frame = CGRect(x: 0, y: 0, width: 35, height: 35)
+        image = UIImage(named: "spruce-piece-add")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
+        addPieceButton.setImage(image, forState: UIControlState.Normal)
+        addPieceButton.tintColor = UIColor.lightGrayColor()
+        addPieceButton.contentMode = UIViewContentMode.ScaleAspectFit
+        addPieceButton.addTarget(self, action: "addPiece:", forControlEvents: UIControlEvents.TouchUpInside)
+        
+        addPieceBarButton = UIBarButtonItem(customView: addPieceButton)
+        
+        // flexible space
+        let flexibleSpace: UIBarButtonItem = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.FlexibleSpace, target: self, action: nil)
+        
+        spruceToolbar.setItems([trashPieceBarButton, flexibleSpace, searchBarButton, closetBarButton, addPieceBarButton], animated: true)
+        
+        view.addSubview(spruceToolbar)
         
         initSprucePieceFeeds()
     }

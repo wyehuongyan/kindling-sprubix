@@ -32,8 +32,15 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
     var spruceViewController: SpruceViewController?
     var commentsViewController: CommentsViewController?
     
-    // discover feed
-    var discoverFeedController: DiscoverFeedController?
+    // browse feed
+    var browseFeedController: BrowseFeedController?
+    
+    // drop down
+    var dropdownWrapper: UIView?
+    var dropdownView: UIView?
+    var dropdownVisible: Bool = false
+    let dropdownButtonHeight = navigationHeight
+    let dropdownViewHeight = navigationHeight * 3
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -43,7 +50,7 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         mainCollectionView = UICollectionView(frame: view.bounds, collectionViewLayout: outfitsLayout)
         
         mainCollectionView.autoresizingMask = UIViewAutoresizing.FlexibleWidth | UIViewAutoresizing.FlexibleHeight
-        mainCollectionView.showsVerticalScrollIndicator = false
+        mainCollectionView.showsVerticalScrollIndicator = true
         
         mainCollectionView.registerClass(MainFeedCell.self, forCellWithReuseIdentifier: mainFeedCellIdentifier)
         
@@ -60,19 +67,22 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         
         view.addSubview(mainCollectionView)
         
-        // sprubix logo
+        // sprubix title
         let logoImageWidth:CGFloat = 50
         let logoImageHeight:CGFloat = 30
         
-        var sprubixLogo = UIButton(frame: CGRect(x: -logoImageWidth / 2, y: -logoImageHeight / 2, width: logoImageWidth, height: logoImageHeight))
+        var sprubixTitle = UIButton(frame: CGRect(x: -logoImageWidth / 2, y: -logoImageHeight / 2, width: logoImageWidth, height: logoImageHeight))
         
-        sprubixLogo.addTarget(self, action: "sprubixLogoPressed:", forControlEvents: UIControlEvents.TouchUpInside)
-        sprubixLogo.setImage(UIImage(named: "main-sprubix-logo"), forState: UIControlState.Normal)
-        sprubixLogo.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+        sprubixTitle.addTarget(self, action: "navbarTitlePressed:", forControlEvents: UIControlEvents.TouchUpInside)
+        //sprubixLogo.setImage(UIImage(named: "main-sprubix-logo"), forState: UIControlState.Normal)
+        sprubixTitle.setTitle("Following", forState: UIControlState.Normal)
+        sprubixTitle.setTitleColor(UIColor.blackColor(), forState: UIControlState.Normal)
+        sprubixTitle.titleLabel?.font = UIFont.boldSystemFontOfSize(sprubixTitle.titleLabel!.font.pointSize)
+        sprubixTitle.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
         
-        self.navigationItem.titleView = sprubixLogo
+        self.navigationItem.titleView = sprubixTitle
         self.navigationItem.titleView?.userInteractionEnabled = true
-        
+
         // drawer navbar
         self.shyNavBarManager.expansionResistance = 20
         self.shyNavBarManager.contractionResistance = 0
@@ -89,6 +99,7 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         FirebaseAuth.retrieveFirebaseToken()
         
         initButtons()
+        initDropdown()
     }
     
     override func viewWillAppear(animated: Bool) {
@@ -161,18 +172,6 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         negativeSpacerItem.width = -16
         
         self.navigationItem.leftBarButtonItems = [negativeSpacerItem, sideMenuButtonItem]
-        
-        // 2. right bar button for discover feed
-        var discoverFeedButton: UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
-        var image: UIImage = UIImage(named: "main-discover")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
-        discoverFeedButton.setImage(image, forState: UIControlState.Normal)
-        discoverFeedButton.frame = CGRect(x: 0, y: 0, width: 30, height: 30)
-        discoverFeedButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
-        discoverFeedButton.imageView?.tintColor = UIColor.lightGrayColor()
-        discoverFeedButton.addTarget(self, action: "discoverFeedTapped:", forControlEvents: UIControlEvents.TouchUpInside)
-        
-        var discoverFeedBarButton: UIBarButtonItem = UIBarButtonItem(customView: discoverFeedButton)
-        self.navigationItem.rightBarButtonItems = [discoverFeedBarButton]
     }
     
     func initCollectionViewLayout() {
@@ -288,6 +287,84 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         createOutfitButton.userInteractionEnabled = true
         
         view.addSubview(createOutfitButton)
+    }
+    
+    func initDropdown() {
+        // init dropdown
+        if dropdownWrapper == nil {
+            dropdownWrapper = UIView(frame: CGRectMake(0, navigationHeight, screenWidth, screenHeight - navigationHeight))
+            dropdownWrapper?.clipsToBounds = true
+            dropdownWrapper?.userInteractionEnabled = true
+            dropdownWrapper?.backgroundColor = UIColor.clearColor().colorWithAlphaComponent(0.3)
+            dropdownWrapper?.alpha = 0.0
+            
+            // gesture recognizer to dismiss dropdown
+            var dropdownDismissTap = UITapGestureRecognizer(target: self, action: Selector("dismissDropdown:"))
+            dropdownDismissTap.numberOfTapsRequired = 1
+            
+            dropdownWrapper?.addGestureRecognizer(dropdownDismissTap)
+            
+            view.addSubview(dropdownWrapper!)
+        }
+        
+        // create 3 buttons
+        // // following, browse, people
+        if dropdownView == nil {
+            dropdownView = UIView(frame: CGRectMake(0, -dropdownViewHeight, screenWidth, dropdownViewHeight))
+            dropdownView!.backgroundColor = sprubixLightGray
+        }
+        
+        // // following
+        let followingButton: UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+        followingButton.frame = CGRectMake(0, 0, screenWidth, dropdownButtonHeight)
+        var image: UIImage = UIImage(named: "main-following")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
+        followingButton.setImage(image, forState: UIControlState.Normal)
+        followingButton.setTitle("Following", forState: UIControlState.Normal)
+        followingButton.setTitleColor(sprubixColor, forState: UIControlState.Normal)
+        followingButton.titleLabel?.font = UIFont.systemFontOfSize(16.0)
+        followingButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+        followingButton.imageView?.tintColor = sprubixColor
+        followingButton.backgroundColor = sprubixLightGray
+        followingButton.contentHorizontalAlignment = UIControlContentHorizontalAlignment.Left
+        followingButton.imageEdgeInsets = UIEdgeInsetsMake(10, 10, 10, 10)
+        followingButton.titleEdgeInsets = UIEdgeInsetsMake(0, 20, 0, 0)
+        
+        // // browse
+        let browseButton: UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+        browseButton.frame = CGRectMake(0, dropdownButtonHeight, screenWidth, dropdownButtonHeight)
+        image = UIImage(named: "main-discover")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
+        browseButton.setImage(image, forState: UIControlState.Normal)
+        browseButton.setTitle("Browse", forState: UIControlState.Normal)
+        browseButton.setTitleColor(UIColor.darkGrayColor(), forState: UIControlState.Normal)
+        browseButton.titleLabel?.font = UIFont.systemFontOfSize(16.0)
+        browseButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+        browseButton.imageView?.tintColor = UIColor.lightGrayColor()
+        browseButton.backgroundColor = sprubixLightGray
+        browseButton.contentHorizontalAlignment = UIControlContentHorizontalAlignment.Left
+        browseButton.imageEdgeInsets = UIEdgeInsetsMake(10, 10, 10, 10)
+        browseButton.titleEdgeInsets = UIEdgeInsetsMake(0, 20, 0, 0)
+        browseButton.addTarget(self, action: "browseFeedTapped:", forControlEvents: UIControlEvents.TouchUpInside)
+        
+        // // people
+        let peopleButton: UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+        peopleButton.frame = CGRectMake(0, dropdownButtonHeight * 2, screenWidth, dropdownButtonHeight)
+        image = UIImage(named: "main-following")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
+        peopleButton.setImage(image, forState: UIControlState.Normal)
+        peopleButton.setTitle("People", forState: UIControlState.Normal)
+        peopleButton.setTitleColor(UIColor.darkGrayColor(), forState: UIControlState.Normal)
+        peopleButton.titleLabel?.font = UIFont.systemFontOfSize(16.0)
+        peopleButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+        peopleButton.imageView?.tintColor = UIColor.lightGrayColor()
+        peopleButton.backgroundColor = sprubixLightGray
+        peopleButton.contentHorizontalAlignment = UIControlContentHorizontalAlignment.Left
+        peopleButton.imageEdgeInsets = UIEdgeInsetsMake(10, 10, 10, 10)
+        peopleButton.titleEdgeInsets = UIEdgeInsetsMake(0, 20, 0, 0)
+        
+        dropdownView!.addSubview(followingButton)
+        dropdownView!.addSubview(browseButton)
+        dropdownView!.addSubview(peopleButton)
+        
+        view.addSubview(dropdownView!)
     }
     
     // DZNEmptyDataSetSource
@@ -748,7 +825,7 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         var user = selectedOutfit["user"] as! NSDictionary
         
         if spruceViewController == nil {
-            spruceViewController = UIStoryboard(name: "Main", bundle: NSBundle.mainBundle()).instantiateViewControllerWithIdentifier("SpruceView") as? SpruceViewController
+            spruceViewController = SpruceViewController()
             spruceViewController?.outfit = selectedOutfit
             spruceViewController?.userIdFrom = user["id"] as! Int
             spruceViewController?.usernameFrom = user["username"] as! String
@@ -765,21 +842,41 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         delegate?.showCreateOutfit()
     }
     
-    func sprubixLogoPressed(sender: UIButton) {
-        if outfits.count > 0 {
-            mainCollectionView.scrollToItemAtIndexPath(NSIndexPath(forItem: 0, inSection: 0), atScrollPosition: UICollectionViewScrollPosition.Bottom, animated: true)
+    func navbarTitlePressed(sender: UIButton) {
+        if dropdownVisible != true {
+            // show dropdownView
+            UIView.animateWithDuration(0.5, delay: 0.0, usingSpringWithDamping: 0.9, initialSpringVelocity: 0, options: .CurveEaseInOut, animations: {
+                self.dropdownWrapper!.alpha = 1.0
+                self.dropdownView?.frame.origin.y = navigationHeight
+                self.mainCollectionView.scrollEnabled = false
+                self.dropdownVisible = true
+                }, completion: nil)
+        } else {
+            dismissDropdown(UITapGestureRecognizer())
         }
     }
     
-    func discoverFeedTapped(sender: UIBarButtonItem) {
+    func dismissDropdown(gesture: UITapGestureRecognizer) {
+        // hide dropdownView
+        UIView.animateWithDuration(0.5, delay: 0.0, usingSpringWithDamping: 0.9, initialSpringVelocity: 0, options: .CurveEaseInOut, animations: {
+            self.dropdownWrapper!.alpha = 0.0
+            self.dropdownView?.frame.origin.y = -self.dropdownViewHeight
+            self.mainCollectionView.scrollEnabled = true
+            self.dropdownVisible = false
+            }, completion: nil)
+    }
+    
+    func browseFeedTapped(sender: UIButton) {
         
-        if discoverFeedController == nil {
-            discoverFeedController = DiscoverFeedController()
-            discoverFeedController!.delegate = containerViewController
+        if browseFeedController == nil {
+            browseFeedController = BrowseFeedController()
+            browseFeedController!.delegate = containerViewController
         }
         
         UIView.transitionWithView(self.navigationController!.view, duration: 0.5, options: UIViewAnimationOptions.TransitionCrossDissolve, animations: {
-            self.navigationController?.pushViewController(discoverFeedController!, animated: false)
+            self.navigationController?.pushViewController(browseFeedController!, animated: false)
         }, completion: nil)
+        
+        dismissDropdown(UITapGestureRecognizer())
     }
 }

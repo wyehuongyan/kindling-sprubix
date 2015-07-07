@@ -192,14 +192,14 @@ class CreateOutfitViewController: UIViewController {
         
         let userData: NSDictionary? = defaults.dictionaryForKey("userData")
         
-        let spruceViewController = UIStoryboard(name: "Main", bundle: NSBundle.mainBundle()).instantiateViewControllerWithIdentifier("SpruceView") as? SpruceViewController
+        let spruceViewController = SpruceViewController()
         
-        spruceViewController?.userIdFrom = userData!["id"] as! Int
-        spruceViewController?.usernameFrom = userData!["username"] as! String
-        spruceViewController?.userThumbnailFrom = userData!["image"] as! String
+        spruceViewController.userIdFrom = userData!["id"] as! Int
+        spruceViewController.usernameFrom = userData!["username"] as! String
+        spruceViewController.userThumbnailFrom = userData!["image"] as! String
         
         self.navigationController?.delegate = nil
-        self.navigationController?.pushViewController(spruceViewController!, animated: true)
+        self.navigationController?.pushViewController(spruceViewController, animated: true)
     }
     
     // nav bar button callbacks

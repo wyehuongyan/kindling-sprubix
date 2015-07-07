@@ -244,6 +244,8 @@ class SignInViewController: UIViewController, UITextFieldDelegate, UITableViewDa
     * Called when 'return' key pressed. return NO to ignore.
     */
     func textFieldShouldReturn(textField: UITextField) -> Bool {
+        makeKeyboardVisible = false
+        
         textField.resignFirstResponder()
 
         return true

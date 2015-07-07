@@ -29,6 +29,9 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
     var numTotalComments: Int = 0
     var numTotalLikes: Int = 0
     
+    // credits
+    var postedByButton: SprubixCreditButton!
+    
     var liked: Bool?
     var likeButton: UIButton!
     var likeImageView: UIImageView!
@@ -283,7 +286,11 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         let creditsViewHeight:CGFloat = 80
         var creditsView:UIView = UIView(frame: CGRect(x: 0, y: screenWidth, width: screenWidth, height: creditsViewHeight))
         
-        var postedByButton:SprubixCreditButton = SprubixCreditButton(frame: CGRect(x: 0, y: 0, width: screenWidth/2, height: creditsViewHeight), buttonLabel: "owned by", username: user["username"] as! String, userThumbnail: user["image"] as! String)
+        postedByButton = SprubixCreditButton(frame: CGRect(x: 0, y: 0, width: screenWidth/2, height: creditsViewHeight), buttonLabel: "owned by", username: user["username"] as! String, userThumbnail: user["image"] as! String)
+        
+        postedByButton.user = user
+        
+        postedByButton.addTarget(self, action: "creditsShowProfile:", forControlEvents: UIControlEvents.TouchUpInside)
         
         // UILines on top and buttom of button
         var buttonLineBottom = UIView(frame: CGRect(x: 0, y: creditsView.frame.height - 10.0, width: screenWidth, height: 10))
@@ -756,6 +763,10 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         }
     }
     
+    func creditsShowProfile(sender: UIButton) {
+        containerViewController.showUserProfile(postedByButton.user!)
+    }
+    
     func animateHeart() {
         if likeImageView != nil {
             UIView.animateWithDuration(0.3, delay: 0.2, usingSpringWithDamping: 0.9, initialSpringVelocity: 0, options: .CurveEaseInOut, animations: {
@@ -1108,7 +1119,7 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
                         TSMessage.showNotificationInViewController(                        TSMessage.defaultViewController(), title: "Success!", subtitle: "Item added to cart", image: UIImage(named: "filter-check"), type: TSMessageNotificationType.Success, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: true)
                     } else {
                         // error exception
-                        TSMessage.showNotificationInViewController(                        TSMessage.defaultViewController(), title: "Error", subtitle: "Something went wrong", image: UIImage(named: "filter-cross"), type: TSMessageNotificationType.Error, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: true)
+                        TSMessage.showNotificationInViewController(                        TSMessage.defaultViewController(), title: "Error", subtitle: "Something went wrong.\nPlease try again.", image: UIImage(named: "filter-cross"), type: TSMessageNotificationType.Error, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: true)
                     }
                 },
                 failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in

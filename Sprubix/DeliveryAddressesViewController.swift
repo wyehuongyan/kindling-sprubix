@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import AFNetworking
 import DZNEmptyDataSet
 
 class DeliveryAddressesViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, DZNEmptyDataSetSource, DZNEmptyDataSetDelegate {
@@ -41,6 +42,7 @@ class DeliveryAddressesViewController: UIViewController, UITableViewDataSource, 
         super.viewWillAppear(animated)
         
         initNavBar()
+        retrieveDeliveryAddresses()
     }
     
     func initNavBar() {
@@ -88,6 +90,21 @@ class DeliveryAddressesViewController: UIViewController, UITableViewDataSource, 
         
         // 5. add the nav bar to the main view
         self.view.addSubview(newNavBar)
+    }
+    
+    func retrieveDeliveryAddresses() {
+        // REST call to server to create user shipping address
+        manager.GET(SprubixConfig.URL.api + "/shipping/addresses",
+            parameters: nil,
+            success: { (operation: AFHTTPRequestOperation!, responseObject:
+                AnyObject!) in
+                
+                self.deliveryAddresses = responseObject as! [NSDictionary]
+                self.deliveryAddressesTableView.reloadData()
+            },
+            failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                println("Error: " + error.localizedDescription)
+        })
     }
     
     // DZNEmptyDataSetSource
@@ -142,9 +159,26 @@ class DeliveryAddressesViewController: UIViewController, UITableViewDataSource, 
         return sprubixGray
     }
 
-    
+    // UITableViewDataSource
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier(deliveryAddressCellIdentifier, forIndexPath: indexPath) as! DeliveryAddressCell
+        
+        let deliveryAddress = deliveryAddresses[indexPath.row] as NSDictionary
+        
+        let address1 = deliveryAddress["address_1"] as! String
+        var address2: String? = deliveryAddress["address_2"] as? String
+        let postalCode = deliveryAddress["postal_code"] as! String
+        let country = deliveryAddress["country"] as! String
+        
+        var deliveryAddressText = address1
+        
+        if address2 != nil {
+            deliveryAddressText += "\n\(address2)"
+        }
+        
+        deliveryAddressText += "\n\(postalCode)\n\(country)"
+        
+        cell.deliveryAddress.text = deliveryAddressText
         
         return cell
     }

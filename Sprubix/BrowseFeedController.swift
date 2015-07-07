@@ -1,5 +1,5 @@
 //
-//  DiscoverFeedController.swift
+//  BrowseFeedController.swift
 //  Sprubix
 //
 //  Created by Yan Wye Huong on 18/6/15.
@@ -10,7 +10,7 @@ import UIKit
 import CHTCollectionViewWaterfallLayout
 import AFNetworking
 
-class DiscoverFeedController: UIViewController, UITextFieldDelegate, UICollectionViewDataSource, CHTCollectionViewDelegateWaterfallLayout {
+class BrowseFeedController: UIViewController, UITextFieldDelegate, UICollectionViewDataSource, CHTCollectionViewDelegateWaterfallLayout {
     
     var delegate: SidePanelViewControllerDelegate?
     var outfits: [NSDictionary] = [NSDictionary]()
@@ -33,6 +33,13 @@ class DiscoverFeedController: UIViewController, UITextFieldDelegate, UICollectio
     var newNavBar:UINavigationBar!
     var newNavItem:UINavigationItem!
     
+    // drop down
+    var dropdownWrapper: UIView?
+    var dropdownView: UIView?
+    var dropdownVisible: Bool = false
+    let dropdownButtonHeight = navigationHeight
+    let dropdownViewHeight = navigationHeight * 3
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -40,6 +47,7 @@ class DiscoverFeedController: UIViewController, UITextFieldDelegate, UICollectio
         
         initToolbar()
         initCollectionView()
+        initDropdown()
     }
     
     override func viewWillAppear(animated: Bool) {
@@ -49,7 +57,7 @@ class DiscoverFeedController: UIViewController, UITextFieldDelegate, UICollectio
         
         if self.shyNavBarManager.scrollView == nil {
             self.shyNavBarManager.scrollView = self.discoverCollectionView
-            self.shyNavBarManager.extensionView = searchBarView
+            //self.shyNavBarManager.extensionView = searchBarView
         }
         
         retrieveOutfits()
@@ -79,7 +87,7 @@ class DiscoverFeedController: UIViewController, UITextFieldDelegate, UICollectio
         discoverCollectionView = UICollectionView(frame: view.bounds, collectionViewLayout: outfitsLayout)
         
         discoverCollectionView.autoresizingMask = UIViewAutoresizing.FlexibleWidth | UIViewAutoresizing.FlexibleHeight
-        discoverCollectionView.showsVerticalScrollIndicator = false
+        discoverCollectionView.showsVerticalScrollIndicator = true
         
         discoverCollectionView.registerClass(MainFeedCell.self, forCellWithReuseIdentifier: discoverFeedCellIdentifier)
         
@@ -102,7 +110,7 @@ class DiscoverFeedController: UIViewController, UITextFieldDelegate, UICollectio
         self.navigationController?.navigationBar.barTintColor = UIColor.whiteColor()
         
         // 1. add a new title to the nav bar
-        self.navigationItem.title = "Discover"
+        self.navigationItem.title = "Browse"
         
         // 2. create a custom button
         var sideMenuButton:UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
@@ -139,17 +147,33 @@ class DiscoverFeedController: UIViewController, UITextFieldDelegate, UICollectio
         
         self.navigationItem.leftBarButtonItems = [negativeSpacerItem, sideMenuButtonItem]
         
-        // 5. go back to main feed buton
-        var mainFeedButton:UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
-        var image: UIImage = UIImage(named: "main-following")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
-        mainFeedButton.setImage(image, forState: UIControlState.Normal)
-        mainFeedButton.frame = CGRect(x: 0, y: 0, width: 30, height: 30)
-        mainFeedButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
-        mainFeedButton.imageView?.tintColor = UIColor.lightGrayColor()
-        mainFeedButton.addTarget(self, action: "mainFeedTapped:", forControlEvents: UIControlEvents.TouchUpInside)
+        // 5. search button
+        var searchButton: UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+        var image: UIImage = UIImage(named: "spruce-search")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
+        searchButton.setImage(image, forState: UIControlState.Normal)
+        searchButton.frame = CGRect(x: 0, y: 0, width: 30, height: 30)
+        searchButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+        searchButton.imageView?.tintColor = UIColor.lightGrayColor()
+        searchButton.imageEdgeInsets = UIEdgeInsetsMake(5, 5, 5, 5)
         
-        var mainFeedBarButtonItem:UIBarButtonItem = UIBarButtonItem(customView: mainFeedButton)
-        self.navigationItem.rightBarButtonItems = [mainFeedBarButtonItem]
+        var searchBarButtonItem: UIBarButtonItem = UIBarButtonItem(customView: searchButton)
+        self.navigationItem.rightBarButtonItems = [searchBarButtonItem]
+        
+        // sprubix title
+        let logoImageWidth:CGFloat = 50
+        let logoImageHeight:CGFloat = 30
+        
+        var sprubixTitle = UIButton(frame: CGRect(x: -logoImageWidth / 2, y: -logoImageHeight / 2, width: logoImageWidth, height: logoImageHeight))
+        
+        sprubixTitle.addTarget(self, action: "navbarTitlePressed:", forControlEvents: UIControlEvents.TouchUpInside)
+        //sprubixLogo.setImage(UIImage(named: "main-sprubix-logo"), forState: UIControlState.Normal)
+        sprubixTitle.setTitle("Browse", forState: UIControlState.Normal)
+        sprubixTitle.setTitleColor(UIColor.blackColor(), forState: UIControlState.Normal)
+        sprubixTitle.titleLabel?.font = UIFont.boldSystemFontOfSize(sprubixTitle.titleLabel!.font.pointSize)
+        sprubixTitle.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+        
+        self.navigationItem.titleView = sprubixTitle
+        self.navigationItem.titleView?.userInteractionEnabled = true
     }
 
     func initToolbar() {
@@ -199,6 +223,84 @@ class DiscoverFeedController: UIViewController, UITextFieldDelegate, UICollectio
             failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                 println("Error: " + error.localizedDescription)
         })
+    }
+    
+    func initDropdown() {
+        // init dropdown
+        if dropdownWrapper == nil {
+            dropdownWrapper = UIView(frame: CGRectMake(0, navigationHeight, screenWidth, screenHeight - navigationHeight))
+            dropdownWrapper?.clipsToBounds = true
+            dropdownWrapper?.userInteractionEnabled = true
+            dropdownWrapper?.backgroundColor = UIColor.clearColor().colorWithAlphaComponent(0.3)
+            dropdownWrapper?.alpha = 0.0
+            
+            // gesture recognizer to dismiss dropdown
+            var dropdownDismissTap = UITapGestureRecognizer(target: self, action: Selector("dismissDropdown:"))
+            dropdownDismissTap.numberOfTapsRequired = 1
+            
+            dropdownWrapper?.addGestureRecognizer(dropdownDismissTap)
+            
+            view.addSubview(dropdownWrapper!)
+        }
+        
+        // create 3 buttons
+        // // following, browse, people
+        if dropdownView == nil {
+            dropdownView = UIView(frame: CGRectMake(0, -dropdownViewHeight, screenWidth, dropdownViewHeight))
+            dropdownView!.backgroundColor = sprubixLightGray
+        }
+        
+        // // following
+        let followingButton: UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+        followingButton.frame = CGRectMake(0, 0, screenWidth, dropdownButtonHeight)
+        var image: UIImage = UIImage(named: "main-following")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
+        followingButton.setImage(image, forState: UIControlState.Normal)
+        followingButton.setTitle("Following", forState: UIControlState.Normal)
+        followingButton.setTitleColor(UIColor.darkGrayColor(), forState: UIControlState.Normal)
+        followingButton.titleLabel?.font = UIFont.systemFontOfSize(16.0)
+        followingButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+        followingButton.imageView?.tintColor = UIColor.lightGrayColor()
+        followingButton.backgroundColor = sprubixLightGray
+        followingButton.contentHorizontalAlignment = UIControlContentHorizontalAlignment.Left
+        followingButton.imageEdgeInsets = UIEdgeInsetsMake(10, 10, 10, 10)
+        followingButton.titleEdgeInsets = UIEdgeInsetsMake(0, 20, 0, 0)
+        followingButton.addTarget(self, action: "mainFeedTapped:", forControlEvents: UIControlEvents.TouchUpInside)
+        
+        // // browse
+        let browseButton: UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+        browseButton.frame = CGRectMake(0, dropdownButtonHeight, screenWidth, dropdownButtonHeight)
+        image = UIImage(named: "main-discover")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
+        browseButton.setImage(image, forState: UIControlState.Normal)
+        browseButton.setTitle("Browse", forState: UIControlState.Normal)
+        browseButton.setTitleColor(sprubixColor, forState: UIControlState.Normal)
+        browseButton.titleLabel?.font = UIFont.systemFontOfSize(16.0)
+        browseButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+        browseButton.imageView?.tintColor = sprubixColor
+        browseButton.backgroundColor = sprubixLightGray
+        browseButton.contentHorizontalAlignment = UIControlContentHorizontalAlignment.Left
+        browseButton.imageEdgeInsets = UIEdgeInsetsMake(10, 10, 10, 10)
+        browseButton.titleEdgeInsets = UIEdgeInsetsMake(0, 20, 0, 0)
+        
+        // // people
+        let peopleButton: UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+        peopleButton.frame = CGRectMake(0, dropdownButtonHeight * 2, screenWidth, dropdownButtonHeight)
+        image = UIImage(named: "main-following")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
+        peopleButton.setImage(image, forState: UIControlState.Normal)
+        peopleButton.setTitle("People", forState: UIControlState.Normal)
+        peopleButton.setTitleColor(UIColor.darkGrayColor(), forState: UIControlState.Normal)
+        peopleButton.titleLabel?.font = UIFont.systemFontOfSize(16.0)
+        peopleButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+        peopleButton.imageView?.tintColor = UIColor.lightGrayColor()
+        peopleButton.backgroundColor = sprubixLightGray
+        peopleButton.contentHorizontalAlignment = UIControlContentHorizontalAlignment.Left
+        peopleButton.imageEdgeInsets = UIEdgeInsetsMake(10, 10, 10, 10)
+        peopleButton.titleEdgeInsets = UIEdgeInsetsMake(0, 20, 0, 0)
+        
+        dropdownView!.addSubview(followingButton)
+        dropdownView!.addSubview(browseButton)
+        dropdownView!.addSubview(peopleButton)
+        
+        view.addSubview(dropdownView!)
     }
     
     // UICollectionViewDataSource
@@ -264,10 +366,36 @@ class DiscoverFeedController: UIViewController, UITextFieldDelegate, UICollectio
     }
     
     // nav bar button callbacks
-    func mainFeedTapped(sender: UIBarButtonItem) {
+    func navbarTitlePressed(sender: UIButton) {
+        if dropdownVisible != true {
+            // show dropdownView
+            UIView.animateWithDuration(0.5, delay: 0.0, usingSpringWithDamping: 0.9, initialSpringVelocity: 0, options: .CurveEaseInOut, animations: {
+                self.dropdownWrapper!.alpha = 1.0
+                self.dropdownView?.frame.origin.y = navigationHeight
+                self.discoverCollectionView.scrollEnabled = false
+                self.dropdownVisible = true
+                }, completion: nil)
+        } else {
+            dismissDropdown(UITapGestureRecognizer())
+        }
+    }
+    
+    func dismissDropdown(gesture: UITapGestureRecognizer) {
+        // hide dropdownView
+        UIView.animateWithDuration(0.5, delay: 0.0, usingSpringWithDamping: 0.9, initialSpringVelocity: 0, options: .CurveEaseInOut, animations: {
+            self.dropdownWrapper!.alpha = 0.0
+            self.dropdownView?.frame.origin.y = -self.dropdownViewHeight
+            self.discoverCollectionView.scrollEnabled = true
+            self.dropdownVisible = false
+            }, completion: nil)
+    }
+    
+    func mainFeedTapped(sender: UIButton) {
         UIView.transitionWithView(self.navigationController!.view, duration: 0.5, options: UIViewAnimationOptions.TransitionCrossDissolve, animations: {
             self.navigationController?.popViewControllerAnimated(false)
             }, completion: nil)
+        
+        dismissDropdown(UITapGestureRecognizer())
     }
     
     func sideMenuTapped(sender: UIBarButtonItem) {

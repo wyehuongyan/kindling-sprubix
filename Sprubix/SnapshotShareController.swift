@@ -598,7 +598,10 @@ class SnapshotShareController: UIViewController, UITableViewDelegate, UITableVie
             pieceDict.setObject(sprubixPiece.images[0].scale * sprubixPiece.images[0].size.height, forKey: "height")
             pieceDict.setObject(sprubixPiece.images[0].scale * sprubixPiece.images[0].size.width, forKey: "width")
             pieceDict.setObject(sprubixPiece.size != nil ? sprubixPiece.size : "", forKey: "size")
-            pieceDict.setObject(sprubixPiece.quantity != nil ? sprubixPiece.quantity : "", forKey: "quantity")
+            
+            if sprubixPiece.quantity != nil {
+                pieceDict.setObject(sprubixPiece.quantity, forKey: "quantity")
+            }
             
             pieces.setObject(pieceDict, forKey: sprubixPiece.type.lowercaseString)
         }

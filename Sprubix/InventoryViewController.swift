@@ -332,7 +332,7 @@ class InventoryViewController: UIViewController, UITableViewDataSource, UITableV
         
         sprubixPiece.price = piece["price"] as? String
         sprubixPiece.desc = piece["description"] as? String
-        sprubixPiece.isDress = piece["is_dress"] as? Bool
+        sprubixPiece.isDress = piece["is_dress"] as! Bool
         sprubixPiece.type = piece["type"] as? String
         
         snapshotDetailsController.sprubixPiece = sprubixPiece

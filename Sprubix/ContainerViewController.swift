@@ -58,9 +58,8 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
         // all notification overlays will be shown in this controller
         TSMessage.setDefaultViewController(sprubixNavigationController)
         
-        
         let panGestureRecognizer = UIPanGestureRecognizer(target: self, action: "handlePanGesture:")
-        mainFeedController.view.addGestureRecognizer(panGestureRecognizer)
+        sprubixNavigationController.view.addGestureRecognizer(panGestureRecognizer)
     }
     
     override func prefersStatusBarHidden() -> Bool {
@@ -188,7 +187,7 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
     
     func addDarkenedOverlay() {
         if darkenedOverlay == nil {            
-            darkenedOverlay = UIView(frame: CGRect(x: 0, y: navigationHeight, width: screenWidth, height: screenHeight))
+            darkenedOverlay = UIView(frame: CGRect(x: 0, y: 0, width: screenWidth, height: screenHeight))
             darkenedOverlay!.backgroundColor = UIColor.clearColor().colorWithAlphaComponent(0.3)
             darkenedOverlay!.userInteractionEnabled = true
             darkenedOverlay!.exclusiveTouch = true
@@ -257,32 +256,42 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
     }
     
     // MARK: Gesture recognizer
-    
     func handlePanGesture(recognizer: UIPanGestureRecognizer) {
-        let gestureIsDraggingFromLeftToRight = (recognizer.velocityInView(view).x > 0)
+        var currentViewController = sprubixNavigationController.childViewControllers[sprubixNavigationController.childViewControllers.count - 1] as! UIViewController
         
-        switch(recognizer.state) {
-        case .Began:
-            if (currentState == .Collapsed) {
-                if (gestureIsDraggingFromLeftToRight) {
-                    addSidePanelViewController()
+        if currentViewController.isKindOfClass(MainFeedController) || currentViewController.isKindOfClass(BrowseFeedController) {
+        
+            let gestureIsDraggingFromLeftToRight = (recognizer.velocityInView(view).x > 0)
+            
+            switch(recognizer.state) {
+            case .Began:
+                if (currentState == .Collapsed) {
+                    if (gestureIsDraggingFromLeftToRight) {
+                        addSidePanelViewController()
+                        addDarkenedOverlay()
+                    }
+                    
+                    //showShadowForSprubixFeedController(true)
                 }
-                
-                //showShadowForSprubixFeedController(true)
+            case .Changed:
+                if (gestureIsDraggingFromLeftToRight || currentState == .SidePanelExpanded) {
+                    
+                    recognizer.view!.center.x = recognizer.view!.center.x + recognizer.translationInView(view).x
+                    recognizer.setTranslation(CGPointZero, inView: view)
+
+                    if recognizer.view!.center.x < screenWidth / 2 {
+                       recognizer.view!.center.x = screenWidth / 2
+                    }
+                }
+            case .Ended:
+                if (sidePanelViewController != nil) {
+                    // animate the side panel open or closed based on whether the view has moved more or less than halfway
+                    let hasMovedGreaterThanHalfway = recognizer.view!.center.x > view.bounds.size.width
+                    animateSidePanel(shouldExpand: hasMovedGreaterThanHalfway)
+                }
+            default:
+                break
             }
-        case .Changed:
-            if (gestureIsDraggingFromLeftToRight || currentState == .SidePanelExpanded) {
-                recognizer.view!.center.x = recognizer.view!.center.x + recognizer.translationInView(view).x
-                recognizer.setTranslation(CGPointZero, inView: view)
-            }
-        case .Ended:
-            if (sidePanelViewController != nil) {
-                // animate the side panel open or closed based on whether the view has moved more or less than halfway
-                let hasMovedGreaterThanHalfway = recognizer.view!.center.x > view.bounds.size.width
-                animateSidePanel(shouldExpand: hasMovedGreaterThanHalfway)
-            }
-        default:
-            break
         }
     }
 }
