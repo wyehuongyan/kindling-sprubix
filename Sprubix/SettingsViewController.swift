@@ -11,10 +11,16 @@ import SSKeychain
 
 class SettingsViewController: UITableViewController {
     
+    @IBOutlet var paymentMethodsCell: UITableViewCell!
+    @IBOutlet var deliveryAddressesCell: UITableViewCell!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         view.backgroundColor = sprubixGray
+        
+        deliveryAddressesCell.accessoryType = UITableViewCellAccessoryType.DisclosureIndicator
+        paymentMethodsCell.accessoryType = UITableViewCellAccessoryType.DisclosureIndicator
     }
     
     override func viewWillAppear(animated: Bool) {

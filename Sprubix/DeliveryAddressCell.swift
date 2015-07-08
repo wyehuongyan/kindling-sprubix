@@ -14,6 +14,17 @@ class DeliveryAddressCell: UITableViewCell {
     @IBOutlet var editDeliveryAddressButton: UIButton!
     @IBOutlet var deleteDeliveryAddressButton: UIButton!
     
+    @IBAction func editDeliveryAddress(sender: AnyObject) {
+        editDeliveryAction?()
+    }
+    
+    @IBAction func deleteDeliveryAddress(sender: AnyObject) {
+        deleteDeliveryAction?()
+    }
+    
+    var editDeliveryAction: (() -> Void)?
+    var deleteDeliveryAction: (() -> Void)?
+    
     override func awakeFromNib() {
         super.awakeFromNib()
         

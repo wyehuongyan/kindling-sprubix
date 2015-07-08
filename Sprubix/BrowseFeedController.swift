@@ -34,6 +34,7 @@ class BrowseFeedController: UIViewController, UITextFieldDelegate, UICollectionV
     var newNavItem:UINavigationItem!
     
     // drop down
+    var sprubixTitle: SprubixButtonIconRight!
     var dropdownWrapper: UIView?
     var dropdownView: UIView?
     var dropdownVisible: Bool = false
@@ -163,14 +164,22 @@ class BrowseFeedController: UIViewController, UITextFieldDelegate, UICollectionV
         let logoImageWidth:CGFloat = 50
         let logoImageHeight:CGFloat = 30
         
-        var sprubixTitle = UIButton(frame: CGRect(x: -logoImageWidth / 2, y: -logoImageHeight / 2, width: logoImageWidth, height: logoImageHeight))
+        sprubixTitle = SprubixButtonIconRight(frame: CGRect(x: -logoImageWidth / 2, y: -logoImageHeight / 2, width: logoImageWidth, height: logoImageHeight))
         
         sprubixTitle.addTarget(self, action: "navbarTitlePressed:", forControlEvents: UIControlEvents.TouchUpInside)
-        //sprubixLogo.setImage(UIImage(named: "main-sprubix-logo"), forState: UIControlState.Normal)
+
+        var dropdownImage = UIImage(named: "others-dropdown-down")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
+        sprubixTitle.setImage(dropdownImage, forState: UIControlState.Normal)
+        
+        var dropupImage = UIImage(named: "others-dropdown-up")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
+        sprubixTitle.setImage(dropupImage, forState: UIControlState.Selected)
+        
         sprubixTitle.setTitle("Browse", forState: UIControlState.Normal)
         sprubixTitle.setTitleColor(UIColor.blackColor(), forState: UIControlState.Normal)
         sprubixTitle.titleLabel?.font = UIFont.boldSystemFontOfSize(sprubixTitle.titleLabel!.font.pointSize)
+        sprubixTitle.imageEdgeInsets = UIEdgeInsetsMake(7, 2, 7, 0)
         sprubixTitle.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+        sprubixTitle.imageView?.tintColor = UIColor.blackColor()
         
         self.navigationItem.titleView = sprubixTitle
         self.navigationItem.titleView?.userInteractionEnabled = true
@@ -368,6 +377,8 @@ class BrowseFeedController: UIViewController, UITextFieldDelegate, UICollectionV
     // nav bar button callbacks
     func navbarTitlePressed(sender: UIButton) {
         if dropdownVisible != true {
+            sprubixTitle.selected = true
+            
             // show dropdownView
             UIView.animateWithDuration(0.5, delay: 0.0, usingSpringWithDamping: 0.9, initialSpringVelocity: 0, options: .CurveEaseInOut, animations: {
                 self.dropdownWrapper!.alpha = 1.0
@@ -388,6 +399,8 @@ class BrowseFeedController: UIViewController, UITextFieldDelegate, UICollectionV
             self.discoverCollectionView.scrollEnabled = true
             self.dropdownVisible = false
             }, completion: nil)
+        
+        sprubixTitle.selected = false
     }
     
     func mainFeedTapped(sender: UIButton) {

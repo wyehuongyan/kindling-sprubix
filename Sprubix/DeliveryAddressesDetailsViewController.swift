@@ -16,6 +16,8 @@ class DeliveryAddressesDetailsViewController: UIViewController, UITableViewDataS
     var deliveryAddressDetailsTable: UITableView!
     var oldFrameRect: CGRect!
     var makeKeyboardVisible = true
+    var shippingAddressesCount: Int?
+    var deliveryAddress: NSDictionary?
     
     // table view cells
     var firstNameCell: UITableViewCell = UITableViewCell()
@@ -29,6 +31,7 @@ class DeliveryAddressesDetailsViewController: UIViewController, UITableViewDataS
     var cityCell: UITableViewCell = UITableViewCell()
     var stateCell: UITableViewCell = UITableViewCell()
     var countryCell: UITableViewCell = UITableViewCell()
+    var isCurrentCell: UITableViewCell = UITableViewCell()
     
     var firstNameText: UITextField!
     var lastNameText: UITextField!
@@ -42,12 +45,17 @@ class DeliveryAddressesDetailsViewController: UIViewController, UITableViewDataS
     var stateText: UITextField!
     var countryText: UITextField!
     var countryCode: String?
+    var isCurrentSwitch: UISwitch!
     
     var tableTapGestureRecognizer: UITapGestureRecognizer!
     
     // custom nav bar
     var newNavBar: UINavigationBar!
     var newNavItem: UINavigationItem!
+    
+    // countries
+    var codeForCountryDictionary: NSDictionary!
+    var sortedCountryArray: [String] = []
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -68,6 +76,8 @@ class DeliveryAddressesDetailsViewController: UIViewController, UITableViewDataS
         tableTapGestureRecognizer.enabled = false
         
         view.addSubview(deliveryAddressDetailsTable)
+        
+        initCountries()
     }
     
     override func viewWillAppear(animated: Bool) {
@@ -132,19 +142,39 @@ class DeliveryAddressesDetailsViewController: UIViewController, UITableViewDataS
         self.view.addSubview(newNavBar)
     }
     
+    func initCountries() {
+        let locale = NSLocale.currentLocale()
+        let countryArray = NSLocale.ISOCountryCodes()
+        var unsortedCountryArray: [String] = []
+        
+        for countryCode in countryArray {
+            let displayNameString = locale.displayNameForKey(NSLocaleCountryCode, value: countryCode)
+            
+            if displayNameString != nil {
+                unsortedCountryArray.append(displayNameString!)
+            }
+        }
+        
+        codeForCountryDictionary = NSDictionary(objects: countryArray, forKeys: unsortedCountryArray)
+        
+        sortedCountryArray = sorted(unsortedCountryArray, <)
+    }
+    
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         switch section {
         case 0:
             return 4
         case 1:
             return 6
+        case 2:
+            return 1
         default:
             return 0
         }
     }
     
     func numberOfSectionsInTableView(tableView: UITableView) -> Int {
-        return 2
+        return shippingAddressesCount > 0 ? 3 : 2
     }
     
     func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
@@ -168,10 +198,11 @@ class DeliveryAddressesDetailsViewController: UIViewController, UITableViewDataS
                     firstNameText = UITextField(frame: CGRectInset(firstNameCell.contentView.bounds, 15, 0))
                     
                     firstNameText.returnKeyType = UIReturnKeyType.Default
-
+                    firstNameText.text = deliveryAddress?["first_name"] as? String
                     firstNameText.placeholder = "First Name"
                     firstNameText.delegate = self
                     firstNameCell.addSubview(firstNameText)
+                    firstNameCell.selectionStyle = UITableViewCellSelectionStyle.None
                 }
                 
                 return firstNameCell
@@ -181,10 +212,11 @@ class DeliveryAddressesDetailsViewController: UIViewController, UITableViewDataS
                     lastNameText = UITextField(frame: CGRectInset(lastNameCell.contentView.bounds, 15, 0))
                     
                     lastNameText.returnKeyType = UIReturnKeyType.Default
-                    
+                    lastNameText.text = deliveryAddress?["last_name"] as? String
                     lastNameText.placeholder = "Last Name"
                     lastNameText.delegate = self
                     lastNameCell.addSubview(lastNameText)
+                    lastNameCell.selectionStyle = UITableViewCellSelectionStyle.None
                 }
                 
                 return lastNameCell
@@ -193,10 +225,11 @@ class DeliveryAddressesDetailsViewController: UIViewController, UITableViewDataS
                     companyText = UITextField(frame: CGRectInset(companyCell.contentView.bounds, 15, 0))
                     
                     companyText.returnKeyType = UIReturnKeyType.Default
-                    
+                    companyText.text = deliveryAddress?["company"] as? String
                     companyText.placeholder = "Company (Optional)"
                     companyText.delegate = self
                     companyCell.addSubview(companyText)
+                    companyCell.selectionStyle = UITableViewCellSelectionStyle.None
                 }
                 
                 return companyCell
@@ -206,9 +239,11 @@ class DeliveryAddressesDetailsViewController: UIViewController, UITableViewDataS
                     
                     contactText.returnKeyType = UIReturnKeyType.Default
                     contactText.keyboardType = UIKeyboardType.NumberPad
+                    contactText.text = deliveryAddress?["contact_number"] as? String
                     contactText.placeholder = "Contact Number"
                     contactText.delegate = self
                     contactCell.addSubview(contactText)
+                    contactCell.selectionStyle = UITableViewCellSelectionStyle.None
                 }
                 
                 return contactCell
@@ -224,10 +259,11 @@ class DeliveryAddressesDetailsViewController: UIViewController, UITableViewDataS
                     address1Text = UITextField(frame: CGRectInset(address1Cell.contentView.bounds, 15, 0))
                     
                     address1Text.returnKeyType = UIReturnKeyType.Default
-                    
+                    address1Text.text = deliveryAddress?["address_1"] as? String
                     address1Text.placeholder = "Address Line 1"
                     address1Text.delegate = self
                     address1Cell.addSubview(address1Text)
+                    address1Cell.selectionStyle = UITableViewCellSelectionStyle.None
                 }
                     
                 return address1Cell
@@ -236,10 +272,11 @@ class DeliveryAddressesDetailsViewController: UIViewController, UITableViewDataS
                     address2Text = UITextField(frame: CGRectInset(address2Cell.contentView.bounds, 15, 0))
                     
                     address2Text.returnKeyType = UIReturnKeyType.Default
-                    
+                    address2Text.text = deliveryAddress?["address_2"] as? String
                     address2Text.placeholder = "Address Line 2 (Optional)"
                     address2Text.delegate = self
                     address2Cell.addSubview(address2Text)
+                    address2Cell.selectionStyle = UITableViewCellSelectionStyle.None
                 }
                 
                 return address2Cell
@@ -248,10 +285,12 @@ class DeliveryAddressesDetailsViewController: UIViewController, UITableViewDataS
                     postalCodeText = UITextField(frame: CGRectInset(postalCodeCell.contentView.bounds, 15, 0))
                     
                     postalCodeText.returnKeyType = UIReturnKeyType.Default
-                    postalCodeText.keyboardType = UIKeyboardType.NumberPad
+                    postalCodeText.keyboardType = UIKeyboardType.NumbersAndPunctuation
+                    postalCodeText.text = deliveryAddress?["postal_code"] as? String
                     postalCodeText.placeholder = "Postal Code"
                     postalCodeText.delegate = self
                     postalCodeCell.addSubview(postalCodeText)
+                    postalCodeCell.selectionStyle = UITableViewCellSelectionStyle.None
                 }
                 
                 return postalCodeCell
@@ -260,10 +299,11 @@ class DeliveryAddressesDetailsViewController: UIViewController, UITableViewDataS
                     cityText = UITextField(frame: CGRectInset(cityCell.contentView.bounds, 15, 0))
                     
                     cityText.returnKeyType = UIReturnKeyType.Default
-                    
+                    cityText.text = deliveryAddress?["city"] as? String
                     cityText.placeholder = "City"
                     cityText.delegate = self
                     cityCell.addSubview(cityText)
+                    cityCell.selectionStyle = UITableViewCellSelectionStyle.None
                 }
                 
                 return cityCell
@@ -272,10 +312,11 @@ class DeliveryAddressesDetailsViewController: UIViewController, UITableViewDataS
                     stateText = UITextField(frame: CGRectInset(stateCell.contentView.bounds, 15, 0))
                     
                     stateText.returnKeyType = UIReturnKeyType.Default
-                    
+                    stateText.text = deliveryAddress?["state"] as? String
                     stateText.placeholder = "State"
                     stateText.delegate = self
                     stateCell.addSubview(stateText)
+                    stateCell.selectionStyle = UITableViewCellSelectionStyle.None
                 }
                     
                 return stateCell
@@ -284,13 +325,57 @@ class DeliveryAddressesDetailsViewController: UIViewController, UITableViewDataS
                     countryText = UITextField(frame: CGRectInset(countryCell.contentView.bounds, 15, 0))
                     
                     countryText.returnKeyType = UIReturnKeyType.Default
+                    countryText.text = deliveryAddress?["country"] as? String
+                    
+                    if deliveryAddress?["country"] != nil {
+                        countryCode = codeForCountryDictionary[countryText.text] as? String
+                    }
                     
                     countryText.placeholder = "Country"
                     countryText.delegate = self
                     countryCell.addSubview(countryText)
+                    countryCell.selectionStyle = UITableViewCellSelectionStyle.None
                 }
                 
                 return countryCell
+            default:
+                fatalError("Unknown row returned")
+            }
+        case 2:
+            // deliver to
+            switch indexPath.row {
+            case 0:
+                if isCurrentSwitch == nil {
+                    let isCurrentSwitchWidth: CGFloat = 60
+                    isCurrentSwitch = UISwitch()
+                    
+                    isCurrentCell.accessoryView = isCurrentSwitch
+                    isCurrentCell.textLabel?.textColor = UIColor.lightGrayColor()
+                    isCurrentCell.textLabel?.text = "Set as current?"
+                    
+                    if shippingAddressesCount > 0 {
+                        isCurrentSwitch.enabled = true
+                    } else {
+                        isCurrentSwitch.enabled = false
+                        isCurrentSwitch.setOn(true, animated: true)
+                    }
+                    
+                    if deliveryAddress != nil {
+                        var on = deliveryAddress?["is_current"] as! Bool
+                        
+                        isCurrentSwitch.setOn(on, animated: true)
+
+                        if on {
+                            isCurrentSwitch.enabled = !on
+                            
+                            // prevent users from disabling a 'current' delivery method. only can set non-current to current and not current to non-current
+                        }
+                    }
+                    
+                    isCurrentCell.selectionStyle = UITableViewCellSelectionStyle.None
+                }
+                
+                return isCurrentCell
             default:
                 fatalError("Unknown row returned")
             }
@@ -311,28 +396,11 @@ class DeliveryAddressesDetailsViewController: UIViewController, UITableViewDataS
     }
     
     private func showCountryPicker() {
-        let locale = NSLocale.currentLocale()
-        let countryArray = NSLocale.ISOCountryCodes()
-        var unsortedCountryArray:[String] = []
-        
-        for countryCode in countryArray {
-            let displayNameString = locale.displayNameForKey(NSLocaleCountryCode, value: countryCode)
-            
-            if displayNameString != nil {
-                unsortedCountryArray.append(displayNameString!)
-            }
-        }
-        
-        let codeForCountryDictionary: NSDictionary = NSDictionary(objects: countryArray, forKeys: unsortedCountryArray)
-        
-        let sortedCountryArray = sorted(unsortedCountryArray, <)
-        
         let picker: ActionSheetStringPicker = ActionSheetStringPicker(title: "Country", rows: sortedCountryArray as [String], initialSelection: 197,
         doneBlock: { actionSheetPicker, selectedIndex, selectedValue in
-        
-            self.countryCode = codeForCountryDictionary[selectedValue as! String] as? String
             
             self.countryText.text = selectedValue as! String
+            self.countryCode = self.codeForCountryDictionary[self.countryText.text] as? String
             
         }, cancelBlock: nil, origin: view)
         
@@ -364,8 +432,6 @@ class DeliveryAddressesDetailsViewController: UIViewController, UITableViewDataS
     }
     
     func saveTapped(sender: UIBarButtonItem) {
-        println("save tapped")
-        
         if validateShippingAddressInfo() {
             let shippingAddressInfo: NSMutableDictionary = NSMutableDictionary()
             
@@ -389,34 +455,70 @@ class DeliveryAddressesDetailsViewController: UIViewController, UITableViewDataS
             shippingAddressInfo.setObject(countryText.text, forKey: "country")
             shippingAddressInfo.setObject(countryCode!, forKey: "country_code")
             
-            println(shippingAddressInfo)
+            if isCurrentSwitch != nil {
+                shippingAddressInfo.setObject(isCurrentSwitch.on, forKey: "is_current")
+            } else {
+                // if isCurrentSwitch is nil, there's only one address, it has to be current
+                shippingAddressInfo.setObject(true, forKey: "is_current")
+            }
             
             // hide keyboard
             makeKeyboardVisible = false
             self.view.endEditing(true)
             
-            // REST call to server to create user shipping address 
-            manager.POST(SprubixConfig.URL.api + "/shipping/address/create",
-                parameters: shippingAddressInfo,
-                success: { (operation: AFHTTPRequestOperation!, responseObject:
-                    AnyObject!) in
-                    
-                    var status = responseObject["status"] as! String
-                    var automatic: NSTimeInterval = 0
-                    
-                    if status == "200" {
-                        // success
-                        TSMessage.showNotificationInViewController(                        TSMessage.defaultViewController(), title: "Success!", subtitle: "Delivery address added", image: UIImage(named: "filter-check"), type: TSMessageNotificationType.Success, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: true)
+            if deliveryAddress == nil {
+                // create new
+                // REST call to server to create user shipping address
+                manager.POST(SprubixConfig.URL.api + "/shipping/address/create",
+                    parameters: shippingAddressInfo,
+                    success: { (operation: AFHTTPRequestOperation!, responseObject:
+                        AnyObject!) in
                         
-                        self.navigationController?.popViewControllerAnimated(true)
-                    } else {
-                        // error exception
-                        TSMessage.showNotificationInViewController(                        TSMessage.defaultViewController(), title: "Error", subtitle: "Something went wrong.\nPlease try again.", image: UIImage(named: "filter-cross"), type: TSMessageNotificationType.Error, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: true)
-                    }
-                },
-                failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
-                    println("Error: " + error.localizedDescription)
-            })
+                        var status = responseObject["status"] as! String
+                        var automatic: NSTimeInterval = 0
+                        
+                        if status == "200" {
+                            // success
+                            TSMessage.showNotificationInViewController(                        TSMessage.defaultViewController(), title: "Success!", subtitle: "Delivery address added", image: UIImage(named: "filter-check"), type: TSMessageNotificationType.Success, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: true)
+                            
+                            self.navigationController?.popViewControllerAnimated(true)
+                        } else {
+                            // error exception
+                            TSMessage.showNotificationInViewController(                        TSMessage.defaultViewController(), title: "Error", subtitle: "Something went wrong.\nPlease try again.", image: UIImage(named: "filter-cross"), type: TSMessageNotificationType.Error, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: true)
+                        }
+                    },
+                    failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                        println("Error: " + error.localizedDescription)
+                })
+            } else {
+                let deliveryAddressId = deliveryAddress?["id"] as! Int
+                
+                shippingAddressInfo.setObject(deliveryAddressId, forKey: "id")
+                
+                // update
+                // REST call to server to update user shipping address
+                manager.POST(SprubixConfig.URL.api + "/shipping/address/edit/\(deliveryAddressId)",
+                    parameters: shippingAddressInfo,
+                    success: { (operation: AFHTTPRequestOperation!, responseObject:
+                        AnyObject!) in
+                        
+                        var status = responseObject["status"] as! String
+                        var automatic: NSTimeInterval = 0
+                        
+                        if status == "200" {
+                            // success
+                            TSMessage.showNotificationInViewController(                        TSMessage.defaultViewController(), title: "Success!", subtitle: "Delivery address updated", image: UIImage(named: "filter-check"), type: TSMessageNotificationType.Success, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: true)
+                            
+                            self.navigationController?.popViewControllerAnimated(true)
+                        } else {
+                            // error exception
+                            TSMessage.showNotificationInViewController(                        TSMessage.defaultViewController(), title: "Error", subtitle: "Something went wrong.\nPlease try again.", image: UIImage(named: "filter-cross"), type: TSMessageNotificationType.Error, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: true)
+                        }
+                    },
+                    failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                        println("Error: " + error.localizedDescription)
+                })
+            }
         }
     }
     

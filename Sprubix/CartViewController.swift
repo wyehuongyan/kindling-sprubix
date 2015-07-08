@@ -296,10 +296,11 @@ class CartViewController: UIViewController, UITableViewDataSource, UITableViewDe
             
             // Yes
             alert.addAction(UIAlertAction(title: "Delete", style: UIAlertActionStyle.Default, handler: { action in
+                
+                let cartItemId = cartItem["id"] as! Int
+                
                 // REST to server to delete item from cart
-                
-                println("delete cart item")
-                
+                self.deleteCartItem(cartItemId)
             }))
             
             // No
@@ -364,6 +365,12 @@ class CartViewController: UIViewController, UITableViewDataSource, UITableViewDe
     }
     
     func formatCartItemData() {
+        // reset all
+        sellerCartItemDictionary.removeAllObjects()
+        sellers.removeAll()
+        sellerDeliveryMethods.removeAll()
+        sellerSubtotal.removeAll()
+        sellerShippingRate.removeAll()
         
         let cartItemData = cartData["cart_items"] as! [NSDictionary]
 
@@ -424,6 +431,44 @@ class CartViewController: UIViewController, UITableViewDataSource, UITableViewDe
             tableFooterView.alpha = 1.0
         } else {
             println("Cart is empty")
+        }
+    }
+    
+    func deleteCartItem(cartItemId: Int) {
+        let userId:Int? = defaults.objectForKey("userId") as? Int
+        
+        if userId != nil {
+            // REST call to server to delete user shipping address
+            manager.DELETE(SprubixConfig.URL.api + "/cart/item/\(cartItemId)",
+                parameters: [
+                    "owner_id": userId!
+                ],
+                success: { (operation: AFHTTPRequestOperation!, responseObject:
+                    AnyObject!) in
+                    
+                    var status = responseObject["status"] as! String
+                    var automatic: NSTimeInterval = 0
+                    
+                    if status == "200" {
+                        // success
+                        TSMessage.showNotificationInViewController(                        TSMessage.defaultViewController(), title: "Success!", subtitle: "Delivery address deleted", image: UIImage(named: "filter-check"), type: TSMessageNotificationType.Success, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: true)
+                        
+                        self.retrieveCartItems()
+                    } else {
+                        // error exception
+                        TSMessage.showNotificationInViewController(                        TSMessage.defaultViewController(), title: "Error", subtitle: "Something went wrong.\nPlease try again.", image: UIImage(named: "filter-cross"), type: TSMessageNotificationType.Error, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: true)
+                    }
+                },
+                failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                    println("Error: " + error.localizedDescription)
+                    
+                    var automatic: NSTimeInterval = 0
+                    
+                    // error exception
+                    TSMessage.showNotificationInViewController(                        TSMessage.defaultViewController(), title: "Error", subtitle: "Server is busy.\nPlease try again.", image: UIImage(named: "filter-cross"), type: TSMessageNotificationType.Error, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: true)
+            })
+        } else {
+            println("userId not found, please login or create an account")
         }
     }
     

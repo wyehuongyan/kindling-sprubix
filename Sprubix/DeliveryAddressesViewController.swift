@@ -9,6 +9,7 @@
 import UIKit
 import AFNetworking
 import DZNEmptyDataSet
+import TSMessages
 
 class DeliveryAddressesViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, DZNEmptyDataSetSource, DZNEmptyDataSetDelegate {
     
@@ -161,35 +162,206 @@ class DeliveryAddressesViewController: UIViewController, UITableViewDataSource, 
 
     // UITableViewDataSource
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+        
         let cell = tableView.dequeueReusableCellWithIdentifier(deliveryAddressCellIdentifier, forIndexPath: indexPath) as! DeliveryAddressCell
         
-        let deliveryAddress = deliveryAddresses[indexPath.row] as NSDictionary
-        
-        let address1 = deliveryAddress["address_1"] as! String
-        var address2: String? = deliveryAddress["address_2"] as? String
-        let postalCode = deliveryAddress["postal_code"] as! String
-        let country = deliveryAddress["country"] as! String
-        
-        var deliveryAddressText = address1
-        
-        if address2 != nil {
-            deliveryAddressText += "\n\(address2)"
+        switch indexPath.section {
+        case 0:
+            // current
+            switch indexPath.row {
+            case 0:
+                let deliveryAddress = deliveryAddresses[indexPath.row] as NSDictionary
+                
+                let deliveryAddressId = deliveryAddress["id"] as! Int
+                let address1 = deliveryAddress["address_1"] as! String
+                var address2: String? = deliveryAddress["address_2"] as? String
+                let postalCode = deliveryAddress["postal_code"] as! String
+                let country = deliveryAddress["country"] as! String
+                
+                var deliveryAddressText = address1
+                
+                if address2 != nil {
+                    deliveryAddressText += "\n\(address2!)"
+                }
+                
+                deliveryAddressText += "\n\(postalCode)\n\(country)"
+                
+                cell.deliveryAddress.text = deliveryAddressText
+                cell.editDeliveryAction = { Void in
+                    
+                    let deliveryAddressesDetailsViewController = DeliveryAddressesDetailsViewController()
+                    deliveryAddressesDetailsViewController.shippingAddressesCount = self.deliveryAddresses.count
+                    deliveryAddressesDetailsViewController.deliveryAddress = deliveryAddress
+                    
+                    self.navigationController?.pushViewController(deliveryAddressesDetailsViewController, animated: true)
+                    
+                    return
+                }
+                
+                cell.deleteDeliveryAction = { Void in
+                    
+                    var alert = UIAlertController(title: "Confirm delete?", message: "This action cannot be undone", preferredStyle: UIAlertControllerStyle.Alert)
+                    alert.view.tintColor = sprubixColor
+                    
+                    // Yes
+                    alert.addAction(UIAlertAction(title: "Delete", style: UIAlertActionStyle.Default, handler: { action in
+
+                        // REST to server to delete delivery address
+                        self.deleteDeliveryAddress(deliveryAddressId)
+                    }))
+                    
+                    // No
+                    alert.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Cancel, handler: nil))
+                    
+                    self.presentViewController(alert, animated: true, completion: nil)
+                    
+                    return
+                }
+                
+                cell.selectionStyle = UITableViewCellSelectionStyle.None
+                
+                return cell
+            default:
+                fatalError("Unknown row returned for section 0")
+            }
+        case 1:
+            // others
+            let deliveryAddress = deliveryAddresses[indexPath.row + 1] as NSDictionary
+            
+            let deliveryAddressId = deliveryAddress["id"] as! Int
+            let address1 = deliveryAddress["address_1"] as! String
+            var address2: String? = deliveryAddress["address_2"] as? String
+            let postalCode = deliveryAddress["postal_code"] as! String
+            let country = deliveryAddress["country"] as! String
+            
+            var deliveryAddressText = address1
+            
+            if address2 != nil {
+                deliveryAddressText += "\n\(address2!)"
+            }
+            
+            deliveryAddressText += "\n\(postalCode)\n\(country)"
+            
+            cell.deliveryAddress.text = deliveryAddressText
+            cell.editDeliveryAction = { Void in
+                
+                let deliveryAddressesDetailsViewController = DeliveryAddressesDetailsViewController()
+                deliveryAddressesDetailsViewController.shippingAddressesCount = self.deliveryAddresses.count
+                deliveryAddressesDetailsViewController.deliveryAddress = deliveryAddress
+                
+                self.navigationController?.pushViewController(deliveryAddressesDetailsViewController, animated: true)
+                
+                return
+            }
+            
+            cell.deleteDeliveryAction = { Void in
+                var alert = UIAlertController(title: "Confirm delete?", message: "This action cannot be undone", preferredStyle: UIAlertControllerStyle.Alert)
+                alert.view.tintColor = sprubixColor
+                
+                // Yes
+                alert.addAction(UIAlertAction(title: "Delete", style: UIAlertActionStyle.Default, handler: { action in
+
+                    // REST to server to delete delivery address
+                    self.deleteDeliveryAddress(deliveryAddressId)
+                }))
+                
+                // No
+                alert.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Cancel, handler: nil))
+                
+                self.presentViewController(alert, animated: true, completion: nil)
+                
+                return
+            }
+            
+            cell.selectionStyle = UITableViewCellSelectionStyle.None
+            
+            return cell
+        default:
+            fatalError("Unknown section returned")
         }
-        
-        deliveryAddressText += "\n\(postalCode)\n\(country)"
-        
-        cell.deliveryAddress.text = deliveryAddressText
-        
-        return cell
     }
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return deliveryAddresses.count
+        
+        if deliveryAddresses.count > 1 {
+            switch section {
+            case 0:
+                return 1
+            case 1:
+                return deliveryAddresses.count - 1
+            default:
+                return 0
+            }
+        } else {
+            return deliveryAddresses.count
+        }
+    }
+    
+    func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+        return deliveryAddresses.count > 1 ? 2 : 1
+    }
+    
+    func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        
+        if deliveryAddresses.count > 0 {
+            switch section {
+            case 0:
+                return "Current Address"
+            case 1:
+                return nil
+            default:
+                return nil
+            }
+        } else {
+            return nil
+        }
+    }
+    
+    func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
+        return 80.0
+    }
+    
+    func tableView(tableView: UITableView, titleForFooterInSection section: Int) -> String? {
+        return nil
+    }
+    
+    func deleteDeliveryAddress(deliveryAddressId: Int) {
+        let userId:Int? = defaults.objectForKey("userId") as? Int
+        
+        if userId != nil {
+            // REST call to server to delete user shipping address
+            manager.DELETE(SprubixConfig.URL.api + "/shipping/address/\(deliveryAddressId)",
+                parameters: [
+                    "owner_id": userId!
+                ],
+                success: { (operation: AFHTTPRequestOperation!, responseObject:
+                    AnyObject!) in
+                    
+                    var status = responseObject["status"] as! String
+                    var automatic: NSTimeInterval = 0
+                    
+                    if status == "200" {
+                        // success
+                        TSMessage.showNotificationInViewController(                        TSMessage.defaultViewController(), title: "Success!", subtitle: "Delivery address deleted", image: UIImage(named: "filter-check"), type: TSMessageNotificationType.Success, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: true)
+                        
+                        self.retrieveDeliveryAddresses()
+                    } else {
+                        // error exception
+                        TSMessage.showNotificationInViewController(                        TSMessage.defaultViewController(), title: "Error", subtitle: "Something went wrong.\nPlease try again.", image: UIImage(named: "filter-cross"), type: TSMessageNotificationType.Error, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: true)
+                    }
+                },
+                failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                    println("Error: " + error.localizedDescription)
+            })
+        } else {
+            println("userId not found, please login or create an account")
+        }
     }
     
     // nav bar button callbacks
     func addDeliveryAddressTapped(sender: UIBarButtonItem) {
         let deliveryAddressesDetailsViewController = DeliveryAddressesDetailsViewController()
+        deliveryAddressesDetailsViewController.shippingAddressesCount = deliveryAddresses.count
         
         self.navigationController?.pushViewController(deliveryAddressesDetailsViewController, animated: true)
     }
