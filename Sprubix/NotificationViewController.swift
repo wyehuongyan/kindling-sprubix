@@ -146,6 +146,10 @@ class NotificationViewController: UIViewController, DZNEmptyDataSetSource, DZNEm
         super.viewWillAppear(animated)
         
         notificationTableView.reloadData()
+        
+        // Mixpanel - Viewed Notifications
+        mixpanel.track("Viewed Notifications")
+        // Mixpanel - End
     }
     
     func initNavBar() {

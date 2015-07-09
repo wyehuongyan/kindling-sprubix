@@ -62,6 +62,12 @@ class BrowseFeedController: UIViewController, UITextFieldDelegate, UICollectionV
         }
         
         retrieveOutfits()
+        
+        // Mixpanel - Viewed Main Feed, Discover
+        mixpanel.track("Viewed Main Feed", properties: [
+            "Page": "Discover"
+        ])
+        // Mixpanel - End
     }
     
     override func viewWillDisappear(animated: Bool) {

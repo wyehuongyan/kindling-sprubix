@@ -129,6 +129,12 @@ class SidePanelViewController: UIViewController, UITableViewDataSource, UITableV
             delegate?.showNotifications()
         case .CreateOutfit:
             delegate?.showCreateOutfit()
+            
+            // Mixpanel - Viewed Create Outfit, Side Panel
+            mixpanel.track("Viewed Create Outfit", properties: [
+                "Source": "Side Panel"
+            ])
+            // Mixpanel - End
         case .Favorites:
             delegate?.showFavorites()
             break

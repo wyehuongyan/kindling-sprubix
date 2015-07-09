@@ -816,6 +816,14 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
                                     })
                                 }
                             })
+                            
+                            // Mixpanel - Liked Pieces
+                            mixpanel.track("Liked Pieces", properties: [
+                                "Piece ID": pieceId,
+                                "Owner User ID": receiver["id"] as! Int
+                            ])
+                            mixpanel.people.increment("Liked Pieces", by: 1)
+                            // Mixpanel - End
                         }
                     })
                     
@@ -930,6 +938,9 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
                                 }
                             })
                             
+                            // Mixpanel - Liked Pieces (decrement)
+                            mixpanel.people.increment("Liked Pieces", by: -1)
+                            // Mixpanel - End
                         }
                     })
                 }
@@ -1540,6 +1551,14 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
                 
                 navController!.delegate = nil
                 navController!.pushViewController(commentsViewController!, animated: true)
+                
+                // Mixpanel - Viewed Piece Comments
+                mixpanel.track("Viewed Piece Comments", properties: [
+                    "Piece ID": pieceId,
+                    "Owner User ID": piece["user_id"] as! Int
+                ])
+                mixpanel.people.increment("Viewed Piece Comments", by: 1)
+                // Mixpanel - End
             }
         }
     }

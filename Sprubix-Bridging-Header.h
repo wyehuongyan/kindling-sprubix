@@ -19,3 +19,4 @@
 #import "MLPAutoCompleteTextField/MLPAutoCompleteTextField.h"
 #import "KLCPopup/KLCPopup.h"
 #import "TSMessages/TSMessage.h"
+#import "Mixpanel/Mixpanel.h"

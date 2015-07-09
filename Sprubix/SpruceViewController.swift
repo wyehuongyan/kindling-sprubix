@@ -170,6 +170,16 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, SprucePieceF
         super.viewWillAppear(animated)
         
         initNavBar()
+
+        // Mixpanel - Spruce Outfit (prevents coming from Create > Spruce Closet
+        if outfit != nil {
+            mixpanel.track("Spruce Outfit", properties: [
+            "Outfit ID": outfit!.objectForKey("id") as! Int,
+            "Owner User ID": outfit!.objectForKey("user_id") as! Int
+            ])
+            mixpanel.people.increment("Spruce Outfit", by: 1)
+        }
+        // Mixpanel - End
     }
     
     func initSprucePieceFeeds() {

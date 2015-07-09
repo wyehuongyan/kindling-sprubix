@@ -10,15 +10,20 @@ import UIKit
 import CoreData
 import AFNetworking
 import AFNetworkActivityLogger
+import Mixpanel
 
 struct SprubixConfig {
     struct URL {
         // test
-        static let api: String = "http://192.168.1.7/~wyehuongyan/kindling-core/public/index.php"
+        static let api: String = "http://192.168.1.3/~shion/kindling-core/public/index.php"
         static let firebase: String = "https://sprubixtest.firebaseio.com/"
         
         //static let api: String = "http://api.sprubix.com"
         //static let firebase: String = "https://sprubix.firebaseio.com/"
+    }
+    struct Token {
+        static let mixpanel = ""
+        //static let mixpanel = "a96ce08c8510210b59025890ce360c3b"
     }
 }
 
@@ -26,6 +31,7 @@ let manager = AFHTTPRequestOperationManager()
 let containerViewController = ContainerViewController()
 let defaults = NSUserDefaults.standardUserDefaults()
 let firebaseRef = Firebase(url: SprubixConfig.URL.firebase)
+let mixpanel = Mixpanel.sharedInstanceWithToken(SprubixConfig.Token.mixpanel)
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -44,6 +50,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         window!.tintColor = sprubixColor
         
         checkLoggedIn()
+        
+        // Mixpanel - App Launched
+        var currentUserId = -1  // New user (or not logged in)
+        
+        if let localUserId = NSUserDefaults.standardUserDefaults().objectForKey("userId") as? Int {
+            currentUserId = localUserId
+        }
+        
+        mixpanel.track("App Launched", properties: [
+            "User ID": currentUserId,
+            "Timestamp": NSDate()
+        ])
+        // Mixpanel - End
         
         return true
     }
@@ -107,6 +126,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 
                 if user != nil && localUserId != nil {
                     println("I am logged in!")
+                    
+                    // Mixpanel - Setup
+                    mixpanel.identify(self.defaults.valueForKeyPath("userData")?.objectForKey("email") as! String)
+                    mixpanel.registerSuperProperties([
+                        "User ID": self.defaults.valueForKeyPath("userData")?.objectForKey("id") as! Int,
+                        "Timestamp": NSDate()
+                    ])
+                    // Mixpanel - End
                     
                 } else {
                     println("No, I am not logged in.")

@@ -15,7 +15,7 @@ protocol OutfitInteractionProtocol {
     func likedOutfit(outfitId: Int, thumbnailURLString: String, itemIdentifier: String, receiver: NSDictionary)
     func unlikedOutfit(outfitId: Int, itemIdentifier: String, receiver: NSDictionary)
     
-    func commentOutfit(poutfitIdentifier: String, thumbnailURLString: String, receiverUsername: String)
+    func commentOutfit(poutfitIdentifier: String, thumbnailURLString: String, receiverUsername: String, outfitId: Int, receiverId: Int)
     func spruceOutfit(indexPath: NSIndexPath)
     func showProfile(user: NSDictionary)
 }
@@ -278,7 +278,8 @@ class MainFeedCell: UICollectionViewCell, TransitionWaterfallGridViewProtocol {
     }
     
     func commentOutfit(sender: UIButton) {
-        delegate?.commentOutfit(itemIdentifier, thumbnailURLString: thumbnailURLString, receiverUsername: userName.text!)
+        let receiverId = user["id"] as! Int
+        delegate?.commentOutfit(itemIdentifier, thumbnailURLString: thumbnailURLString, receiverUsername: userName.text!, outfitId: outfitId, receiverId: receiverId)
     }
     
     func spruceOutfit(sender: UIButton) {

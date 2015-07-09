@@ -39,6 +39,14 @@ class PieceDetailsViewController: UICollectionViewController, UICollectionViewDe
         collectionView.performBatchUpdates({collectionView.reloadData()}, completion: { finished in
             if finished {
                 collectionView.scrollToItemAtIndexPath(indexPath,atScrollPosition:.CenteredHorizontally, animated: false)
+                
+                // Mixpanel - Viewed Piece Details
+                mixpanel.track("Viewed Piece Details", properties: [
+                    "Piece ID": self.pieces[indexPath.row].objectForKey("id") as! Int,
+                    "Owner User ID": self.pieces[indexPath.row].objectForKey("user_id") as! Int
+                ])
+                mixpanel.people.increment("Viewed Piece Details", by: 1)
+                // Mixpanel - End
             }})
     }
     
