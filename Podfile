@@ -23,6 +23,7 @@ target "Sprubix" do
   pod 'MLPAutoCompleteTextField', '~> 1.5'
   pod 'KLCPopup', '~> 1.0'
   pod 'TSMessages', :git => 'https://github.com/KrauseFx/TSMessages.git'
+  pod 'Mixpanel', '~>2.8.1'
 end
 
 target "SprubixTests" do
