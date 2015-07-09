@@ -52,6 +52,7 @@ if [[ "$CONFIGURATION" == "Debug" ]]; then
   install_framework 'AFNetworking.framework'
   install_framework 'AMTagListView.framework'
   install_framework 'ActionSheetPicker_3_0.framework'
+  install_framework 'Braintree.framework'
   install_framework 'CHTCollectionViewWaterfallLayout.framework'
   install_framework 'DZNEmptyDataSet.framework'
   install_framework 'GPUImage.framework'
@@ -65,12 +66,14 @@ if [[ "$CONFIGURATION" == "Debug" ]]; then
   install_framework 'SVPullToRefresh.framework'
   install_framework 'TLYShyNavBar.framework'
   install_framework 'TSMessages.framework'
+  install_framework 'coinbase_official.framework'
 fi
 if [[ "$CONFIGURATION" == "Release" ]]; then
   install_framework 'AFNetworkActivityLogger.framework'
   install_framework 'AFNetworking.framework'
   install_framework 'AMTagListView.framework'
   install_framework 'ActionSheetPicker_3_0.framework'
+  install_framework 'Braintree.framework'
   install_framework 'CHTCollectionViewWaterfallLayout.framework'
   install_framework 'DZNEmptyDataSet.framework'
   install_framework 'GPUImage.framework'
@@ -84,4 +87,5 @@ if [[ "$CONFIGURATION" == "Release" ]]; then
   install_framework 'SVPullToRefresh.framework'
   install_framework 'TLYShyNavBar.framework'
   install_framework 'TSMessages.framework'
+  install_framework 'coinbase_official.framework'
 fi

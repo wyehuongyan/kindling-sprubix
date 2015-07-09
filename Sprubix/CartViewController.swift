@@ -494,6 +494,7 @@ class CartViewController: UIViewController, UITableViewDataSource, UITableViewDe
         buyPieceInfo = NSMutableDictionary()
         buyPieceInfo?.setObject(piece["id"] as! Int, forKey: "piece_id")
         buyPieceInfo?.setObject(seller["id"] as! Int, forKey: "seller_id")
+        buyPieceInfo?.setObject(cartItem["id"] as! Int, forKey: "id")
         
         let quantity = cartItem["quantity"] as! Int
         
@@ -822,8 +823,36 @@ class CartViewController: UIViewController, UITableViewDataSource, UITableViewDe
     }
     
     func updateCartItemPressed(sender: UIButton) {
-        println("update cart item")
-        println(buyPieceInfo)
+        let userId: Int? = defaults.objectForKey("userId") as? Int
+        
+        if userId != nil && buyPieceInfo != nil {
+            buyPieceInfo?.setObject(userId!, forKey: "buyer_id")
+        
+            let cartId = buyPieceInfo?.objectForKey("id") as! Int
+            
+            // REST call to server to create cart item and add to user's cart
+            manager.POST(SprubixConfig.URL.api + "/cart/item/edit/\(cartId)",
+                parameters: buyPieceInfo!,
+                success: { (operation: AFHTTPRequestOperation!, responseObject:
+                    AnyObject!) in
+                    
+                    var status = responseObject["status"] as! String
+                    var automatic: NSTimeInterval = 0
+                    
+                    if status == "200" {
+                        // success
+                        TSMessage.showNotificationInViewController(                        TSMessage.defaultViewController(), title: "Success!", subtitle: "Item updated", image: UIImage(named: "filter-check"), type: TSMessageNotificationType.Success, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: true)
+                        
+                        self.retrieveCartItems()
+                    } else {
+                        // error exception
+                        TSMessage.showNotificationInViewController(                        TSMessage.defaultViewController(), title: "Error", subtitle: "Something went wrong.\nPlease try again.", image: UIImage(named: "filter-cross"), type: TSMessageNotificationType.Error, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: true)
+                    }
+                },
+                failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                    println("Error: " + error.localizedDescription)
+            })
+        }
     }
     
     // nav bar button callbacks

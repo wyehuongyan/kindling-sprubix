@@ -25,7 +25,39 @@ PODS:
     - AFNetworking/NSURLConnection
     - AFNetworking/NSURLSession
   - AMTagListView (0.6.3)
+  - Braintree (3.9.1):
+    - Braintree/API (= 3.9.1)
+    - Braintree/Coinbase (= 3.9.1)
+    - Braintree/Drop-In (= 3.9.1)
+    - Braintree/Payments (= 3.9.1)
+    - Braintree/PayPal (= 3.9.1)
+    - Braintree/UI (= 3.9.1)
+    - Braintree/Venmo (= 3.9.1)
+  - Braintree/API (3.9.1)
+  - Braintree/Coinbase (3.9.1):
+    - Braintree/API
+    - coinbase-official/OAuth (~> 2.1.1)
+  - Braintree/Drop-In (3.9.1):
+    - Braintree/API
+    - Braintree/Coinbase
+    - Braintree/Payments
+    - Braintree/PayPal
+    - Braintree/UI
+    - Braintree/Venmo
+  - Braintree/Payments (3.9.1):
+    - Braintree/API
+    - Braintree/Coinbase
+    - Braintree/PayPal
+    - Braintree/Venmo
+  - Braintree/PayPal (3.9.1):
+    - Braintree/API
+    - Braintree/UI
+  - Braintree/UI (3.9.1):
+    - Braintree/API
+  - Braintree/Venmo (3.9.1):
+    - Braintree/API
   - CHTCollectionViewWaterfallLayout (0.8)
+  - coinbase-official/OAuth (2.1.4)
   - DZNEmptyDataSet (1.5.2)
   - Firebase (2.2.2)
   - GPUImage (0.1.6)
@@ -91,6 +123,7 @@ DEPENDENCIES:
   - AFNetworkActivityLogger (~> 2.0)
   - AFNetworking (~> 2.5.3)
   - AMTagListView (~> 0.6.3)
+  - Braintree
   - CHTCollectionViewWaterfallLayout (~> 0.8)
   - DZNEmptyDataSet (~> 1.5.2)
   - Firebase (>= 2.2.2)
@@ -119,7 +152,9 @@ SPEC CHECKSUMS:
   AFNetworkActivityLogger: 121486778117d53b3ab1c61d264b88081d0c3eee
   AFNetworking: e1d86c2a96bb5d2e7408da36149806706ee122fe
   AMTagListView: 3f95751a6bae491553800447d4f5deba033ca7da
+  Braintree: 1796b67efcf832019d1da1b8a1d779e202e3796f
   CHTCollectionViewWaterfallLayout: 058823cc65c9d84e059b0a85eede517550da0334
+  coinbase-official: 4ad3ac862840657b4184345eb84af8166ab2b04e
   DZNEmptyDataSet: 741da409081a4bf707c949c964623a6ad1799772
   Firebase: e35cdd2561bf4fea9c1e384e9400a9c173d19e47
   GPUImage: 4675ce4a5370ca92fcea8623b2a08b8f0c51b940
