@@ -10,7 +10,7 @@ import UIKit
 import AFNetworking
 
 protocol SignInDelegate {
-    func signIn(userNameText: String, passwordText: String)
+    func signInSprubix(userNameText: String, passwordText: String)
 }
 
 class SignUpViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UITextFieldDelegate, UIGestureRecognizerDelegate {
@@ -175,8 +175,8 @@ class SignUpViewController: UIViewController, UITableViewDataSource, UITableView
                 
                 manager.POST(SprubixConfig.URL.api + "/auth/register",
                     parameters: [
-                        "username" : userNameText.text,
-                        "email" : emailText.text,
+                        "username" : userNameText.text.lowercaseString,
+                        "email" : emailText.text.lowercaseString,
                         "password" : passwordText.text,
                         "password_confirmation" : passwordText.text
                     ],
@@ -200,10 +200,9 @@ class SignUpViewController: UIViewController, UITableViewDataSource, UITableView
                             
                             println(message)
                             println(data)
-                            println("\noff we go to the land of segue")
                             
                             // SignInDelegate, get SignInVC to do the login
-                            self.delegate?.signIn(self.userNameText.text, passwordText: self.passwordText.text)
+                            self.delegate?.signInSprubix(self.userNameText.text.lowercaseString, passwordText: self.passwordText.text.lowercaseString)
                             
                             // Mixpanel - Signed Up, Success
                             mixpanel.track("User Signed Up", properties: [
