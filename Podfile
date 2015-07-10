@@ -24,6 +24,7 @@ target "Sprubix" do
   pod 'KLCPopup', '~> 1.0'
   pod 'TSMessages', :git => 'https://github.com/KrauseFx/TSMessages.git'
   pod 'Braintree'
+  pod 'Mixpanel', '~>2.8.1'
 end
 
 target "SprubixTests" do

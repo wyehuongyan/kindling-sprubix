@@ -20,3 +20,4 @@
 #import "KLCPopup/KLCPopup.h"
 #import "TSMessages/TSMessage.h"
 #import "Braintree/Braintree.h"
+#import "Mixpanel/Mixpanel.h"

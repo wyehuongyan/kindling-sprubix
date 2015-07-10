@@ -183,6 +183,12 @@ class CreateOutfitViewController: UIViewController {
         let sprubixCameraViewController = UIStoryboard.sprubixCameraViewController()
         
         self.navigationController?.pushViewController(sprubixCameraViewController!, animated: true)
+        
+        // Mixpanel - Create Outfit, Camera
+        mixpanel.track("Create Outfit", properties: [
+            "Type": "Camera"
+        ])
+        // Mixpanel - End
     }
     
     func spruceCloset(sender: UIButton) {
@@ -200,6 +206,12 @@ class CreateOutfitViewController: UIViewController {
         
         self.navigationController?.delegate = nil
         self.navigationController?.pushViewController(spruceViewController, animated: true)
+        
+        // Mixpanel - Create Outfit, Closet
+        mixpanel.track("Create Outfit", properties: [
+            "Type": "Closet"
+        ])
+        // Mixpanel - End
     }
     
     // nav bar button callbacks

@@ -134,6 +134,22 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         
         // retrieve following outfits
         retrieveOutfits()
+        
+        // Mixpanel - Setup
+        if let localUserId = NSUserDefaults.standardUserDefaults().objectForKey("userId") as? Int {
+            mixpanel.identify(defaults.valueForKeyPath("userData")?.objectForKey("email") as! String)
+            mixpanel.registerSuperProperties([
+                "User ID": defaults.valueForKeyPath("userData")?.objectForKey("id") as! Int,
+                "Timestamp": NSDate()
+            ])
+            
+            // Mixpanel - Viewed Main Feed, Following
+            mixpanel.track("Viewed Main Feed", properties: [
+                "Page": "Following"
+            ])
+            // Mixpanel - End
+        }
+        // Mixpanel - End
     }
     
     override func viewWillDisappear(animated: Bool) {
@@ -221,6 +237,12 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
                         self.mainCollectionView.layoutIfNeeded()
                         self.mainCollectionView.scrollToItemAtIndexPath(NSIndexPath(forItem: 0, inSection: 0), atScrollPosition: UICollectionViewScrollPosition.Bottom, animated: true)
                     }
+                    
+                    // Mixpanel - Exposed Outfits
+                    if self.outfits.count > 0 {
+                        mixpanel.people.increment("Exposed Outfits", by: self.outfits.count)
+                    }
+                    // Mixpanel - End
                 },
                 failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                     println("Error: " + error.localizedDescription)
@@ -253,6 +275,12 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
                     }
                     
                     self.mainCollectionView.infiniteScrollingView.stopAnimating()
+                    
+                    // Mixpanel - Exposed Outfits
+                    if moreOutfits.count > 0 {
+                        mixpanel.people.increment("Exposed Outfits", by: moreOutfits.count)
+                    }
+                    // Mixpanel - End
                 },
                 failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                     println("Error: " + error.localizedDescription)
@@ -638,6 +666,10 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
                             
                         }
                     })
+                    
+                    // Mixpanel - Liked Outfit (decrement)
+                    mixpanel.people.increment("Liked Outfits", by: -1)
+                    // Mixpanel - End
                 }
             })
         } else {
@@ -783,6 +815,14 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
                                     })
                                 }
                             })
+                            
+                            // Mixpanel - Liked Outfit
+                            mixpanel.track("Liked Outfits", properties: [
+                                "Outfit ID": outfitId,
+                                "Owner User ID": receiver["id"] as! Int
+                            ])
+                            mixpanel.people.increment("Liked Outfits", by: 1)
+                            // Mixpanel - End
                         }
                     })
                     
@@ -799,7 +839,7 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         }
     }
     
-    func commentOutfit(poutfitIdentifier: String, thumbnailURLString: String, receiverUsername: String) {
+    func commentOutfit(poutfitIdentifier: String, thumbnailURLString: String, receiverUsername: String, outfitId: Int, receiverId: Int) {
         commentsViewController = UIStoryboard(name: "Main", bundle: NSBundle.mainBundle()).instantiateViewControllerWithIdentifier("CommentsView") as? CommentsViewController
         
         // init
@@ -811,6 +851,14 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         
         navigationController!.delegate = nil
         navigationController!.pushViewController(commentsViewController!, animated: true)
+        
+        // Mixpanel - Viewed Outfit Comments
+        mixpanel.track("Viewed Outfit Comments", properties: [
+            "Outfit ID": outfitId,
+            "Owner User ID": receiverId
+        ])
+        mixpanel.people.increment("Viewed Outfit Comments", by: 1)
+        // Mixpanel - End
     }
     
     func showProfile(user: NSDictionary) {
@@ -849,6 +897,12 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
     // button callbacks
     func createOutfit(sender: UIButton) {
         delegate?.showCreateOutfit()
+        
+        // Mixpanel - Viewed Create Outfit, Main Feed
+        mixpanel.track("Viewed Create Outfit", properties: [
+            "Source": "Main Feed"
+        ])
+        // Mixpanel - End
     }
     
     func navbarTitlePressed(sender: UIButton) {

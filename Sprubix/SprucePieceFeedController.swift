@@ -206,6 +206,15 @@ class SprucePieceFeedController: UICollectionViewController, UICollectionViewDel
         
         scrolling = false
         
+        // Mixpanel - Spruce Outfit Swipe, Click
+        mixpanel.track("Spruce Outfit Swipe", properties: [
+            "Piece ID": (self.collectionView?.cellForItemAtIndexPath(indexPath) as! SprucePieceFeedCell).piece.objectForKey("id") as! Int,
+            "Owner User ID": (self.collectionView?.cellForItemAtIndexPath(indexPath) as! SprucePieceFeedCell).piece.objectForKey("user_id") as! Int,
+            "Source": "Click"
+        ])
+        mixpanel.people.increment("Spruce Outfit Swipe", by: 1)
+        // Mixpanel - End
+        
         delegate?.resizeOutfit()
     }
     
@@ -222,6 +231,15 @@ class SprucePieceFeedController: UICollectionViewController, UICollectionViewDel
             currentVisibleCell = self.collectionView!.cellForItemAtIndexPath(visibleIndexPath!) as! SprucePieceFeedCell
             
             index = visibleIndexPath!.item
+            
+            // Mixpanel - Spruce Outfit Swipe, Swipe
+            mixpanel.track("Spruce Outfit Swipe", properties: [
+                "Piece ID": (self.collectionView?.cellForItemAtIndexPath(visibleIndexPath!) as! SprucePieceFeedCell).piece.objectForKey("id") as! Int,
+                "Owner User ID": (self.collectionView?.cellForItemAtIndexPath(visibleIndexPath!) as! SprucePieceFeedCell).piece.objectForKey("user_id") as! Int,
+                "Source": "Swipe"
+            ])
+            mixpanel.people.increment("Spruce Outfit Swipe", by: 1)
+            // Mixpanel - End
         }
     }
     

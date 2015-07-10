@@ -10,7 +10,7 @@ import UIKit
 import CoreData
 import AFNetworking
 
-class SignInViewController: UIViewController, UITextFieldDelegate, UITableViewDataSource, UITableViewDelegate {
+class SignInViewController: UIViewController, UITextFieldDelegate, UITableViewDataSource, UITableViewDelegate, SignInDelegate {
     
     var makeKeyboardVisible = true
     
@@ -33,6 +33,8 @@ class SignInViewController: UIViewController, UITextFieldDelegate, UITableViewDa
     
     var oldFrameRect: CGRect!
     
+    var delegate:SignInDelegate?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
@@ -52,7 +54,7 @@ class SignInViewController: UIViewController, UITextFieldDelegate, UITableViewDa
         
         signInButton.backgroundColor = sprubixColor
         signInButton.setTitle("Log in", forState: UIControlState.Normal)
-        signInButton.addTarget(self, action: "signIn:", forControlEvents: UIControlEvents.TouchUpInside)
+        signInButton.addTarget(self, action: "signInButtonPressed:", forControlEvents: UIControlEvents.TouchUpInside)
         
         signInView.addSubview(signInButton)
         
@@ -117,28 +119,58 @@ class SignInViewController: UIViewController, UITextFieldDelegate, UITableViewDa
         // Dispose of any resources that can be recreated.
     }
     
-    func signIn(sender: AnyObject) {
-        if self.userNameText.text == "" {
-            println("Please enter username or email")
-        } else if self.passwordText.text == "" {
-            println("Please enter password")
-        } else {
+    private func validateUserInfo(userNameText: String, passwordText: String) -> Bool {
+        var errorMessage: String = "Please fill up the required field(s):\n"
+        var noError = true
+        
+        if userNameText == "" {
+            errorMessage += "\nUser Name"
+            
+            noError = false
+        }
+        
+        if passwordText == "" {
+            errorMessage += "\nPassword"
+            
+            noError = false
+        }
+        
+        // pop up an alert view if there's an error
+        if noError == false {
+            let alert = UIAlertController(title: "Oops!", message: errorMessage, preferredStyle: UIAlertControllerStyle.Alert)
+            alert.view.tintColor = sprubixColor
+            
+            // Ok
+            alert.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Cancel, handler: nil))
+            
+            self.presentViewController(alert, animated: true, completion: nil)
+        }
+        
+        return noError
+    }
+    
+    func signInButtonPressed(sender: UIButton) {
+        signInSprubix(self.userNameText.text, passwordText: self.passwordText.text)
+    }
+    
+    func signInSprubix(userNameText: String, passwordText: String) {
+        if validateUserInfo(userNameText, passwordText: passwordText) {
             var usernameString = ""
             var emailString = ""
             
             // check if username or email was entered
-            if userNameText.text.rangeOfString("@") != nil{
-                emailString = userNameText.text
+            if userNameText.rangeOfString("@") != nil{
+                emailString = userNameText
             } else {
-                usernameString = userNameText.text
+                usernameString = userNameText
             }
             
             // authenticate with server
             manager.POST(SprubixConfig.URL.api + "/auth/login",
                 parameters: [
-                    "username" : usernameString,
-                    "email" : emailString,
-                    "password" : passwordText.text
+                    "username" : usernameString.lowercaseString,
+                    "email" : emailString.lowercaseString,
+                    "password" : passwordText
                 ],
                 success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
                     var response = responseObject as! NSDictionary
@@ -177,7 +209,6 @@ class SignInViewController: UIViewController, UITextFieldDelegate, UITableViewDa
                 failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                     println("Error: " + error.localizedDescription)
             })
-            
         }
     }
     
@@ -262,6 +293,11 @@ class SignInViewController: UIViewController, UITextFieldDelegate, UITableViewDa
     
     override func prefersStatusBarHidden() -> Bool {
         return true
+    }
+    
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        let vc = segue.destinationViewController as! SignUpViewController
+        vc.delegate = self
     }
 }
 

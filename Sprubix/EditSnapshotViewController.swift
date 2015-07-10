@@ -133,8 +133,7 @@ class EditSnapshotViewController: UIViewController {
         newNavBar.setItems([newNavItem], animated: false)
         
         // 6. add the nav bar to the main view
-        self.view.addSubview(newNavBar)
-    }
+        self.view.addSubview(newNavBar)    }
     
     override func viewDidDisappear(animated: Bool) {
         super.viewDidDisappear(animated)

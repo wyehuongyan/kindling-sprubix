@@ -9,6 +9,10 @@
 import UIKit
 import AFNetworking
 
+protocol SignInDelegate {
+    func signInSprubix(userNameText: String, passwordText: String)
+}
+
 class SignUpViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UITextFieldDelegate, UIGestureRecognizerDelegate {
     var signUpTable:UITableView!
     
@@ -19,6 +23,8 @@ class SignUpViewController: UIViewController, UITableViewDataSource, UITableView
     var emailText:UITextField!
     var userNameText:UITextField!
     var passwordText:UITextField!
+    
+    var delegate:SignInDelegate?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -75,6 +81,19 @@ class SignUpViewController: UIViewController, UITableViewDataSource, UITableView
         self.view.addSubview(newNavBar)
         
         self.navigationController?.interactivePopGestureRecognizer.delegate = self;
+        
+        // Mixpanel - App Launched
+        var currentUserId = -1  // New user (or not logged in)
+        
+        if let localUserId = NSUserDefaults.standardUserDefaults().objectForKey("userId") as? Int {
+            currentUserId = localUserId
+        }
+        
+        mixpanel.track("Viewed Signup Page", properties: [
+            "User ID": currentUserId,
+            "Timestamp": NSDate()
+        ])
+        // Mixpanel - End
     }
     
     func backTapped(sender: UIBarButtonItem) {
@@ -156,8 +175,8 @@ class SignUpViewController: UIViewController, UITableViewDataSource, UITableView
                 
                 manager.POST(SprubixConfig.URL.api + "/auth/register",
                     parameters: [
-                        "username" : userNameText.text,
-                        "email" : emailText.text,
+                        "username" : userNameText.text.lowercaseString,
+                        "email" : emailText.text.lowercaseString,
                         "password" : passwordText.text,
                         "password_confirmation" : passwordText.text
                     ],
@@ -181,11 +200,57 @@ class SignUpViewController: UIViewController, UITableViewDataSource, UITableView
                             
                             println(message)
                             println(data)
-                            println("\noff we go to the land of segue")
+                            
+                            // SignInDelegate, get SignInVC to do the login
+                            self.delegate?.signInSprubix(self.userNameText.text.lowercaseString, passwordText: self.passwordText.text.lowercaseString)
+                            
+                            // Mixpanel - Signed Up, Success
+                            mixpanel.track("User Signed Up", properties: [
+                                "User ID": data.objectForKey("id") as! Int,
+                                "Status": "Success",
+                                "Timestamp": NSDate()
+                            ])
+                            
+                            mixpanel.createAlias(data.objectForKey("email") as! String, forDistinctID: mixpanel.distinctId)
+                            mixpanel.identify(data.objectForKey("email") as! String)
+                            
+                            mixpanel.people.set([
+                                "$email": data.objectForKey("email") as! String,
+                                "ID": data.objectForKey("id") as! Int,
+                                "Username": data.objectForKey("username") as! String,
+                                "$first_name": data.objectForKey("username") as! String,
+                                "$last_name": "",
+                                "$created": NSDate(),
+                                "Exposed Outfits": 0,
+                                "Liked Outfits": 0,
+                                "Liked Pieces": 0,
+                                "Outfits Created": 0,
+                                "Spruce Outfit": 0,
+                                "Spruce Outfit Swipe": 0,
+                                "Viewed Outfit Details": 0,
+                                "Viewed Piece Details": 0,
+                                "Viewed Outfit Comments": 0,
+                                "Viewed Piece Comments": 0
+                            ])
+                            // Mixpanel - End
                         }
                     },
                     failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                         println("Error: " + error.localizedDescription)
+                        
+                        // Mixpanel - Signed Up, Fail
+                        var currentUserId = -1  // New user (or not logged in)
+                        
+                        if let localUserId = NSUserDefaults.standardUserDefaults().objectForKey("userId") as? Int {
+                            currentUserId = localUserId
+                        }
+                        
+                        mixpanel.track("User Signed Up", properties: [
+                            "User ID": currentUserId,
+                            "Status": "Fail",
+                            "Timestamp": NSDate()
+                        ])
+                        // Mixpanel - End
                 })
             }
         }
@@ -249,4 +314,5 @@ class SignUpViewController: UIViewController, UITableViewDataSource, UITableView
         
         return false
     }
+    
 }
