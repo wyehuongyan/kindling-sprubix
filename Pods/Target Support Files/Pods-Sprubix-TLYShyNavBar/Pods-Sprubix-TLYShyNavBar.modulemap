@@ -1,6 +1,0 @@
-framework module TLYShyNavBar {
-  umbrella header "Pods-Sprubix-TLYShyNavBar-umbrella.h"
-
-  export *
-  module * { export * }
-}

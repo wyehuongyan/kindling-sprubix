@@ -1,6 +1,0 @@
-framework module DZNEmptyDataSet {
-  umbrella header "Pods-Sprubix-DZNEmptyDataSet-umbrella.h"
-
-  export *
-  module * { export * }
-}

@@ -1,6 +1,0 @@
-framework module MLPAutoCompleteTextField {
-  umbrella header "Pods-Sprubix-MLPAutoCompleteTextField-umbrella.h"
-
-  export *
-  module * { export * }
-}

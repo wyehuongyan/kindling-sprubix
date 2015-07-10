@@ -1,6 +1,0 @@
-framework module PermissionScope {
-  umbrella header "Pods-Sprubix-PermissionScope-umbrella.h"
-
-  export *
-  module * { export * }
-}
