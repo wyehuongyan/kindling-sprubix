@@ -10,7 +10,7 @@ import UIKit
 import CoreData
 import AFNetworking
 
-class SignInViewController: UIViewController, UITextFieldDelegate, UITableViewDataSource, UITableViewDelegate {
+class SignInViewController: UIViewController, UITextFieldDelegate, UITableViewDataSource, UITableViewDelegate, SignInDelegate {
     
     var makeKeyboardVisible = true
     
@@ -33,6 +33,8 @@ class SignInViewController: UIViewController, UITextFieldDelegate, UITableViewDa
     
     var oldFrameRect: CGRect!
     
+    var delegate:SignInDelegate?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
@@ -52,7 +54,7 @@ class SignInViewController: UIViewController, UITextFieldDelegate, UITableViewDa
         
         signInButton.backgroundColor = sprubixColor
         signInButton.setTitle("Log in", forState: UIControlState.Normal)
-        signInButton.addTarget(self, action: "signIn:", forControlEvents: UIControlEvents.TouchUpInside)
+        signInButton.addTarget(self, action: "signInFromSignIn:", forControlEvents: UIControlEvents.TouchUpInside)
         
         signInView.addSubview(signInButton)
         
@@ -117,68 +119,71 @@ class SignInViewController: UIViewController, UITextFieldDelegate, UITableViewDa
         // Dispose of any resources that can be recreated.
     }
     
-    func signIn(sender: AnyObject) {
+    func signInFromSignIn(send: AnyObject) {
         if self.userNameText.text == "" {
             println("Please enter username or email")
         } else if self.passwordText.text == "" {
             println("Please enter password")
         } else {
-            var usernameString = ""
-            var emailString = ""
-            
-            // check if username or email was entered
-            if userNameText.text.rangeOfString("@") != nil{
-                emailString = userNameText.text
-            } else {
-                usernameString = userNameText.text
-            }
-            
-            // authenticate with server
-            manager.POST(SprubixConfig.URL.api + "/auth/login",
-                parameters: [
-                    "username" : usernameString,
-                    "email" : emailString,
-                    "password" : passwordText.text
-                ],
-                success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
-                    var response = responseObject as! NSDictionary
-                    var statusCode:String = response["status"] as! String
-                    
-                    if statusCode == "400" {
-                        // error
-                        var message = response["message"] as! String
-                        var data = response["data"] as! String
-                        
-                        println(message)
-                        println(data)
-                        
-                    } else if statusCode == "200" {
-                        // success
-                        self.view.endEditing(true)
-                        var message = response["message"] as! String
-                        var data = response["data"] as! NSDictionary
-                        
-                        println(message)
-                        println(data)
-                        
-                        var cleanData = self.cleanDictionary(data as! NSMutableDictionary)
-                        
-                        defaults.setObject(cleanData["id"], forKey: "userId")
-                        defaults.setObject(cleanData, forKey: "userData")
-                        defaults.synchronize()
-                        
-                        //self.saveCookies(userId);
-                        FirebaseAuth.retrieveFirebaseToken()
-                        
-                        // redirect to containerViewController (not sprubixFeedController)
-                        self.dismissViewControllerAnimated(true, completion: nil)
-                    }
-                },
-                failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
-                    println("Error: " + error.localizedDescription)
-            })
-            
+            signIn(self.userNameText.text, passwordText: self.passwordText.text)
         }
+    }
+    
+    func signIn(userNameText: String, passwordText: String) {
+        var usernameString = ""
+        var emailString = ""
+        
+        // check if username or email was entered
+        if userNameText.rangeOfString("@") != nil{
+            emailString = userNameText
+        } else {
+            usernameString = userNameText
+        }
+        
+        // authenticate with server
+        manager.POST(SprubixConfig.URL.api + "/auth/login",
+            parameters: [
+                "username" : usernameString,
+                "email" : emailString,
+                "password" : passwordText
+            ],
+            success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                var response = responseObject as! NSDictionary
+                var statusCode:String = response["status"] as! String
+                
+                if statusCode == "400" {
+                    // error
+                    var message = response["message"] as! String
+                    var data = response["data"] as! String
+                    
+                    println(message)
+                    println(data)
+                    
+                } else if statusCode == "200" {
+                    // success
+                    self.view.endEditing(true)
+                    var message = response["message"] as! String
+                    var data = response["data"] as! NSDictionary
+                    
+                    println(message)
+                    println(data)
+                    
+                    var cleanData = self.cleanDictionary(data as! NSMutableDictionary)
+                    
+                    defaults.setObject(cleanData["id"], forKey: "userId")
+                    defaults.setObject(cleanData, forKey: "userData")
+                    defaults.synchronize()
+                    
+                    //self.saveCookies(userId);
+                    FirebaseAuth.retrieveFirebaseToken()
+                    
+                    // redirect to containerViewController (not sprubixFeedController)
+                    self.dismissViewControllerAnimated(true, completion: nil)
+                }
+            },
+            failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                println("Error: " + error.localizedDescription)
+        })
     }
     
     func cleanDictionary(dict: NSMutableDictionary)->NSMutableDictionary {
@@ -262,6 +267,11 @@ class SignInViewController: UIViewController, UITextFieldDelegate, UITableViewDa
     
     override func prefersStatusBarHidden() -> Bool {
         return true
+    }
+    
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        let vc = segue.destinationViewController as! SignUpViewController
+        vc.delegate = self
     }
 }
 

@@ -9,6 +9,10 @@
 import UIKit
 import AFNetworking
 
+protocol SignInDelegate {
+    func signIn(userNameText: String, passwordText: String)
+}
+
 class SignUpViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UITextFieldDelegate, UIGestureRecognizerDelegate {
     var signUpTable:UITableView!
     
@@ -19,6 +23,8 @@ class SignUpViewController: UIViewController, UITableViewDataSource, UITableView
     var emailText:UITextField!
     var userNameText:UITextField!
     var passwordText:UITextField!
+    
+    var delegate:SignInDelegate?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -196,12 +202,15 @@ class SignUpViewController: UIViewController, UITableViewDataSource, UITableView
                             println(data)
                             println("\noff we go to the land of segue")
                             
+                            // SignInDelegate, get SignInVC to do the login
+                            self.delegate?.signIn(self.userNameText.text, passwordText: self.passwordText.text)
+                            
                             // Mixpanel - Signed Up, Success
                             mixpanel.track("User Signed Up", properties: [
                                 "User ID": data.objectForKey("id") as! Int,
                                 "Status": "Success",
                                 "Timestamp": NSDate()
-                                ])
+                            ])
                             
                             mixpanel.createAlias(data.objectForKey("email") as! String, forDistinctID: mixpanel.distinctId)
                             mixpanel.identify(data.objectForKey("email") as! String)
@@ -306,4 +315,5 @@ class SignUpViewController: UIViewController, UITableViewDataSource, UITableView
         
         return false
     }
+    
 }
