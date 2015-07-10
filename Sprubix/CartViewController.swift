@@ -51,6 +51,9 @@ class CartViewController: UIViewController, UITableViewDataSource, UITableViewDe
     
     @IBOutlet var cartTableView: UITableView!
     
+    // checkout
+    var checkoutViewController: CheckoutViewController?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -71,13 +74,14 @@ class CartViewController: UIViewController, UITableViewDataSource, UITableViewDe
         
         let grandTotal = UILabel(frame: CGRectMake(10, 10, screenWidth / 2 - 10, 24))
         
-        grandTotal.font = UIFont.boldSystemFontOfSize(17.0)
+        grandTotal.font = UIFont.boldSystemFontOfSize(20.0)
         grandTotal.textColor = sprubixColor
-        grandTotal.text = "Total"
+        grandTotal.text = "Order Total"
         
         grandTotalAmount = UILabel(frame: CGRectMake(screenWidth / 2, 10, screenWidth / 2 - 10, 24))
         grandTotalAmount.textAlignment = NSTextAlignment.Right
         grandTotalAmount.textColor = sprubixColor
+        grandTotalAmount.font = UIFont.boldSystemFontOfSize(20.0)
         
         tableFooterView.addSubview(grandTotal)
         tableFooterView.addSubview(grandTotalAmount)
@@ -465,7 +469,7 @@ class CartViewController: UIViewController, UITableViewDataSource, UITableViewDe
                     var automatic: NSTimeInterval = 0
                     
                     // error exception
-                    TSMessage.showNotificationInViewController(                        TSMessage.defaultViewController(), title: "Error", subtitle: "Server is busy.\nPlease try again.", image: UIImage(named: "filter-cross"), type: TSMessageNotificationType.Error, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: true)
+                    TSMessage.showNotificationInViewController(                        TSMessage.defaultViewController(), title: "Error", subtitle: "Server is experiencing some issues.\nPlease try again.", image: UIImage(named: "filter-cross"), type: TSMessageNotificationType.Error, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: true)
             })
         } else {
             println("userId not found, please login or create an account")
@@ -861,6 +865,10 @@ class CartViewController: UIViewController, UITableViewDataSource, UITableViewDe
     }
     
     func checkout(sender: UIBarButtonItem) {
-        println("check out")
+        if checkoutViewController == nil {
+            checkoutViewController = CheckoutViewController()
+        }
+        
+        self.navigationController?.pushViewController(checkoutViewController!, animated: true)
     }
 }

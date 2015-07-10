@@ -72,6 +72,11 @@ class SettingsViewController: UITableViewController {
             switch indexPath.row {
             case 0:
                 println("Payment Methods")
+
+                let paymentMethodsViewController = UIStoryboard.paymentMethodsViewController()
+                
+                self.navigationController?.pushViewController(paymentMethodsViewController!, animated: true)
+                
             case 1:
                 println("Delivery Addresses")
                 

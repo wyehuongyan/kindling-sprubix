@@ -20,5 +20,7 @@ class CartItemSectionFooter: UITableViewCell {
         contentView.backgroundColor = UIColor.whiteColor()
         
         deliveryMethod.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+        deliveryMethod.imageEdgeInsets = UIEdgeInsetsMake(0, -10, 0, 0)
+        deliveryMethod.titleEdgeInsets = UIEdgeInsetsMake(0, -10, 0, 0)
     }
 }

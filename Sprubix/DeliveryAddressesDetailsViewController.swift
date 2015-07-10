@@ -169,7 +169,7 @@ class DeliveryAddressesDetailsViewController: UIViewController, UITableViewDataS
         case 2:
             return 1
         default:
-            return 0
+            fatalError("Unknown section in DeliveryAddressesDetailsViewController")
         }
     }
     
@@ -342,7 +342,7 @@ class DeliveryAddressesDetailsViewController: UIViewController, UITableViewDataS
                 fatalError("Unknown row returned")
             }
         case 2:
-            // deliver to
+            // is default
             switch indexPath.row {
             case 0:
                 if isCurrentSwitch == nil {

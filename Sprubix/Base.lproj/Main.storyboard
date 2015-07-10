@@ -325,7 +325,7 @@
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" text="Delivery Option Price" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="BYQ-Q3-36i">
-                                                    <rect key="frame" x="10" y="36" width="488" height="22"/>
+                                                    <rect key="frame" x="10" y="38" width="488" height="20"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="16"/>
                                                     <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
                                                     <nil key="highlightedColor"/>
@@ -370,7 +370,6 @@
                                                 <constraint firstItem="lC7-sE-Ldv" firstAttribute="leading" secondItem="W4J-5U-XCl" secondAttribute="leadingMargin" constant="2" id="kR0-EX-Nwv"/>
                                                 <constraint firstItem="Xhc-8X-iXJ" firstAttribute="top" secondItem="W4J-5U-XCl" secondAttribute="top" constant="15" id="lnl-xf-hmA"/>
                                                 <constraint firstItem="719-gN-3m8" firstAttribute="top" secondItem="W4J-5U-XCl" secondAttribute="top" constant="15" id="qAW-IG-2p4"/>
-                                                <constraint firstItem="BYQ-Q3-36i" firstAttribute="top" secondItem="lC7-sE-Ldv" secondAttribute="bottom" constant="6" id="st8-jC-MHs"/>
                                             </constraints>
                                         </tableViewCellContentView>
                                         <connections>
@@ -788,7 +787,7 @@
                                                 </button>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Delivery Address" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="npJ-P5-Ii0">
                                                     <rect key="frame" x="10" y="10" width="488" height="60"/>
-                                                    <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                                                    <fontDescription key="fontDescription" type="system" weight="medium" pointSize="16"/>
                                                     <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
@@ -988,7 +987,7 @@
                                                         <constraint firstAttribute="height" constant="20" id="bgj-Az-dxN"/>
                                                     </constraints>
                                                     <fontDescription key="fontDescription" name="HelveticaNeue-Medium" family="Helvetica Neue" pointSize="17"/>
-                                                    <state key="normal" title="Delivery Method">
+                                                    <state key="normal" title="Delivery Method" image="sidemenu-fulfilment">
                                                         <color key="titleColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
                                                     </state>
                                                     <variation key="default">
@@ -1002,7 +1001,7 @@
                                                     <constraints>
                                                         <constraint firstAttribute="height" constant="20" id="CD3-pn-X7L"/>
                                                     </constraints>
-                                                    <fontDescription key="fontDescription" type="system" weight="medium" pointSize="17"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                     <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
                                                     <nil key="highlightedColor"/>
                                                     <variation key="default">
@@ -1012,11 +1011,11 @@
                                                     </variation>
                                                 </label>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Shipping Rate" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="zgh-pX-HvC">
-                                                    <rect key="frame" x="10" y="60" width="112" height="21"/>
+                                                    <rect key="frame" x="10" y="60" width="109" height="21"/>
                                                     <constraints>
                                                         <constraint firstAttribute="height" constant="20" id="oFv-qK-LcA"/>
                                                     </constraints>
-                                                    <fontDescription key="fontDescription" type="system" weight="medium" pointSize="17"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                     <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
                                                     <nil key="highlightedColor"/>
                                                     <variation key="default">
@@ -1354,6 +1353,111 @@
             </objects>
             <point key="canvasLocation" x="1860" y="176"/>
         </scene>
+        <!--Payment Methods View Controller-->
+        <scene sceneID="nyu-uX-zFf">
+            <objects>
+                <viewController storyboardIdentifier="PaymentMethodsView" id="gDr-eE-kMv" customClass="PaymentMethodsViewController" customModule="Sprubix" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="ryX-eL-PrT"/>
+                        <viewControllerLayoutGuide type="bottom" id="rE6-w5-DCz"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="kxh-Vp-ATY">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="grouped" separatorStyle="default" rowHeight="68" sectionHeaderHeight="10" sectionFooterHeight="10" translatesAutoresizingMaskIntoConstraints="NO" id="9oG-we-ave">
+                                <rect key="frame" x="0.0" y="64" width="600" height="536"/>
+                                <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
+                                <prototypes>
+                                    <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="PaymentMethodCell" rowHeight="68" id="Z24-ct-sYS" customClass="PaymentMethodCell" customModule="Sprubix" customModuleProvider="target">
+                                        <rect key="frame" x="0.0" y="0.0" width="600" height="44"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="Z24-ct-sYS" id="RQf-Id-B1l">
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="jk0-C0-mvc">
+                                                    <rect key="frame" x="552" y="15" width="38" height="38"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="width" constant="38" id="THQ-r3-OUN"/>
+                                                    </constraints>
+                                                    <state key="normal" image="filter-cross">
+                                                        <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                                    </state>
+                                                    <connections>
+                                                        <action selector="deletePaymentMethod:" destination="Z24-ct-sYS" eventType="touchUpInside" id="hEN-ZG-j8L"/>
+                                                    </connections>
+                                                </button>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Card Type ending with XXXX" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="vjx-4D-dba">
+                                                    <rect key="frame" x="58" y="10" width="484" height="20"/>
+                                                    <fontDescription key="fontDescription" type="system" weight="medium" pointSize="16"/>
+                                                    <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="UuE-AN-m2q">
+                                                    <rect key="frame" x="58" y="38" width="484" height="20"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="height" constant="20" id="4P7-P3-OP3"/>
+                                                    </constraints>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                                                    <state key="normal" title="Make default">
+                                                        <color key="titleColor" red="1" green="0.43193201840000001" blue="0.40265706449999999" alpha="1" colorSpace="calibratedRGB"/>
+                                                        <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                                    </state>
+                                                    <connections>
+                                                        <action selector="makeDefault:" destination="Z24-ct-sYS" eventType="touchUpInside" id="ZhC-L3-t8f"/>
+                                                    </connections>
+                                                </button>
+                                                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="icon-placeholder.png" translatesAutoresizingMaskIntoConstraints="NO" id="79F-qW-65e">
+                                                    <rect key="frame" x="10" y="15" width="38" height="38"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="width" constant="38" id="gvu-Mp-3d1"/>
+                                                    </constraints>
+                                                </imageView>
+                                            </subviews>
+                                            <constraints>
+                                                <constraint firstAttribute="bottom" secondItem="UuE-AN-m2q" secondAttribute="bottom" constant="10" id="9hf-Bm-fDL"/>
+                                                <constraint firstAttribute="bottom" secondItem="79F-qW-65e" secondAttribute="bottom" constant="15" id="EQL-a1-9IM"/>
+                                                <constraint firstItem="jk0-C0-mvc" firstAttribute="leading" secondItem="UuE-AN-m2q" secondAttribute="trailing" constant="10" id="FGu-Lm-e2f"/>
+                                                <constraint firstItem="jk0-C0-mvc" firstAttribute="top" secondItem="RQf-Id-B1l" secondAttribute="top" constant="15" id="IqH-cc-lhx"/>
+                                                <constraint firstAttribute="trailing" secondItem="jk0-C0-mvc" secondAttribute="trailing" constant="10" id="Oyr-YI-Nnx"/>
+                                                <constraint firstItem="jk0-C0-mvc" firstAttribute="leading" secondItem="vjx-4D-dba" secondAttribute="trailing" constant="10" id="Zbb-UV-gcl"/>
+                                                <constraint firstItem="79F-qW-65e" firstAttribute="leading" secondItem="RQf-Id-B1l" secondAttribute="leading" constant="10" id="bFd-AW-g7G"/>
+                                                <constraint firstItem="UuE-AN-m2q" firstAttribute="leading" secondItem="79F-qW-65e" secondAttribute="trailing" constant="10" id="iki-sa-oZ5"/>
+                                                <constraint firstItem="79F-qW-65e" firstAttribute="top" secondItem="RQf-Id-B1l" secondAttribute="top" constant="15" id="kgt-xu-z6T"/>
+                                                <constraint firstItem="vjx-4D-dba" firstAttribute="top" secondItem="RQf-Id-B1l" secondAttribute="top" constant="10" id="uti-ND-g4p"/>
+                                                <constraint firstAttribute="bottom" secondItem="jk0-C0-mvc" secondAttribute="bottom" constant="15" id="yse-Wa-Tgr"/>
+                                                <constraint firstItem="vjx-4D-dba" firstAttribute="leading" secondItem="79F-qW-65e" secondAttribute="trailing" constant="10" id="zYE-Z1-0ar"/>
+                                            </constraints>
+                                        </tableViewCellContentView>
+                                        <connections>
+                                            <outlet property="deletePaymentMethodButton" destination="jk0-C0-mvc" id="wkF-It-mIh"/>
+                                            <outlet property="paymentMethodImage" destination="79F-qW-65e" id="Wzz-7n-HTP"/>
+                                            <outlet property="paymentMethodName" destination="vjx-4D-dba" id="Fyd-Xm-q8w"/>
+                                        </connections>
+                                    </tableViewCell>
+                                </prototypes>
+                                <connections>
+                                    <outlet property="dataSource" destination="gDr-eE-kMv" id="nML-Ad-emR"/>
+                                    <outlet property="delegate" destination="gDr-eE-kMv" id="XTR-8r-uH3"/>
+                                </connections>
+                            </tableView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="9oG-we-ave" firstAttribute="top" secondItem="ryX-eL-PrT" secondAttribute="bottom" constant="44" id="VYN-6Z-V0S"/>
+                            <constraint firstAttribute="trailing" secondItem="9oG-we-ave" secondAttribute="trailing" id="XDe-NV-Iqp"/>
+                            <constraint firstItem="rE6-w5-DCz" firstAttribute="top" secondItem="9oG-we-ave" secondAttribute="bottom" id="q1a-4p-8c9"/>
+                            <constraint firstItem="9oG-we-ave" firstAttribute="leading" secondItem="kxh-Vp-ATY" secondAttribute="leading" id="uQH-OC-E0s"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="paymentMethodTableView" destination="9oG-we-ave" id="U5C-oN-xMT"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="M3p-kT-Kh9" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1860" y="1704"/>
+        </scene>
     </scenes>
     <resources>
         <image name="details-info-add" width="40" height="40"/>
@@ -1365,5 +1469,6 @@
         <image name="main-like-filled" width="40" height="40"/>
         <image name="main-spruce" width="80" height="40"/>
         <image name="others-edit" width="40" height="40"/>
+        <image name="sidemenu-fulfilment" width="40" height="40"/>
     </resources>
 </document>

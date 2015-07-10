@@ -94,7 +94,7 @@ class DeliveryAddressesViewController: UIViewController, UITableViewDataSource, 
     }
     
     func retrieveDeliveryAddresses() {
-        // REST call to server to create user shipping address
+        // REST call to server to retrieve user shipping address
         manager.GET(SprubixConfig.URL.api + "/shipping/addresses",
             parameters: nil,
             success: { (operation: AFHTTPRequestOperation!, responseObject:

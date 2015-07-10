@@ -6,6 +6,8 @@
 //  Copyright (c) 2015 Sprubix. All rights reserved.
 //
 
+import Braintree
+
 let screenBounds = UIScreen.mainScreen().bounds
 let screenSize   = screenBounds.size
 let screenWidth  = screenSize.width
@@ -23,6 +25,9 @@ var timestamp: String {
         return "\(NSDate().timeIntervalSince1970)" // in secs, * 1000 for ms
     }
 }
+
+// braintree
+var braintreeRef: Braintree?
 
 // notifications
 var sprubixNotificationViewController: NotificationViewController?

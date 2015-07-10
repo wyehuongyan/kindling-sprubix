@@ -334,4 +334,8 @@ extension UIStoryboard {
     class func deliveryAddressesViewController() -> DeliveryAddressesViewController? {
         return mainStoryboard().instantiateViewControllerWithIdentifier("DeliveryAddressesView") as? DeliveryAddressesViewController
     }
+    
+    class func paymentMethodsViewController() -> PaymentMethodsViewController? {
+        return mainStoryboard().instantiateViewControllerWithIdentifier("PaymentMethodsView") as? PaymentMethodsViewController
+    }
 }
