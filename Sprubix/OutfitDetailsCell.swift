@@ -633,8 +633,23 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
     func creditsShowProfile(sender: UIButton) {
         if sender == postedByButton {
             containerViewController.showUserProfile(postedByButton.user!)
+            
+            // Mixpanel - Viewed User Profile, Outfit View
+            mixpanel.track("Viewed User Profile", properties: [
+                "Source": "Outfit View",
+                "Tab": "Outfit",
+                "Target User ID": user["id"] as! Int
+            ])
+            // Mixpanel - End
         } else if sender == fromButton {
             containerViewController.showUserProfile(fromButton.user!)
+            
+            // Mixpanel - Viewed User Profile, Outfit View
+            mixpanel.track("Viewed User Profile", properties: [
+                "Source": "Outfit View",
+                "Tab": "Outfit",
+                "Target User ID": user["id"] as! Int
+            ])
         }
     }
     
@@ -1064,6 +1079,15 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
         
         navController?.delegate = nil
         navController?.pushViewController(commentsViewController!, animated: true)
+        
+        // Mixpanel - Viewed Outfit Comments, Main Feed
+        mixpanel.track("Viewed Outfit Comments", properties: [
+            "Source": "Outfit View",
+            "Outfit ID": outfitId,
+            "Owner User ID": user["id"] as! Int
+        ])
+        mixpanel.people.increment("Viewed Outfit Comments", by: 1)
+        // Mixpanel - End
     }
     
     func completeOutfit(sender: UIButton) {
@@ -1288,6 +1312,12 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
         }
         
         buyPopup?.show()
+        
+        // Mixpanel - Clicked Buy, Outfit View
+        mixpanel.track("Clicked Buy", properties: [
+            "Source": "Outfit View",
+            "Outfit ID": outfit["id"] as! Int
+        ])
     }
     
     func selectBuySize(sender: UIButton) {
@@ -1485,6 +1515,14 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
                 let user = piece["user"] as! NSDictionary
                 
                 containerViewController.showUserProfile(user)
+                
+                // Mixpanel - Viewed User Profile, Outfit View
+                mixpanel.track("Viewed User Profile", properties: [
+                    "Source": "Outfit View",
+                    "Tab": "Outfit",
+                    "Target User ID": piece["user_id"] as! Int
+                ])
+                // Mixpanel - End
             }
         }
     }
@@ -1511,9 +1549,23 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
                     if status == "200" {
                         // success
                         TSMessage.showNotificationInViewController(                        TSMessage.defaultViewController(), title: "Success!", subtitle: "Item added to cart", image: UIImage(named: "filter-check"), type: TSMessageNotificationType.Success, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: true)
+                        
+                        // Mixpanel - Added to Cart, Outfit View, Success
+                        mixpanel.track("Added To Cart", properties: [
+                            "Source": "Outfit View",
+                            "Piece ID": self.buyPieceInfo!.objectForKey("piece_id") as! Int,
+                            "Status": "Success"
+                        ])
                     } else {
                         // error exception
                         TSMessage.showNotificationInViewController(                        TSMessage.defaultViewController(), title: "Error", subtitle: "Something went wrong", image: UIImage(named: "filter-cross"), type: TSMessageNotificationType.Error, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: true)
+                        
+                        // Mixpanel - Added to Cart, Outfit View, Fail
+                        mixpanel.track("Added To Cart", properties: [
+                            "Source": "Outfit View",
+                            "Piece ID": self.buyPieceInfo!.objectForKey("piece_id") as! Int,
+                            "Status": "Fail"
+                        ])
                     }
                 },
                 failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
@@ -1554,6 +1606,7 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
                 
                 // Mixpanel - Viewed Piece Comments
                 mixpanel.track("Viewed Piece Comments", properties: [
+                    "Source": "Outfit View",
                     "Piece ID": pieceId,
                     "Owner User ID": piece["user_id"] as! Int
                 ])

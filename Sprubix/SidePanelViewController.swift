@@ -98,6 +98,14 @@ class SidePanelViewController: UIViewController, UITableViewDataSource, UITableV
         let userData:NSDictionary! = defaults.dictionaryForKey("userData")
         
         delegate?.showUserProfile(userData)
+        
+        // Mixpanel - Viewed User Profile, Side Panel
+        mixpanel.track("Viewed User Profile", properties: [
+            "Source": "Side Panel",
+            "Tab": "Outfit",
+            "Target User ID": userData.objectForKey("id") as! Int
+        ])
+        // Mixpanel - End
     }
     
     // MARK: Table View Data Source
@@ -127,6 +135,12 @@ class SidePanelViewController: UIViewController, UITableViewDataSource, UITableV
             break
         case .Notifications:
             delegate?.showNotifications()
+            
+            // Mixpanel - Viewed Notifications, Side Panel
+            mixpanel.track("Viewed Notifications", properties: [
+                "Source": "Side Panel"
+            ])
+            // Mixpanel - End
         case .CreateOutfit:
             delegate?.showCreateOutfit()
             
@@ -137,20 +151,51 @@ class SidePanelViewController: UIViewController, UITableViewDataSource, UITableV
             // Mixpanel - End
         case .Favorites:
             delegate?.showFavorites()
+            
+            // Mixpanel - Viewed Favorites, Side Panel, Outfit
+            mixpanel.track("Viewed Favorites", properties: [
+                "Source": "Side Panel",
+                "Tab": "Outfit"
+            ])
+            // Mixpanel - End
             break
         case .Settings:
             delegate?.showSettings()
+            
+            // Mixpanel - Viewed Settings, Side Panel
+            mixpanel.track("Viewed Settings", properties: [
+                "Source": "Side Panel"
+            ])
+            // Mixpanel - End
             break
         case .Inventory:
             delegate?.showInventory()
+            
+            // Mixpanel - Viewed Inventory, Side Panel
+            mixpanel.track("Viewed Inventory", properties: [
+                "Source": "Side Panel"
+            ])
+            // Mixpanel - End
             break
         case .Cart:
             delegate?.showCart()
+            
+            // Mixpanel - Viewed Carts, Side Panel
+            mixpanel.track("Viewed Cart", properties: [
+                "Source": "Side Panel"
+            ])
+            // Mixpanel - End
             break
         case .Orders:
             break
         case .DeliveryOptions:
             delegate?.showDeliveryOptions()
+            
+            // Mixpanel - Viewed Delivery Options, Side Panel
+            mixpanel.track("Viewed Delivery Options", properties: [
+                "Source": "Side Panel"
+            ])
+            // Mixpanel - End
             break
         }
     }

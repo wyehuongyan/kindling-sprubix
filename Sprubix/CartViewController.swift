@@ -870,5 +870,9 @@ class CartViewController: UIViewController, UITableViewDataSource, UITableViewDe
         }
         
         self.navigationController?.pushViewController(checkoutViewController!, animated: true)
+        
+        // Mixpanel - Checkout
+        mixpanel.track("Checkout")
+        // Mixpanel - End
     }
 }

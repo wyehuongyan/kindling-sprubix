@@ -1117,9 +1117,23 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
                     if status == "200" {
                         // success
                         TSMessage.showNotificationInViewController(                        TSMessage.defaultViewController(), title: "Success!", subtitle: "Item added to cart", image: UIImage(named: "filter-check"), type: TSMessageNotificationType.Success, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: true)
+                        
+                        // Mixpanel - Added to Cart, Piece View, Success
+                        mixpanel.track("Added To Cart", properties: [
+                            "Source": "Piece View",
+                            "Piece ID": self.buyPieceInfo!.objectForKey("piece_id") as! Int,
+                            "Status": "Success"
+                        ])
                     } else {
                         // error exception
                         TSMessage.showNotificationInViewController(                        TSMessage.defaultViewController(), title: "Error", subtitle: "Something went wrong.\nPlease try again.", image: UIImage(named: "filter-cross"), type: TSMessageNotificationType.Error, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: true)
+                        
+                        // Mixpanel - Added to Cart, Piece View, Fail
+                        mixpanel.track("Added To Cart", properties: [
+                            "Source": "Piece View",
+                            "Piece ID": self.buyPieceInfo!.objectForKey("piece_id") as! Int,
+                            "Status": "Fail"
+                        ])
                     }
                 },
                 failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
@@ -1159,6 +1173,15 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         
         navController!.delegate = nil
         navController!.pushViewController(commentsViewController!, animated: true)
+        
+        // Mixpanel - Viewed Piece Comments
+        mixpanel.track("Viewed Piece Comments", properties: [
+            "Source": "Piece View",
+            "Piece ID": pieceId,
+            "Owner User ID": piece["user_id"] as! Int
+        ])
+        mixpanel.people.increment("Viewed Piece Comments", by: 1)
+        // Mixpanel - End
     }
     
     func retrieveRecentComments(poutfitIdentifier: String) {

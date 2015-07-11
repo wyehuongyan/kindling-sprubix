@@ -852,8 +852,9 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         navigationController!.delegate = nil
         navigationController!.pushViewController(commentsViewController!, animated: true)
         
-        // Mixpanel - Viewed Outfit Comments
+        // Mixpanel - Viewed Outfit Comments, Main Feed
         mixpanel.track("Viewed Outfit Comments", properties: [
+            "Source": "Main Feed",
             "Outfit ID": outfitId,
             "Owner User ID": receiverId
         ])
@@ -863,6 +864,14 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
     
     func showProfile(user: NSDictionary) {
         delegate?.showUserProfile(user)
+        
+        // Mixpanel - Viewed User Profile, Main Feed
+        mixpanel.track("Viewed User Profile", properties: [
+            "Source": "Main Feed",
+            "Tab": "Outfit",
+            "Target User ID": user.objectForKey("id") as! Int
+        ])
+        // Mixpanel - End
     }
     
     func tappedOutfit(indexPath: NSIndexPath) {

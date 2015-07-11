@@ -45,10 +45,6 @@ class SettingsViewController: UITableViewController {
 
         self.navigationItem.setLeftBarButtonItem(backBarButtonItem, animated: false)
         self.navigationController?.navigationBar.tintColor = UIColor.lightGrayColor()
-        
-        // Mixpanel - Viewed Favorites, Outfit
-        mixpanel.track("Viewed Settings")
-        // Mixpanel - End
     }
     
     override func viewWillDisappear(animated: Bool) {

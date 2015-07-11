@@ -194,7 +194,25 @@ class SprucePieceFeedController: UICollectionViewController, UICollectionViewDel
     override func scrollViewDidEndDecelerating(scrollView: UIScrollView) {
         // when pieces are swiped
         setCurrentVisibleCell()
-    
+        
+        // Mixpanel - Spruce Outfit Swipe, Swipe
+        let visibleRect: CGRect = CGRect(origin: self.collectionView!.contentOffset, size: self.collectionView!.bounds.size)
+        let visiblePoint: CGPoint = CGPointMake(CGRectGetMidX(visibleRect), CGRectGetMidY(visibleRect))
+        var visibleIndexPath: NSIndexPath? = self.collectionView!.indexPathForItemAtPoint(visiblePoint)
+        
+        if visibleIndexPath != nil {
+            currentVisibleCell = self.collectionView!.cellForItemAtIndexPath(visibleIndexPath!) as! SprucePieceFeedCell
+            index = visibleIndexPath!.item
+            
+            mixpanel.track("Spruce Outfit Swipe", properties: [
+                "Piece ID": (self.collectionView?.cellForItemAtIndexPath(visibleIndexPath!) as! SprucePieceFeedCell).piece.objectForKey("id") as! Int,
+                "Owner User ID": (self.collectionView?.cellForItemAtIndexPath(visibleIndexPath!) as! SprucePieceFeedCell).piece.objectForKey("user_id") as! Int,
+                "Type": "Swipe"
+                ])
+            mixpanel.people.increment("Spruce Outfit Swipe", by: 1)
+        }
+        // Mixpanel - End
+        
         delegate?.resizeOutfit()
     }
     
@@ -210,7 +228,7 @@ class SprucePieceFeedController: UICollectionViewController, UICollectionViewDel
         mixpanel.track("Spruce Outfit Swipe", properties: [
             "Piece ID": (self.collectionView?.cellForItemAtIndexPath(indexPath) as! SprucePieceFeedCell).piece.objectForKey("id") as! Int,
             "Owner User ID": (self.collectionView?.cellForItemAtIndexPath(indexPath) as! SprucePieceFeedCell).piece.objectForKey("user_id") as! Int,
-            "Source": "Click"
+            "Type": "Click"
         ])
         mixpanel.people.increment("Spruce Outfit Swipe", by: 1)
         // Mixpanel - End
@@ -231,15 +249,6 @@ class SprucePieceFeedController: UICollectionViewController, UICollectionViewDel
             currentVisibleCell = self.collectionView!.cellForItemAtIndexPath(visibleIndexPath!) as! SprucePieceFeedCell
             
             index = visibleIndexPath!.item
-            
-            // Mixpanel - Spruce Outfit Swipe, Swipe
-            mixpanel.track("Spruce Outfit Swipe", properties: [
-                "Piece ID": (self.collectionView?.cellForItemAtIndexPath(visibleIndexPath!) as! SprucePieceFeedCell).piece.objectForKey("id") as! Int,
-                "Owner User ID": (self.collectionView?.cellForItemAtIndexPath(visibleIndexPath!) as! SprucePieceFeedCell).piece.objectForKey("user_id") as! Int,
-                "Source": "Swipe"
-            ])
-            mixpanel.people.increment("Spruce Outfit Swipe", by: 1)
-            // Mixpanel - End
         }
     }
     
