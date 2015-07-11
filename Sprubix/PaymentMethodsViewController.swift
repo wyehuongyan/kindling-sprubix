@@ -140,6 +140,8 @@ class PaymentMethodsViewController: UIViewController, UITableViewDataSource, UIT
                     return
                 }
                 
+                cell.makeDefaultButton.enabled = false
+                cell.makeDefaultButton.setTitleColor(UIColor.lightGrayColor(), forState: UIControlState.Normal)
                 cell.makeDefaultPaymentMethodAction = { Void in
                     return
                 }
@@ -156,7 +158,7 @@ class PaymentMethodsViewController: UIViewController, UITableViewDataSource, UIT
             
             let paymentMethodId = paymentMethod["id"] as! Int
             let imageString = paymentMethod["image"] as! String
-            let redactedCartNum = paymentMethod["redacted_card_num"] as! String
+            let redactedCartNum = paymentMethod["redacted_card_num"] as! Int
             let cardType = paymentMethod["card_type"] as! String
             
             cell.paymentMethodImage.setImageWithURL(NSURL(string: imageString))
@@ -219,7 +221,7 @@ class PaymentMethodsViewController: UIViewController, UITableViewDataSource, UIT
         if paymentMethods.count > 0 {
             switch section {
             case 0:
-                return "Current Payment Method"
+                return "Default Payment Method"
             case 1:
                 return nil
             default:
@@ -242,7 +244,7 @@ class PaymentMethodsViewController: UIViewController, UITableViewDataSource, UIT
     func addPaymentMethodTapped(sender: UIBarButtonItem) {
         let paymentMethodsDetailsViewController = PaymentMethodsDetailsViewController()
         
-        paymentMethodsDetailsViewController.paymentMethodsCount = 0
+        paymentMethodsDetailsViewController.paymentMethodsCount = paymentMethods.count
         
         self.navigationController?.pushViewController(paymentMethodsDetailsViewController, animated: true)
     }

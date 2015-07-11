@@ -12,16 +12,68 @@ import Braintree
 import TSMessages
 import SSKeychain
 
-class CheckoutViewController: UIViewController {
+class CheckoutViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
 
+    var delegate: SidePanelViewControllerDelegate?
+    
+    var sellerCartItemDictionary: NSMutableDictionary!
+    var sellers: [NSDictionary] = [NSDictionary]()
+    var sellerDeliveryMethods: [String] = [String]()
+    var sellerSubtotal: [Float] = [Float]()
+    var sellerShippingRate: [Float] = [Float]()
+    
+    let checkoutItemCellIdentifier = "CheckoutItemCell"
+    let checkoutDeliveryPaymentCellIdentifier = "CheckoutDeliveryPaymentCell"
+    let cartItemSectionHeaderIdentifier = "CartItemSectionHeader"
+    let cartItemSectionFooterIdentifier = "CartItemSectionFooter"
+    
     // custom nav bar
     var newNavBar: UINavigationBar!
     var newNavItem: UINavigationItem!
+    
+    var orderHeaderView: UIView!
+    var orderTotal: String!
+    var placeOrderButton: UIButton!
+    
+    @IBOutlet var checkoutTableView: UITableView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         view.backgroundColor = sprubixGray
+        
+        checkoutTableView.backgroundColor = sprubixGray
+        checkoutTableView.tableFooterView = UIView(frame: CGRectZero)
+        
+        orderHeaderView = UIView(frame: CGRectMake(0, 0, screenWidth, navigationHeight))
+        
+        orderHeaderView.backgroundColor = UIColor.whiteColor()
+        
+        // set up order total view
+        let grandTotal = UILabel(frame: CGRectMake(10, 10, screenWidth / 2 - 10, 24))
+        
+        grandTotal.font = UIFont.boldSystemFontOfSize(20.0)
+        grandTotal.textColor = sprubixColor
+        grandTotal.text = "Order Total"
+        
+        var grandTotalAmount: UILabel = UILabel(frame: CGRectMake(screenWidth / 2, 10, screenWidth / 2 - 10, 24))
+        grandTotalAmount.textAlignment = NSTextAlignment.Right
+        grandTotalAmount.textColor = sprubixColor
+        grandTotalAmount.font = UIFont.boldSystemFontOfSize(20.0)
+        grandTotalAmount.text = orderTotal
+        
+        orderHeaderView.addSubview(grandTotal)
+        orderHeaderView.addSubview(grandTotalAmount)
+        
+        // set up place order CTA button
+        // add to bag CTA button
+        placeOrderButton = UIButton(frame: CGRect(x: 0, y: screenHeight - navigationHeight, width: screenWidth, height: navigationHeight))
+        placeOrderButton.backgroundColor = sprubixColor
+        placeOrderButton.titleLabel?.font = UIFont.boldSystemFontOfSize(18.0)
+        placeOrderButton.setTitle("Place Order", forState: UIControlState.Normal)
+        placeOrderButton.addTarget(self, action: "placeOrderButtonPressed:", forControlEvents: UIControlEvents.TouchUpInside)
+        
+        view.addSubview(placeOrderButton)
         
         retrieveBTClientToken()
     }
@@ -30,6 +82,10 @@ class CheckoutViewController: UIViewController {
         super.viewWillAppear(animated)
         
         initNavBar()
+    }
+    
+    override func viewDidAppear(animated: Bool) {
+        super.viewDidAppear(animated)
     }
     
     func initNavBar() {
@@ -106,8 +162,137 @@ class CheckoutViewController: UIViewController {
         })
     }
     
+    // MARK: UITableViewDataSource
+    func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+        return sellers.count + 1 // last section is for Delivery Address and Payment Method
+    }
+    
+    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        
+        if section == sellers.count {
+            return 2 // 1 for Delivery Address, 1 for Payment Method
+        } else {
+            let seller = sellers[section] as NSDictionary
+        
+            return sellerCartItemDictionary.objectForKey(seller)!.count
+        }
+    }
+    
+    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+        
+        switch indexPath.section {
+        case sellers.count:
+            
+            let cell = tableView.dequeueReusableCellWithIdentifier(checkoutDeliveryPaymentCellIdentifier, forIndexPath: indexPath) as! CheckoutDeliveryPaymentCell
+            
+            switch indexPath.row {
+            case 0:
+                cell.deliveryPaymentImage.image = UIImage(named: "sidemenu-fulfilment")
+                cell.deliveryPaymentText.text = "Show Default Delivery Address Here"
+                cell.accessoryType = UITableViewCellAccessoryType.DisclosureIndicator
+                
+                return cell
+            case 1:
+                cell.deliveryPaymentImage.image = UIImage(named: "sidemenu-orders")
+                cell.deliveryPaymentText.text = "Show Default Payment Method Here"
+                cell.accessoryType = UITableViewCellAccessoryType.DisclosureIndicator
+                
+                return cell
+            default:
+                fatalError("Unknown row in last section of CheckoutViewController")
+            }
+            
+        default:
+            let cell = tableView.dequeueReusableCellWithIdentifier(checkoutItemCellIdentifier, forIndexPath: indexPath) as! CheckoutItemCell
+            
+            let seller = sellers[indexPath.section] as NSDictionary
+            let cartItems = sellerCartItemDictionary[seller] as! [NSDictionary]
+            let cartItem = cartItems[indexPath.row] as NSDictionary
+            
+            let piece = cartItem["piece"] as! NSDictionary
+            let price = piece["price"] as! String
+            let quantity = cartItem["quantity"] as! Int
+            let size = cartItem["size"] as? String
+            
+            cell.checkoutItemName.text = piece["name"] as? String
+            cell.checkoutItemPrice.text = "$\(price)"
+            cell.checkoutItemQuantity.text = "Quantity: \(quantity)"
+            cell.checkoutItemSize.text = "Size: \(size!)"
+            
+            let pieceId = piece["id"] as! Int
+            let pieceImagesString = piece["images"] as! NSString
+            let pieceImagesData:NSData = pieceImagesString.dataUsingEncoding(NSUTF8StringEncoding)!
+            
+            let pieceImagesDict: NSDictionary = NSJSONSerialization.JSONObjectWithData(pieceImagesData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSDictionary
+            let pieceImageDict: NSDictionary = (pieceImagesDict["images"] as! NSArray)[0] as! NSDictionary // position 0 is the cover
+            
+            let thumbnailURLString = pieceImageDict["thumbnail"] as! String
+            let pieceImageURL: NSURL = NSURL(string: thumbnailURLString)!
+            
+            cell.checkoutItemImageView.setImageWithURL(pieceImageURL)
+            
+            cell.selectionStyle = UITableViewCellSelectionStyle.None
+            
+            return cell
+        }
+    }
+    
+    func tableView(tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        if section == sellers.count {
+            return orderHeaderView
+        } else {
+            let cell = tableView.dequeueReusableCellWithIdentifier(cartItemSectionHeaderIdentifier) as! CartItemSectionHeader
+            
+            let seller = sellers[section] as NSDictionary
+            let pieceImagesString = seller["image"] as! String
+            let pieceImageURL: NSURL = NSURL(string: pieceImagesString)!
+            let sellerId = seller["id"] as! Int
+            
+            cell.sellerImageView.setImageWithURL(pieceImageURL)
+            cell.sellerName.text = seller["username"] as? String
+            
+            cell.tappedOnSellerAction = { Void in
+                self.delegate?.showUserProfile(seller)
+            }
+            
+            return cell
+        }
+    }
+    
+    func tableView(tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+        if section == sellers.count {
+            return nil
+        } else {
+            let cell = tableView.dequeueReusableCellWithIdentifier(cartItemSectionFooterIdentifier) as! CartItemSectionFooter
+            
+            let sellerDeliveryMethod = sellerDeliveryMethods[section] as String
+            
+            cell.deliveryMethod.setTitle(sellerDeliveryMethod, forState: UIControlState.Normal)
+            cell.subtotal.text = String(format: "$%.2f", sellerSubtotal[section])
+            cell.shippingRate.text = String(format: "$%.2f", sellerShippingRate[section])
+            
+            return cell
+        }
+    }
+    
+    func tableView(tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+        if section == sellers.count {
+            return 0
+        } else {
+            return 86.0
+        }
+    }
+    
+    func tableView(tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        return navigationHeight
+    }
+    
     // nav bar button callbacks
     func backTapped(sender: UIBarButtonItem) {
         self.navigationController?.popViewControllerAnimated(true)
+    }
+    
+    func placeOrderButtonPressed(sender: UIButton) {
+        println("Place order pressed")
     }
 }

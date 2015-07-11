@@ -13,6 +13,7 @@ class PaymentMethodCell: UITableViewCell {
     @IBOutlet var paymentMethodName: UILabel!
     @IBOutlet var paymentMethodImage: UIImageView!
     @IBOutlet var deletePaymentMethodButton: UIButton!
+    @IBOutlet var makeDefaultButton: UIButton!
     
     @IBAction func makeDefault(sender: AnyObject) {
         makeDefaultPaymentMethodAction?()

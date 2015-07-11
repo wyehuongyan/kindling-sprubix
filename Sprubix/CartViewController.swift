@@ -227,8 +227,6 @@ class CartViewController: UIViewController, UITableViewDataSource, UITableViewDe
         cell.sellerName.text = seller["username"] as? String
         
         cell.tappedOnSellerAction = { Void in
-            
-            println("Seller \(sellerId) was tapped")
             self.delegate?.showUserProfile(seller)
         }
         
@@ -866,8 +864,17 @@ class CartViewController: UIViewController, UITableViewDataSource, UITableViewDe
     
     func checkout(sender: UIBarButtonItem) {
         if checkoutViewController == nil {
-            checkoutViewController = CheckoutViewController()
+            checkoutViewController = UIStoryboard.checkoutViewController()
         }
+        
+        checkoutViewController?.sellerCartItemDictionary = sellerCartItemDictionary
+        checkoutViewController?.sellers = sellers
+        checkoutViewController?.sellerDeliveryMethods = sellerDeliveryMethods
+        checkoutViewController?.sellerSubtotal = sellerSubtotal
+        checkoutViewController?.sellerShippingRate = sellerShippingRate
+        checkoutViewController?.orderTotal = grandTotalAmount.text
+        
+        checkoutViewController?.delegate = delegate
         
         self.navigationController?.pushViewController(checkoutViewController!, animated: true)
     }

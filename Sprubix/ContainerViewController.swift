@@ -331,6 +331,10 @@ extension UIStoryboard {
         return mainStoryboard().instantiateViewControllerWithIdentifier("CartView") as? CartViewController
     }
     
+    class func checkoutViewController() -> CheckoutViewController? {
+        return mainStoryboard().instantiateViewControllerWithIdentifier("CheckoutView") as? CheckoutViewController
+    }
+    
     class func deliveryAddressesViewController() -> DeliveryAddressesViewController? {
         return mainStoryboard().instantiateViewControllerWithIdentifier("DeliveryAddressesView") as? DeliveryAddressesViewController
     }
