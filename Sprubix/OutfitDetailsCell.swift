@@ -638,7 +638,7 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
             mixpanel.track("Viewed User Profile", properties: [
                 "Source": "Outfit View",
                 "Tab": "Outfit",
-                "Target User ID": user["id"] as! Int
+                "Target User ID": postedByButton.user!.objectForKey("id") as! Int
             ])
             // Mixpanel - End
         } else if sender == fromButton {
@@ -648,7 +648,7 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
             mixpanel.track("Viewed User Profile", properties: [
                 "Source": "Outfit View",
                 "Tab": "Outfit",
-                "Target User ID": user["id"] as! Int
+                "Target User ID": fromButton.user!.objectForKey("id") as! Int
             ])
         }
     }
