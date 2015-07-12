@@ -35,6 +35,10 @@ class CheckoutViewController: UIViewController, UITableViewDataSource, UITableVi
     var orderTotal: String!
     var placeOrderButton: UIButton!
     
+    // default delivery address and payment method
+    var defaultDeliveryAddress: NSDictionary = NSDictionary()
+    var defaultPaymentMethod: NSDictionary = NSDictionary()
+    
     @IBOutlet var checkoutTableView: UITableView!
     
     override func viewDidLoad() {
@@ -44,26 +48,6 @@ class CheckoutViewController: UIViewController, UITableViewDataSource, UITableVi
         
         checkoutTableView.backgroundColor = sprubixGray
         checkoutTableView.tableFooterView = UIView(frame: CGRectZero)
-        
-        orderHeaderView = UIView(frame: CGRectMake(0, 0, screenWidth, navigationHeight))
-        
-        orderHeaderView.backgroundColor = UIColor.whiteColor()
-        
-        // set up order total view
-        let grandTotal = UILabel(frame: CGRectMake(10, 10, screenWidth / 2 - 10, 24))
-        
-        grandTotal.font = UIFont.boldSystemFontOfSize(20.0)
-        grandTotal.textColor = sprubixColor
-        grandTotal.text = "Order Total"
-        
-        var grandTotalAmount: UILabel = UILabel(frame: CGRectMake(screenWidth / 2, 10, screenWidth / 2 - 10, 24))
-        grandTotalAmount.textAlignment = NSTextAlignment.Right
-        grandTotalAmount.textColor = sprubixColor
-        grandTotalAmount.font = UIFont.boldSystemFontOfSize(20.0)
-        grandTotalAmount.text = orderTotal
-        
-        orderHeaderView.addSubview(grandTotal)
-        orderHeaderView.addSubview(grandTotalAmount)
         
         // set up place order CTA button
         // add to bag CTA button
@@ -82,10 +66,38 @@ class CheckoutViewController: UIViewController, UITableViewDataSource, UITableVi
         super.viewWillAppear(animated)
         
         initNavBar()
+        initOrderHeader()
+        retrieveUserDeliveryAddress()
+        retrieveUserPaymentMethod()
+        
+        self.checkoutTableView.reloadData()
     }
     
-    override func viewDidAppear(animated: Bool) {
-        super.viewDidAppear(animated)
+    func initOrderHeader() {
+        // set up order total view
+        orderHeaderView = UIView(frame: CGRectMake(0, 0, screenWidth, navigationHeaderAndStatusbarHeight))
+        
+        orderHeaderView.backgroundColor = sprubixGray
+        
+        let labelContainer = UIView(frame: CGRectMake(0, 0, screenWidth, navigationHeight))
+        labelContainer.backgroundColor = UIColor.whiteColor()
+        
+        let grandTotal = UILabel(frame: CGRectMake(10, 10, screenWidth / 2 - 10, 24))
+        
+        grandTotal.font = UIFont.boldSystemFontOfSize(20.0)
+        grandTotal.textColor = sprubixColor
+        grandTotal.text = "Order Total"
+        
+        var grandTotalAmount: UILabel = UILabel(frame: CGRectMake(screenWidth / 2, 10, screenWidth / 2 - 10, 24))
+        grandTotalAmount.textAlignment = NSTextAlignment.Right
+        grandTotalAmount.textColor = sprubixColor
+        grandTotalAmount.font = UIFont.boldSystemFontOfSize(20.0)
+        grandTotalAmount.text = orderTotal
+        
+        labelContainer.addSubview(grandTotal)
+        labelContainer.addSubview(grandTotalAmount)
+        
+        orderHeaderView.addSubview(labelContainer)
     }
     
     func initNavBar() {
@@ -178,6 +190,32 @@ class CheckoutViewController: UIViewController, UITableViewDataSource, UITableVi
         }
     }
     
+    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+        switch indexPath.section {
+        case sellers.count:
+            switch indexPath.row {
+            case 0:
+                // default delivery address
+                
+                // show DeliveryAddressesViewController
+                let deliveryAddressesViewController = UIStoryboard.deliveryAddressesViewController()
+                
+                self.navigationController?.pushViewController(deliveryAddressesViewController!, animated: true)
+            case 1:
+                // default payment method
+                
+                // show PaymentMethodViewController
+                let paymentMethodsViewController = UIStoryboard.paymentMethodsViewController()
+                
+                self.navigationController?.pushViewController(paymentMethodsViewController!, animated: true)
+            default:
+                fatalError("Unknown row in default section selected")
+            }
+        default:
+            println("Normal row selected")
+        }
+    }
+    
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         
         switch indexPath.section {
@@ -187,14 +225,47 @@ class CheckoutViewController: UIViewController, UITableViewDataSource, UITableVi
             
             switch indexPath.row {
             case 0:
+                // default delivery address
+                let address1 = defaultDeliveryAddress["address_1"] as? String
+                var address2: String? = defaultDeliveryAddress["address_2"] as? String
+                let postalCode = defaultDeliveryAddress["postal_code"] as? String
+                let country = defaultDeliveryAddress["country"] as? String
+                
+                if address1 != nil {
+                    var deliveryAddressText = address1!
+                    
+                    if address2 != nil {
+                        deliveryAddressText += "\n\(address2!)"
+                    }
+                    
+                    deliveryAddressText += "\n\(postalCode!)\n\(country!)"
+                    cell.deliveryPaymentText.text = deliveryAddressText
+                } else {
+                    cell.deliveryPaymentText.text = "Add a new Deliver Address"
+                }
+                
                 cell.deliveryPaymentImage.image = UIImage(named: "sidemenu-fulfilment")
-                cell.deliveryPaymentText.text = "Show Default Delivery Address Here"
                 cell.accessoryType = UITableViewCellAccessoryType.DisclosureIndicator
                 
                 return cell
             case 1:
-                cell.deliveryPaymentImage.image = UIImage(named: "sidemenu-orders")
-                cell.deliveryPaymentText.text = "Show Default Payment Method Here"
+                // default payment method
+                let redactedCartNum = defaultPaymentMethod["redacted_card_num"] as? Int
+                let imageString = defaultPaymentMethod["image"] as? String
+                let cardType = defaultPaymentMethod["card_type"] as? String
+                
+                if redactedCartNum != nil {
+                    cell.deliveryPaymentText.text = "\(cardType!) ending with ••• \(redactedCartNum!)"
+                } else {
+                    cell.deliveryPaymentText.text = "Add a new Payment Method"
+                }
+                
+                if imageString != nil {
+                    cell.deliveryPaymentImage.setImageWithURL(NSURL(string: imageString!))
+                } else {
+                    cell.deliveryPaymentImage.image = UIImage(named: "sidemenu-orders")
+                }
+                
                 cell.accessoryType = UITableViewCellAccessoryType.DisclosureIndicator
                 
                 return cell
@@ -284,7 +355,62 @@ class CheckoutViewController: UIViewController, UITableViewDataSource, UITableVi
     }
     
     func tableView(tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return navigationHeight
+        if section == sellers.count {
+            return navigationHeaderAndStatusbarHeight
+        } else {
+            return navigationHeight
+        }
+    }
+    
+    func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
+        if indexPath.section == sellers.count {
+            switch indexPath.row {
+            case 0:
+                // default delivery address height
+                return 80.0
+            case 1:
+                // default payment method height
+                return 68.0
+            default:
+                fatalError("Unknown row returned for heightForRowAtIndexPath in CheckOutViewController")
+            }
+        } else {
+            return 100.0
+        }
+    }
+    
+    func retrieveUserDeliveryAddress() {
+        // REST call to server to retrieve user shipping address
+        manager.GET(SprubixConfig.URL.api + "/shipping/address",
+            parameters: nil,
+            success: { (operation: AFHTTPRequestOperation!, responseObject:
+                AnyObject!) in
+                
+                self.defaultDeliveryAddress = responseObject as! NSDictionary
+                
+                var nsIndexPath = NSIndexPath(forRow: 0, inSection: self.sellers.count)
+                self.checkoutTableView.reloadRowsAtIndexPaths([nsIndexPath], withRowAnimation: UITableViewRowAnimation.None)
+            },
+            failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                println("Error: " + error.localizedDescription)
+        })
+    }
+    
+    func retrieveUserPaymentMethod() {
+        // REST call to server to retrieve user payment method
+        manager.GET(SprubixConfig.URL.api + "/billing/payment",
+            parameters: nil,
+            success: { (operation: AFHTTPRequestOperation!, responseObject:
+                AnyObject!) in
+                
+                self.defaultPaymentMethod = responseObject as! NSDictionary
+                
+                var nsIndexPath = NSIndexPath(forRow: 1, inSection: self.sellers.count)
+                self.checkoutTableView.reloadRowsAtIndexPaths([nsIndexPath], withRowAnimation: UITableViewRowAnimation.None)
+            },
+            failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                println("Error: " + error.localizedDescription)
+        })
     }
     
     // nav bar button callbacks

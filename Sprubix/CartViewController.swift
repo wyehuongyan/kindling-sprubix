@@ -262,12 +262,12 @@ class CartViewController: UIViewController, UITableViewDataSource, UITableViewDe
         let cartItem = cartItems[indexPath.row] as NSDictionary
         
         let piece = cartItem["piece"] as! NSDictionary
-        let price = piece["price"] as! String
+        let price = piece["price"] as! NSString
         let quantity = cartItem["quantity"] as! Int
         let size = cartItem["size"] as? String
 
         cell.cartItemName.text = piece["name"] as? String
-        cell.cartItemPrice.text = "$\(price)"
+        cell.cartItemPrice.text = String(format: "$%.2f", price.floatValue * Float(quantity))
         cell.cartItemQuantity.text = "Quantity: \(quantity)"
         cell.cartItemSize.text = "Size: \(size!)"
         
@@ -415,7 +415,8 @@ class CartViewController: UIViewController, UITableViewDataSource, UITableViewDe
                     
                     // add up costs of items
                     let piece = cartItem["piece"] as! NSDictionary
-                    subtotal += (piece["price"] as! NSString).floatValue
+                    let quantity = cartItem["quantity"] as! Int
+                    subtotal += (piece["price"] as! NSString).floatValue * Float(quantity)
                 }
                 
                 sellerDeliveryMethods.append(highestDeliveryOption)
@@ -433,6 +434,9 @@ class CartViewController: UIViewController, UITableViewDataSource, UITableViewDe
             tableFooterView.alpha = 1.0
         } else {
             println("Cart is empty")
+            
+            cartTableView.reloadData()
+            tableFooterView.alpha = 0.0
         }
     }
     
@@ -499,14 +503,18 @@ class CartViewController: UIViewController, UITableViewDataSource, UITableViewDe
         buyPieceInfo?.setObject(cartItem["id"] as! Int, forKey: "id")
         
         let quantity = cartItem["quantity"] as! Int
+        buyPieceInfo?.setObject(quantity, forKey: "quantity")
         
         let size = cartItem["size"] as? String
         selectedSize = size
+        buyPieceInfo?.setObject(selectedSize!, forKey: "size")
         
         let deliveryOption = cartItem["delivery_option"] as! NSDictionary
+        let deliveryOptionId = deliveryOption["id"] as! Int
         let deliveryOptionName = deliveryOption["name"] as! String
         let deliveryOptionPrice = deliveryOption["price"] as! String
         let deliveryOptionText = "\(deliveryOptionName) ($\(deliveryOptionPrice))"
+        buyPieceInfo?.setObject(deliveryOptionId, forKey: "delivery_option_id")
         
         let itemSpecHeight:CGFloat = 45
         let popupWidth: CGFloat = screenWidth - 100
@@ -832,6 +840,8 @@ class CartViewController: UIViewController, UITableViewDataSource, UITableViewDe
         
             let cartId = buyPieceInfo?.objectForKey("id") as! Int
             
+            println(buyPieceInfo)
+            
             // REST call to server to create cart item and add to user's cart
             manager.POST(SprubixConfig.URL.api + "/cart/item/edit/\(cartId)",
                 parameters: buyPieceInfo!,
@@ -846,6 +856,7 @@ class CartViewController: UIViewController, UITableViewDataSource, UITableViewDe
                         TSMessage.showNotificationInViewController(                        TSMessage.defaultViewController(), title: "Success!", subtitle: "Item updated", image: UIImage(named: "filter-check"), type: TSMessageNotificationType.Success, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: true)
                         
                         self.retrieveCartItems()
+                        self.buyPopup?.dismiss(true)
                     } else {
                         // error exception
                         TSMessage.showNotificationInViewController(                        TSMessage.defaultViewController(), title: "Error", subtitle: "Something went wrong.\nPlease try again.", image: UIImage(named: "filter-cross"), type: TSMessageNotificationType.Error, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: true)
@@ -863,19 +874,31 @@ class CartViewController: UIViewController, UITableViewDataSource, UITableViewDe
     }
     
     func checkout(sender: UIBarButtonItem) {
-        if checkoutViewController == nil {
-            checkoutViewController = UIStoryboard.checkoutViewController()
+        let cartItemData = cartData["cart_items"] as! [NSDictionary]
+        
+        if cartItemData.count > 0 {
+            if checkoutViewController == nil {
+                checkoutViewController = UIStoryboard.checkoutViewController()
+            }
+            
+            checkoutViewController?.sellerCartItemDictionary = sellerCartItemDictionary
+            checkoutViewController?.sellers = sellers
+            checkoutViewController?.sellerDeliveryMethods = sellerDeliveryMethods
+            checkoutViewController?.sellerSubtotal = sellerSubtotal
+            checkoutViewController?.sellerShippingRate = sellerShippingRate
+            checkoutViewController?.orderTotal = grandTotalAmount.text
+            
+            checkoutViewController?.delegate = delegate
+            
+            self.navigationController?.pushViewController(checkoutViewController!, animated: true)
+        } else {
+            let alert = UIAlertController(title: "Oops!", message: "Your cart is empty! Unable to check out.", preferredStyle: UIAlertControllerStyle.Alert)
+            alert.view.tintColor = sprubixColor
+            
+            // Ok
+            alert.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Cancel, handler: nil))
+            
+            self.presentViewController(alert, animated: true, completion: nil)
         }
-        
-        checkoutViewController?.sellerCartItemDictionary = sellerCartItemDictionary
-        checkoutViewController?.sellers = sellers
-        checkoutViewController?.sellerDeliveryMethods = sellerDeliveryMethods
-        checkoutViewController?.sellerSubtotal = sellerSubtotal
-        checkoutViewController?.sellerShippingRate = sellerShippingRate
-        checkoutViewController?.orderTotal = grandTotalAmount.text
-        
-        checkoutViewController?.delegate = delegate
-        
-        self.navigationController?.pushViewController(checkoutViewController!, animated: true)
     }
 }

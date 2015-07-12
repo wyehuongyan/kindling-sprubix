@@ -1494,31 +1494,41 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
         let piece: NSDictionary = pieces[pos!] as NSDictionary
         let buyPieceInfo = buyPiecesInfo[piece["id"] as! Int] as? NSMutableDictionary
         
-        let userId: Int? = defaults.objectForKey("userId") as? Int
+        if  buyPieceInfo?.objectForKey("size") != nil &&
+            buyPieceInfo?.objectForKey("quantity") != nil &&
+            buyPieceInfo?.objectForKey("delivery_option_id") != nil {
         
-        if userId != nil && buyPieceInfo != nil {
-            buyPieceInfo?.setObject(userId!, forKey: "buyer_id")
+            let userId: Int? = defaults.objectForKey("userId") as? Int
             
-            // REST call to server to create cart item and add to user's cart
-            manager.POST(SprubixConfig.URL.api + "/cart/item/add",
-                parameters: buyPieceInfo!,
-                success: { (operation: AFHTTPRequestOperation!, responseObject:
-                    AnyObject!) in
-                    
-                    var status = responseObject["status"] as! String
-                    var automatic: NSTimeInterval = 0
-                    
-                    if status == "200" {
-                        // success
-                        TSMessage.showNotificationInViewController(                        TSMessage.defaultViewController(), title: "Success!", subtitle: "Item added to cart", image: UIImage(named: "filter-check"), type: TSMessageNotificationType.Success, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: true)
-                    } else {
-                        // error exception
-                        TSMessage.showNotificationInViewController(                        TSMessage.defaultViewController(), title: "Error", subtitle: "Something went wrong", image: UIImage(named: "filter-cross"), type: TSMessageNotificationType.Error, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: true)
-                    }
-                },
-                failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
-                    println("Error: " + error.localizedDescription)
-            })
+            if userId != nil && buyPieceInfo != nil {
+                buyPieceInfo?.setObject(userId!, forKey: "buyer_id")
+                
+                // REST call to server to create cart item and add to user's cart
+                manager.POST(SprubixConfig.URL.api + "/cart/item/add",
+                    parameters: buyPieceInfo!,
+                    success: { (operation: AFHTTPRequestOperation!, responseObject:
+                        AnyObject!) in
+                        
+                        var status = responseObject["status"] as! String
+                        var automatic: NSTimeInterval = 0
+                        
+                        if status == "200" {
+                            // success
+                            TSMessage.showNotificationInViewController(                        TSMessage.defaultViewController(), title: "Success!", subtitle: "Item added to cart", image: UIImage(named: "filter-check"), type: TSMessageNotificationType.Success, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: true)
+                        } else {
+                            // error exception
+                            TSMessage.showNotificationInViewController(                        TSMessage.defaultViewController(), title: "Error", subtitle: "Something went wrong", image: UIImage(named: "filter-cross"), type: TSMessageNotificationType.Error, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: true)
+                        }
+                    },
+                    failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                        println("Error: " + error.localizedDescription)
+                })
+            }
+        } else {
+            var automatic: NSTimeInterval = 0
+            
+            // warning message
+            TSMessage.showNotificationInViewController(                        TSMessage.defaultViewController(), title: "Oops!", subtitle: "Please complete all fields before adding to cart.", image: nil, type: TSMessageNotificationType.Warning, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: true)
         }
     }
     

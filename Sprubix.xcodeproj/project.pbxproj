@@ -310,6 +310,7 @@
 		8482B8691B490F330017CEEF /* Settings */ = {
 			isa = PBXGroup;
 			children = (
+				8475ECFC1B25D4F80000111A /* SettingsViewController.swift */,
 				8482B86A1B490F930017CEEF /* DeliveryAddressesViewController.swift */,
 				8482B86F1B493B1F0017CEEF /* DeliveryAddressesDetailsViewController.swift */,
 				8482B8731B4E62A60017CEEF /* PaymentMethodsViewController.swift */,
@@ -523,7 +524,6 @@
 				84B334E41AAB00DD00B9707D /* SidePanelViewController.swift */,
 				84FDB9621B15A63700E8D720 /* NotificationViewController.swift */,
 				8475ECFA1B24055D0000111A /* FavoritesViewController.swift */,
-				8475ECFC1B25D4F80000111A /* SettingsViewController.swift */,
 				8482B8691B490F330017CEEF /* Settings */,
 			);
 			name = Menu;
