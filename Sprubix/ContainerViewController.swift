@@ -40,6 +40,7 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
     var inventoryViewController: InventoryViewController?
     var deliveryOptionsViewController: DeliveryOptionsViewController?
     var cartViewController: CartViewController?
+    var ordersViewController: OrdersViewController?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -135,6 +136,15 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
         
         sprubixNavigationController.delegate = nil
         sprubixNavigationController.pushViewController(deliveryOptionsViewController!, animated: true)
+    }
+    
+    func showOrders() {
+        ordersViewController = OrdersViewController()
+        
+        self.closeSidePanel()
+        
+        sprubixNavigationController.delegate = nil
+        sprubixNavigationController.pushViewController(ordersViewController!, animated: true)
     }
     
     func showCart() {

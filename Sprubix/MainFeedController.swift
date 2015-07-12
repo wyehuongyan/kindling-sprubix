@@ -11,6 +11,7 @@ import DZNEmptyDataSet
 import CHTCollectionViewWaterfallLayout
 import AFNetworking
 import SVPullToRefresh
+import TSMessages
 
 class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataSetDelegate, UICollectionViewDataSource, OutfitInteractionProtocol, CHTCollectionViewDelegateWaterfallLayout, TransitionProtocol {
     var delegate: SidePanelViewControllerDelegate?
@@ -63,7 +64,9 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         
         // infinite scrolling
         mainCollectionView.addInfiniteScrollingWithActionHandler({
-            self.insertMoreOutfits()
+            if SprubixReachability.isConnectedToNetwork() {
+                self.insertMoreOutfits()
+            }
         })
         
         view.addSubview(mainCollectionView)
@@ -231,6 +234,7 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
                     }
                     
                     self.refreshControl.endRefreshing()
+                    self.mainCollectionView.infiniteScrollingView.stopAnimating()
                     self.mainCollectionView.reloadData()
                     
                     if scrollToTop {
@@ -246,6 +250,11 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
                 },
                 failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                     println("Error: " + error.localizedDescription)
+                    
+                    self.refreshControl.endRefreshing()
+                    self.mainCollectionView.infiniteScrollingView.stopAnimating()
+                    
+                    SprubixReachability.handleError(error.code)
             })
         } else {
             println("userId not found, please login or create an account")
@@ -254,39 +263,47 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
     
     // infinite scrolling
     func insertMoreOutfits() {
-        let lastOutfit: NSDictionary = outfits.last!
-        let lastOutfitId = lastOutfit["id"] as! Int
-        let userId:Int? = defaults.objectForKey("userId") as? Int
-        
-        if userId != nil {
-            // retrieve 3 example pieces
-            manager.POST(SprubixConfig.URL.api + "/user/\(userId!)/outfits/following",
-                parameters: [
-                    "last_outfit_id": lastOutfitId
-                ],
-                success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
-                    
-                    let moreOutfits = responseObject as! [NSDictionary]
-                    
-                    for moreOutfit in moreOutfits {
-                        self.outfits.append(moreOutfit)
+        if outfits.count > 0 {
+            let lastOutfit: NSDictionary = outfits.last!
+            let lastOutfitId = lastOutfit["id"] as! Int
+            let userId:Int? = defaults.objectForKey("userId") as? Int
+            
+            if userId != nil {
+                // retrieve 3 example pieces
+                manager.POST(SprubixConfig.URL.api + "/user/\(userId!)/outfits/following",
+                    parameters: [
+                        "last_outfit_id": lastOutfitId
+                    ],
+                    success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
                         
-                        self.mainCollectionView.insertItemsAtIndexPaths([NSIndexPath(forItem: self.outfits.count - 1, inSection: 0)])
-                    }
-                    
-                    self.mainCollectionView.infiniteScrollingView.stopAnimating()
-                    
-                    // Mixpanel - Exposed Outfits
-                    if moreOutfits.count > 0 {
-                        mixpanel.people.increment("Exposed Outfits", by: moreOutfits.count)
-                    }
-                    // Mixpanel - End
-                },
-                failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
-                    println("Error: " + error.localizedDescription)
-            })
+                        let moreOutfits = responseObject as! [NSDictionary]
+                        
+                        for moreOutfit in moreOutfits {
+                            self.outfits.append(moreOutfit)
+                            
+                            self.mainCollectionView.insertItemsAtIndexPaths([NSIndexPath(forItem: self.outfits.count - 1, inSection: 0)])
+                        }
+                        
+                        self.mainCollectionView.infiniteScrollingView.stopAnimating()
+                        
+                        // Mixpanel - Exposed Outfits
+                        if moreOutfits.count > 0 {
+                            mixpanel.people.increment("Exposed Outfits", by: moreOutfits.count)
+                        }
+                        // Mixpanel - End
+                    },
+                    failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                        println("Error: " + error.localizedDescription)
+                        
+                        self.mainCollectionView.infiniteScrollingView.stopAnimating()
+                        
+                        SprubixReachability.handleError(error.code)
+                })
+            } else {
+                println("userId not found, please login or create an account")
+            }
         } else {
-            println("userId not found, please login or create an account")
+            self.mainCollectionView.infiniteScrollingView.stopAnimating()
         }
     }
     

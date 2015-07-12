@@ -117,7 +117,9 @@ class CartViewController: UIViewController, UITableViewDataSource, UITableViewDe
         
         // 3. add a new navigation item w/title to the new nav bar
         newNavItem = UINavigationItem()
-        newNavItem.title = "My Cart"
+
+        let cartItemData = cartData["cart_items"] as? [NSDictionary]
+        newNavItem.title = cartItemData != nil ? "My Cart (\(cartItemData!.count))" : "My Cart"
         
         // 4. create a custom back button
         var backButton:UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
@@ -377,6 +379,9 @@ class CartViewController: UIViewController, UITableViewDataSource, UITableViewDe
         let cartItemData = cartData["cart_items"] as! [NSDictionary]
 
         if cartItemData.count > 0 {
+            // set navbar title
+            newNavItem.title = "My Cart (\(cartItemData.count))"
+            
             for cartItem in cartItemData {
                 let seller = cartItem["seller"] as! NSDictionary
                 

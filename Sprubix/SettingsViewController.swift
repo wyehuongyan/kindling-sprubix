@@ -11,6 +11,8 @@ import SSKeychain
 
 class SettingsViewController: UITableViewController {
     
+    @IBOutlet var editProfileCell: UITableViewCell!
+    @IBOutlet var changePasswordCell: UITableViewCell!
     @IBOutlet var paymentMethodsCell: UITableViewCell!
     @IBOutlet var deliveryAddressesCell: UITableViewCell!
     
@@ -19,6 +21,8 @@ class SettingsViewController: UITableViewController {
         
         view.backgroundColor = sprubixGray
         
+        editProfileCell.accessoryType = UITableViewCellAccessoryType.DisclosureIndicator
+        changePasswordCell.accessoryType = UITableViewCellAccessoryType.DisclosureIndicator
         deliveryAddressesCell.accessoryType = UITableViewCellAccessoryType.DisclosureIndicator
         paymentMethodsCell.accessoryType = UITableViewCellAccessoryType.DisclosureIndicator
     }

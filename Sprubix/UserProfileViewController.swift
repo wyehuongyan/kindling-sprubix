@@ -585,6 +585,9 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
                     },
                     failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                         println("Error: " + error.localizedDescription)
+                        
+                        self.activityView.stopAnimating()
+                        SprubixReachability.handleError(error.code)
                 })
             } else {
                 println("userId not found, please login or create an account")
@@ -633,6 +636,9 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
                     },
                     failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                         println("Error: " + error.localizedDescription)
+                        
+                        self.activityView.stopAnimating()
+                        SprubixReachability.handleError(error.code)
                 })
             } else {
                 println("userId not found, please login or create an account")
@@ -681,6 +687,9 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
                     },
                     failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                         println("Error: " + error.localizedDescription)
+                        
+                        self.activityView.stopAnimating()
+                        SprubixReachability.handleError(error.code)
                 })
             } else {
                 println("userId not found, please login or create an account")

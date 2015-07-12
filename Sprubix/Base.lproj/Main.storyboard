@@ -289,7 +289,9 @@
                     </tableView>
                     <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" prompted="NO"/>
                     <connections>
+                        <outlet property="changePasswordCell" destination="wTW-K0-5pk" id="ugg-hS-tzt"/>
                         <outlet property="deliveryAddressesCell" destination="L8N-1R-w7n" id="bsO-La-aZg"/>
+                        <outlet property="editProfileCell" destination="V3u-Lx-4WD" id="YF9-SC-9vT"/>
                         <outlet property="paymentMethodsCell" destination="Y4f-sm-Txs" id="Wjv-6R-c2q"/>
                     </connections>
                 </tableViewController>

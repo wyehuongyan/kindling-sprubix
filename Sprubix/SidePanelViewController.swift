@@ -18,6 +18,7 @@ protocol SidePanelViewControllerDelegate {
     func showSettings()
     func showInventory()
     func showCart()
+    func showOrders()
     func showDeliveryOptions()
 }
 
@@ -148,6 +149,7 @@ class SidePanelViewController: UIViewController, UITableViewDataSource, UITableV
             delegate?.showCart()
             break
         case .Orders:
+            delegate?.showOrders()
             break
         case .DeliveryOptions:
             delegate?.showDeliveryOptions()

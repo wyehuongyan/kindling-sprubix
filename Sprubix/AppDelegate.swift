@@ -161,6 +161,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             },
             failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                 println("Error: " + error.localizedDescription)
+                
+                SprubixReachability.handleError(error.code)
         })
     }
 

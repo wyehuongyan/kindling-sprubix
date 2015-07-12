@@ -420,5 +420,12 @@ class CheckoutViewController: UIViewController, UITableViewDataSource, UITableVi
     
     func placeOrderButtonPressed(sender: UIButton) {
         println("Place order pressed")
+        
+        // check stock again in case last item has been bought
+        
+        // bring user to CheckoutOrderViewController
+        let checkoutOrderViewController = CheckoutOrderViewController()
+        
+        self.navigationController?.pushViewController(checkoutOrderViewController, animated: true)
     }
 }
