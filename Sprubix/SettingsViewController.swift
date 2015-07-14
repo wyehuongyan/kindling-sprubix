@@ -116,7 +116,7 @@ class SettingsViewController: UITableViewController {
                 defaults.removeObjectForKey("userId")
                 
                 // show signin controller
-                let storyboard = UIStoryboard(name: "Main", bundle: nil)
+                let storyboard = UIStoryboard(name: "Auth", bundle: nil)
                 let signInVC = storyboard.instantiateViewControllerWithIdentifier("SignInNav") as! UIViewController
 
                 sprubixNotificationViewController?.removeFirebaseListeners()

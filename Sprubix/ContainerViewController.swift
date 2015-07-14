@@ -308,52 +308,59 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
 
 extension UIStoryboard {
     class func mainStoryboard() -> UIStoryboard { return UIStoryboard(name: "Main", bundle: NSBundle.mainBundle()) }
+    class func shopStoryboard() -> UIStoryboard { return UIStoryboard(name: "Shop", bundle: NSBundle.mainBundle()) }
+    class func menuStoryboard() -> UIStoryboard { return UIStoryboard(name: "Menu", bundle: NSBundle.mainBundle()) }
+    class func settingsStoryboard() -> UIStoryboard { return UIStoryboard(name: "Settings", bundle: NSBundle.mainBundle()) }
     
-    class func sidePanelViewController() -> SidePanelViewController? {
-        return mainStoryboard().instantiateViewControllerWithIdentifier("SidePanel") as? SidePanelViewController
-    }
-    
-    class func userProfileViewController() -> UserProfileViewController? {
-        return mainStoryboard().instantiateViewControllerWithIdentifier("UserProfile") as? UserProfileViewController
-    }
-    
+    // Main storyboard
     class func sprubixCameraViewController() -> SprubixCameraViewController? {
         return mainStoryboard().instantiateViewControllerWithIdentifier("SprubixCamera") as? SprubixCameraViewController
     }
     
+    // Menu storyboard
+    class func sidePanelViewController() -> SidePanelViewController? {
+        return menuStoryboard().instantiateViewControllerWithIdentifier("SidePanel") as? SidePanelViewController
+    }
+    
+    class func userProfileViewController() -> UserProfileViewController? {
+        return menuStoryboard().instantiateViewControllerWithIdentifier("UserProfile") as? UserProfileViewController
+    }
+    
     class func notificationViewController() -> NotificationViewController? {
-        return mainStoryboard().instantiateViewControllerWithIdentifier("NotificationView") as? NotificationViewController
+        return menuStoryboard().instantiateViewControllerWithIdentifier("NotificationView") as? NotificationViewController
     }
     
-    class func settingsViewController() -> SettingsViewController? {
-        return mainStoryboard().instantiateViewControllerWithIdentifier("SettingsView") as? SettingsViewController
-    }
-    
+    // Shop storyboard
     class func inventoryViewController() -> InventoryViewController? {
-        return mainStoryboard().instantiateViewControllerWithIdentifier("InventoryView") as? InventoryViewController
+        return shopStoryboard().instantiateViewControllerWithIdentifier("InventoryView") as? InventoryViewController
     }
     
     class func ordersViewController() -> OrdersViewController? {
-        return mainStoryboard().instantiateViewControllerWithIdentifier("OrdersView") as? OrdersViewController
+        return shopStoryboard().instantiateViewControllerWithIdentifier("OrdersView") as? OrdersViewController
     }
     
     class func deliveryOptionsViewController() -> DeliveryOptionsViewController? {
-        return mainStoryboard().instantiateViewControllerWithIdentifier("DeliveryOptionsView") as? DeliveryOptionsViewController
+        return shopStoryboard().instantiateViewControllerWithIdentifier("DeliveryOptionsView") as? DeliveryOptionsViewController
     }
     
     class func cartViewController() -> CartViewController? {
-        return mainStoryboard().instantiateViewControllerWithIdentifier("CartView") as? CartViewController
+        return shopStoryboard().instantiateViewControllerWithIdentifier("CartView") as? CartViewController
     }
     
     class func checkoutViewController() -> CheckoutViewController? {
-        return mainStoryboard().instantiateViewControllerWithIdentifier("CheckoutView") as? CheckoutViewController
+        return shopStoryboard().instantiateViewControllerWithIdentifier("CheckoutView") as? CheckoutViewController
+    }
+    
+    // Settings storyboard
+    class func settingsViewController() -> SettingsViewController? {
+        return settingsStoryboard().instantiateViewControllerWithIdentifier("SettingsView") as? SettingsViewController
     }
     
     class func deliveryAddressesViewController() -> DeliveryAddressesViewController? {
-        return mainStoryboard().instantiateViewControllerWithIdentifier("DeliveryAddressesView") as? DeliveryAddressesViewController
+        return settingsStoryboard().instantiateViewControllerWithIdentifier("DeliveryAddressesView") as? DeliveryAddressesViewController
     }
     
     class func paymentMethodsViewController() -> PaymentMethodsViewController? {
-        return mainStoryboard().instantiateViewControllerWithIdentifier("PaymentMethodsView") as? PaymentMethodsViewController
+        return settingsStoryboard().instantiateViewControllerWithIdentifier("PaymentMethodsView") as? PaymentMethodsViewController
     }
 }

@@ -105,7 +105,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     func checkLoggedIn() {
-        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        let storyboard = UIStoryboard(name: "Auth", bundle: nil)
         let signInVC = storyboard.instantiateViewControllerWithIdentifier("SignInNav") as! UIViewController
         
         var activeController:UIViewController = self.window!.rootViewController!

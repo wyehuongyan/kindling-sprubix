@@ -14,6 +14,10 @@
 		8405D0351B512B7400B42752 /* CheckoutDeliveryPaymentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8405D0341B512B7400B42752 /* CheckoutDeliveryPaymentCell.swift */; };
 		8405D03C1B525F5B00B42752 /* CheckoutOrderViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8405D03B1B525F5B00B42752 /* CheckoutOrderViewController.swift */; };
 		8405D03E1B526A0E00B42752 /* OrdersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8405D03D1B526A0E00B42752 /* OrdersViewController.swift */; };
+		8405D0421B54D87D00B42752 /* Shop.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8405D0411B54D87D00B42752 /* Shop.storyboard */; };
+		8405D0441B54DA3900B42752 /* Menu.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8405D0431B54DA3900B42752 /* Menu.storyboard */; };
+		8405D0461B54DB8700B42752 /* Settings.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8405D0451B54DB8700B42752 /* Settings.storyboard */; };
+		8405D0491B54DC8900B42752 /* Auth.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8405D0481B54DC8900B42752 /* Auth.storyboard */; };
 		843B81A11AFCB71900FA2DD2 /* SnapshotShareController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 843B81A01AFCB71900FA2DD2 /* SnapshotShareController.swift */; };
 		843B81A31AFDF22200FA2DD2 /* SnapshotDetailsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 843B81A21AFDF22200FA2DD2 /* SnapshotDetailsController.swift */; };
 		84470D8A1AECC41B007E9A93 /* MainFeedController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84470D891AECC41B007E9A93 /* MainFeedController.swift */; };
@@ -106,6 +110,10 @@
 		8405D0341B512B7400B42752 /* CheckoutDeliveryPaymentCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CheckoutDeliveryPaymentCell.swift; sourceTree = "<group>"; };
 		8405D03B1B525F5B00B42752 /* CheckoutOrderViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CheckoutOrderViewController.swift; sourceTree = "<group>"; };
 		8405D03D1B526A0E00B42752 /* OrdersViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OrdersViewController.swift; sourceTree = "<group>"; };
+		8405D0411B54D87D00B42752 /* Shop.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Shop.storyboard; sourceTree = "<group>"; };
+		8405D0431B54DA3900B42752 /* Menu.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Menu.storyboard; sourceTree = "<group>"; };
+		8405D0451B54DB8700B42752 /* Settings.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Settings.storyboard; sourceTree = "<group>"; };
+		8405D0481B54DC8900B42752 /* Auth.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Auth.storyboard; sourceTree = "<group>"; };
 		843B81A01AFCB71900FA2DD2 /* SnapshotShareController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SnapshotShareController.swift; sourceTree = "<group>"; };
 		843B81A21AFDF22200FA2DD2 /* SnapshotDetailsController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SnapshotDetailsController.swift; sourceTree = "<group>"; };
 		84470D891AECC41B007E9A93 /* MainFeedController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainFeedController.swift; sourceTree = "<group>"; };
@@ -211,6 +219,14 @@
 				9C19E471A8B7AC341F31C03D /* Pods-Sprubix.release.xcconfig */,
 			);
 			name = Pods;
+			sourceTree = "<group>";
+		};
+		8405D0471B54DC7900B42752 /* Auth */ = {
+			isa = PBXGroup;
+			children = (
+				8405D0481B54DC8900B42752 /* Auth.storyboard */,
+			);
+			name = Auth;
 			sourceTree = "<group>";
 		};
 		845048A51A9ECC81008BDBAA = {
@@ -326,6 +342,7 @@
 		8482B86C1B4926AD0017CEEF /* Settings */ = {
 			isa = PBXGroup;
 			children = (
+				8405D0451B54DB8700B42752 /* Settings.storyboard */,
 				8482B86D1B4926CC0017CEEF /* DeliveryAddressCell.swift */,
 				8405D0301B4FD3A400B42752 /* PaymentMethodCell.swift */,
 			);
@@ -335,6 +352,7 @@
 		8488717D1B369995001D60A1 /* Shop */ = {
 			isa = PBXGroup;
 			children = (
+				8405D0411B54D87D00B42752 /* Shop.storyboard */,
 				8488717E1B369CBA001D60A1 /* InventoryCell.swift */,
 				84C6648F1B3AD7EB00E18FF7 /* DeliveryOptionCell.swift */,
 				84C664971B4290D400E18FF7 /* CartItemCell.swift */,
@@ -380,6 +398,7 @@
 			children = (
 				845048BA1A9ECC81008BDBAA /* Main.storyboard */,
 				845048BF1A9ECC81008BDBAA /* LaunchScreen.xib */,
+				8405D0471B54DC7900B42752 /* Auth */,
 				84FDB95B1B1594FC00E8D720 /* Feed */,
 				84FDB95C1B15952A00E8D720 /* Details */,
 				84FCCABF1AB56422009C10B2 /* Profile */,
@@ -481,6 +500,7 @@
 		84FDB95A1B1594E000E8D720 /* Menu */ = {
 			isa = PBXGroup;
 			children = (
+				8405D0431B54DA3900B42752 /* Menu.storyboard */,
 				84B334E91AAB0CC900B9707D /* SidePanelCell.swift */,
 				84FDB95F1B1595FA00E8D720 /* NotificationCell.swift */,
 				8482B86C1B4926AD0017CEEF /* Settings */,
@@ -630,9 +650,13 @@
 				84B334EE1AAC287800B9707D /* person-placeholder.jpg in Resources */,
 				847D05881AD58DDA005E09AB /* user6-melody.jpg in Resources */,
 				847D05871AD58DDA005E09AB /* user5-rika.jpg in Resources */,
+				8405D0461B54DB8700B42752 /* Settings.storyboard in Resources */,
 				845048BC1A9ECC81008BDBAA /* Main.storyboard in Resources */,
 				845048C11A9ECC81008BDBAA /* LaunchScreen.xib in Resources */,
 				84D697291AC922DA00C676FD /* logo-final-square.png in Resources */,
+				8405D0441B54DA3900B42752 /* Menu.storyboard in Resources */,
+				8405D0421B54D87D00B42752 /* Shop.storyboard in Resources */,
+				8405D0491B54DC8900B42752 /* Auth.storyboard in Resources */,
 				845048BE1A9ECC81008BDBAA /* Images.xcassets in Resources */,
 				847D05861AD58DDA005E09AB /* user4-mika.jpg in Resources */,
 				84B334F41AAC99F300B9707D /* icon-placeholder.png in Resources */,
