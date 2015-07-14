@@ -896,6 +896,10 @@ class CartViewController: UIViewController, UITableViewDataSource, UITableViewDe
             checkoutViewController?.delegate = delegate
             
             self.navigationController?.pushViewController(checkoutViewController!, animated: true)
+            
+            // Mixpanel - Checkout
+            mixpanel.track("Checkout")
+            // Mixpanel - End
         } else {
             let alert = UIAlertController(title: "Oops!", message: "Your cart is empty! Unable to check out.", preferredStyle: UIAlertControllerStyle.Alert)
             alert.view.tintColor = sprubixColor

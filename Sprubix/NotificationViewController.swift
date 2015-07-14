@@ -146,10 +146,6 @@ class NotificationViewController: UIViewController, DZNEmptyDataSetSource, DZNEm
         super.viewWillAppear(animated)
         
         notificationTableView.reloadData()
-        
-        // Mixpanel - Viewed Notifications
-        mixpanel.track("Viewed Notifications")
-        // Mixpanel - End
     }
     
     func initNavBar() {
@@ -355,6 +351,14 @@ class NotificationViewController: UIViewController, DZNEmptyDataSetSource, DZNEm
                             if data?.count > 0 {
                                 var user = data![0] as! NSDictionary
                                 self.delegate?.showUserProfile(user)
+                                
+                                // Mixpanel - Viewed User Profile
+                                mixpanel.track("Viewed User Profile", properties: [
+                                    "Source": "Notification View",
+                                    "Tab": "Outfit",
+                                    "Target User ID": user.objectForKey("id") as! Int
+                                ])
+                                // Mixpanel - End
                             } else {
                                 println("Error: User Profile cannot load user: \(username)")
                             }
@@ -453,6 +457,14 @@ class NotificationViewController: UIViewController, DZNEmptyDataSetSource, DZNEm
                     if data?.count > 0 {
                         var user = data![0] as! NSDictionary
                         self.delegate?.showUserProfile(user)
+                        
+                        // Mixpanel - Viewed User Profile
+                        mixpanel.track("Viewed User Profile", properties: [
+                            "Source": "Notification View",
+                            "Tab": "Outfit",
+                            "Target User ID": user.objectForKey("id") as! Int
+                        ])
+                        // Mixpanel - End
                     } else {
                         println("Error: User Profile cannot load user: \(notificationCell.senderUsername!)")
                     }

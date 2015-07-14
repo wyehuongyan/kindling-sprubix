@@ -54,13 +54,6 @@ class FavoritesViewController: UIViewController, DZNEmptyDataSetSource, DZNEmpty
         initLayout()
         initCollectionViews()
         retrieveLikedOutfits()
-        
-        
-        // Mixpanel - Viewed Favorites, Outfit
-        mixpanel.track("Viewed Favorites", properties: [
-            "Type": "Outfit"
-        ])
-        // Mixpanel - End
     }
     
     override func viewWillAppear(animated: Bool) {
@@ -455,7 +448,8 @@ class FavoritesViewController: UIViewController, DZNEmptyDataSetSource, DZNEmpty
             
             // Mixpanel - Viewed Favorites, Outfit
             mixpanel.track("Viewed Favorites", properties: [
-                "Type": "Outfit"
+                "Source": "Favorites View",
+                "Tab": "Outfit"
             ])
             // Mixpanel - End
         }
@@ -501,7 +495,8 @@ class FavoritesViewController: UIViewController, DZNEmptyDataSetSource, DZNEmpty
             
             // Mixpanel - Viewed Favorites, Piece
             mixpanel.track("Viewed Favorites", properties: [
-                "Type": "Piece"
+                "Source": "Favorites View",
+                "Tab": "Piece"
             ])
             // Mixpanel - End
         }

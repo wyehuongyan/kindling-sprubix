@@ -78,12 +78,6 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
             initUserProfile()
             loadUserFollow()
             //loadUserOutfits()
-            
-            // Mixpanel - Viewed User Profile
-            mixpanel.track("Viewed User Profile", properties: [
-                "Target User ID": user!.objectForKey("id") as! Int
-            ])
-            // Mixpanel - End
         } else {
             fatalError("User Profile user is nil.")
         }

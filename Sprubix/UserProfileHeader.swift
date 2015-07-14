@@ -249,6 +249,14 @@ class UserProfileHeader: UICollectionReusableView, UIScrollViewDelegate {
             sender.tintColor = sprubixColor
             
             delegate?.loadUserOutfits()
+            
+            // Mixpanel - Viewed User Profile, Profile
+            mixpanel.track("Viewed User Profile", properties: [
+                "Source": "User Profile",
+                "Tab": "Outfit",
+                "Target User ID": user!["id"] as! Int!
+            ])
+            // Mixpanel - End
         }
     }
     
@@ -261,6 +269,14 @@ class UserProfileHeader: UICollectionReusableView, UIScrollViewDelegate {
             sender.tintColor = sprubixColor
             
             delegate?.loadUserPieces()
+            
+            // Mixpanel - Viewed User Profile, Profile
+            mixpanel.track("Viewed User Profile", properties: [
+                "Source": "User Profile",
+                "Tab": "Piece",
+                "Target User ID": user!["id"] as! Int!
+            ])
+            // Mixpanel - End
         }
     }
     
@@ -273,6 +289,14 @@ class UserProfileHeader: UICollectionReusableView, UIScrollViewDelegate {
             sender.tintColor = sprubixColor
             
             delegate?.loadCommunityOutfits()
+            
+            // Mixpanel - Viewed User Profile, Profile
+            mixpanel.track("Viewed User Profile", properties: [
+                "Source": "User Profile",
+                "Tab": "Community Outfit",
+                "Target User ID": user!["id"] as! Int!
+            ])
+            // Mixpanel - End
         }
     }
     
