@@ -1589,7 +1589,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="X0M-R4-a7n" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="3458" y="942"/>
+            <point key="canvasLocation" x="4228" y="176"/>
         </scene>
         <!--Sign Up-->
         <scene sceneID="Yzn-Ks-10w">
@@ -1715,6 +1715,44 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="M3p-kT-Kh9" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="1860" y="1704"/>
+        </scene>
+        <!--Orders View Controller-->
+        <scene sceneID="heU-B0-PaI">
+            <objects>
+                <viewController storyboardIdentifier="OrdersView" id="NDk-8U-Q6z" customClass="OrdersViewController" customModule="Sprubix" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="T7l-qA-jEC"/>
+                        <viewControllerLayoutGuide type="bottom" id="Pye-Oa-x31"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="A5V-xY-En9">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="7wC-7A-5ri">
+                                <rect key="frame" x="0.0" y="44" width="600" height="50"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            </view>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="100" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="0Fs-Ax-HaU">
+                                <rect key="frame" x="0.0" y="114" width="600" height="486"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            </tableView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="0Fs-Ax-HaU" firstAttribute="top" secondItem="T7l-qA-jEC" secondAttribute="bottom" constant="94" id="Cs3-W2-SYM"/>
+                            <constraint firstItem="Pye-Oa-x31" firstAttribute="top" secondItem="0Fs-Ax-HaU" secondAttribute="bottom" id="PgQ-cJ-obO"/>
+                            <constraint firstAttribute="trailing" secondItem="0Fs-Ax-HaU" secondAttribute="trailing" id="VRq-hS-RmR"/>
+                            <constraint firstItem="0Fs-Ax-HaU" firstAttribute="leading" secondItem="A5V-xY-En9" secondAttribute="leading" id="jGG-9C-LJh"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="ordersTableView" destination="0Fs-Ax-HaU" id="8fu-Iv-WRg"/>
+                        <outlet property="toolBarView" destination="7wC-7A-5ri" id="HvS-In-ufl"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="poH-rg-HVB" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="3458" y="942"/>
         </scene>
     </scenes>
     <resources>

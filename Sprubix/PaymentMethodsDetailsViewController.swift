@@ -256,9 +256,6 @@ class PaymentMethodsDetailsViewController: UIViewController, UITableViewDataSour
             // // display loading indicator
             activityView.startAnimating()
             
-            // card type
-            let cardType: BTUICardType = BTUICardType(forNumber: cardFormView!.number)
-            
             // 1. REST call to BT to tokenize card information
             let request = BTClientCardRequest.new()
             request.number = cardFormView!.number
@@ -272,13 +269,9 @@ class PaymentMethodsDetailsViewController: UIViewController, UITableViewDataSour
                     println("Success \nNonce: \(nonce)")
 
                     // 2. REST call to server to save payment nonce and card info
-                    let reductedCardNumber: String = (self.cardFormView!.number as NSString).substringFromIndex(max(count(self.cardFormView!.number) - 4, 0))
-                    
                     manager.POST(SprubixConfig.URL.api + "/billing/payment/create",
                         parameters: [
                             "nonce": nonce,
-                            "reducted_card_number": reductedCardNumber,
-                            "card_type": cardType.brand,
                             "is_default": self.isDefaultSwitch != nil ? self.isDefaultSwitch.on : true
                         ],
                         success: { (operation: AFHTTPRequestOperation!, responseObject:

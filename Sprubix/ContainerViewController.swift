@@ -139,7 +139,7 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
     }
     
     func showOrders() {
-        ordersViewController = OrdersViewController()
+        ordersViewController = UIStoryboard.ordersViewController()
         
         self.closeSidePanel()
         
@@ -331,6 +331,10 @@ extension UIStoryboard {
     
     class func inventoryViewController() -> InventoryViewController? {
         return mainStoryboard().instantiateViewControllerWithIdentifier("InventoryView") as? InventoryViewController
+    }
+    
+    class func ordersViewController() -> OrdersViewController? {
+        return mainStoryboard().instantiateViewControllerWithIdentifier("OrdersView") as? OrdersViewController
     }
     
     class func deliveryOptionsViewController() -> DeliveryOptionsViewController? {

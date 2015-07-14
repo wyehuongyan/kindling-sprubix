@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import MRProgress
 
 class CheckoutOrderViewController: UIViewController {
 
@@ -18,6 +19,12 @@ class CheckoutOrderViewController: UIViewController {
         super.viewDidLoad()
         
         view.backgroundColor = UIColor.whiteColor()
+        
+        // MRCheckmarkIconView
+        let checkmarkIconWidth = screenWidth / 2
+        let checkmarkIcon = MRCheckmarkIconView(frame: CGRectMake(screenWidth / 4, checkmarkIconWidth / 2, checkmarkIconWidth, checkmarkIconWidth))
+        
+        view.addSubview(checkmarkIcon)
     }
     
     override func viewWillAppear(animated: Bool) {

@@ -336,8 +336,16 @@ class SprubixReachability {
             errorTitle = "Server Offline"
             errorMessage = "The connection to the server is currently unavailable."
             notificationType = TSMessageNotificationType.Warning
+        case -1001:
+            errorTitle = "Request Timed Out"
+            errorMessage = "The connection to the server has timed out."
+            notificationType = TSMessageNotificationType.Warning
+        case  -1011:
+            errorTitle = "Logged out"
+            errorMessage = "You have been logged out."
+            notificationType = TSMessageNotificationType.Warning
         default:
-            fatalError("Unknown error code returned at MainFeedController")
+            fatalError("Unknown error code \(code) returned at MainFeedController")
         }
         
         var automatic: NSTimeInterval = 0
