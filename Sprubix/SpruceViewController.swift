@@ -540,13 +540,16 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, SprucePieceF
                 currentVisibleCell.compressedDueToDress = false
                 totalHeight += currentVisibleCell.piece["height"] as! CGFloat
             } else {
-                // dont add height for bottoms
-                
-                // // set compression true
-                currentVisibleCell.compressedDueToDress = true
-                
-                // // reset hasDress
-                hasDress = false
+                if currentVisibleCell.piece["type"] as! String == "BOTTOM" {
+                    // dont add height for bottoms
+                    // // set compression true
+                    currentVisibleCell.compressedDueToDress = true
+                    
+                    // // reset hasDress
+                    hasDress = false
+                } else {
+                    totalHeight += currentVisibleCell.piece["height"] as! CGFloat
+                }
             }
             
             if currentVisibleCell.piece["is_dress"] as! Bool == true {
@@ -562,6 +565,7 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, SprucePieceF
             var height: CGFloat = currentVisibleCell.piece["height"] as! CGFloat / totalHeight * outfitHeight
             
             if currentVisibleCell.piece["type"] as! String == "BOTTOM" && hadHasDress == true {
+                
                 height = 0
             }
             

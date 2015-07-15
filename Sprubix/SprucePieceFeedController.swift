@@ -241,7 +241,7 @@ class SprucePieceFeedController: UICollectionViewController, UICollectionViewDel
         
         let visiblePoint: CGPoint = CGPointMake(CGRectGetMidX(visibleRect), CGRectGetMidY(visibleRect))
         
-        println("collectionview: \(self.collectionView)")
+        //println("collectionview: \(self.collectionView)")
         
         var visibleIndexPath: NSIndexPath? = self.collectionView!.indexPathForItemAtPoint(visiblePoint)
         
