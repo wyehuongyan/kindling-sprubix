@@ -327,6 +327,8 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
                             buyPieceInfo?.setObject(piece["id"] as! Int, forKey: "piece_id")
                             buyPieceInfo?.setObject(user["id"] as! Int, forKey: "seller_id")
                             
+                            // this piece was from this outfit
+                            buyPieceInfo?.setObject(outfit["id"] as! Int, forKey: "outfit_id")
                             buyPiecesInfo.setObject(buyPieceInfo!, forKey: pieceId)
                             
                         } else {
@@ -592,6 +594,7 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
 
         selectedPieceDetail = pieces[position!] as NSDictionary
         
+        pieceDetailsViewController.parentOutfitId = outfit["id"] as? Int
         pieceDetailsViewController.pieces = pieces
         pieceDetailsViewController.user = user
         pieceDetailsViewController.inspiredBy = inspiredBy

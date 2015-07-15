@@ -15,6 +15,8 @@ class CartItemSectionHeader: UITableViewCell {
     var tappedOnSellerAction: (() -> Void)?
     
     override func awakeFromNib() {
+        super.awakeFromNib()
+        
         sellerImageView.layer.cornerRadius = sellerImageView.frame.size.width / 2
         sellerImageView.layer.borderColor = UIColor.lightGrayColor().CGColor
         sellerImageView.layer.borderWidth = 0.5

@@ -22,6 +22,8 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
     var detailsCellActionDelegate: DetailsCellActions?
     var outfits: [NSDictionary] = [NSDictionary]()
     
+    var parentOutfitId: Int? // to detect if this piece was accessed from an outfit
+    
     var piece: NSDictionary!
     var user: NSDictionary!
     var inspiredBy: NSDictionary!
@@ -469,6 +471,12 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
                 buyPieceInfo = NSMutableDictionary()
                 buyPieceInfo?.setObject(piece["id"] as! Int, forKey: "piece_id")
                 buyPieceInfo?.setObject(user["id"] as! Int, forKey: "seller_id")
+                
+                if parentOutfitId != nil {
+                    // this piece was accessed via an outfit
+                    // // points!
+                    buyPieceInfo?.setObject(parentOutfitId!, forKey: "outfit_id")
+                }
                 
             } else {
                 println("quantity is 0, not enough for sale")

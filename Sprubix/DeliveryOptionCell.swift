@@ -32,12 +32,12 @@ class DeliveryOptionCell: UITableViewCell {
         
         editDeliveryOptionButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
         //editCartItemButton.imageEdgeInsets = UIEdgeInsetsMake(5, 5, 5, 5)
-        editDeliveryOptionButton.imageEdgeInsets = UIEdgeInsetsMake(0, 2, 2, 0)
+        editDeliveryOptionButton.imageEdgeInsets = UIEdgeInsetsMake(3, 9, 6, 0)
         Glow.addGlow(editDeliveryOptionButton)
 
         deleteDeliveryOptionButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
         // top, left, bottom, right
-        deleteDeliveryOptionButton.imageEdgeInsets = UIEdgeInsetsMake(6, 8, 4, 2)
+        deleteDeliveryOptionButton.imageEdgeInsets = UIEdgeInsetsMake(9, 15, 8, 2)
         //deleteDeliveryOptionButton.imageEdgeInsets = UIEdgeInsetsMake(9, 8, 7, 8)
         Glow.addGlow(deleteDeliveryOptionButton)
     }

@@ -40,13 +40,13 @@ class CartItemCell: UITableViewCell {
         cartItemImageView.clipsToBounds = true
         
         editCartItemButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
-        //editCartItemButton.imageEdgeInsets = UIEdgeInsetsMake(5, 5, 5, 5)
-        editCartItemButton.imageEdgeInsets = UIEdgeInsetsMake(0, 2, 2, 0)
+        //editCartItemButton.imageEdgeInsets = UIEdgeInsetsMake(0, 2, 2, 0)
+        editCartItemButton.imageEdgeInsets = UIEdgeInsetsMake(0, 9, 9, 0)
         Glow.addGlow(editCartItemButton)
         
         deleteCartItemButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
-        // top, left, bottom, right
-        deleteCartItemButton.imageEdgeInsets = UIEdgeInsetsMake(6, 8, 4, 2)
+        // top, left, bottom, right 6842
+        deleteCartItemButton.imageEdgeInsets = UIEdgeInsetsMake(6, 15, 11, 2)
         Glow.addGlow(deleteCartItemButton)
         
         // gesture recognizer for item imageview
