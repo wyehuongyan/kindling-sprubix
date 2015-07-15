@@ -45,4 +45,10 @@ class CheckoutPointsSectionHeader: UITableViewCell {
 
 class CheckoutPointsIndividualSectionHeader: UITableViewCell {
     @IBOutlet var individuallyAdded: UILabel!
+    
+    override func awakeFromNib() {
+        super.awakeFromNib()
+        
+        contentView.backgroundColor = sprubixLightGray
+    }
 }
