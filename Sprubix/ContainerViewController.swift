@@ -363,4 +363,8 @@ extension UIStoryboard {
     class func paymentMethodsViewController() -> PaymentMethodsViewController? {
         return settingsStoryboard().instantiateViewControllerWithIdentifier("PaymentMethodsView") as? PaymentMethodsViewController
     }
+    
+    class func editProfileViewController() -> EditProfileViewController? {
+        return settingsStoryboard().instantiateViewControllerWithIdentifier("EditProfileView") as? EditProfileViewController
+    }
 }

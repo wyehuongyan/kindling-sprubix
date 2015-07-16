@@ -66,8 +66,17 @@ class SettingsViewController: UITableViewController {
             switch indexPath.row {
             case 0:
                 println("Edit Profile")
+                
+                let editProfileViewController = UIStoryboard.editProfileViewController()
+                
+                self.navigationController?.pushViewController(editProfileViewController!, animated: true)
+                
             case 1:
                 println("Change Password")
+                
+                let editPasswordViewController = EditPasswordViewController()
+                
+                self.navigationController?.pushViewController(editPasswordViewController, animated: true)
             default:
                 fatalError("Unknown static cell for settings.")
             }
