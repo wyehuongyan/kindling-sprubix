@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		052925CF1B578CE400B939F8 /* EditPasswordViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 052925CE1B578CE400B939F8 /* EditPasswordViewController.swift */; };
 		059E98931B563B85007A5A42 /* EditProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 059E98921B563B85007A5A42 /* EditProfileViewController.swift */; };
+		05F7EDE01B58EA0F00CB2665 /* HelpCenterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05F7EDDF1B58EA0F00CB2665 /* HelpCenterViewController.swift */; };
+		05F7EDE21B593EA200CB2665 /* ProvideFeedbackViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05F7EDE11B593EA200CB2665 /* ProvideFeedbackViewController.swift */; };
 		440EEF4B5FE0D5277D1F73A6 /* Pods_Sprubix.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A23433EF8FCD1F1CE7226A6 /* Pods_Sprubix.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		8405D02F1B4E8E7A00B42752 /* CheckoutViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8405D02E1B4E8E7A00B42752 /* CheckoutViewController.swift */; };
 		8405D0311B4FD3A400B42752 /* PaymentMethodCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8405D0301B4FD3A400B42752 /* PaymentMethodCell.swift */; };
@@ -106,6 +108,8 @@
 /* Begin PBXFileReference section */
 		052925CE1B578CE400B939F8 /* EditPasswordViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EditPasswordViewController.swift; sourceTree = "<group>"; };
 		059E98921B563B85007A5A42 /* EditProfileViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EditProfileViewController.swift; sourceTree = "<group>"; };
+		05F7EDDF1B58EA0F00CB2665 /* HelpCenterViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HelpCenterViewController.swift; sourceTree = "<group>"; };
+		05F7EDE11B593EA200CB2665 /* ProvideFeedbackViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProvideFeedbackViewController.swift; sourceTree = "<group>"; };
 		1A23433EF8FCD1F1CE7226A6 /* Pods_Sprubix.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Sprubix.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		3CCB3E13BD90F2A4CB30E528 /* Pods-Sprubix.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Sprubix.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Sprubix/Pods-Sprubix.debug.xcconfig"; sourceTree = "<group>"; };
 		8405D02E1B4E8E7A00B42752 /* CheckoutViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CheckoutViewController.swift; sourceTree = "<group>"; };
@@ -339,6 +343,8 @@
 				8482B86F1B493B1F0017CEEF /* DeliveryAddressesDetailsViewController.swift */,
 				059E98921B563B85007A5A42 /* EditProfileViewController.swift */,
 				052925CE1B578CE400B939F8 /* EditPasswordViewController.swift */,
+				05F7EDDF1B58EA0F00CB2665 /* HelpCenterViewController.swift */,
+				05F7EDE11B593EA200CB2665 /* ProvideFeedbackViewController.swift */,
 				8482B8731B4E62A60017CEEF /* PaymentMethodsViewController.swift */,
 				8482B8751B4E65870017CEEF /* PaymentMethodsDetailsViewController.swift */,
 			);
@@ -780,6 +786,7 @@
 				84FDB9631B15A63700E8D720 /* NotificationViewController.swift in Sources */,
 				8405D0311B4FD3A400B42752 /* PaymentMethodCell.swift in Sources */,
 				84B3354C1AB449F500B9707D /* PieceDetailsViewController.swift in Sources */,
+				05F7EDE01B58EA0F00CB2665 /* HelpCenterViewController.swift in Sources */,
 				8405D03E1B526A0E00B42752 /* OrdersViewController.swift in Sources */,
 				8482B8661B476A280017CEEF /* CartItemSectionHeader.swift in Sources */,
 				84B3352E1AAEEA1000B9707D /* UserProfileFooter.swift in Sources */,
@@ -788,6 +795,7 @@
 				8405D02F1B4E8E7A00B42752 /* CheckoutViewController.swift in Sources */,
 				84B3354A1AB4035A00B9707D /* OutfitDetailsCell.swift in Sources */,
 				8405D03C1B525F5B00B42752 /* CheckoutOrderViewController.swift in Sources */,
+				05F7EDE21B593EA200CB2665 /* ProvideFeedbackViewController.swift in Sources */,
 				84B335441AB2BD0700B9707D /* Extension.swift in Sources */,
 				8405D0331B511F8400B42752 /* CheckoutItemCell.swift in Sources */,
 				84B335281AADE1F600B9707D /* UserProfileViewController.swift in Sources */,

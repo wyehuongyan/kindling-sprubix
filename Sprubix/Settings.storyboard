@@ -497,7 +497,9 @@
                         <outlet property="changePasswordCell" destination="6yN-Y5-OJZ" id="eNB-Pc-w4i"/>
                         <outlet property="deliveryAddressesCell" destination="AH7-6k-HqD" id="xdX-I3-mt2"/>
                         <outlet property="editProfileCell" destination="2X4-te-ISp" id="bSN-9e-fIe"/>
+                        <outlet property="helpCenterCell" destination="QkL-bz-gWp" id="VZl-XL-uKs"/>
                         <outlet property="paymentMethodsCell" destination="sLB-ny-uYM" id="kGC-l1-7qY"/>
+                        <outlet property="provideFeedbackCell" destination="OHV-D9-w2O" id="YeR-6F-IpJ"/>
                     </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="zzE-Lf-21q" userLabel="First Responder" sceneMemberID="firstResponder"/>

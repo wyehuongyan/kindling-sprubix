@@ -15,6 +15,8 @@ class SettingsViewController: UITableViewController {
     @IBOutlet var changePasswordCell: UITableViewCell!
     @IBOutlet var paymentMethodsCell: UITableViewCell!
     @IBOutlet var deliveryAddressesCell: UITableViewCell!
+    @IBOutlet var helpCenterCell: UITableViewCell!
+    @IBOutlet var provideFeedbackCell: UITableViewCell!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -25,6 +27,8 @@ class SettingsViewController: UITableViewController {
         changePasswordCell.accessoryType = UITableViewCellAccessoryType.DisclosureIndicator
         deliveryAddressesCell.accessoryType = UITableViewCellAccessoryType.DisclosureIndicator
         paymentMethodsCell.accessoryType = UITableViewCellAccessoryType.DisclosureIndicator
+        helpCenterCell.accessoryType = UITableViewCellAccessoryType.DisclosureIndicator
+        provideFeedbackCell.accessoryType = UITableViewCellAccessoryType.DisclosureIndicator
     }
     
     override func viewWillAppear(animated: Bool) {
@@ -104,8 +108,16 @@ class SettingsViewController: UITableViewController {
             switch indexPath.row {
             case 0:
                 println("Help Center")
+                
+                let helpCenterViewController = HelpCenterViewController()
+                
+                self.navigationController?.pushViewController(helpCenterViewController, animated: true)
             case 1:
                 println("Provide Feedback")
+                
+                let provideFeedbackViewController = ProvideFeedbackViewController()
+                
+                self.navigationController?.pushViewController(provideFeedbackViewController, animated: true)
             default:
                 fatalError("Unknown static cell for settings.")
             }
