@@ -7,12 +7,13 @@
 //
 
 import UIKit
+import AFNetworking
 
-class OrdersViewController: UIViewController {
+class OrdersViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
     
     @IBOutlet var toolBarView: UIView!
-    var button1: UIButton! // active
-    var button2: UIButton! // fulfilled
+    var button1: UIButton! // active (processing, shipping requested)
+    var button2: UIButton! // fulfilled (shipping scheduled, shipping on delivery, shipping delivered)
     var button3: UIButton! // cancelled
     var buttonLine: UIView!
     var currentChoice: UIButton!
@@ -31,6 +32,9 @@ class OrdersViewController: UIViewController {
         
         view.backgroundColor = sprubixGray
 
+        ordersTableView.dataSource = self
+        ordersTableView.delegate = self
+        
         // get rid of line seperator for empty cells
         ordersTableView.backgroundColor = sprubixGray
         ordersTableView.tableFooterView = UIView(frame: CGRectZero)
@@ -42,6 +46,7 @@ class OrdersViewController: UIViewController {
         super.viewWillAppear(animated)
         
         initNavBar()
+        retrieveUserOrders()
     }
     
     func initNavBar() {
@@ -138,6 +143,82 @@ class OrdersViewController: UIViewController {
         // button 1 is initially selected
         button1.addSubview(buttonLine)
         button1.tintColor = sprubixColor
+    }
+    
+    func retrieveUserOrders() {
+        // REST call to server to retrieve user orders
+        manager.GET(SprubixConfig.URL.api + "/orders",
+            parameters: nil,
+            success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                self.orders = responseObject["data"] as! [NSDictionary]
+                
+                self.ordersTableView.reloadData()
+            },
+            failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                println("Error: " + error.localizedDescription)
+        })
+    }
+    
+    func retrieveShopOrders() {
+        
+    }
+    
+    // MARK: UITableViewDataSource
+    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCellWithIdentifier(orderCellIdentifier, forIndexPath: indexPath) as! OrderCell
+        
+        let order = orders[indexPath.row] as NSDictionary
+        
+        let userData: NSDictionary? = defaults.dictionaryForKey("userData")
+        let shoppableType: String? = userData!["shoppable_type"] as? String
+        let user = order["user"] as! NSDictionary
+
+        if shoppableType?.lowercaseString.rangeOfString("shopper") != nil {
+            // shopper
+            let shopOrders = order["shop_orders"] as! [NSDictionary]
+            
+            cell.username.text = shopOrders.count > 1 ? "\(shopOrders.count) shops" : "\(shopOrders.count) shop"
+        } else {
+            // shop
+            let username = user["username"] as! String
+            
+            cell.username.text = username
+        }
+        
+        let totalPrice = order["total_price"] as! String
+        let orderNumber = order["uid"] as! String
+        let createdAt = order["created_at"] as! String
+
+        cell.price.text = "$\(totalPrice)"
+        cell.orderNumber.text = "#\(orderNumber)"
+        cell.dateTime.text = createdAt
+        
+        cell.accessoryType = UITableViewCellAccessoryType.DisclosureIndicator
+        
+        return cell
+    }
+    
+    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return orders.count
+    }
+    
+    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+        
+        let order = orders[indexPath.row] as NSDictionary
+        
+        let userData: NSDictionary? = defaults.dictionaryForKey("userData")
+        let shoppableType: String? = userData!["shoppable_type"] as? String
+        
+        if shoppableType?.lowercaseString.rangeOfString("shopper") != nil {
+            // shopper
+            // // show all shop orders under this user order
+            let shopOrdersViewController = UIStoryboard.shopOrdersViewController()
+            shopOrdersViewController!.shopOrders = order["shop_orders"] as! [NSDictionary]
+            
+            self.navigationController?.pushViewController(shopOrdersViewController!, animated: true)
+        } else {
+            // shop
+        }
     }
 
     // tool bar button callbacks

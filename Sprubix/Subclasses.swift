@@ -378,8 +378,6 @@ class FirebaseAuth {
                         
                         SSKeychain.setPassword(token, forService: "firebase", account: username)
                         
-                        //println(SSKeychain.passwordForService("firebase", account: username))
-                        
                         self.authenticateFirebase()
                     },
                     failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in

@@ -392,9 +392,11 @@ class CheckoutPointsViewController: UIViewController, UITableViewDataSource, UIT
         checkoutViewController?.sellerCartItemDictionary = cartViewController?.sellerCartItemDictionary
         checkoutViewController?.sellers = cartViewController!.sellers
         checkoutViewController?.sellerDeliveryMethods = cartViewController!.sellerDeliveryMethods
+        checkoutViewController?.sellerDeliveryMethodIds = cartViewController!.sellerDeliveryMethodIds
         checkoutViewController?.sellerSubtotal = cartViewController!.sellerSubtotal
         checkoutViewController?.sellerShippingRate = cartViewController!.sellerShippingRate
-        checkoutViewController?.orderTotal = cartViewController?.grandTotalAmount.text
+        checkoutViewController?.orderTotal = cartViewController?.grandTotal
+        checkoutViewController?.pointsTotal = pointsTotal
         
         checkoutViewController?.delegate = cartViewController?.delegate
         
