@@ -458,14 +458,19 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
                 pieceSpecsView.addSubview(itemQuantityImage)
                 pieceSpecsView.addSubview(itemQuantityLabel)
                 
-                // add to bag CTA button
-                addToBagButton = UIButton(frame: CGRect(x: 0, y: screenHeight - navigationHeight, width: screenWidth, height: navigationHeight))
-                addToBagButton.backgroundColor = sprubixColor
-                addToBagButton.titleLabel?.font = UIFont.boldSystemFontOfSize(18.0)
-                addToBagButton.setTitle("Buy Now", forState: UIControlState.Normal)
-                addToBagButton.addTarget(self, action: "addToBagButtonPressed:", forControlEvents: UIControlEvents.TouchUpInside)
+                let userData: NSDictionary? = defaults.dictionaryForKey("userData")
+                let userType = userData!["shoppable_type"] as! String
                 
-                addSubview(addToBagButton)
+                if userType.lowercaseString.rangeOfString("shopper") != nil {
+                    // add to bag CTA button
+                    addToBagButton = UIButton(frame: CGRect(x: 0, y: screenHeight - navigationHeight, width: screenWidth, height: navigationHeight))
+                    addToBagButton.backgroundColor = sprubixColor
+                    addToBagButton.titleLabel?.font = UIFont.boldSystemFontOfSize(18.0)
+                    addToBagButton.setTitle("Buy Now", forState: UIControlState.Normal)
+                    addToBagButton.addTarget(self, action: "addToBagButtonPressed:", forControlEvents: UIControlEvents.TouchUpInside)
+                    
+                    addSubview(addToBagButton)
+                }
                 
                 // add info into buyPieceInfo
                 buyPieceInfo = NSMutableDictionary()
