@@ -136,7 +136,11 @@ class EditProfileViewController: UITableViewController, UITextViewDelegate {
         // Hide keyboard
         self.view.endEditing(true)
         
-        if validateInputs() {
+        let validateResult = self.validateInputs()
+        let delay: NSTimeInterval = 2
+        let viewDelay: Double = 2.5
+        
+        if validateResult.valid {
             let profileInfo: NSMutableDictionary = NSMutableDictionary()
             
             if profileName.text != "" {
@@ -146,9 +150,6 @@ class EditProfileViewController: UITableViewController, UITextViewDelegate {
             if profileDescription.text != "" {
                 profileInfo.setObject(profileDescription.text, forKey: "description")
             }
-            
-            let delay: NSTimeInterval = 2
-            let viewDelay: Double = 2.5
             
             manager.POST(SprubixConfig.URL.api + "/update/profile",
                 parameters: profileInfo,
@@ -223,6 +224,21 @@ class EditProfileViewController: UITableViewController, UITextViewDelegate {
                         atPosition: TSMessageNotificationPosition.Bottom,
                         canBeDismissedByUser: true)
             })
+        
+        } else {
+            // Validation failed
+            TSMessage.showNotificationInViewController(
+                self,
+                title: "Error",
+                subtitle: validateResult.message,
+                image: UIImage(named: "filter-cross"),
+                type: TSMessageNotificationType.Error,
+                duration: delay,
+                callback: nil,
+                buttonTitle: nil,
+                buttonCallback: nil,
+                atPosition: TSMessageNotificationPosition.Bottom,
+                canBeDismissedByUser: true)
         }
     }
     
@@ -237,7 +253,7 @@ class EditProfileViewController: UITableViewController, UITextViewDelegate {
             showPhotoMenu(indexPath.section)
             
         default:
-            fatalError("Unknown row returned")
+            break
         }
     }
     
@@ -260,18 +276,32 @@ class EditProfileViewController: UITableViewController, UITextViewDelegate {
         }
     }
     
-    func validateInputs() -> Bool {
+    func validateInputs() -> (valid: Bool, message: String) {
+        var valid: Bool = true
+        var message: String = ""
+        
         // If description is placeholder text, remove it
         if profileDescription.text == profileDescriptionDefault {
             profileDescription.text = ""
         }
         
         // Display name cannot be empty
-        if profileName.text != "" {
-            return true
+        if profileName.text == "" {
+            message += "Please enter a name\n"
+            valid = false
+        }
+        else if count(profileName.text) > 30 {
+            message += "The name must be under 30 characters\n"
+            valid = false
         }
         
-        return false
+        if count(profileDescription.text) > 255 {
+            message += "The name must be under 30 characters\n"
+            valid = false
+        }
+        
+        
+        return (valid, message)
     }
     
     func showPhotoMenu(section: Int) {

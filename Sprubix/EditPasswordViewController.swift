@@ -43,11 +43,6 @@ class EditPasswordViewController: UIViewController, UITableViewDataSource, UITab
         editPasswordTable.delegate = self
         oldFrameRect = editPasswordTable.frame
         
-        // register method when tapped to hide keyboard
-        tableTapGestureRecognizer = UITapGestureRecognizer(target: self, action: "tableTapped:")
-        editPasswordTable.addGestureRecognizer(tableTapGestureRecognizer)
-        tableTapGestureRecognizer.enabled = false
-        
         view.addSubview(editPasswordTable)
     }
 
@@ -170,7 +165,7 @@ class EditPasswordViewController: UIViewController, UITableViewDataSource, UITab
         let delay: NSTimeInterval = 2
         let viewDelay: Double = 2.5
         
-        if validateResult.valid == true {
+        if validateResult.valid {
             
             manager.POST(SprubixConfig.URL.api + "/update/password",
                 parameters: [
@@ -290,14 +285,17 @@ class EditPasswordViewController: UIViewController, UITableViewDataSource, UITab
             message += "Please enter a new password\n"
             valid = false
         }
-        
-        if count(newPasswordText.text) < 6 {
-            message += "The password must be at least 6 characters\n"
+        else if count(newPasswordText.text) < 6 {
+            message += "The new password must be at least 6 characters\n"
+            valid = false
+        }
+        else if count(newPasswordText.text) > 30 {
+            message += "The new password must be under 30 characters\n"
             valid = false
         }
         
         if repeatPasswordText.text == "" || newPasswordText.text != repeatPasswordText.text {
-            message += "The new passwords do not match\n"
+            message += "The passwords do not match\n"
             valid = false
         }
         

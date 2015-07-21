@@ -8,6 +8,7 @@
 
 import UIKit
 import AFNetworking
+import TSMessages
 
 protocol SignInDelegate {
     func signInSprubix(userNameText: String, passwordText: String)
@@ -171,7 +172,16 @@ class SignUpViewController: UIViewController, UITableViewDataSource, UITableView
             passwordText.becomeFirstResponder()
             
         } else {
-            if self.validateInputs() {
+            
+            // Hide keyboard
+            self.view.endEditing(true)
+            
+            let validateResult = self.validateInputs()
+            let delay: NSTimeInterval = 3
+            
+            if validateResult.valid {
+                
+                let signupTime: NSDate = NSDate()
                 
                 manager.POST(SprubixConfig.URL.api + "/auth/register",
                     parameters: [
@@ -192,14 +202,41 @@ class SignUpViewController: UIViewController, UITableViewDataSource, UITableView
                             println(message)
                             println(data)
                             
+                            var errorMessage:String = ""
+                            
+                            if data.count > 0 {
+                                for (key, value) in data {
+                                    errorMessage += (value as! [String])[0] + "\n"
+                                }
+                                
+                            } else {
+                                errorMessage = "Something went wrong.\nPlease try again."
+                            }
+
+                            // error exception
+                            TSMessage.showNotificationInViewController(
+                                self,
+                                title: "Error",
+                                subtitle: errorMessage,
+                                image: UIImage(named: "filter-cross"),
+                                type: TSMessageNotificationType.Error,
+                                duration: delay,
+                                callback: nil,
+                                buttonTitle: nil,
+                                buttonCallback: nil,
+                                atPosition: TSMessageNotificationPosition.Bottom,
+                                canBeDismissedByUser: true)
+                            
                         } else if statusCode == "200" {
                             // success
                             textField.resignFirstResponder()
                             var message = response["message"] as! String
                             var data = response["data"] as! NSDictionary
-                            
                             println(message)
                             println(data)
+                            
+                            // Change AFNetworking to Html
+                            manager.requestSerializer = AFHTTPRequestSerializer()
                             
                             // SignInDelegate, get SignInVC to do the login
                             self.delegate?.signInSprubix(self.userNameText.text.lowercaseString, passwordText: self.passwordText.text.lowercaseString)
@@ -208,7 +245,7 @@ class SignUpViewController: UIViewController, UITableViewDataSource, UITableView
                             mixpanel.track("User Signed Up", properties: [
                                 "User ID": data.objectForKey("id") as! Int,
                                 "Status": "Success",
-                                "Timestamp": NSDate()
+                                "Timestamp": signupTime
                             ])
                             
                             mixpanel.createAlias(data.objectForKey("email") as! String, forDistinctID: mixpanel.distinctId)
@@ -220,7 +257,7 @@ class SignUpViewController: UIViewController, UITableViewDataSource, UITableView
                                 "Username": data.objectForKey("username") as! String,
                                 "$first_name": data.objectForKey("username") as! String,
                                 "$last_name": "",
-                                "$created": NSDate(),
+                                "$created": signupTime,
                                 "Exposed Outfits": 0,
                                 "Liked Outfits": 0,
                                 "Liked Pieces": 0,
@@ -233,10 +270,54 @@ class SignUpViewController: UIViewController, UITableViewDataSource, UITableView
                                 "Viewed Piece Comments": 0
                             ])
                             // Mixpanel - End
+                            
+                            // Mandrill - Add subaccount
+                            var dateFormatter: NSDateFormatter = NSDateFormatter()
+                            dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+                            let signupTimeStr = dateFormatter.stringFromDate(signupTime)
+                            
+                            manager.requestSerializer = AFJSONRequestSerializer()
+                            
+                            manager.POST(SprubixConfig.URL.mandrill + "/subaccounts/add",
+                                parameters: [
+                                    "key" : SprubixConfig.Token.mandrill,
+                                    "id" : data.objectForKey("id") as! Int,
+                                    "name" : data.objectForKey("username") as! String,
+                                    "notes" : "Signed up on " + signupTimeStr,
+                                ],
+                                success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                                    var data = responseObject as! NSDictionary
+                                    
+                                    // Print reply from server
+                                    println(data)
+                                    
+                                },
+                                failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                                    println("Error: " + error.localizedDescription)
+                                    
+                            })
+                            
+                            // Change AFNetworking to Html
+                            manager.requestSerializer = AFHTTPRequestSerializer()
+                            // Mandrill - End
                         }
                     },
                     failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                         println("Error: " + error.localizedDescription)
+                        
+                        // error exception
+                        TSMessage.showNotificationInViewController(
+                            self,
+                            title: "Error",
+                            subtitle: "Something went wrong.\nPlease try again.",
+                            image: UIImage(named: "filter-cross"),
+                            type: TSMessageNotificationType.Error,
+                            duration: delay,
+                            callback: nil,
+                            buttonTitle: nil,
+                            buttonCallback: nil,
+                            atPosition: TSMessageNotificationPosition.Bottom,
+                            canBeDismissedByUser: true)
                         
                         // Mixpanel - Signed Up, Fail
                         var currentUserId = -1  // New user (or not logged in)
@@ -248,10 +329,25 @@ class SignUpViewController: UIViewController, UITableViewDataSource, UITableView
                         mixpanel.track("User Signed Up", properties: [
                             "User ID": currentUserId,
                             "Status": "Fail",
-                            "Timestamp": NSDate()
+                            "Timestamp": signupTime
                         ])
                         // Mixpanel - End
                 })
+                
+            } else {
+                // Validation failed
+                TSMessage.showNotificationInViewController(
+                    self,
+                    title: "Error",
+                    subtitle: validateResult.message,
+                    image: UIImage(named: "filter-cross"),
+                    type: TSMessageNotificationType.Error,
+                    duration: delay,
+                    callback: nil,
+                    buttonTitle: nil,
+                    buttonCallback: nil,
+                    atPosition: TSMessageNotificationPosition.Bottom,
+                    canBeDismissedByUser: true)
             }
         }
         
@@ -261,39 +357,46 @@ class SignUpViewController: UIViewController, UITableViewDataSource, UITableView
     /**
     * Returns true if all user inputs are correctly entered
     */
-    func validateInputs() -> Bool {
-        var validated = true
+    func validateInputs() -> (valid: Bool, message: String) {
+        var valid: Bool = true
+        var message: String = ""
         
         if emailText.text == "" {
-            validated = false
-            
-            println("Please enter an email")
-            
-        } else if !self.isValidEmail(emailText.text) {
-            validated = false
-            
-            println("Please enter valid email")
-            
-        } else if userNameText.text == "" {
-            validated = false
-            
-            println("Please enter an username")
-            
-        } else if passwordText.text == "" {
-            validated = false
-            
-            println("Please enter a password")
-
-        } else if count(passwordText.text) < 6 {
-            validated = false
-            
-            println("The password must be at least 6 characters.")
+            message += "Please enter an email\n"
+            valid = false
         }
-        else {
+        else if !self.isValidEmail(emailText.text) {
+            message += "Please enter a valid email\n"
+            valid = false
+        }
+        
+        if userNameText.text == "" {
+            message += "Please enter a username\n"
+            valid = false
+        }
+        else if !self.isValidUsername(userNameText.text) {
+            message += "Only alphabets, numbers, underscores and periods are allowed (max 30 characters)\n"
+            valid = false
+        }
+        
+        if passwordText.text == "" {
+            message += "Please enter a password\n"
+            valid = false
+        }
+        else if count(passwordText.text) < 6 {
+            message += "The password must be at least 6 characters\n"
+            valid = false
+        }
+        else if count(passwordText.text) > 30 {
+            message += "The password must be under 30 characters\n"
+            valid = false
+        }
+        
+        if valid {
             println("Validation OK")
         }
         
-        return validated
+        return (valid, message)
     }
     
     override func prefersStatusBarHidden() -> Bool {
@@ -309,6 +412,18 @@ class SignUpViewController: UIViewController, UITableViewDataSource, UITableView
         let emailTest = NSPredicate(format:"SELF MATCHES %@", emailRegEx)
         
         if emailTest.evaluateWithObject(testStr) {
+            return true
+        }
+        
+        return false
+    }
+    
+    func isValidUsername(testStr:String) -> Bool {
+        let usernameRegEx = "^[A-Z0-9a-z._]{1,30}$"
+        
+        let usernameTest = NSPredicate(format:"SELF MATCHES %@", usernameRegEx)
+        
+        if usernameTest.evaluateWithObject(testStr) {
             return true
         }
         

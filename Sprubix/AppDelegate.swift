@@ -15,16 +15,20 @@ import Mixpanel
 struct SprubixConfig {
     struct URL {
         // test
-        //static let api: String = "http://192.168.1.3/~shion/kindling-core/public/index.php"
-        static let api: String = "http://192.168.1.5/~wyehuongyan/kindling-core/public/index.php"
+        static let api: String = "http://192.168.1.3/~shion/kindling-core/public/index.php"
+        //static let api: String = "http://192.168.1.5/~wyehuongyan/kindling-core/public/index.php"
         static let firebase: String = "https://sprubixtest.firebaseio.com/"
+        static let mandrill: String = "https://mandrillapp.com/api/1.0"
         
         //static let api: String = "http://api.sprubix.com"
         //static let firebase: String = "https://sprubix.firebaseio.com/"
     }
     struct Token {
         static let mixpanel = ""
+        static let mandrill = "9rrdIp0n5J_o9NGlaRuluQ"
+        
         //static let mixpanel = "a96ce08c8510210b59025890ce360c3b"
+        //static let mandrill = "THiGmvjb1CPogbh__ThPTw"
     }
 }
 
