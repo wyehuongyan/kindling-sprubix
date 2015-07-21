@@ -546,9 +546,8 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         
         let commentSectionHeight: CGFloat = loadRecentComments(commentYPos)
         
-        var outfitsUsingLabel:UILabel = UILabel(frame: CGRectInset(CGRect(x: 0, y: commentYPos + commentSectionHeight, width: screenWidth, height: 70), 20, 15))
+        var outfitsUsingLabel:UILabel = UILabel(frame: CGRectInset(CGRect(x: 0, y: commentYPos + commentSectionHeight, width: screenWidth, height: 70), 10, 15))
         outfitsUsingLabel.text = "Outfits using this item"
-        outfitsUsingLabel.font = UIFont.boldSystemFontOfSize(outfitsUsingLabel.font.pointSize)
         outfitsUsingLabel.textColor = UIColor.grayColor()
         
         pieceDetailInfoView.addSubview(outfitsUsingLabel)

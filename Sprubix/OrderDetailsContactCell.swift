@@ -11,4 +11,15 @@ import UIKit
 class OrderDetailsContactCell: UITableViewCell {
     @IBOutlet var emailAddress: UILabel!
     @IBOutlet var contactNumber: UILabel!
+    
+    @IBOutlet var contactImageView: UIImageView!
+    
+    override func awakeFromNib() {
+        super.awakeFromNib()
+        
+        let image: UIImage = UIImage(named: "order-contact")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
+        
+        contactImageView.image = image
+        contactImageView.tintColor = UIColor.lightGrayColor()
+    }
 }

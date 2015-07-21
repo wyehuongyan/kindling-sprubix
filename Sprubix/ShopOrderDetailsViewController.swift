@@ -154,12 +154,17 @@ class ShopOrderDetailsViewController: UIViewController, UITableViewDataSource, U
                     let buyerImagesString = buyer["image"] as! String
                     let buyerImageURL: NSURL = NSURL(string: buyerImagesString)!
                     let buyerUsername = buyer["username"] as! String
-                    let buyerName = buyer["name"] as! String
+                    //let buyerName = buyer["name"] as! String
                     
                     cell.userImageView.setImageWithURL(buyerImageURL)
-                    cell.username.text = "\(buyerName) (@\(buyerUsername))"
 
                     let deliveryAddress = shopOrder["shipping_address"] as! NSDictionary
+                    let buyerFirstName = deliveryAddress["first_name"] as! String
+                    let buyerLastName = deliveryAddress["last_name"] as! String
+                    let buyerName = "\(buyerFirstName) \(buyerLastName)"
+                    
+                    cell.username.text = "\(buyerName) (@\(buyerUsername))"
+                    
                     let address1 = deliveryAddress["address_1"] as! String
                     var address2: String? = deliveryAddress["address_2"] as? String
                     let postalCode = deliveryAddress["postal_code"] as! String
@@ -267,36 +272,8 @@ class ShopOrderDetailsViewController: UIViewController, UITableViewDataSource, U
             var statusImageName = ""
             var statusTintColor = UIColor.lightGrayColor()
             
-            switch orderStatusId {
-            case 1:
-                // Processing
-                statusImageName = "order-processing"
-                statusTintColor = UIColor.lightGrayColor()
-            case 2:
-                // Shipping Requested
-                statusImageName = "order-shipping-requested"
-                statusTintColor = UIColor.lightGrayColor()
-            case 3:
-                // Shipping Posted
-                statusImageName = "order-shipping-posted"
-                statusTintColor = UIColor.blueColor()
-            case 4:
-                // Shipping Delivered
-                statusImageName = "order-shipping-delivered"
-                statusTintColor = UIColor.greenColor()
-            case 5:
-                // Payment Failed
-                statusImageName = "order-cancelled"
-                statusTintColor = UIColor.redColor()
-            case 6:
-                // Shipping Delayed
-                statusImageName = "order-shipping-requested"
-                statusTintColor = UIColor.orangeColor()
-            default:
-                fatalError("Unknown order status in ShopOrderDetailsViewController")
-            }
-            
-            cell.setStatusImage("order-processing", tintColor: statusTintColor)
+            cell.orderStatusId = orderStatusId
+            cell.setStatusImage()
             cell.status.text = orderStatusName
             
             let userData: NSDictionary? = defaults.dictionaryForKey("userData")

@@ -43,7 +43,7 @@ class OrderDetailsUserCell: UITableViewCell {
         address = UILabel()
         address.lineBreakMode = NSLineBreakMode.ByWordWrapping
         address.numberOfLines = 0
-        address.font = UIFont.systemFontOfSize(16.0)
+        address.font = UIFont.systemFontOfSize(14.0)
         address.textColor = UIColor.darkGrayColor()
         
         contentView.addSubview(username)

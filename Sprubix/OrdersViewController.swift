@@ -27,6 +27,10 @@ class OrdersViewController: UIViewController, UITableViewDataSource, UITableView
     var newNavBar: UINavigationBar!
     var newNavItem: UINavigationItem!
     
+    // formatted orders
+    var createdAtDates: [String] = [String]()
+    var dateOrdersDict: NSMutableDictionary = NSMutableDictionary()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -46,7 +50,17 @@ class OrdersViewController: UIViewController, UITableViewDataSource, UITableView
         super.viewWillAppear(animated)
         
         initNavBar()
-        retrieveUserOrders()
+        
+        let userData: NSDictionary? = defaults.dictionaryForKey("userData")
+        let shoppableType: String? = userData!["shoppable_type"] as? String
+        
+        if shoppableType?.lowercaseString.rangeOfString("shopper") != nil {
+            // shopper
+            retrieveUserOrders()
+        } else {
+            // shop
+            retrieveShopOrders()
+        }
     }
     
     func initNavBar() {
@@ -147,11 +161,12 @@ class OrdersViewController: UIViewController, UITableViewDataSource, UITableView
     
     func retrieveUserOrders() {
         // REST call to server to retrieve user orders
-        manager.GET(SprubixConfig.URL.api + "/orders",
+        manager.GET(SprubixConfig.URL.api + "/orders/user",
             parameters: nil,
             success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
                 self.orders = responseObject["data"] as! [NSDictionary]
                 
+                self.formatOrders()
                 self.ordersTableView.reloadData()
             },
             failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
@@ -160,18 +175,60 @@ class OrdersViewController: UIViewController, UITableViewDataSource, UITableView
     }
     
     func retrieveShopOrders() {
+        // REST call to server to retrieve shop orders
+        manager.GET(SprubixConfig.URL.api + "/orders/shop",
+            parameters: nil,
+            success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                self.orders = responseObject["data"] as! [NSDictionary]
+                
+                self.formatOrders()
+                self.ordersTableView.reloadData()
+            },
+            failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                println("Error: " + error.localizedDescription)
+        })
+    }
+    
+    func formatOrders() {
+        // arrange into (createdAtDate, [order]) dictionary
+        // createdAtDates are recorded in [createdAtDate] array in desc order
         
+        createdAtDates.removeAll()
+        dateOrdersDict.removeAllObjects()
+        
+        for order in orders {
+            let createdAtDatesDict = order["created_at_custom_format"] as! NSDictionary
+            
+            let createdAtHumanDate = createdAtDatesDict["created_at_date"] as! String
+            
+            // check if exists in dict
+            var ordersForDate: [NSDictionary]? = dateOrdersDict.objectForKey(createdAtHumanDate) as? [NSDictionary]
+            
+            if ordersForDate == nil {
+                // create new array
+                ordersForDate = [NSDictionary]()
+                createdAtDates.append(createdAtHumanDate)
+            }
+            
+            ordersForDate?.append(order)
+            
+            // add date into createdAtDates array
+            dateOrdersDict.setObject(ordersForDate!, forKey: createdAtHumanDate)
+        }
     }
     
     // MARK: UITableViewDataSource
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+        
         let cell = tableView.dequeueReusableCellWithIdentifier(orderCellIdentifier, forIndexPath: indexPath) as! OrderCell
         
-        let order = orders[indexPath.row] as NSDictionary
+        let createdAtDate = createdAtDates[indexPath.section] as String
+        let dateOrders = dateOrdersDict[createdAtDate] as! [NSDictionary]
+        
+        let order = dateOrders[indexPath.row] as NSDictionary
         
         let userData: NSDictionary? = defaults.dictionaryForKey("userData")
         let shoppableType: String? = userData!["shoppable_type"] as? String
-        let user = order["user"] as! NSDictionary
 
         if shoppableType?.lowercaseString.rangeOfString("shopper") != nil {
             // shopper
@@ -180,31 +237,67 @@ class OrdersViewController: UIViewController, UITableViewDataSource, UITableView
             cell.username.text = shopOrders.count > 1 ? "\(shopOrders.count) shops" : "\(shopOrders.count) shop"
         } else {
             // shop
+            let user = order["buyer"] as! NSDictionary
             let username = user["username"] as! String
-            
+                
             cell.username.text = username
         }
         
         let totalPrice = order["total_price"] as! String
         let orderNumber = order["uid"] as! String
         let createdAt = order["created_at"] as! String
-
+        let orderStatusId = order["order_status_id"] as! Int
+        
         cell.price.text = "$\(totalPrice)"
         cell.orderNumber.text = "#\(orderNumber)"
         cell.dateTime.text = createdAt
+        cell.orderStatusId = orderStatusId
+        cell.setStatusImage()
         
         cell.accessoryType = UITableViewCellAccessoryType.DisclosureIndicator
         
         return cell
     }
     
+    func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+        return createdAtDates.count
+    }
+    
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return orders.count
+        
+        let createdAtDate = createdAtDates[section] as String
+        
+        return (dateOrdersDict[createdAtDate] as! [NSDictionary]).count
+    }
+    
+    func tableView(tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        let createdAtDateLabelContainer = UIView(frame: CGRectMake(0, 0, screenWidth, 25))
+        createdAtDateLabelContainer.backgroundColor = sprubixLightGray
+        
+        let createdAtDateLabel = UILabel(frame: CGRectMake(10, 0, screenWidth - 10, 25))
+        
+        let createdAtDate = createdAtDates[section] as String
+        
+        createdAtDateLabel.backgroundColor = sprubixLightGray
+        createdAtDateLabel.text = createdAtDate
+        createdAtDateLabel.textColor = UIColor.darkGrayColor()
+        createdAtDateLabel.font = UIFont.systemFontOfSize(14.0)
+        
+        createdAtDateLabelContainer.addSubview(createdAtDateLabel)
+        
+        return createdAtDateLabelContainer
+    }
+    
+    func tableView(tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        return 25.0
     }
     
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         
-        let order = orders[indexPath.row] as NSDictionary
+        let createdAtDate = createdAtDates[indexPath.section] as String
+        let dateOrders = dateOrdersDict[createdAtDate] as! [NSDictionary]
+        
+        let order = dateOrders[indexPath.row] as NSDictionary
         
         let userData: NSDictionary? = defaults.dictionaryForKey("userData")
         let shoppableType: String? = userData!["shoppable_type"] as? String
@@ -218,6 +311,14 @@ class OrdersViewController: UIViewController, UITableViewDataSource, UITableView
             self.navigationController?.pushViewController(shopOrdersViewController!, animated: true)
         } else {
             // shop
+            // go straight to shop order details
+            let shopOrder = orders[indexPath.row] as NSDictionary
+            
+            let shopOrderDetailsViewController = UIStoryboard.shopOrderDetailsViewController()
+            shopOrderDetailsViewController!.orderNum = shopOrder["uid"] as! String
+            shopOrderDetailsViewController!.shopOrder = shopOrder
+            
+            self.navigationController?.pushViewController(shopOrderDetailsViewController!, animated: true)
         }
     }
 

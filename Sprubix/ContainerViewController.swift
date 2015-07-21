@@ -234,8 +234,10 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
             animateSprubixFeedXPosition(targetPosition: 0) { finished in
                 self.currentState = .Collapsed
                 
-                self.sidePanelViewController!.view.removeFromSuperview()
-                self.sidePanelViewController = nil;
+                if self.sidePanelViewController != nil {
+                    self.sidePanelViewController!.view.removeFromSuperview()
+                    self.sidePanelViewController = nil
+                }
             }
             
             // remove darkened overlay

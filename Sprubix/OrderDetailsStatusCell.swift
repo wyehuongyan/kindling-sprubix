@@ -19,6 +19,7 @@ class OrderDetailsStatusCell: UITableViewCell {
     }
     
     var changeStatusAction: (() -> Void)?
+    var orderStatusId: Int!
     
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -29,10 +30,42 @@ class OrderDetailsStatusCell: UITableViewCell {
         changeStatusButton.layer.borderColor = sprubixColor.CGColor
     }
     
-    func setStatusImage(imageName: String, tintColor: UIColor) {
-        let statusImage: UIImage = UIImage(named: imageName)!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
+    func setStatusImage() {
+        var statusImageName = ""
+        var statusTintColor: UIColor = UIColor.lightGrayColor()
+        
+        switch orderStatusId {
+        case 1:
+            // Processing
+            statusImageName = "order-processing"
+            statusTintColor = UIColor.lightGrayColor()
+        case 2:
+            // Shipping Requested
+            statusImageName = "order-shipping-requested"
+            statusTintColor = UIColor.cyanColor()
+        case 3:
+            // Shipping Posted
+            statusImageName = "order-shipping-posted"
+            statusTintColor = UIColor.blueColor()
+        case 4:
+            // Shipping Delivered
+            statusImageName = "order-shipping-delivered"
+            statusTintColor = UIColor.greenColor()
+        case 5:
+            // Payment Failed
+            statusImageName = "order-cancelled"
+            statusTintColor = UIColor.redColor()
+        case 6:
+            // Shipping Delayed
+            statusImageName = "order-shipping-requested"
+            statusTintColor = UIColor.orangeColor()
+        default:
+            fatalError("Unknown order status in ShopOrderDetailsViewController")
+        }
+        
+        let statusImage: UIImage = UIImage(named: statusImageName)!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
         
         statusImageView.image = statusImage
-        statusImageView.tintColor = tintColor
+        statusImageView.tintColor = statusTintColor
     }
 }
