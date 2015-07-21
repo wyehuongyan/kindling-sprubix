@@ -195,7 +195,7 @@ class OrdersViewController: UIViewController, UITableViewDataSource, UITableView
         // REST call to server to retrieve shop orders
         manager.POST(SprubixConfig.URL.api + "/orders/shop",
             parameters: [
-                "order_status": currentOrderStatus
+                "order_status_ids": currentOrderStatus
             ],
             success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
                 self.orders = responseObject["data"] as! [NSDictionary]

@@ -138,10 +138,14 @@ class ShopOrderDetailsViewController: UIViewController, UITableViewDataSource, U
                     let shop = shopOrder["user"] as! NSDictionary
                     let sellerImagesString = shop["image"] as! String
                     let sellerImageURL: NSURL = NSURL(string: sellerImagesString)!
+                    let sellerCoverString = shop["cover"] as! String
+                    let sellerCoverURL: NSURL = NSURL(string: sellerCoverString)!
+                    
                     let shopUsername = shop["username"] as! String
                     let shopName = shop["name"] as! String
                     
                     cell.userImageView.setImageWithURL(sellerImageURL)
+                    cell.coverImageView.setImageWithURL(sellerCoverURL)
                     cell.username.text = "\(shopName)"
                     cell.address.text = "(@\(shopUsername))"
                     
@@ -153,15 +157,18 @@ class ShopOrderDetailsViewController: UIViewController, UITableViewDataSource, U
                     let buyer = shopOrder["buyer"] as! NSDictionary
                     let buyerImagesString = buyer["image"] as! String
                     let buyerImageURL: NSURL = NSURL(string: buyerImagesString)!
-                    let buyerUsername = buyer["username"] as! String
-                    //let buyerName = buyer["name"] as! String
+
+                    let buyerCoverString = buyer["cover"] as! String
+                    let buyerCoverURL: NSURL = NSURL(string: buyerCoverString)!
                     
                     cell.userImageView.setImageWithURL(buyerImageURL)
+                    cell.coverImageView.setImageWithURL(buyerCoverURL)
 
                     let deliveryAddress = shopOrder["shipping_address"] as! NSDictionary
                     let buyerFirstName = deliveryAddress["first_name"] as! String
                     let buyerLastName = deliveryAddress["last_name"] as! String
                     let buyerName = "\(buyerFirstName) \(buyerLastName)"
+                    let buyerUsername = buyer["username"] as! String
                     
                     cell.username.text = "\(buyerName) (@\(buyerUsername))"
                     
@@ -345,6 +352,25 @@ class ShopOrderDetailsViewController: UIViewController, UITableViewDataSource, U
         alertViewController.addAction(cancelAction)
         
         self.presentViewController(alertViewController, animated: true, completion: nil)
+    }
+    
+    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+        switch indexPath.section {
+        case 0:
+            switch indexPath.row {
+            case 0:
+                // OrderDetailsUserCell
+                let customerDetailsViewController = UIStoryboard.customerDetailsViewController()
+                
+                self.navigationController?.pushViewController(customerDetailsViewController!, animated: true)
+            default:
+                // nothing happens
+                break
+            }
+        default:
+            // nothing happens
+            break
+        }
     }
     
     func tableView(tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {

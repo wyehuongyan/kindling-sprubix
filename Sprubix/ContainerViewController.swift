@@ -349,6 +349,10 @@ extension UIStoryboard {
         return shopStoryboard().instantiateViewControllerWithIdentifier("ShopOrderDetailsView") as? ShopOrderDetailsViewController
     }
     
+    class func customerDetailsViewController() -> CustomerDetailsViewController? {
+        return shopStoryboard().instantiateViewControllerWithIdentifier("CustomerDetailsView") as? CustomerDetailsViewController
+    }
+    
     class func deliveryOptionsViewController() -> DeliveryOptionsViewController? {
         return shopStoryboard().instantiateViewControllerWithIdentifier("DeliveryOptionsView") as? DeliveryOptionsViewController
     }
