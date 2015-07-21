@@ -9,6 +9,7 @@
 import UIKit
 import CoreData
 import AFNetworking
+import TSMessages
 
 class SignInViewController: UIViewController, UITextFieldDelegate, UITableViewDataSource, UITableViewDelegate, SignInDelegate {
     
@@ -154,6 +155,10 @@ class SignInViewController: UIViewController, UITextFieldDelegate, UITableViewDa
     }
     
     func signInSprubix(userNameText: String, passwordText: String) {
+        
+        // Hide keyboard
+        self.view.endEditing(true)
+        
         if validateUserInfo(userNameText, passwordText: passwordText) {
             var usernameString = ""
             var emailString = ""
@@ -183,6 +188,20 @@ class SignInViewController: UIViewController, UITextFieldDelegate, UITableViewDa
                         
                         println(message)
                         println(data)
+                        
+                        // Validation failed
+                        TSMessage.showNotificationInViewController(
+                            self,
+                            title: "Error",
+                            subtitle: "Your username or password was incorrect",
+                            image: UIImage(named: "filter-cross"),
+                            type: TSMessageNotificationType.Error,
+                            duration: 3,
+                            callback: nil,
+                            buttonTitle: nil,
+                            buttonCallback: nil,
+                            atPosition: TSMessageNotificationPosition.Bottom,
+                            canBeDismissedByUser: true)
                         
                     } else if statusCode == "200" {
                         // success
