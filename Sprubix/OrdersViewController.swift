@@ -31,6 +31,12 @@ class OrdersViewController: UIViewController, UITableViewDataSource, UITableView
     var createdAtDates: [String] = [String]()
     var dateOrdersDict: NSMutableDictionary = NSMutableDictionary()
     
+    var activeStatuses = [1, 2, 6]
+    var fulfilledStatuses = [3, 4, 8]
+    var cancelledStatuses = [5, 7]
+    
+    var currentOrderStatus: NSArray!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -43,6 +49,8 @@ class OrdersViewController: UIViewController, UITableViewDataSource, UITableView
         ordersTableView.backgroundColor = sprubixGray
         ordersTableView.tableFooterView = UIView(frame: CGRectZero)
         
+        currentOrderStatus = activeStatuses
+        
         initToolBar()
     }
     
@@ -51,16 +59,7 @@ class OrdersViewController: UIViewController, UITableViewDataSource, UITableView
         
         initNavBar()
         
-        let userData: NSDictionary? = defaults.dictionaryForKey("userData")
-        let shoppableType: String? = userData!["shoppable_type"] as? String
-        
-        if shoppableType?.lowercaseString.rangeOfString("shopper") != nil {
-            // shopper
-            retrieveUserOrders()
-        } else {
-            // shop
-            retrieveShopOrders()
-        }
+        retrieveOrders()
     }
     
     func initNavBar() {
@@ -159,10 +158,28 @@ class OrdersViewController: UIViewController, UITableViewDataSource, UITableView
         button1.tintColor = sprubixColor
     }
     
+    func retrieveOrders() {
+        self.orders.removeAll()
+        self.ordersTableView.reloadData()
+        
+        let userData: NSDictionary? = defaults.dictionaryForKey("userData")
+        let shoppableType: String? = userData!["shoppable_type"] as? String
+        
+        if shoppableType?.lowercaseString.rangeOfString("shopper") != nil {
+            // shopper
+            retrieveUserOrders()
+        } else {
+            // shop
+            retrieveShopOrders()
+        }
+    }
+    
     func retrieveUserOrders() {
         // REST call to server to retrieve user orders
-        manager.GET(SprubixConfig.URL.api + "/orders/user",
-            parameters: nil,
+        manager.POST(SprubixConfig.URL.api + "/orders/user",
+            parameters: [
+                "order_status_ids": currentOrderStatus
+            ],
             success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
                 self.orders = responseObject["data"] as! [NSDictionary]
                 
@@ -176,8 +193,10 @@ class OrdersViewController: UIViewController, UITableViewDataSource, UITableView
     
     func retrieveShopOrders() {
         // REST call to server to retrieve shop orders
-        manager.GET(SprubixConfig.URL.api + "/orders/shop",
-            parameters: nil,
+        manager.POST(SprubixConfig.URL.api + "/orders/shop",
+            parameters: [
+                "order_status": currentOrderStatus
+            ],
             success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
                 self.orders = responseObject["data"] as! [NSDictionary]
                 
@@ -306,7 +325,16 @@ class OrdersViewController: UIViewController, UITableViewDataSource, UITableView
             // shopper
             // // show all shop orders under this user order
             let shopOrdersViewController = UIStoryboard.shopOrdersViewController()
-            shopOrdersViewController!.shopOrders = order["shop_orders"] as! [NSDictionary]
+
+            var shopOrderIds = [Int]()
+            
+            for shopOrder in order["shop_orders"] as! [NSDictionary] {
+                let shopOrderId = shopOrder["id"] as! Int
+                
+                shopOrderIds.append(shopOrderId)
+            }
+            
+            shopOrdersViewController!.shopOrderIds = shopOrderIds
             
             self.navigationController?.pushViewController(shopOrdersViewController!, animated: true)
         } else {
@@ -330,6 +358,9 @@ class OrdersViewController: UIViewController, UITableViewDataSource, UITableView
             currentChoice = sender
             sender.addSubview(buttonLine)
             sender.tintColor = sprubixColor
+            
+            currentOrderStatus = activeStatuses
+            retrieveOrders()
         }
     }
     
@@ -340,6 +371,9 @@ class OrdersViewController: UIViewController, UITableViewDataSource, UITableView
             currentChoice = sender
             sender.addSubview(buttonLine)
             sender.tintColor = sprubixColor
+            
+            currentOrderStatus = fulfilledStatuses
+            retrieveOrders()
         }
     }
     
@@ -350,6 +384,9 @@ class OrdersViewController: UIViewController, UITableViewDataSource, UITableView
             currentChoice = sender
             sender.addSubview(buttonLine)
             sender.tintColor = sprubixColor
+            
+            currentOrderStatus = cancelledStatuses
+            retrieveOrders()
         }
     }
     

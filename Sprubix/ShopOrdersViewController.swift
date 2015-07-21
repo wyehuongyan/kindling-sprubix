@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import AFNetworking
 
 class ShopOrdersViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
 
@@ -17,6 +18,8 @@ class ShopOrdersViewController: UIViewController, UITableViewDataSource, UITable
     // custom nav bar
     var newNavBar: UINavigationBar!
     var newNavItem: UINavigationItem!
+    
+    var shopOrderIds: [Int] = [Int]()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -35,6 +38,24 @@ class ShopOrdersViewController: UIViewController, UITableViewDataSource, UITable
         super.viewWillAppear(animated)
         
         initNavBar()
+        retrieveUserShopOrders()
+    }
+    
+    func retrieveUserShopOrders() {
+        // REST call to server to retrieve shop orders
+        manager.POST(SprubixConfig.URL.api + "/orders/user/shop",
+            parameters: [
+                "shop_order_ids": shopOrderIds
+            ],
+            success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                
+                self.shopOrders = responseObject["data"] as! [NSDictionary]
+                
+                self.shopOrdersTableView.reloadData()
+            },
+            failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                println("Error: " + error.localizedDescription)
+        })
     }
     
     func initNavBar() {

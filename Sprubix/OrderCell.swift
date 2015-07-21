@@ -41,7 +41,7 @@ class OrderCell: UITableViewCell {
             statusTintColor = UIColor.blueColor()
         case 4:
             // Shipping Delivered
-            statusImageName = "order-shipping-delivered"
+            statusImageName = "order-shipping-received"
             statusTintColor = UIColor.greenColor()
         case 5:
             // Payment Failed

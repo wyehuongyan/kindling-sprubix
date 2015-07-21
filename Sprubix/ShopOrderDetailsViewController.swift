@@ -279,35 +279,26 @@ class ShopOrderDetailsViewController: UIViewController, UITableViewDataSource, U
             let userData: NSDictionary? = defaults.dictionaryForKey("userData")
             let shoppableType: String? = userData!["shoppable_type"] as? String
             
-            if shoppableType?.lowercaseString.rangeOfString("shopper") != nil {
-                // shopper
-                // // should not see the change order status button
-                cell.changeStatusButton.alpha = 0.0
+            cell.changeStatusAction = { Void in
                 
-            } else {
-                // shop
-                // // should see the change order status button
-                cell.changeStatusAction = { Void in
-                    
-                    if self.orderStatuses.count <= 0 {
-                        // REST call to server to retrieve order statuses
-                        manager.GET(SprubixConfig.URL.api + "/order/statuses",
-                            parameters: nil,
-                            success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
-                                
-                                self.orderStatuses = responseObject as! [NSDictionary]
-                                
-                                self.initOrderStatusActionSheet()
-                            },
-                            failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
-                                println("Error: " + error.localizedDescription)
-                        })
-                    } else {
-                        self.initOrderStatusActionSheet()
-                    }
-                    
-                    return
+                if self.orderStatuses.count <= 0 {
+                    // REST call to server to retrieve order statuses
+                    manager.GET(SprubixConfig.URL.api + "/order/statuses",
+                        parameters: nil,
+                        success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                            
+                            self.orderStatuses = responseObject as! [NSDictionary]
+                            
+                            self.initOrderStatusActionSheet()
+                        },
+                        failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                            println("Error: " + error.localizedDescription)
+                    })
+                } else {
+                    self.initOrderStatusActionSheet()
                 }
+                
+                return
             }
             
             cell.selectionStyle = UITableViewCellSelectionStyle.None
@@ -326,17 +317,21 @@ class ShopOrderDetailsViewController: UIViewController, UITableViewDataSource, U
             let orderStatusName = orderStatus["name"] as! String
             let orderStatusId = orderStatus["id"] as! Int
             
-            // shipping requested, shipping delivered and payment failed can only be assigned by backend/shopper
-            if orderStatusId != 5 && orderStatusId != 2 && orderStatusId != 4  {
-                let buttonAction = UIAlertAction(title: orderStatusName, style: UIAlertActionStyle.Default, handler: {
-                    action in
-                    
-                    // handler
-                    self.changeOrderStatus(action.title)
-                })
-                
-                alertViewController.addAction(buttonAction)
+            var actionStyle = UIAlertActionStyle.Default
+            
+            if orderStatusId == 7 || orderStatusId == 8 {
+                // cancelled
+                actionStyle = UIAlertActionStyle.Destructive
             }
+            
+            let buttonAction = UIAlertAction(title: orderStatusName, style: actionStyle, handler: {
+                action in
+                
+                // handler
+                self.changeOrderStatus(action.title)
+            })
+            
+            alertViewController.addAction(buttonAction)
         }
         
         // add cancel button
