@@ -262,7 +262,14 @@ class FavoritesViewController: UIViewController, DZNEmptyDataSetSource, DZNEmpty
     
     // DZNEmptyDataSetSource
     func titleForEmptyDataSet(scrollView: UIScrollView!) -> NSAttributedString! {
-        let text: String = "Title For Empty Data Set"
+        var text: String = ""
+        
+        switch(currentFavoriteState) {
+        case .Outfits:
+            text = "\nOutfits that you like"
+        case .Pieces:
+            text = "\nItems that you like"
+        }
         
         let attributes: NSDictionary = [
             NSFontAttributeName: UIFont.boldSystemFontOfSize(18.0),
@@ -275,7 +282,14 @@ class FavoritesViewController: UIViewController, DZNEmptyDataSetSource, DZNEmpty
     }
     
     func descriptionForEmptyDataSet(scrollView: UIScrollView!) -> NSAttributedString! {
-        let text: String = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+        var text: String = ""
+        
+        switch(currentFavoriteState) {
+        case .Outfits:
+            text = "When you like an outfit or item, you'll see it here."
+        case .Pieces:
+            text = "When you like an item, you'll see it here."
+        }
         
         var paragraph: NSMutableParagraphStyle = NSMutableParagraphStyle.new()
         paragraph.lineBreakMode = NSLineBreakMode.ByWordWrapping
@@ -292,7 +306,7 @@ class FavoritesViewController: UIViewController, DZNEmptyDataSetSource, DZNEmpty
         return attributedString
     }
     
-    func buttonTitleForEmptyDataSet(scrollView: UIScrollView!, forState state: UIControlState) -> NSAttributedString! {
+    /*func buttonTitleForEmptyDataSet(scrollView: UIScrollView!, forState state: UIControlState) -> NSAttributedString! {
         let text: String = "Button Title"
         
         let attributes: NSDictionary = [
@@ -302,10 +316,19 @@ class FavoritesViewController: UIViewController, DZNEmptyDataSetSource, DZNEmpty
         let attributedString: NSAttributedString = NSAttributedString(string: text, attributes: attributes as [NSObject : AnyObject])
         
         return attributedString
-    }
+    }*/
     
     func imageForEmptyDataSet(scrollView: UIScrollView!) -> UIImage! {
-        return UIImage(named: "main-like-filled-large")
+        var image: UIImage!
+        
+        switch(currentFavoriteState) {
+        case .Outfits:
+            image = UIImage(named: "emptyset-favorites-outfit")
+        case .Pieces:
+            image = UIImage(named: "emptyset-favorites-piece")
+        }
+        
+        return image
     }
     
     func backgroundColorForEmptyDataSet(scrollView: UIScrollView!) -> UIColor! {

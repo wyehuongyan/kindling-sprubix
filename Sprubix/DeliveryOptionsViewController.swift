@@ -114,7 +114,7 @@ class DeliveryOptionsViewController: UIViewController, UITableViewDataSource, UI
     
     // DZNEmptyDataSetSource
     func titleForEmptyDataSet(scrollView: UIScrollView!) -> NSAttributedString! {
-        let text: String = "Title For Empty Data Set"
+        let text: String = "\nWays to deliver items to your customers"
         
         let attributes: NSDictionary = [
             NSFontAttributeName: UIFont.boldSystemFontOfSize(18.0),
@@ -127,7 +127,7 @@ class DeliveryOptionsViewController: UIViewController, UITableViewDataSource, UI
     }
     
     func descriptionForEmptyDataSet(scrollView: UIScrollView!) -> NSAttributedString! {
-        let text: String = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+        let text: String = "When you add a delivery option, you'll see it here."
         
         var paragraph: NSMutableParagraphStyle = NSMutableParagraphStyle.new()
         paragraph.lineBreakMode = NSLineBreakMode.ByWordWrapping
@@ -145,7 +145,7 @@ class DeliveryOptionsViewController: UIViewController, UITableViewDataSource, UI
     }
     
     func buttonTitleForEmptyDataSet(scrollView: UIScrollView!, forState state: UIControlState) -> NSAttributedString! {
-        let text: String = "Button Title"
+        let text: String = ""
         
         let attributes: NSDictionary = [
             NSFontAttributeName: UIFont.boldSystemFontOfSize(17.0)
@@ -157,7 +157,7 @@ class DeliveryOptionsViewController: UIViewController, UITableViewDataSource, UI
     }
     
     func imageForEmptyDataSet(scrollView: UIScrollView!) -> UIImage! {
-        return UIImage(named: "main-like-filled-large")
+        return UIImage(named: "emptyset-fulfilment")
     }
     
     func backgroundColorForEmptyDataSet(scrollView: UIScrollView!) -> UIColor! {

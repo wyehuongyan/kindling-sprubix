@@ -7,8 +7,15 @@
 //
 
 import UIKit
+import DZNEmptyDataSet
 
-class OrdersViewController: UIViewController {
+enum OrderState {
+    case Active
+    case Fulfilled
+    case Cancelled
+}
+
+class OrdersViewController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataSetDelegate {
     
     @IBOutlet var toolBarView: UIView!
     var button1: UIButton! // active
@@ -26,6 +33,8 @@ class OrdersViewController: UIViewController {
     var newNavBar: UINavigationBar!
     var newNavItem: UINavigationItem!
     
+    var currentOrderState: OrderState = .Active
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -36,6 +45,10 @@ class OrdersViewController: UIViewController {
         ordersTableView.tableFooterView = UIView(frame: CGRectZero)
         
         initToolBar()
+        
+        // empty dataset
+        ordersTableView.emptyDataSetSource = self
+        ordersTableView.emptyDataSetDelegate = self
     }
     
     override func viewWillAppear(animated: Bool) {
@@ -148,6 +161,9 @@ class OrdersViewController: UIViewController {
             currentChoice = sender
             sender.addSubview(buttonLine)
             sender.tintColor = sprubixColor
+            
+            self.currentOrderState = OrderState.Active
+            self.ordersTableView.reloadData()
         }
     }
     
@@ -158,6 +174,9 @@ class OrdersViewController: UIViewController {
             currentChoice = sender
             sender.addSubview(buttonLine)
             sender.tintColor = sprubixColor
+            
+            self.currentOrderState = OrderState.Fulfilled
+            self.ordersTableView.reloadData()
         }
     }
     
@@ -168,6 +187,9 @@ class OrdersViewController: UIViewController {
             currentChoice = sender
             sender.addSubview(buttonLine)
             sender.tintColor = sprubixColor
+            
+            self.currentOrderState = OrderState.Cancelled
+            self.ordersTableView.reloadData()
         }
     }
     
@@ -182,5 +204,75 @@ class OrdersViewController: UIViewController {
     // nav bar button callbacks
     func backTapped(sender: UIBarButtonItem) {
         self.navigationController?.popViewControllerAnimated(true)
+    }
+    
+    // DZNEmptyDataSetSource
+    func titleForEmptyDataSet(scrollView: UIScrollView!) -> NSAttributedString! {
+        var text: String = ""
+        
+        switch(currentOrderState) {
+        case .Active:
+            text = "\nItems awaiting seller's actions"
+        case .Fulfilled:
+            text = "\nItems that are on the way to you"
+        case .Cancelled:
+            text = "\nItems that you cancelled"
+        }
+        
+        let attributes: NSDictionary = [
+            NSFontAttributeName: UIFont.boldSystemFontOfSize(18.0),
+            NSForegroundColorAttributeName: UIColor.darkGrayColor()
+        ]
+        
+        let attributedString: NSAttributedString = NSAttributedString(string: text, attributes: attributes as [NSObject : AnyObject])
+        
+        return attributedString
+    }
+    
+    func descriptionForEmptyDataSet(scrollView: UIScrollView!) -> NSAttributedString! {
+        var text: String = ""
+        
+        switch(currentOrderState) {
+        case .Active:
+            text = "When you check out an item, you'll see it here."
+        case .Fulfilled:
+            text = "When the seller sends out the item, you'll see it here."
+        case .Cancelled:
+            text = "When you cancel an item, you'll see it here."
+        }
+        
+        var paragraph: NSMutableParagraphStyle = NSMutableParagraphStyle.new()
+        paragraph.lineBreakMode = NSLineBreakMode.ByWordWrapping
+        paragraph.alignment = NSTextAlignment.Center
+        
+        let attributes: NSDictionary = [
+            NSFontAttributeName: UIFont.boldSystemFontOfSize(14.0),
+            NSForegroundColorAttributeName: UIColor.lightGrayColor(),
+            NSParagraphStyleAttributeName: paragraph
+        ]
+        
+        let attributedString: NSAttributedString = NSAttributedString(string: text, attributes: attributes as [NSObject : AnyObject])
+        
+        return attributedString
+    }
+    
+    /*func buttonTitleForEmptyDataSet(scrollView: UIScrollView!, forState state: UIControlState) -> NSAttributedString! {
+    let text: String = "Button Title"
+    
+    let attributes: NSDictionary = [
+    NSFontAttributeName: UIFont.boldSystemFontOfSize(17.0)
+    ]
+    
+    let attributedString: NSAttributedString = NSAttributedString(string: text, attributes: attributes as [NSObject : AnyObject])
+    
+    return attributedString
+    }*/
+    
+    func imageForEmptyDataSet(scrollView: UIScrollView!) -> UIImage! {
+        return UIImage(named: "emptyset-orders")
+    }
+    
+    func backgroundColorForEmptyDataSet(scrollView: UIScrollView!) -> UIColor! {
+        return UIColor.whiteColor()
     }
 }

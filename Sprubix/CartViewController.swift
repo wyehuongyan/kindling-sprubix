@@ -155,7 +155,7 @@ class CartViewController: UIViewController, UITableViewDataSource, UITableViewDe
     
     // DZNEmptyDataSetSource
     func titleForEmptyDataSet(scrollView: UIScrollView!) -> NSAttributedString! {
-        let text: String = "Title For Empty Data Set"
+        let text: String = "\nItems ready for checkout"
         
         let attributes: NSDictionary = [
             NSFontAttributeName: UIFont.boldSystemFontOfSize(18.0),
@@ -168,7 +168,7 @@ class CartViewController: UIViewController, UITableViewDataSource, UITableViewDe
     }
     
     func descriptionForEmptyDataSet(scrollView: UIScrollView!) -> NSAttributedString! {
-        let text: String = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+        let text: String = "When you add an item to the cart, you'll see it here."
         
         var paragraph: NSMutableParagraphStyle = NSMutableParagraphStyle.new()
         paragraph.lineBreakMode = NSLineBreakMode.ByWordWrapping
@@ -185,7 +185,7 @@ class CartViewController: UIViewController, UITableViewDataSource, UITableViewDe
         return attributedString
     }
     
-    func buttonTitleForEmptyDataSet(scrollView: UIScrollView!, forState state: UIControlState) -> NSAttributedString! {
+    /*func buttonTitleForEmptyDataSet(scrollView: UIScrollView!, forState state: UIControlState) -> NSAttributedString! {
         let text: String = "Button Title"
         
         let attributes: NSDictionary = [
@@ -195,10 +195,10 @@ class CartViewController: UIViewController, UITableViewDataSource, UITableViewDe
         let attributedString: NSAttributedString = NSAttributedString(string: text, attributes: attributes as [NSObject : AnyObject])
         
         return attributedString
-    }
+    }*/
     
     func imageForEmptyDataSet(scrollView: UIScrollView!) -> UIImage! {
-        return UIImage(named: "main-like-filled-large")
+        return UIImage(named: "emptyset-cart")
     }
     
     func backgroundColorForEmptyDataSet(scrollView: UIScrollView!) -> UIColor! {
