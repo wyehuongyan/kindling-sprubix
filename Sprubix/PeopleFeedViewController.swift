@@ -1,37 +1,16 @@
 //
-//  BrowseFeedController.swift
+//  PeopleFeedViewController.swift
 //  Sprubix
 //
-//  Created by Yan Wye Huong on 18/6/15.
+//  Created by Yan Wye Huong on 22/7/15.
 //  Copyright (c) 2015 Sprubix. All rights reserved.
 //
 
 import UIKit
-import CHTCollectionViewWaterfallLayout
-import AFNetworking
 
-class BrowseFeedController: UIViewController, UITextFieldDelegate, UICollectionViewDataSource, CHTCollectionViewDelegateWaterfallLayout {
-    
+class PeopleFeedViewController: UIViewController {
+
     var delegate: SidePanelViewControllerDelegate?
-    var outfits: [NSDictionary] = [NSDictionary]()
-    var outfitsLiked: NSMutableDictionary = NSMutableDictionary()
-    
-    // collection view
-    let cellInfoViewHeight: CGFloat = 80
-    let discoverFeedCellIdentifier = "MainFeedCell"
-    var outfitsLayout: SprubixStretchyHeader!
-    var discoverCollectionView: UICollectionView!
-    
-    // search
-    let searchBarViewHeight: CGFloat = 44
-    let searchBarTextFieldHeight: CGFloat = 24
-    var searchBarView: UIView!
-    var searchBarTextField: UITextField!
-    var searchBarPlaceholderText: String = "Looking for something?"
-    
-    // custom nav bar
-    var newNavBar:UINavigationBar!
-    var newNavItem:UINavigationItem!
     
     // drop down
     var sprubixTitle: SprubixButtonIconRight!
@@ -42,15 +21,13 @@ class BrowseFeedController: UIViewController, UITextFieldDelegate, UICollectionV
     let dropdownViewHeight = navigationHeight * 3
     
     // feed
-    var peopleFeedController: PeopleFeedViewController?
+    var browseFeedController: BrowseFeedController?
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         view.backgroundColor = sprubixGray
         
-        initToolbar()
-        initCollectionView()
         initDropdown()
     }
     
@@ -58,19 +35,6 @@ class BrowseFeedController: UIViewController, UITextFieldDelegate, UICollectionV
         super.viewWillAppear(animated)
         
         initNavBar()
-        
-        if self.shyNavBarManager.scrollView == nil {
-            self.shyNavBarManager.scrollView = self.discoverCollectionView
-            //self.shyNavBarManager.extensionView = searchBarView
-        }
-        
-        retrieveOutfits()
-        
-        // Mixpanel - Viewed Main Feed, Discover
-        mixpanel.track("Viewed Main Feed", properties: [
-            "Page": "Discover"
-        ])
-        // Mixpanel - End
     }
     
     override func viewWillDisappear(animated: Bool) {
@@ -80,47 +44,12 @@ class BrowseFeedController: UIViewController, UITextFieldDelegate, UICollectionV
         self.navigationController?.setNavigationBarHidden(true, animated: true)
     }
     
-    private func initCollectionViewLayout() {
-        // layout for outfits tab
-        outfitsLayout = SprubixStretchyHeader()
-        
-        outfitsLayout.sectionInset = UIEdgeInsetsMake(10, 10, 10, 10)
-        outfitsLayout.footerHeight = 10
-        outfitsLayout.minimumColumnSpacing = 10
-        outfitsLayout.minimumInteritemSpacing = 10
-        outfitsLayout.columnCount = 2
-    }
-    
-    func initCollectionView() {
-        initCollectionViewLayout()
-        
-        discoverCollectionView = UICollectionView(frame: view.bounds, collectionViewLayout: outfitsLayout)
-        
-        discoverCollectionView.autoresizingMask = UIViewAutoresizing.FlexibleWidth | UIViewAutoresizing.FlexibleHeight
-        discoverCollectionView.showsVerticalScrollIndicator = true
-        
-        discoverCollectionView.registerClass(MainFeedCell.self, forCellWithReuseIdentifier: discoverFeedCellIdentifier)
-        
-        discoverCollectionView.alwaysBounceVertical = true
-        discoverCollectionView.backgroundColor = sprubixGray
-        
-        discoverCollectionView.dataSource = self;
-        discoverCollectionView.delegate = self;
-        
-        // infinite scrolling
-        discoverCollectionView.addInfiniteScrollingWithActionHandler({
-            //self.insertMoreOutfits()
-        })
-        
-        view.addSubview(discoverCollectionView)
-    }
-    
     func initNavBar() {
         self.navigationController?.setNavigationBarHidden(false, animated: true)
         self.navigationController?.navigationBar.barTintColor = UIColor.whiteColor()
         
         // 1. add a new title to the nav bar
-        self.navigationItem.title = "Browse"
+        self.navigationItem.title = "People"
         
         // 2. create a custom button
         var sideMenuButton:UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
@@ -176,14 +105,14 @@ class BrowseFeedController: UIViewController, UITextFieldDelegate, UICollectionV
         sprubixTitle = SprubixButtonIconRight(frame: CGRect(x: -logoImageWidth / 2, y: -logoImageHeight / 2, width: logoImageWidth, height: logoImageHeight))
         
         sprubixTitle.addTarget(self, action: "navbarTitlePressed:", forControlEvents: UIControlEvents.TouchUpInside)
-
+        
         var dropdownImage = UIImage(named: "others-dropdown-down")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
         sprubixTitle.setImage(dropdownImage, forState: UIControlState.Normal)
         
         var dropupImage = UIImage(named: "others-dropdown-up")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
         sprubixTitle.setImage(dropupImage, forState: UIControlState.Selected)
         
-        sprubixTitle.setTitle("Browse", forState: UIControlState.Normal)
+        sprubixTitle.setTitle("People", forState: UIControlState.Normal)
         sprubixTitle.setTitleColor(UIColor.blackColor(), forState: UIControlState.Normal)
         sprubixTitle.titleLabel?.font = UIFont.boldSystemFontOfSize(sprubixTitle.titleLabel!.font.pointSize)
         sprubixTitle.imageEdgeInsets = UIEdgeInsetsMake(7, 2, 7, 0)
@@ -192,55 +121,6 @@ class BrowseFeedController: UIViewController, UITextFieldDelegate, UICollectionV
         
         self.navigationItem.titleView = sprubixTitle
         self.navigationItem.titleView?.userInteractionEnabled = true
-    }
-
-    func initToolbar() {
-        // search bar
-        searchBarView = UIView(frame: CGRectMake(0, navigationHeight, screenWidth, searchBarViewHeight))
-        
-        searchBarView.backgroundColor = sprubixLightGray
-        
-        searchBarTextField = UITextField(frame: CGRectMake(10, 10, screenWidth - 20, searchBarTextFieldHeight))
-        
-        searchBarTextField.placeholder = searchBarPlaceholderText
-        searchBarTextField.backgroundColor = UIColor.whiteColor()
-        searchBarTextField.layer.cornerRadius = 3.0
-        searchBarTextField.textColor = UIColor.darkGrayColor()
-        searchBarTextField.tintColor = sprubixColor
-        searchBarTextField.font = UIFont.systemFontOfSize(15.0)
-        //searchBarTextField.textContainerInset = UIEdgeInsetsMake(3, 3, 0, 0);
-        searchBarTextField.delegate = self
-        searchBarTextField.textAlignment = NSTextAlignment.Center
-        
-        searchBarView.addSubview(searchBarTextField)
-    }
-    
-    // REST calls
-    func retrieveOutfits() {
-        // retrieve 3 example pieces
-        manager.POST(SprubixConfig.URL.api + "/outfits/ids",
-            parameters: [
-                "ids": ["5", "6", "7", "8"]
-            ],
-            success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
-                self.outfits = responseObject["data"] as! [NSDictionary]
-                
-                /*
-                if self.outfits.count <= 0 {
-                    // empty dataset
-                    self.discoverCollectionView.emptyDataSetSource = self
-                    self.discoverCollectionView.emptyDataSetDelegate = self
-                } else {
-                    self.discoverCollectionView.emptyDataSetSource = nil
-                    self.discoverCollectionView.emptyDataSetDelegate = nil
-                }
-                */
-                
-                self.discoverCollectionView.reloadData()
-            },
-            failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
-                println("Error: " + error.localizedDescription)
-        })
     }
     
     func initDropdown() {
@@ -290,14 +170,15 @@ class BrowseFeedController: UIViewController, UITextFieldDelegate, UICollectionV
         image = UIImage(named: "main-discover")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
         browseButton.setImage(image, forState: UIControlState.Normal)
         browseButton.setTitle("Browse", forState: UIControlState.Normal)
-        browseButton.setTitleColor(sprubixColor, forState: UIControlState.Normal)
+        browseButton.setTitleColor(UIColor.darkGrayColor(), forState: UIControlState.Normal)
         browseButton.titleLabel?.font = UIFont.systemFontOfSize(16.0)
         browseButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
-        browseButton.imageView?.tintColor = sprubixColor
+        browseButton.imageView?.tintColor = UIColor.lightGrayColor()
         browseButton.backgroundColor = sprubixLightGray
         browseButton.contentHorizontalAlignment = UIControlContentHorizontalAlignment.Left
         browseButton.imageEdgeInsets = UIEdgeInsetsMake(10, 10, 10, 10)
         browseButton.titleEdgeInsets = UIEdgeInsetsMake(0, 20, 0, 0)
+        browseButton.addTarget(self, action: "browseFeedTapped:", forControlEvents: UIControlEvents.TouchUpInside)
         
         // // people
         let peopleButton: UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
@@ -305,15 +186,14 @@ class BrowseFeedController: UIViewController, UITextFieldDelegate, UICollectionV
         image = UIImage(named: "main-following")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
         peopleButton.setImage(image, forState: UIControlState.Normal)
         peopleButton.setTitle("People", forState: UIControlState.Normal)
-        peopleButton.setTitleColor(UIColor.darkGrayColor(), forState: UIControlState.Normal)
+        peopleButton.setTitleColor(sprubixColor, forState: UIControlState.Normal)
         peopleButton.titleLabel?.font = UIFont.systemFontOfSize(16.0)
         peopleButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
-        peopleButton.imageView?.tintColor = UIColor.lightGrayColor()
+        peopleButton.imageView?.tintColor = sprubixColor
         peopleButton.backgroundColor = sprubixLightGray
         peopleButton.contentHorizontalAlignment = UIControlContentHorizontalAlignment.Left
         peopleButton.imageEdgeInsets = UIEdgeInsetsMake(10, 10, 10, 10)
         peopleButton.titleEdgeInsets = UIEdgeInsetsMake(0, 20, 0, 0)
-        peopleButton.addTarget(self, action: "peopleFeedTapped:", forControlEvents: UIControlEvents.TouchUpInside)
         
         dropdownView!.addSubview(followingButton)
         dropdownView!.addSubview(browseButton)
@@ -322,69 +202,6 @@ class BrowseFeedController: UIViewController, UITextFieldDelegate, UICollectionV
         view.addSubview(dropdownView!)
     }
     
-    // UICollectionViewDataSource
-    func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return outfits.count
-    }
-    
-    func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
-        let cell:MainFeedCell = collectionView.dequeueReusableCellWithReuseIdentifier(discoverFeedCellIdentifier, forIndexPath: indexPath) as! MainFeedCell
-        
-        var outfit = outfits[indexPath.row] as NSDictionary
-        
-        // assign delegate and indexPath
-        //cell.delegate = self
-        cell.indexPath = indexPath
-        
-        var outfitId = outfit["id"] as! Int
-        cell.itemIdentifier = "outfit_\(outfitId)"
-        cell.outfitId = outfitId
-        
-        // assign image
-        var outfitImagesString = outfit["images"] as! NSString
-        var outfitImagesData:NSData = outfitImagesString.dataUsingEncoding(NSUTF8StringEncoding)!
-        
-        var outfitImagesDict: NSDictionary = NSJSONSerialization.JSONObjectWithData(outfitImagesData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSDictionary
-        var outfitImageDict: NSDictionary = outfitImagesDict["images"] as! NSDictionary
-        
-        cell.imageURLString = outfitImageDict["small"] as! String
-        cell.thumbnailURLString = outfitImageDict["thumbnail"] as! String
-        
-        // assign height
-        let itemHeight = outfit["height"] as! CGFloat
-        let itemWidth = outfit["width"] as! CGFloat
-        let imageHeight = itemHeight * gridWidth/itemWidth
-        cell.imageHeight = imageHeight
-        
-        // assign liked
-        cell.liked = outfitsLiked[outfitId] as? Bool
-        
-        // assign user
-        cell.user = outfit["user"] as! NSDictionary
-        
-        // assign creation time
-        cell.creationTime = outfit["created_at_custom_format"] as! NSDictionary
-        
-        cell.setNeedsLayout()
-        
-        return cell
-    }
-    
-    // CHTCollectionViewDelegateWaterfallLayout
-    func collectionView(collectionView: UICollectionView!, layout collectionViewLayout: UICollectionViewLayout!, sizeForItemAtIndexPath indexPath: NSIndexPath!) -> CGSize {
-        var itemHeight:CGFloat!
-        var itemWidth:CGFloat!
-        
-        let outfit = outfits[indexPath.row] as NSDictionary
-        itemHeight = outfit["height"] as! CGFloat
-        itemWidth = outfit["width"] as! CGFloat
-        
-        let imageHeight = itemHeight * gridWidth/itemWidth
-        
-        return CGSizeMake(gridWidth, imageHeight + cellInfoViewHeight)
-    }
-    
-    // nav bar button callbacks
     func navbarTitlePressed(sender: UIButton) {
         if dropdownVisible != true {
             sprubixTitle.selected = true
@@ -393,7 +210,7 @@ class BrowseFeedController: UIViewController, UITextFieldDelegate, UICollectionV
             UIView.animateWithDuration(0.5, delay: 0.0, usingSpringWithDamping: 0.9, initialSpringVelocity: 0, options: .CurveEaseInOut, animations: {
                 self.dropdownWrapper!.alpha = 1.0
                 self.dropdownView?.frame.origin.y = navigationHeight
-                self.discoverCollectionView.scrollEnabled = false
+
                 self.dropdownVisible = true
                 }, completion: nil)
         } else {
@@ -406,14 +223,14 @@ class BrowseFeedController: UIViewController, UITextFieldDelegate, UICollectionV
         UIView.animateWithDuration(0.5, delay: 0.0, usingSpringWithDamping: 0.9, initialSpringVelocity: 0, options: .CurveEaseInOut, animations: {
             self.dropdownWrapper!.alpha = 0.0
             self.dropdownView?.frame.origin.y = -self.dropdownViewHeight
-            self.discoverCollectionView.scrollEnabled = true
+
             self.dropdownVisible = false
             }, completion: nil)
         
         sprubixTitle.selected = false
     }
     
-    func peopleFeedTapped(sender: UIButton) {
+    func browseFeedTapped(sender: UIButton) {
         
         // check if previous vc is browseFeed
         // // if yes, pop, if no, push new
@@ -421,20 +238,20 @@ class BrowseFeedController: UIViewController, UITextFieldDelegate, UICollectionV
         var childrenCount = self.navigationController!.viewControllers.count
         var prevChild: AnyObject = self.navigationController!.viewControllers[childrenCount-2]
         
-        if prevChild.isKindOfClass(PeopleFeedViewController) {
+        if prevChild.isKindOfClass(BrowseFeedController) {
             UIView.transitionWithView(self.navigationController!.view, duration: 0.5, options: UIViewAnimationOptions.TransitionCrossDissolve, animations: {
                 self.navigationController?.popViewControllerAnimated(false)
                 }, completion: nil)
             
             dismissDropdown(UITapGestureRecognizer())
         } else {
-            if peopleFeedController == nil {
-                peopleFeedController = PeopleFeedViewController()
-                peopleFeedController!.delegate = containerViewController
+            if browseFeedController == nil {
+                browseFeedController = BrowseFeedController()
+                browseFeedController!.delegate = containerViewController
             }
             
             UIView.transitionWithView(self.navigationController!.view, duration: 0.5, options: UIViewAnimationOptions.TransitionCrossDissolve, animations: {
-                self.navigationController?.pushViewController(peopleFeedController!, animated: false)
+                self.navigationController?.pushViewController(browseFeedController!, animated: false)
                 }, completion: nil)
             
             dismissDropdown(UITapGestureRecognizer())

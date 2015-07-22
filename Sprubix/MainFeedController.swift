@@ -33,8 +33,9 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
     var spruceViewController: SpruceViewController?
     var commentsViewController: CommentsViewController?
     
-    // browse feed
+    // feed
     var browseFeedController: BrowseFeedController?
+    var peopleFeedController: PeopleFeedViewController?
     
     // drop down
     var sprubixTitle: SprubixButtonIconRight!
@@ -413,6 +414,7 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         peopleButton.contentHorizontalAlignment = UIControlContentHorizontalAlignment.Left
         peopleButton.imageEdgeInsets = UIEdgeInsetsMake(10, 10, 10, 10)
         peopleButton.titleEdgeInsets = UIEdgeInsetsMake(0, 20, 0, 0)
+        peopleButton.addTarget(self, action: "peopleFeedTapped:", forControlEvents: UIControlEvents.TouchUpInside)
         
         dropdownView!.addSubview(followingButton)
         dropdownView!.addSubview(browseButton)
@@ -969,6 +971,20 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         UIView.transitionWithView(self.navigationController!.view, duration: 0.5, options: UIViewAnimationOptions.TransitionCrossDissolve, animations: {
             self.navigationController?.pushViewController(browseFeedController!, animated: false)
         }, completion: nil)
+        
+        dismissDropdown(UITapGestureRecognizer())
+    }
+    
+    func peopleFeedTapped(sender: UIButton) {
+        
+        if peopleFeedController == nil {
+            peopleFeedController = PeopleFeedViewController()
+            peopleFeedController!.delegate = containerViewController
+        }
+        
+        UIView.transitionWithView(self.navigationController!.view, duration: 0.5, options: UIViewAnimationOptions.TransitionCrossDissolve, animations: {
+            self.navigationController?.pushViewController(peopleFeedController!, animated: false)
+            }, completion: nil)
         
         dismissDropdown(UITapGestureRecognizer())
     }
