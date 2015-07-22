@@ -43,7 +43,7 @@ class ShopOrdersViewController: UIViewController, UITableViewDataSource, UITable
     
     func retrieveUserShopOrders() {
         // REST call to server to retrieve shop orders
-        manager.POST(SprubixConfig.URL.api + "/orders/user/shop",
+        manager.POST(SprubixConfig.URL.api + "/orders/shop",
             parameters: [
                 "shop_order_ids": shopOrderIds
             ],

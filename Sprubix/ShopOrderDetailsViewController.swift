@@ -14,6 +14,7 @@ class ShopOrderDetailsViewController: UIViewController, UITableViewDataSource, U
     var shopOrder: NSDictionary!
     var orderNum: String!
     var orderStatuses: [NSDictionary] = [NSDictionary]()
+    var customerId: Int?
     
     let orderDetailsUserCellIdentifier = "OrderDetailsUserCell"
     let orderDetailsContactCellIdentifier = "OrderDetailsContactCell"
@@ -141,6 +142,8 @@ class ShopOrderDetailsViewController: UIViewController, UITableViewDataSource, U
                     let sellerCoverString = shop["cover"] as! String
                     let sellerCoverURL: NSURL = NSURL(string: sellerCoverString)!
                     
+                    customerId = userData!["id"] as? Int
+                    
                     let shopUsername = shop["username"] as! String
                     let shopName = shop["name"] as! String
                     
@@ -160,6 +163,8 @@ class ShopOrderDetailsViewController: UIViewController, UITableViewDataSource, U
 
                     let buyerCoverString = buyer["cover"] as! String
                     let buyerCoverURL: NSURL = NSURL(string: buyerCoverString)!
+                    
+                    customerId = buyer["id"] as? Int
                     
                     cell.userImageView.setImageWithURL(buyerImageURL)
                     cell.coverImageView.setImageWithURL(buyerCoverURL)
@@ -188,10 +193,9 @@ class ShopOrderDetailsViewController: UIViewController, UITableViewDataSource, U
                     cell.address.text = deliveryAddressText
                     
                     cell.initUserInfo()
-                    
-                    cell.accessoryType = UITableViewCellAccessoryType.DisclosureIndicator
                 }
                 
+                cell.accessoryType = UITableViewCellAccessoryType.DisclosureIndicator
                 cell.selectionStyle = UITableViewCellSelectionStyle.None
                 
                 return cell
@@ -283,9 +287,6 @@ class ShopOrderDetailsViewController: UIViewController, UITableViewDataSource, U
             cell.setStatusImage()
             cell.status.text = orderStatusName
             
-            let userData: NSDictionary? = defaults.dictionaryForKey("userData")
-            let shoppableType: String? = userData!["shoppable_type"] as? String
-            
             cell.changeStatusAction = { Void in
                 
                 if self.orderStatuses.count <= 0 {
@@ -361,6 +362,9 @@ class ShopOrderDetailsViewController: UIViewController, UITableViewDataSource, U
             case 0:
                 // OrderDetailsUserCell
                 let customerDetailsViewController = UIStoryboard.customerDetailsViewController()
+                
+                customerDetailsViewController?.customerId = customerId
+                customerDetailsViewController?.shopOrder = shopOrder
                 
                 self.navigationController?.pushViewController(customerDetailsViewController!, animated: true)
             default:

@@ -1566,6 +1566,40 @@
                                             <outlet property="username" destination="aye-wp-tDp" id="lob-PA-kd7"/>
                                         </connections>
                                     </tableViewCell>
+                                    <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="CustomerDetailsRecentOrders" rowHeight="44" id="jGV-Lu-grt" customClass="CustomerDetailsRecentOrdersCell" customModule="Sprubix" customModuleProvider="target">
+                                        <rect key="frame" x="10" y="74" width="600" height="44"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="jGV-Lu-grt" id="Ufr-N6-zJc">
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="sidemenu-cart" translatesAutoresizingMaskIntoConstraints="NO" id="8Sf-PV-CNf">
+                                                    <rect key="frame" x="10" y="8" width="28" height="28"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="width" constant="28" id="6yS-za-Rx9"/>
+                                                    </constraints>
+                                                </imageView>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Recent Orders" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="sxS-Kr-ceG">
+                                                    <rect key="frame" x="48" y="12" width="542" height="20"/>
+                                                    <fontDescription key="fontDescription" type="system" weight="medium" pointSize="17"/>
+                                                    <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                            </subviews>
+                                            <constraints>
+                                                <constraint firstAttribute="bottom" secondItem="sxS-Kr-ceG" secondAttribute="bottom" constant="12" id="3pc-b7-oVb"/>
+                                                <constraint firstItem="sxS-Kr-ceG" firstAttribute="top" secondItem="Ufr-N6-zJc" secondAttribute="top" constant="12" id="G8n-BO-LW1"/>
+                                                <constraint firstItem="8Sf-PV-CNf" firstAttribute="leading" secondItem="Ufr-N6-zJc" secondAttribute="leading" constant="10" id="Lf2-xy-UPt"/>
+                                                <constraint firstItem="8Sf-PV-CNf" firstAttribute="top" secondItem="Ufr-N6-zJc" secondAttribute="top" constant="8" id="N9Z-Te-dTg"/>
+                                                <constraint firstItem="sxS-Kr-ceG" firstAttribute="leading" secondItem="8Sf-PV-CNf" secondAttribute="trailing" constant="10" id="bFc-Vk-qLK"/>
+                                                <constraint firstAttribute="bottom" secondItem="8Sf-PV-CNf" secondAttribute="bottom" constant="8" id="enn-cY-2mG"/>
+                                                <constraint firstAttribute="trailing" secondItem="sxS-Kr-ceG" secondAttribute="trailing" constant="10" id="wXl-3R-9Fd"/>
+                                            </constraints>
+                                        </tableViewCellContentView>
+                                        <connections>
+                                            <outlet property="cartImageView" destination="8Sf-PV-CNf" id="IuI-QR-5eQ"/>
+                                            <outlet property="recentOrderText" destination="sxS-Kr-ceG" id="sBj-8N-KAi"/>
+                                        </connections>
+                                    </tableViewCell>
                                 </prototypes>
                             </tableView>
                         </subviews>
@@ -1593,6 +1627,7 @@
         <image name="order-contact" width="40" height="40"/>
         <image name="order-processing" width="35" height="35"/>
         <image name="others-edit" width="40" height="40"/>
+        <image name="sidemenu-cart" width="40" height="40"/>
         <image name="sidemenu-fulfilment" width="40" height="40"/>
         <image name="sidemenu-messages" width="40" height="40"/>
     </resources>
