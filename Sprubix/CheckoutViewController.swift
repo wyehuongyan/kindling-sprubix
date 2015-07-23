@@ -246,7 +246,7 @@ class CheckoutViewController: UIViewController, UITableViewDataSource, UITableVi
                     deliveryAddressText += "\n\(postalCode!)\n\(country!)"
                     cell.deliveryPaymentText.text = deliveryAddressText
                 } else {
-                    cell.deliveryPaymentText.text = "Add a new Deliver Address"
+                    cell.deliveryPaymentText.text = "Add a new Delivery Address"
                 }
                 
                 cell.deliveryPaymentImage.image = UIImage(named: "sidemenu-fulfilment")
@@ -425,35 +425,45 @@ class CheckoutViewController: UIViewController, UITableViewDataSource, UITableVi
     
     func placeOrderButtonPressed(sender: UIButton) {
         
-        // init overlay
-        overlay = MRProgressOverlayView.showOverlayAddedTo(self.view, title: "Processing...", mode: MRProgressOverlayViewMode.Indeterminate, animated: true)
-        
-        overlay.tintColor = sprubixColor
-        
-        // check stock again in case last item has been bought
-        verifyStock { (insufficient) -> Void in
-            if insufficient != nil {
-                // stock insufficient
-            } else {
-                // perform BrainTree transaction
-                self.createTransaction({ (responseObject) -> Void in
-                    
-                    var status = responseObject["status"] as! String
-                    
-                    if status == "200" {
-                        var btStatus = responseObject["BT_status"] as! String
+        if defaultDeliveryAddress.count > 0 && defaultPaymentMethod.count > 0 {
+            // init overlay
+            overlay = MRProgressOverlayView.showOverlayAddedTo(self.view, title: "Processing...", mode: MRProgressOverlayViewMode.Indeterminate, animated: true)
+            
+            overlay.tintColor = sprubixColor
+            
+            // check stock again in case last item has been bought
+            verifyStock { (insufficient) -> Void in
+                if insufficient != nil {
+                    // stock insufficient
+                } else {
+                    // perform BrainTree transaction
+                    self.createTransaction({ (responseObject) -> Void in
                         
-                        if btStatus == "authorized" || btStatus == "submitted_for_settlement" {
-                            // // if transaction OK, create new order
-                            let transactionId = responseObject["BT_transaction_id"] as! String
-                            self.createOrder(transactionId)
+                        var status = responseObject["status"] as! String
+                        
+                        if status == "200" {
+                            var btStatus = responseObject["BT_status"] as! String
+                            
+                            if btStatus == "authorized" || btStatus == "submitted_for_settlement" {
+                                // // if transaction OK, create new order
+                                let transactionId = responseObject["BT_transaction_id"] as! String
+                                self.createOrder(transactionId)
+                            }
+                            
+                        } else if status == "500" {
+                            println(responseObject["exception"] as! String)
                         }
-                        
-                    } else if status == "500" {
-                        println(responseObject["exception"] as! String)
-                    }
-                })
+                    })
+                }
             }
+        } else {
+            let alert = UIAlertController(title: "Oops!", message: "Please fill in delivery address and payment method.", preferredStyle: UIAlertControllerStyle.Alert)
+            alert.view.tintColor = sprubixColor
+            
+            // Ok
+            alert.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Cancel, handler: nil))
+            
+            self.presentViewController(alert, animated: true, completion: nil)
         }
     }
     
