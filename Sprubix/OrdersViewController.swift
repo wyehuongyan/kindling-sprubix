@@ -411,15 +411,33 @@ class OrdersViewController: UIViewController, UITableViewDataSource, UITableView
     // DZNEmptyDataSetSource
     func titleForEmptyDataSet(scrollView: UIScrollView!) -> NSAttributedString! {
         var text: String = ""
+        let shoppable_type: String = (defaults.objectForKey("userData")!.objectForKey("shoppable_type") as! String).componentsSeparatedByString("\\").last!
         
-        if currentOrderStatus == activeStatuses {
-            text = "\nItems awaiting seller's actions"
-        }
-        else if currentOrderStatus == fulfilledStatuses {
-            text = "\nItems that are on the way to you"
-        }
-        else if currentOrderStatus == cancelledStatuses {
-            text = "\nItems that you cancelled"
+        switch shoppable_type {
+        case "Shopper":
+            if currentOrderStatus == activeStatuses {
+                text = "\nItems awaiting seller's actions"
+            }
+            else if currentOrderStatus == fulfilledStatuses {
+                text = "\nItems that are on the way to you"
+            }
+            else if currentOrderStatus == cancelledStatuses {
+                text = "\nItems that were cancelled"
+            }
+            
+        case "Shop":
+            if currentOrderStatus == activeStatuses {
+                text = "\nItems awaiting your actions"
+            }
+            else if currentOrderStatus == fulfilledStatuses {
+                text = "\nItems on the way to your customers"
+            }
+            else if currentOrderStatus == cancelledStatuses {
+                text = "\nItems that were cancelled"
+            }
+        
+        default:
+            break
         }
         
         let attributes: NSDictionary = [
@@ -434,16 +452,35 @@ class OrdersViewController: UIViewController, UITableViewDataSource, UITableView
     
     func descriptionForEmptyDataSet(scrollView: UIScrollView!) -> NSAttributedString! {
         var text: String = ""
+        let shoppable_type: String = (defaults.objectForKey("userData")!.objectForKey("shoppable_type") as! String).componentsSeparatedByString("\\").last!
         
-        if currentOrderStatus == activeStatuses {
-            text = "When you check out an item, you'll see it here."
+        switch shoppable_type {
+        case "Shopper":
+            if currentOrderStatus == activeStatuses {
+                text = "When you check out an item, you'll see it here."
+            }
+            else if currentOrderStatus == fulfilledStatuses {
+                text = "When the seller sends out the item, you'll see it here."
+            }
+            else if currentOrderStatus == cancelledStatuses {
+                text = "When you cancel an item, you'll see it here."
+            }
+            
+        case "Shop":
+            if currentOrderStatus == activeStatuses {
+                text = "When you have items to fulfill, you'll see it here."
+            }
+            else if currentOrderStatus == fulfilledStatuses {
+                text = "When you send out an item, you'll see it here."
+            }
+            else if currentOrderStatus == cancelledStatuses {
+                text = "When an item is cancelled, you'll see it here."
+            }
+        
+        default:
+            break
         }
-        else if currentOrderStatus == fulfilledStatuses {
-            text = "When the seller sends out the item, you'll see it here."
-        }
-        else if currentOrderStatus == cancelledStatuses {
-            text = "When you cancel an item, you'll see it here."
-        }
+        
         
         var paragraph: NSMutableParagraphStyle = NSMutableParagraphStyle.new()
         paragraph.lineBreakMode = NSLineBreakMode.ByWordWrapping
@@ -473,10 +510,22 @@ class OrdersViewController: UIViewController, UITableViewDataSource, UITableView
     }*/
     
     func imageForEmptyDataSet(scrollView: UIScrollView!) -> UIImage! {
-        return UIImage(named: "emptyset-orders")
+        var image: UIImage!
+        
+        if currentOrderStatus == activeStatuses {
+            image = UIImage(named: "emptyset-orders-active")
+        }
+        else if currentOrderStatus == fulfilledStatuses {
+            image = UIImage(named: "emptyset-orders-fulfilled")
+        }
+        else if currentOrderStatus == cancelledStatuses {
+            image = UIImage(named: "emptyset-orders-cancelled")
+        }
+        
+        return image
     }
     
     func backgroundColorForEmptyDataSet(scrollView: UIScrollView!) -> UIColor! {
-        return UIColor.whiteColor()
+        return sprubixGray
     }
 }

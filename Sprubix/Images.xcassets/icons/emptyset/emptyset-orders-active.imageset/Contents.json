@@ -3,17 +3,17 @@
     {
       "idiom" : "universal",
       "scale" : "1x",
-      "filename" : "emptyset_orders@1x.png"
+      "filename" : "emptyset_orders_active@1x.png"
     },
     {
       "idiom" : "universal",
       "scale" : "2x",
-      "filename" : "emptyset_orders@2x.png"
+      "filename" : "emptyset_orders_active@2x.png"
     },
     {
       "idiom" : "universal",
       "scale" : "3x",
-      "filename" : "emptyset_orders@3x.png"
+      "filename" : "emptyset_orders_active@3x.png"
     }
   ],
   "info" : {
