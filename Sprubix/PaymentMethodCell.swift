@@ -33,7 +33,7 @@ class PaymentMethodCell: UITableViewCell {
         
         deletePaymentMethodButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
         // top, left, bottom, right
-        deletePaymentMethodButton.imageEdgeInsets = UIEdgeInsetsMake(6, 8, 4, 2)
+        deletePaymentMethodButton.imageEdgeInsets = UIEdgeInsetsMake(9, 15, 8, 2)
         Glow.addGlow(deletePaymentMethodButton)
     }
 }

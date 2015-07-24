@@ -234,8 +234,10 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
             animateSprubixFeedXPosition(targetPosition: 0) { finished in
                 self.currentState = .Collapsed
                 
-                self.sidePanelViewController!.view.removeFromSuperview()
-                self.sidePanelViewController = nil;
+                if self.sidePanelViewController != nil {
+                    self.sidePanelViewController!.view.removeFromSuperview()
+                    self.sidePanelViewController = nil
+                }
             }
             
             // remove darkened overlay
@@ -339,12 +341,28 @@ extension UIStoryboard {
         return shopStoryboard().instantiateViewControllerWithIdentifier("OrdersView") as? OrdersViewController
     }
     
+    class func shopOrdersViewController() -> ShopOrdersViewController? {
+        return shopStoryboard().instantiateViewControllerWithIdentifier("ShopOrdersView") as? ShopOrdersViewController
+    }
+    
+    class func shopOrderDetailsViewController() -> ShopOrderDetailsViewController? {
+        return shopStoryboard().instantiateViewControllerWithIdentifier("ShopOrderDetailsView") as? ShopOrderDetailsViewController
+    }
+    
+    class func customerDetailsViewController() -> CustomerDetailsViewController? {
+        return shopStoryboard().instantiateViewControllerWithIdentifier("CustomerDetailsView") as? CustomerDetailsViewController
+    }
+    
     class func deliveryOptionsViewController() -> DeliveryOptionsViewController? {
         return shopStoryboard().instantiateViewControllerWithIdentifier("DeliveryOptionsView") as? DeliveryOptionsViewController
     }
     
     class func cartViewController() -> CartViewController? {
         return shopStoryboard().instantiateViewControllerWithIdentifier("CartView") as? CartViewController
+    }
+    
+    class func checkoutPointsViewController() -> CheckoutPointsViewController? {
+        return shopStoryboard().instantiateViewControllerWithIdentifier("CheckoutPointsView") as? CheckoutPointsViewController
     }
     
     class func checkoutViewController() -> CheckoutViewController? {

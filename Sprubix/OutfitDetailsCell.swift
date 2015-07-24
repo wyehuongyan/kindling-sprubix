@@ -327,6 +327,8 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
                             buyPieceInfo?.setObject(piece["id"] as! Int, forKey: "piece_id")
                             buyPieceInfo?.setObject(user["id"] as! Int, forKey: "seller_id")
                             
+                            // this piece was from this outfit
+                            buyPieceInfo?.setObject(outfit["id"] as! Int, forKey: "outfit_id")
                             buyPiecesInfo.setObject(buyPieceInfo!, forKey: pieceId)
                             
                         } else {
@@ -414,20 +416,25 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
             
             // add to bag CTA button
             if purchasable {
-                addToBagButton = UIButton(frame: CGRect(x: 0, y: screenHeight - navigationHeight, width: screenWidth, height: navigationHeight))
-                addToBagButton.backgroundColor = sprubixColor
-                addToBagButton.titleLabel?.font = UIFont.boldSystemFontOfSize(18.0)
-                addToBagButton.setTitle("Buy Outfit Now", forState: UIControlState.Normal)
-                addToBagButton.addTarget(self, action: "addToBagButtonPressed:", forControlEvents: UIControlEvents.TouchUpInside)
+                let userData: NSDictionary? = defaults.dictionaryForKey("userData")
+                let userType = userData!["shoppable_type"] as! String
                 
-                contentView.addSubview(addToBagButton)
-                
-                // manual dim background because of TSMessage being blocked
-                darkenedOverlay = UIView(frame: CGRectMake(0, 0, screenWidth, screenHeight))
-                darkenedOverlay?.backgroundColor = UIColor.blackColor()
-                darkenedOverlay?.alpha = 0
-                
-                contentView.addSubview(darkenedOverlay!)
+                if userType.lowercaseString.rangeOfString("shopper") != nil {
+                    addToBagButton = UIButton(frame: CGRect(x: 0, y: screenHeight - navigationHeight, width: screenWidth, height: navigationHeight))
+                    addToBagButton.backgroundColor = sprubixColor
+                    addToBagButton.titleLabel?.font = UIFont.boldSystemFontOfSize(18.0)
+                    addToBagButton.setTitle("Buy Outfit Now", forState: UIControlState.Normal)
+                    addToBagButton.addTarget(self, action: "addToBagButtonPressed:", forControlEvents: UIControlEvents.TouchUpInside)
+                    
+                    contentView.addSubview(addToBagButton)
+                    
+                    // manual dim background because of TSMessage being blocked
+                    darkenedOverlay = UIView(frame: CGRectMake(0, 0, screenWidth, screenHeight))
+                    darkenedOverlay?.backgroundColor = UIColor.blackColor()
+                    darkenedOverlay?.alpha = 0
+                    
+                    contentView.addSubview(darkenedOverlay!)
+                }
             }
             
             return outfitImageCell
@@ -592,6 +599,7 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
 
         selectedPieceDetail = pieces[position!] as NSDictionary
         
+        pieceDetailsViewController.parentOutfitId = outfit["id"] as? Int
         pieceDetailsViewController.pieces = pieces
         pieceDetailsViewController.user = user
         pieceDetailsViewController.inspiredBy = inspiredBy

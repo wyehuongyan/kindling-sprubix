@@ -22,6 +22,8 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
     var detailsCellActionDelegate: DetailsCellActions?
     var outfits: [NSDictionary] = [NSDictionary]()
     
+    var parentOutfitId: Int? // to detect if this piece was accessed from an outfit
+    
     var piece: NSDictionary!
     var user: NSDictionary!
     var inspiredBy: NSDictionary!
@@ -456,19 +458,30 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
                 pieceSpecsView.addSubview(itemQuantityImage)
                 pieceSpecsView.addSubview(itemQuantityLabel)
                 
-                // add to bag CTA button
-                addToBagButton = UIButton(frame: CGRect(x: 0, y: screenHeight - navigationHeight, width: screenWidth, height: navigationHeight))
-                addToBagButton.backgroundColor = sprubixColor
-                addToBagButton.titleLabel?.font = UIFont.boldSystemFontOfSize(18.0)
-                addToBagButton.setTitle("Buy Now", forState: UIControlState.Normal)
-                addToBagButton.addTarget(self, action: "addToBagButtonPressed:", forControlEvents: UIControlEvents.TouchUpInside)
+                let userData: NSDictionary? = defaults.dictionaryForKey("userData")
+                let userType = userData!["shoppable_type"] as! String
                 
-                addSubview(addToBagButton)
+                if userType.lowercaseString.rangeOfString("shopper") != nil {
+                    // add to bag CTA button
+                    addToBagButton = UIButton(frame: CGRect(x: 0, y: screenHeight - navigationHeight, width: screenWidth, height: navigationHeight))
+                    addToBagButton.backgroundColor = sprubixColor
+                    addToBagButton.titleLabel?.font = UIFont.boldSystemFontOfSize(18.0)
+                    addToBagButton.setTitle("Buy Now", forState: UIControlState.Normal)
+                    addToBagButton.addTarget(self, action: "addToBagButtonPressed:", forControlEvents: UIControlEvents.TouchUpInside)
+                    
+                    addSubview(addToBagButton)
+                }
                 
                 // add info into buyPieceInfo
                 buyPieceInfo = NSMutableDictionary()
                 buyPieceInfo?.setObject(piece["id"] as! Int, forKey: "piece_id")
                 buyPieceInfo?.setObject(user["id"] as! Int, forKey: "seller_id")
+                
+                if parentOutfitId != nil {
+                    // this piece was accessed via an outfit
+                    // // points!
+                    buyPieceInfo?.setObject(parentOutfitId!, forKey: "outfit_id")
+                }
                 
             } else {
                 println("quantity is 0, not enough for sale")
@@ -538,9 +551,8 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         
         let commentSectionHeight: CGFloat = loadRecentComments(commentYPos)
         
-        var outfitsUsingLabel:UILabel = UILabel(frame: CGRectInset(CGRect(x: 0, y: commentYPos + commentSectionHeight, width: screenWidth, height: 70), 20, 15))
+        var outfitsUsingLabel:UILabel = UILabel(frame: CGRectInset(CGRect(x: 0, y: commentYPos + commentSectionHeight, width: screenWidth, height: 70), 10, 15))
         outfitsUsingLabel.text = "Outfits using this item"
-        outfitsUsingLabel.font = UIFont.boldSystemFontOfSize(outfitsUsingLabel.font.pointSize)
         outfitsUsingLabel.textColor = UIColor.grayColor()
         
         pieceDetailInfoView.addSubview(outfitsUsingLabel)

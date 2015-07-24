@@ -41,6 +41,9 @@ class BrowseFeedController: UIViewController, UITextFieldDelegate, UICollectionV
     let dropdownButtonHeight = navigationHeight
     let dropdownViewHeight = navigationHeight * 3
     
+    // feed
+    var peopleFeedController: PeopleFeedViewController?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -310,6 +313,7 @@ class BrowseFeedController: UIViewController, UITextFieldDelegate, UICollectionV
         peopleButton.contentHorizontalAlignment = UIControlContentHorizontalAlignment.Left
         peopleButton.imageEdgeInsets = UIEdgeInsetsMake(10, 10, 10, 10)
         peopleButton.titleEdgeInsets = UIEdgeInsetsMake(0, 20, 0, 0)
+        peopleButton.addTarget(self, action: "peopleFeedTapped:", forControlEvents: UIControlEvents.TouchUpInside)
         
         dropdownView!.addSubview(followingButton)
         dropdownView!.addSubview(browseButton)
@@ -409,12 +413,55 @@ class BrowseFeedController: UIViewController, UITextFieldDelegate, UICollectionV
         sprubixTitle.selected = false
     }
     
-    func mainFeedTapped(sender: UIButton) {
-        UIView.transitionWithView(self.navigationController!.view, duration: 0.5, options: UIViewAnimationOptions.TransitionCrossDissolve, animations: {
-            self.navigationController?.popViewControllerAnimated(false)
-            }, completion: nil)
+    func peopleFeedTapped(sender: UIButton) {
         
-        dismissDropdown(UITapGestureRecognizer())
+        // check if previous vc is browseFeed
+        // // if yes, pop, if no, push new
+        
+        var childrenCount = self.navigationController!.viewControllers.count
+        var prevChild: AnyObject = self.navigationController!.viewControllers[childrenCount-2]
+        
+        if prevChild.isKindOfClass(PeopleFeedViewController) {
+            UIView.transitionWithView(self.navigationController!.view, duration: 0.5, options: UIViewAnimationOptions.TransitionCrossDissolve, animations: {
+                self.navigationController?.popViewControllerAnimated(false)
+                }, completion: nil)
+            
+            dismissDropdown(UITapGestureRecognizer())
+        } else {
+            if peopleFeedController == nil {
+                peopleFeedController = PeopleFeedViewController()
+                peopleFeedController!.delegate = containerViewController
+            }
+            
+            UIView.transitionWithView(self.navigationController!.view, duration: 0.5, options: UIViewAnimationOptions.TransitionCrossDissolve, animations: {
+                self.navigationController?.pushViewController(peopleFeedController!, animated: false)
+                }, completion: nil)
+            
+            dismissDropdown(UITapGestureRecognizer())
+        }
+    }
+    
+    func mainFeedTapped(sender: UIButton) {
+        
+        // check if previous vc is mainFeed
+        // // if yes, pop, if no, pop twice
+        
+        var childrenCount = self.navigationController!.viewControllers.count
+        var prevChild: AnyObject = self.navigationController!.viewControllers[childrenCount-2]
+        
+        if prevChild.isKindOfClass(MainFeedController) {
+            UIView.transitionWithView(self.navigationController!.view, duration: 0.5, options: UIViewAnimationOptions.TransitionCrossDissolve, animations: {
+                self.navigationController?.popViewControllerAnimated(false)
+                }, completion: nil)
+            
+            dismissDropdown(UITapGestureRecognizer())
+        } else {
+            UIView.transitionWithView(self.navigationController!.view, duration: 0.5, options: UIViewAnimationOptions.TransitionCrossDissolve, animations: {
+                self.navigationController?.popToRootViewControllerAnimated(false)
+                }, completion: nil)
+            
+            dismissDropdown(UITapGestureRecognizer())
+        }
     }
     
     func sideMenuTapped(sender: UIBarButtonItem) {

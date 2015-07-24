@@ -19,6 +19,7 @@ class PieceDetailsViewController: UICollectionViewController, UICollectionViewDe
     
     let pieceDetailsCellIdentifier = "PieceDetailsCell"
     
+    var parentOutfitId: Int? // to detect if this piece was accessed from an outfit
     var pieces: [NSDictionary] = [NSDictionary]()
     var inspiredBy: NSDictionary!
     var user: NSDictionary!
@@ -76,7 +77,7 @@ class PieceDetailsViewController: UICollectionViewController, UICollectionViewDe
         var piece = pieces[indexPath.row] as NSDictionary
         
         collectionCell.piece = piece
-        
+        collectionCell.parentOutfitId = parentOutfitId
         collectionCell.user = piece["user"] as! NSDictionary
         collectionCell.inspiredBy = piece["inspired_by"] as? NSDictionary // should be removed
         collectionCell.detailsCellActionDelegate = self

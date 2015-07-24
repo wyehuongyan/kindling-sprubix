@@ -7,19 +7,14 @@
 //
 
 import UIKit
+import AFNetworking
 import DZNEmptyDataSet
 
-enum OrderState {
-    case Active
-    case Fulfilled
-    case Cancelled
-}
-
-class OrdersViewController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataSetDelegate {
+class OrdersViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, DZNEmptyDataSetSource, DZNEmptyDataSetDelegate {
     
     @IBOutlet var toolBarView: UIView!
-    var button1: UIButton! // active
-    var button2: UIButton! // fulfilled
+    var button1: UIButton! // active (processing, shipping requested)
+    var button2: UIButton! // fulfilled (shipping scheduled, shipping on delivery, shipping delivered)
     var button3: UIButton! // cancelled
     var buttonLine: UIView!
     var currentChoice: UIButton!
@@ -33,16 +28,29 @@ class OrdersViewController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDat
     var newNavBar: UINavigationBar!
     var newNavItem: UINavigationItem!
     
-    var currentOrderState: OrderState = .Active
+    // formatted orders
+    var createdAtDates: [String] = [String]()
+    var dateOrdersDict: NSMutableDictionary = NSMutableDictionary()
+    
+    var activeStatuses = [1, 2, 6]
+    var fulfilledStatuses = [3, 4, 8]
+    var cancelledStatuses = [5, 7]
+    
+    var currentOrderStatus: NSArray!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         view.backgroundColor = sprubixGray
 
+        ordersTableView.dataSource = self
+        ordersTableView.delegate = self
+        
         // get rid of line seperator for empty cells
         ordersTableView.backgroundColor = sprubixGray
         ordersTableView.tableFooterView = UIView(frame: CGRectZero)
+        
+        currentOrderStatus = activeStatuses
         
         initToolBar()
         
@@ -55,6 +63,8 @@ class OrdersViewController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDat
         super.viewWillAppear(animated)
         
         initNavBar()
+        
+        retrieveOrders()
     }
     
     func initNavBar() {
@@ -152,6 +162,198 @@ class OrdersViewController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDat
         button1.addSubview(buttonLine)
         button1.tintColor = sprubixColor
     }
+    
+    func retrieveOrders() {
+        self.orders.removeAll()
+        self.ordersTableView.reloadData()
+        
+        let userData: NSDictionary? = defaults.dictionaryForKey("userData")
+        let shoppableType: String? = userData!["shoppable_type"] as? String
+        
+        if shoppableType?.lowercaseString.rangeOfString("shopper") != nil {
+            // shopper
+            retrieveUserOrders()
+        } else {
+            // shop
+            retrieveShopOrders()
+        }
+    }
+    
+    func retrieveUserOrders() {
+        // REST call to server to retrieve user orders
+        manager.POST(SprubixConfig.URL.api + "/orders/user",
+            parameters: [
+                "order_status_ids": currentOrderStatus
+            ],
+            success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                self.orders = responseObject["data"] as! [NSDictionary]
+                
+                self.formatOrders()
+                self.ordersTableView.reloadData()
+            },
+            failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                println("Error: " + error.localizedDescription)
+        })
+    }
+    
+    func retrieveShopOrders() {
+        // REST call to server to retrieve shop orders
+        manager.POST(SprubixConfig.URL.api + "/orders/shop",
+            parameters: [
+                "order_status_ids": currentOrderStatus
+            ],
+            success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                self.orders = responseObject["data"] as! [NSDictionary]
+                
+                self.formatOrders()
+                self.ordersTableView.reloadData()
+            },
+            failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                println("Error: " + error.localizedDescription)
+        })
+    }
+    
+    func formatOrders() {
+        // arrange into (createdAtDate, [order]) dictionary
+        // createdAtDates are recorded in [createdAtDate] array in desc order
+        
+        createdAtDates.removeAll()
+        dateOrdersDict.removeAllObjects()
+        
+        for order in orders {
+            let createdAtDatesDict = order["created_at_custom_format"] as! NSDictionary
+            
+            let createdAtHumanDate = createdAtDatesDict["created_at_date"] as! String
+            
+            // check if exists in dict
+            var ordersForDate: [NSDictionary]? = dateOrdersDict.objectForKey(createdAtHumanDate) as? [NSDictionary]
+            
+            if ordersForDate == nil {
+                // create new array
+                ordersForDate = [NSDictionary]()
+                createdAtDates.append(createdAtHumanDate)
+            }
+            
+            ordersForDate?.append(order)
+            
+            // add date into createdAtDates array
+            dateOrdersDict.setObject(ordersForDate!, forKey: createdAtHumanDate)
+        }
+    }
+    
+    // MARK: UITableViewDataSource
+    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+        
+        let cell = tableView.dequeueReusableCellWithIdentifier(orderCellIdentifier, forIndexPath: indexPath) as! OrderCell
+        
+        let createdAtDate = createdAtDates[indexPath.section] as String
+        let dateOrders = dateOrdersDict[createdAtDate] as! [NSDictionary]
+        
+        let order = dateOrders[indexPath.row] as NSDictionary
+        
+        let userData: NSDictionary? = defaults.dictionaryForKey("userData")
+        let shoppableType: String? = userData!["shoppable_type"] as? String
+
+        if shoppableType?.lowercaseString.rangeOfString("shopper") != nil {
+            // shopper
+            let shopOrders = order["shop_orders"] as! [NSDictionary]
+            
+            cell.username.text = shopOrders.count > 1 ? "\(shopOrders.count) shops" : "\(shopOrders.count) shop"
+        } else {
+            // shop
+            let user = order["buyer"] as! NSDictionary
+            let username = user["username"] as! String
+                
+            cell.username.text = username
+        }
+        
+        let totalPrice = order["total_price"] as! String
+        let orderNumber = order["uid"] as! String
+        let createdAt = order["created_at"] as! String
+        let orderStatusId = order["order_status_id"] as! Int
+        
+        cell.price.text = "$\(totalPrice)"
+        cell.orderNumber.text = "#\(orderNumber)"
+        cell.dateTime.text = createdAt
+        cell.orderStatusId = orderStatusId
+        cell.setStatusImage()
+        
+        cell.accessoryType = UITableViewCellAccessoryType.DisclosureIndicator
+        
+        return cell
+    }
+    
+    func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+        return createdAtDates.count
+    }
+    
+    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        
+        let createdAtDate = createdAtDates[section] as String
+        
+        return (dateOrdersDict[createdAtDate] as! [NSDictionary]).count
+    }
+    
+    func tableView(tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        let createdAtDateLabelContainer = UIView(frame: CGRectMake(0, 0, screenWidth, 25))
+        createdAtDateLabelContainer.backgroundColor = sprubixLightGray
+        
+        let createdAtDateLabel = UILabel(frame: CGRectMake(10, 0, screenWidth - 10, 25))
+        
+        let createdAtDate = createdAtDates[section] as String
+        
+        createdAtDateLabel.backgroundColor = sprubixLightGray
+        createdAtDateLabel.text = createdAtDate
+        createdAtDateLabel.textColor = UIColor.darkGrayColor()
+        createdAtDateLabel.font = UIFont.systemFontOfSize(14.0)
+        
+        createdAtDateLabelContainer.addSubview(createdAtDateLabel)
+        
+        return createdAtDateLabelContainer
+    }
+    
+    func tableView(tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        return 25.0
+    }
+    
+    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+        
+        let createdAtDate = createdAtDates[indexPath.section] as String
+        let dateOrders = dateOrdersDict[createdAtDate] as! [NSDictionary]
+        
+        let order = dateOrders[indexPath.row] as NSDictionary
+        
+        let userData: NSDictionary? = defaults.dictionaryForKey("userData")
+        let shoppableType: String? = userData!["shoppable_type"] as? String
+        
+        if shoppableType?.lowercaseString.rangeOfString("shopper") != nil {
+            // shopper
+            // // show all shop orders under this user order
+            let shopOrdersViewController = UIStoryboard.shopOrdersViewController()
+
+            var shopOrderIds = [Int]()
+            
+            for shopOrder in order["shop_orders"] as! [NSDictionary] {
+                let shopOrderId = shopOrder["id"] as! Int
+                
+                shopOrderIds.append(shopOrderId)
+            }
+            
+            shopOrdersViewController!.shopOrderIds = shopOrderIds
+            
+            self.navigationController?.pushViewController(shopOrdersViewController!, animated: true)
+        } else {
+            // shop
+            // go straight to shop order details
+            let shopOrder = orders[indexPath.row] as NSDictionary
+            
+            let shopOrderDetailsViewController = UIStoryboard.shopOrderDetailsViewController()
+            shopOrderDetailsViewController!.orderNum = shopOrder["uid"] as! String
+            shopOrderDetailsViewController!.shopOrder = shopOrder
+            
+            self.navigationController?.pushViewController(shopOrderDetailsViewController!, animated: true)
+        }
+    }
 
     // tool bar button callbacks
     func activeOrdersPressed(sender: UIButton) {
@@ -162,8 +364,8 @@ class OrdersViewController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDat
             sender.addSubview(buttonLine)
             sender.tintColor = sprubixColor
             
-            self.currentOrderState = OrderState.Active
-            self.ordersTableView.reloadData()
+            currentOrderStatus = activeStatuses
+            retrieveOrders()
         }
     }
     
@@ -175,8 +377,8 @@ class OrdersViewController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDat
             sender.addSubview(buttonLine)
             sender.tintColor = sprubixColor
             
-            self.currentOrderState = OrderState.Fulfilled
-            self.ordersTableView.reloadData()
+            currentOrderStatus = fulfilledStatuses
+            retrieveOrders()
         }
     }
     
@@ -188,8 +390,8 @@ class OrdersViewController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDat
             sender.addSubview(buttonLine)
             sender.tintColor = sprubixColor
             
-            self.currentOrderState = OrderState.Cancelled
-            self.ordersTableView.reloadData()
+            currentOrderStatus = cancelledStatuses
+            retrieveOrders()
         }
     }
     
@@ -210,12 +412,13 @@ class OrdersViewController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDat
     func titleForEmptyDataSet(scrollView: UIScrollView!) -> NSAttributedString! {
         var text: String = ""
         
-        switch(currentOrderState) {
-        case .Active:
+        if currentOrderStatus == activeStatuses {
             text = "\nItems awaiting seller's actions"
-        case .Fulfilled:
+        }
+        else if currentOrderStatus == fulfilledStatuses {
             text = "\nItems that are on the way to you"
-        case .Cancelled:
+        }
+        else if currentOrderStatus == cancelledStatuses {
             text = "\nItems that you cancelled"
         }
         
@@ -232,12 +435,13 @@ class OrdersViewController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDat
     func descriptionForEmptyDataSet(scrollView: UIScrollView!) -> NSAttributedString! {
         var text: String = ""
         
-        switch(currentOrderState) {
-        case .Active:
+        if currentOrderStatus == activeStatuses {
             text = "When you check out an item, you'll see it here."
-        case .Fulfilled:
+        }
+        else if currentOrderStatus == fulfilledStatuses {
             text = "When the seller sends out the item, you'll see it here."
-        case .Cancelled:
+        }
+        else if currentOrderStatus == cancelledStatuses {
             text = "When you cancel an item, you'll see it here."
         }
         

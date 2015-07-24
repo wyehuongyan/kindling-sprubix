@@ -159,7 +159,7 @@ class OutfitDetailsViewController: UICollectionViewController, UICollectionViewD
         var childrenCount = self.navigationController!.viewControllers.count
         var prevChild: AnyObject = self.navigationController!.viewControllers[childrenCount-2]
         
-        if prevChild.isKindOfClass(NotificationViewController) {
+        if prevChild.isKindOfClass(NotificationViewController) || prevChild.isKindOfClass(CheckoutPointsViewController) {
             self.navigationController!.delegate = nil
             
             let transition = CATransition()

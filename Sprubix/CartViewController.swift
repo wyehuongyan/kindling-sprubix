@@ -21,8 +21,13 @@ class CartViewController: UIViewController, UITableViewDataSource, UITableViewDe
     var sellerCartItemDictionary: NSMutableDictionary = NSMutableDictionary()
     var sellers: [NSDictionary] = [NSDictionary]()
     var sellerDeliveryMethods: [String] = [String]()
+    var sellerDeliveryMethodIds: [Int] = [Int]()
     var sellerSubtotal: [Float] = [Float]()
     var sellerShippingRate: [Float] = [Float]()
+    
+    // points
+    var parentOutfitDict: NSMutableDictionary = NSMutableDictionary()
+    var outfits: NSMutableDictionary = NSMutableDictionary()
     
     let cartItemCellIdentifier = "CartItemCell"
     let cartItemSectionHeaderIdentifier = "CartItemSectionHeader"
@@ -49,10 +54,14 @@ class CartViewController: UIViewController, UITableViewDataSource, UITableViewDe
     var tableFooterView: UIView!
     var grandTotalAmount: UILabel!
     
+    var itemGrandTotal: Float = 0
+    var shippingGrandTotal: Float = 0
+    var grandTotal: Float = 0
+    
     @IBOutlet var cartTableView: UITableView!
     
-    // checkout
-    var checkoutViewController: CheckoutViewController?
+    // points earned
+    var checkoutPointsViewController: CheckoutPointsViewController?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -149,7 +158,7 @@ class CartViewController: UIViewController, UITableViewDataSource, UITableViewDe
         
         newNavBar.setItems([newNavItem], animated: false)
         
-        // 5. add the nav bar to the main view
+        // 6. add the nav bar to the main view
         self.view.addSubview(newNavBar)
     }
     
@@ -221,11 +230,11 @@ class CartViewController: UIViewController, UITableViewDataSource, UITableViewDe
         let cell = tableView.dequeueReusableCellWithIdentifier(cartItemSectionHeaderIdentifier) as! CartItemSectionHeader
         
         let seller = sellers[section] as NSDictionary
-        let pieceImagesString = seller["image"] as! String
-        let pieceImageURL: NSURL = NSURL(string: pieceImagesString)!
+        let sellerImagesString = seller["image"] as! String
+        let sellerImageURL: NSURL = NSURL(string: sellerImagesString)!
         let sellerId = seller["id"] as! Int
         
-        cell.sellerImageView.setImageWithURL(pieceImageURL)
+        cell.sellerImageView.setImageWithURL(sellerImageURL)
         cell.sellerName.text = seller["username"] as? String
         
         cell.tappedOnSellerAction = { Void in
@@ -373,8 +382,14 @@ class CartViewController: UIViewController, UITableViewDataSource, UITableViewDe
         sellerCartItemDictionary.removeAllObjects()
         sellers.removeAll()
         sellerDeliveryMethods.removeAll()
+        sellerDeliveryMethodIds.removeAll()
         sellerSubtotal.removeAll()
         sellerShippingRate.removeAll()
+        parentOutfitDict.removeAllObjects()
+        
+        itemGrandTotal = 0
+        shippingGrandTotal = 0
+        grandTotal = 0
         
         let cartItemData = cartData["cart_items"] as! [NSDictionary]
 
@@ -397,12 +412,11 @@ class CartViewController: UIViewController, UITableViewDataSource, UITableViewDe
                 sellerCartItemDictionary.setObject(cartItems!, forKey: seller)
             }
             
-            var grandTotal: Float = 0
-            
             for (seller, cartItems) in sellerCartItemDictionary {
                 sellers.append(seller as! NSDictionary)
                 
                 var highestDeliveryOption: String = ""
+                var highestDeliveryOptionId: Int!
                 var highestDeliveryOptionCost: Float = 0
                 var subtotal: Float = 0
                 
@@ -416,19 +430,68 @@ class CartViewController: UIViewController, UITableViewDataSource, UITableViewDe
                     if currentDeliveryOptionCost > highestDeliveryOptionCost {
                         highestDeliveryOptionCost = currentDeliveryOptionCost
                         highestDeliveryOption = deliveryOption["name"] as! String
+                        highestDeliveryOptionId = deliveryOption["id"] as! Int
                     }
                     
                     // add up costs of items
                     let piece = cartItem["piece"] as! NSDictionary
                     let quantity = cartItem["quantity"] as! Int
                     subtotal += (piece["price"] as! NSString).floatValue * Float(quantity)
+                    
+                    // prepare for points
+                    if !cartItem["outfit_id"]!.isKindOfClass(NSNull) {
+                        var parentOutfitId = cartItem["outfit_id"] as? Int
+                        
+                        var uniquePiecesDict = parentOutfitDict.objectForKey(parentOutfitId!) as? NSMutableDictionary
+                        
+                        if uniquePiecesDict == nil {
+                            uniquePiecesDict = NSMutableDictionary()
+                        }
+                        
+                        var itemsWithPieceId: [NSDictionary]? = uniquePiecesDict!.objectForKey(piece) as? [NSDictionary]
+                        
+                        if itemsWithPieceId == nil {
+                            itemsWithPieceId = [NSDictionary]()
+                        }
+                        
+                        itemsWithPieceId?.append(cartItem)
+                        
+                        uniquePiecesDict!.setObject(itemsWithPieceId!, forKey: piece)
+                        
+                        parentOutfitDict.setObject(uniquePiecesDict!, forKey: parentOutfitId!)
+                        
+                        // record outfit object
+                        outfits.setObject(cartItem["outfit"] as! NSDictionary, forKey: parentOutfitId!)
+                    } else {
+                        var uniquePiecesDict = parentOutfitDict.objectForKey(0) as? NSMutableDictionary
+                        
+                        if uniquePiecesDict == nil {
+                            uniquePiecesDict = NSMutableDictionary()
+                        }
+                        
+                        var itemsWithPieceId: [NSDictionary]? = uniquePiecesDict!.objectForKey(piece) as? [NSDictionary]
+                        
+                        if itemsWithPieceId == nil {
+                            itemsWithPieceId = [NSDictionary]()
+                        }
+                        
+                        itemsWithPieceId?.append(cartItem)
+                        
+                        uniquePiecesDict!.setObject(itemsWithPieceId!, forKey: piece)
+                        
+                        parentOutfitDict.setObject(uniquePiecesDict!, forKey: 0)
+                    }
                 }
                 
                 sellerDeliveryMethods.append(highestDeliveryOption)
+                sellerDeliveryMethodIds.append(highestDeliveryOptionId)
                 sellerShippingRate.append(highestDeliveryOptionCost)
                 sellerSubtotal.append(subtotal)
                 
-                grandTotal += subtotal + highestDeliveryOptionCost
+                itemGrandTotal += subtotal
+                shippingGrandTotal += highestDeliveryOptionCost
+                
+                grandTotal = itemGrandTotal + shippingGrandTotal
             }
             
             cartTableView.reloadData()
@@ -437,11 +500,45 @@ class CartViewController: UIViewController, UITableViewDataSource, UITableViewDe
             grandTotalAmount.text = String(format: "$%.2f", grandTotal)
             tableFooterView.setNeedsLayout()
             tableFooterView.alpha = 1.0
+            
+            // update cart
+            updateCart()
+            
         } else {
             println("Cart is empty")
             
             cartTableView.reloadData()
             tableFooterView.alpha = 0.0
+        }
+    }
+    
+    private func updateCart() {
+        var cartId = cartData["id"] as? Int
+        
+        if cartId != nil {
+            // REST call to update cart items_price, shipping_rate, total_price
+            manager.POST(SprubixConfig.URL.api + "/cart/update/\(cartId!)",
+                parameters: [
+                    "items_price": itemGrandTotal,
+                    "shipping_rate": shippingGrandTotal,
+                    "total_price": grandTotal
+                ],
+                success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                    
+                    var status = responseObject["status"] as! String
+                    var automatic: NSTimeInterval = 0
+                    
+                    if status == "200" {
+                        // success
+                        println("Cart updated")
+                    } else {
+                        // error exception
+                        println(responseObject)
+                    }
+                },
+                failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                    println("Error: " + error.localizedDescription)
+            })
         }
     }
     
@@ -845,8 +942,6 @@ class CartViewController: UIViewController, UITableViewDataSource, UITableViewDe
         
             let cartId = buyPieceInfo?.objectForKey("id") as! Int
             
-            println(buyPieceInfo)
-            
             // REST call to server to create cart item and add to user's cart
             manager.POST(SprubixConfig.URL.api + "/cart/item/edit/\(cartId)",
                 parameters: buyPieceInfo!,
@@ -882,24 +977,20 @@ class CartViewController: UIViewController, UITableViewDataSource, UITableViewDe
         let cartItemData = cartData["cart_items"] as! [NSDictionary]
         
         if cartItemData.count > 0 {
-            if checkoutViewController == nil {
-                checkoutViewController = UIStoryboard.checkoutViewController()
+            if checkoutPointsViewController == nil {
+                checkoutPointsViewController = UIStoryboard.checkoutPointsViewController()
             }
             
-            checkoutViewController?.sellerCartItemDictionary = sellerCartItemDictionary
-            checkoutViewController?.sellers = sellers
-            checkoutViewController?.sellerDeliveryMethods = sellerDeliveryMethods
-            checkoutViewController?.sellerSubtotal = sellerSubtotal
-            checkoutViewController?.sellerShippingRate = sellerShippingRate
-            checkoutViewController?.orderTotal = grandTotalAmount.text
+            checkoutPointsViewController?.parentOutfitDict = parentOutfitDict
+            checkoutPointsViewController?.outfits = outfits
+            checkoutPointsViewController?.cartViewController = self
             
-            checkoutViewController?.delegate = delegate
-            
-            self.navigationController?.pushViewController(checkoutViewController!, animated: true)
+            self.navigationController?.pushViewController(checkoutPointsViewController!, animated: true)
             
             // Mixpanel - Checkout
             mixpanel.track("Checkout")
             // Mixpanel - End
+            
         } else {
             let alert = UIAlertController(title: "Oops!", message: "Your cart is empty! Unable to check out.", preferredStyle: UIAlertControllerStyle.Alert)
             alert.view.tintColor = sprubixColor

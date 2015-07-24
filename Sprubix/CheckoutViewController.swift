@@ -11,6 +11,7 @@ import AFNetworking
 import Braintree
 import TSMessages
 import SSKeychain
+import MRProgress
 
 class CheckoutViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
 
@@ -19,6 +20,7 @@ class CheckoutViewController: UIViewController, UITableViewDataSource, UITableVi
     var sellerCartItemDictionary: NSMutableDictionary!
     var sellers: [NSDictionary] = [NSDictionary]()
     var sellerDeliveryMethods: [String] = [String]()
+    var sellerDeliveryMethodIds: [Int] = [Int]()
     var sellerSubtotal: [Float] = [Float]()
     var sellerShippingRate: [Float] = [Float]()
     
@@ -32,12 +34,15 @@ class CheckoutViewController: UIViewController, UITableViewDataSource, UITableVi
     var newNavItem: UINavigationItem!
     
     var orderHeaderView: UIView!
-    var orderTotal: String!
+    var orderTotal: Float!
+    var pointsTotal: Float!
     var placeOrderButton: UIButton!
     
     // default delivery address and payment method
     var defaultDeliveryAddress: NSDictionary = NSDictionary()
     var defaultPaymentMethod: NSDictionary = NSDictionary()
+    
+    var overlay: MRProgressOverlayView!
     
     @IBOutlet var checkoutTableView: UITableView!
     
@@ -92,7 +97,7 @@ class CheckoutViewController: UIViewController, UITableViewDataSource, UITableVi
         grandTotalAmount.textAlignment = NSTextAlignment.Right
         grandTotalAmount.textColor = sprubixColor
         grandTotalAmount.font = UIFont.boldSystemFontOfSize(20.0)
-        grandTotalAmount.text = orderTotal
+        grandTotalAmount.text = String(format: "$%.2f", orderTotal)
         
         labelContainer.addSubview(grandTotal)
         labelContainer.addSubview(grandTotalAmount)
@@ -241,7 +246,7 @@ class CheckoutViewController: UIViewController, UITableViewDataSource, UITableVi
                     deliveryAddressText += "\n\(postalCode!)\n\(country!)"
                     cell.deliveryPaymentText.text = deliveryAddressText
                 } else {
-                    cell.deliveryPaymentText.text = "Add a new Deliver Address"
+                    cell.deliveryPaymentText.text = "Add a new Delivery Address"
                 }
                 
                 cell.deliveryPaymentImage.image = UIImage(named: "sidemenu-fulfilment")
@@ -281,12 +286,12 @@ class CheckoutViewController: UIViewController, UITableViewDataSource, UITableVi
             let cartItem = cartItems[indexPath.row] as NSDictionary
             
             let piece = cartItem["piece"] as! NSDictionary
-            let price = piece["price"] as! String
+            let price = piece["price"] as! NSString
             let quantity = cartItem["quantity"] as! Int
             let size = cartItem["size"] as? String
             
             cell.checkoutItemName.text = piece["name"] as? String
-            cell.checkoutItemPrice.text = "$\(price)"
+            cell.checkoutItemPrice.text = String(format: "$%.2f", price.floatValue * Float(quantity))
             cell.checkoutItemQuantity.text = "Quantity: \(quantity)"
             cell.checkoutItemSize.text = "Size: \(size!)"
             
@@ -419,13 +424,145 @@ class CheckoutViewController: UIViewController, UITableViewDataSource, UITableVi
     }
     
     func placeOrderButtonPressed(sender: UIButton) {
-        println("Place order pressed")
         
-        // check stock again in case last item has been bought
+        if defaultDeliveryAddress.count > 0 && defaultPaymentMethod.count > 0 {
+            // init overlay
+            overlay = MRProgressOverlayView.showOverlayAddedTo(self.view, title: "Processing...", mode: MRProgressOverlayViewMode.Indeterminate, animated: true)
+            
+            overlay.tintColor = sprubixColor
+            
+            // check stock again in case last item has been bought
+            verifyStock { (insufficient) -> Void in
+                if insufficient != nil {
+                    // stock insufficient
+                } else {
+                    // perform BrainTree transaction
+                    self.createTransaction({ (responseObject) -> Void in
+                        
+                        var status = responseObject["status"] as! String
+                        
+                        if status == "200" {
+                            var btStatus = responseObject["BT_status"] as! String
+                            
+                            if btStatus == "authorized" || btStatus == "submitted_for_settlement" {
+                                // // if transaction OK, create new order
+                                let transactionId = responseObject["BT_transaction_id"] as! String
+                                self.createOrder(transactionId)
+                            }
+                            
+                        } else if status == "500" {
+                            println(responseObject["exception"] as! String)
+                        }
+                    })
+                }
+            }
+        } else {
+            let alert = UIAlertController(title: "Oops!", message: "Please fill in delivery address and payment method.", preferredStyle: UIAlertControllerStyle.Alert)
+            alert.view.tintColor = sprubixColor
+            
+            // Ok
+            alert.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Cancel, handler: nil))
+            
+            self.presentViewController(alert, animated: true, completion: nil)
+        }
+    }
+    
+    private func verifyStock(completionHandler: ((insufficient : NSDictionary?) -> Void)) {
+        manager.GET(SprubixConfig.URL.api + "/cart/verify",
+            parameters: nil,
+            success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                
+                var insufficientStock = responseObject["insufficient_stock"] as? NSDictionary
+                
+                completionHandler(insufficient: insufficientStock)
+            },
+            failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                println("Error: " + error.localizedDescription)
+        })
+    }
+    
+    private func createTransaction(completionHandler: ((responseObject: NSDictionary) -> Void)) {
+        manager.POST(SprubixConfig.URL.api + "/billing/transaction/create",
+            parameters: [
+                "amount": orderTotal
+            ],
+            success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                
+                completionHandler(responseObject: responseObject as! NSDictionary)
+            },
+            failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                println("Error: " + error.localizedDescription)
+        })
+
+    }
+    
+    private func createOrder(transactionId: String) {
+        let orderInfo: NSMutableDictionary = NSMutableDictionary()
+        var sellersOrderInfo: [NSMutableDictionary] = [NSMutableDictionary]()
         
-        // bring user to CheckoutOrderViewController
-        let checkoutOrderViewController = CheckoutOrderViewController()
+        var totalItemPrice: Float = 0
+        var totalShippingRate: Float = 0
         
-        self.navigationController?.pushViewController(checkoutOrderViewController, animated: true)
+        // format order info
+        for var i = 0; i < sellers.count; i++ {
+            let sellerOrderInfo: NSMutableDictionary = NSMutableDictionary()
+            
+            let seller = sellers[i] as NSDictionary
+            let sellerId = seller["id"] as! Int
+            
+            let subtotal = sellerSubtotal[i] as Float
+            let shippingRate = sellerShippingRate[i] as Float
+            let totalPrice = subtotal + shippingRate
+            let deliveryOptionId = sellerDeliveryMethodIds[i] as Int
+            
+            totalItemPrice += subtotal
+            totalShippingRate += shippingRate
+            
+            // set seller order info
+            sellerOrderInfo.setObject(sellerId, forKey: "seller_id")
+            sellerOrderInfo.setObject(subtotal, forKey: "items_price")
+            sellerOrderInfo.setObject(shippingRate, forKey: "shipping_rate")
+            sellerOrderInfo.setObject(totalPrice, forKey: "total_price")
+            sellerOrderInfo.setObject(deliveryOptionId, forKey: "delivery_option_id")
+            
+            sellersOrderInfo.append(sellerOrderInfo)
+        }
+        
+        orderInfo.setObject(sellersOrderInfo, forKey: "sellers")
+        
+        orderInfo.setObject(transactionId, forKey: "braintree_transaction_id")
+        orderInfo.setObject(totalItemPrice, forKey: "total_items_price")
+        orderInfo.setObject(totalShippingRate, forKey: "total_shipping_rate")
+        orderInfo.setObject(orderTotal, forKey: "total_price")
+        orderInfo.setObject(pointsTotal, forKey: "total_points")
+        
+        let defaultDeliveryAddressId = defaultDeliveryAddress["id"] as! Int
+        let defaultPaymentMethodId = defaultPaymentMethod["id"] as! Int
+
+        orderInfo.setObject(defaultDeliveryAddressId, forKey: "delivery_address_id")
+        orderInfo.setObject(defaultPaymentMethodId, forKey: "payment_method_id")
+        
+        manager.requestSerializer = AFJSONRequestSerializer()
+        manager.responseSerializer = AFJSONResponseSerializer()
+        manager.POST(SprubixConfig.URL.api + "/order/create",
+            parameters: orderInfo,
+            success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                
+                self.overlay.dismiss(true)
+                
+                var status = responseObject["status"] as! String
+                
+                if status == "200" {
+                    // bring user to CheckoutOrderViewController
+                    let checkoutOrderViewController = CheckoutOrderViewController()
+                    self.navigationController?.pushViewController(checkoutOrderViewController, animated: true)
+                
+                } else if status == "500" {
+                    println(responseObject)
+                }
+            },
+            failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                println("Error: " + error.localizedDescription)
+        })
     }
 }
