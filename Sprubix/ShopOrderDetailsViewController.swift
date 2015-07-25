@@ -323,40 +323,45 @@ class ShopOrderDetailsViewController: UIViewController, UITableViewDataSource, U
         let alertViewController = UIAlertController(title: "Change order status to...", message: nil, preferredStyle: UIAlertControllerStyle.ActionSheet)
         alertViewController.view.tintColor = UIColor.grayColor()
         
-        for orderStatus in orderStatuses {
-            let orderStatusName = orderStatus["name"] as! String
-            let orderStatusId = orderStatus["id"] as! Int
-            
-            var actionStyle = UIAlertActionStyle.Default
-            
-            if orderStatusId == 7 || orderStatusId == 8 {
-                // cancelled
-                actionStyle = UIAlertActionStyle.Destructive
-            }
-            
-            let buttonAction = UIAlertAction(title: orderStatusName, style: actionStyle, handler: {
-                action in
+        if currentOrderStatusId != 4 {
+            // if order has not been received
+            for orderStatus in orderStatuses {
+                let orderStatusName = orderStatus["name"] as! String
+                let orderStatusId = orderStatus["id"] as! Int
                 
-                // handler
-                self.changeOrderStatus(action.title, orderStatusId: orderStatusId)
-            })
-            
-            switch orderStatusId {
-            case 4:
-                // only add "Shipping Received" if current status is "Shipping Posted"
-                if currentOrderStatusId == 3 {
+                var actionStyle = UIAlertActionStyle.Default
+                
+                if orderStatusId == 7 || orderStatusId == 8 {
+                    // cancelled
+                    actionStyle = UIAlertActionStyle.Destructive
+                }
+                
+                let buttonAction = UIAlertAction(title: orderStatusName, style: actionStyle, handler: {
+                    action in
+                    
+                    // handler
+                    self.changeOrderStatus(action.title, orderStatusId: orderStatusId)
+                })
+                
+                switch orderStatusId {
+                case 4:
+                    // only add "Shipping Received" if current status is "Shipping Posted"
+                    if currentOrderStatusId == 3 {
+                        alertViewController.addAction(buttonAction)
+                    }
+                case 3, 4, 6, 7, 8:
+                    // do not add "Request to Cancel" and other statuses if order is already "Cancelled"
+                    if currentOrderStatusId != 8 {
+                        alertViewController.addAction(buttonAction)
+                    } else {
+                        alertViewController.title = "This order is already cancelled."
+                    }
+                default:
                     alertViewController.addAction(buttonAction)
                 }
-            case 3, 4, 6, 7, 8:
-                // do not add "Request to Cancel" and other statuses if order is already "Cancelled"
-                if currentOrderStatusId != 7 {
-                    alertViewController.addAction(buttonAction)
-                } else {
-                    alertViewController.title = "This order is already cancelled."
-                }
-            default:
-                alertViewController.addAction(buttonAction)
             }
+        } else {
+            alertViewController.title = "This order was received."
         }
         
         // add cancel button
@@ -491,7 +496,7 @@ class ShopOrderDetailsViewController: UIViewController, UITableViewDataSource, U
             
             var cancelMessage = "You have requested to cancel this item and ask for a refund."
             
-            if orderStatusId == 7 {
+            if orderStatusId == 8 {
                 // Cancelled
                 cancelMessage = "Setting this status will create a new refund ticket for this order."
             }

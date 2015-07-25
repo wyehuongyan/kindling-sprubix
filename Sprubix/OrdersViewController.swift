@@ -32,8 +32,8 @@ class OrdersViewController: UIViewController, UITableViewDataSource, UITableView
     var dateOrdersDict: NSMutableDictionary = NSMutableDictionary()
     
     var activeStatuses = [1, 2, 6]
-    var fulfilledStatuses = [3, 4, 8]
-    var cancelledStatuses = [5, 7]
+    var fulfilledStatuses = [3, 4, 7]
+    var cancelledStatuses = [5, 8]
     
     var currentOrderStatus: NSArray!
     

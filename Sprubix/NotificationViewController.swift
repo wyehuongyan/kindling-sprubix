@@ -325,9 +325,9 @@ class NotificationViewController: UIViewController, DZNEmptyDataSetSource, DZNEm
             case 4:
                 notificationMessage = "@\(senderUsername) has received the items from Shop Order \(shopOrderUid)"
             case 7:
-                notificationMessage = "@\(senderUsername) has cancelled Shop Order \(shopOrderUid)"
-            case 8:
                 notificationMessage = "@\(senderUsername) has requested to cancel Shop Order \(shopOrderUid)"
+            case 8:
+                notificationMessage = "@\(senderUsername) has cancelled Shop Order \(shopOrderUid)"
             default:
                  notificationMessage = "@\(senderUsername) has updated Shop Order \(shopOrderUid) to \(orderStatus)"
             }
