@@ -86,7 +86,7 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         var dropupImage = UIImage(named: "others-dropdown-up")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
         sprubixTitle.setImage(dropupImage, forState: UIControlState.Selected)
         
-        sprubixTitle.setTitle("Following", forState: UIControlState.Normal)
+        sprubixTitle.setTitle("Home", forState: UIControlState.Normal)
         sprubixTitle.setTitleColor(UIColor.blackColor(), forState: UIControlState.Normal)
         sprubixTitle.titleLabel?.font = UIFont.boldSystemFontOfSize(sprubixTitle.titleLabel!.font.pointSize)
         sprubixTitle.imageEdgeInsets = UIEdgeInsetsMake(7, 4, 7, 0)
@@ -113,6 +113,10 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         
         initButtons()
         initDropdown()
+        
+        // empty dataset
+        mainCollectionView.emptyDataSetSource = self
+        mainCollectionView.emptyDataSetDelegate = self
     }
     
     override func viewWillAppear(animated: Bool) {
@@ -372,9 +376,9 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         // // following
         let followingButton: UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
         followingButton.frame = CGRectMake(0, 0, screenWidth, dropdownButtonHeight)
-        var image: UIImage = UIImage(named: "main-following")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
+        var image: UIImage = UIImage(named: "main-home")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
         followingButton.setImage(image, forState: UIControlState.Normal)
-        followingButton.setTitle("Following", forState: UIControlState.Normal)
+        followingButton.setTitle("Home", forState: UIControlState.Normal)
         followingButton.setTitleColor(sprubixColor, forState: UIControlState.Normal)
         followingButton.titleLabel?.font = UIFont.systemFontOfSize(16.0)
         followingButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
@@ -403,7 +407,7 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         // // people
         let peopleButton: UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
         peopleButton.frame = CGRectMake(0, dropdownButtonHeight * 2, screenWidth, dropdownButtonHeight)
-        image = UIImage(named: "main-following")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
+        image = UIImage(named: "main-people")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
         peopleButton.setImage(image, forState: UIControlState.Normal)
         peopleButton.setTitle("People", forState: UIControlState.Normal)
         peopleButton.setTitleColor(UIColor.darkGrayColor(), forState: UIControlState.Normal)
@@ -425,7 +429,7 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
     
     // DZNEmptyDataSetSource
     func titleForEmptyDataSet(scrollView: UIScrollView!) -> NSAttributedString! {
-        let text: String = "Title For Empty Data Set"
+        let text: String = "This is your home"
         
         let attributes: NSDictionary = [
             NSFontAttributeName: UIFont.boldSystemFontOfSize(18.0),
@@ -438,7 +442,7 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
     }
     
     func descriptionForEmptyDataSet(scrollView: UIScrollView!) -> NSAttributedString! {
-        let text: String = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+        let text: String = "When you follow people, you'll see their latest outfits here."
         
         var paragraph: NSMutableParagraphStyle = NSMutableParagraphStyle.new()
         paragraph.lineBreakMode = NSLineBreakMode.ByWordWrapping
@@ -455,7 +459,7 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         return attributedString
     }
     
-    func buttonTitleForEmptyDataSet(scrollView: UIScrollView!, forState state: UIControlState) -> NSAttributedString! {
+    /*func buttonTitleForEmptyDataSet(scrollView: UIScrollView!, forState state: UIControlState) -> NSAttributedString! {
         let text: String = "Button Title"
         
         let attributes: NSDictionary = [
@@ -465,10 +469,10 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         let attributedString: NSAttributedString = NSAttributedString(string: text, attributes: attributes as [NSObject : AnyObject])
         
         return attributedString
-    }
+    }*/
     
     func imageForEmptyDataSet(scrollView: UIScrollView!) -> UIImage! {
-        return UIImage(named: "main-like-filled-large")
+        return UIImage(named: "emptyset-main-home")
     }
     
     func backgroundColorForEmptyDataSet(scrollView: UIScrollView!) -> UIColor! {

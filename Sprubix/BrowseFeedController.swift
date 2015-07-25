@@ -7,10 +7,11 @@
 //
 
 import UIKit
+import DZNEmptyDataSet
 import CHTCollectionViewWaterfallLayout
 import AFNetworking
 
-class BrowseFeedController: UIViewController, UITextFieldDelegate, UICollectionViewDataSource, CHTCollectionViewDelegateWaterfallLayout {
+class BrowseFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataSetDelegate, UITextFieldDelegate, UICollectionViewDataSource, CHTCollectionViewDelegateWaterfallLayout {
     
     var delegate: SidePanelViewControllerDelegate?
     var outfits: [NSDictionary] = [NSDictionary]()
@@ -52,6 +53,10 @@ class BrowseFeedController: UIViewController, UITextFieldDelegate, UICollectionV
         initToolbar()
         initCollectionView()
         initDropdown()
+        
+        // empty dataset
+        discoverCollectionView.emptyDataSetSource = self
+        discoverCollectionView.emptyDataSetDelegate = self
     }
     
     override func viewWillAppear(animated: Bool) {
@@ -271,9 +276,9 @@ class BrowseFeedController: UIViewController, UITextFieldDelegate, UICollectionV
         // // following
         let followingButton: UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
         followingButton.frame = CGRectMake(0, 0, screenWidth, dropdownButtonHeight)
-        var image: UIImage = UIImage(named: "main-following")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
+        var image: UIImage = UIImage(named: "main-home")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
         followingButton.setImage(image, forState: UIControlState.Normal)
-        followingButton.setTitle("Following", forState: UIControlState.Normal)
+        followingButton.setTitle("Home", forState: UIControlState.Normal)
         followingButton.setTitleColor(UIColor.darkGrayColor(), forState: UIControlState.Normal)
         followingButton.titleLabel?.font = UIFont.systemFontOfSize(16.0)
         followingButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
@@ -302,7 +307,7 @@ class BrowseFeedController: UIViewController, UITextFieldDelegate, UICollectionV
         // // people
         let peopleButton: UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
         peopleButton.frame = CGRectMake(0, dropdownButtonHeight * 2, screenWidth, dropdownButtonHeight)
-        image = UIImage(named: "main-following")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
+        image = UIImage(named: "main-people")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
         peopleButton.setImage(image, forState: UIControlState.Normal)
         peopleButton.setTitle("People", forState: UIControlState.Normal)
         peopleButton.setTitleColor(UIColor.darkGrayColor(), forState: UIControlState.Normal)
@@ -320,6 +325,58 @@ class BrowseFeedController: UIViewController, UITextFieldDelegate, UICollectionV
         dropdownView!.addSubview(peopleButton)
         
         view.addSubview(dropdownView!)
+    }
+    
+    // DZNEmptyDataSetSource
+    func titleForEmptyDataSet(scrollView: UIScrollView!) -> NSAttributedString! {
+        let text: String = "Discover outfits"
+        
+        let attributes: NSDictionary = [
+            NSFontAttributeName: UIFont.boldSystemFontOfSize(18.0),
+            NSForegroundColorAttributeName: UIColor.darkGrayColor()
+        ]
+        
+        let attributedString: NSAttributedString = NSAttributedString(string: text, attributes: attributes as [NSObject : AnyObject])
+        
+        return attributedString
+    }
+    
+    func descriptionForEmptyDataSet(scrollView: UIScrollView!) -> NSAttributedString! {
+        let text: String = "Here's all the outfits from around the world."
+        
+        var paragraph: NSMutableParagraphStyle = NSMutableParagraphStyle.new()
+        paragraph.lineBreakMode = NSLineBreakMode.ByWordWrapping
+        paragraph.alignment = NSTextAlignment.Center
+        
+        let attributes: NSDictionary = [
+            NSFontAttributeName: UIFont.boldSystemFontOfSize(14.0),
+            NSForegroundColorAttributeName: UIColor.lightGrayColor(),
+            NSParagraphStyleAttributeName: paragraph
+        ]
+        
+        let attributedString: NSAttributedString = NSAttributedString(string: text, attributes: attributes as [NSObject : AnyObject])
+        
+        return attributedString
+    }
+    
+    /*func buttonTitleForEmptyDataSet(scrollView: UIScrollView!, forState state: UIControlState) -> NSAttributedString! {
+    let text: String = "Button Title"
+    
+    let attributes: NSDictionary = [
+    NSFontAttributeName: UIFont.boldSystemFontOfSize(17.0)
+    ]
+    
+    let attributedString: NSAttributedString = NSAttributedString(string: text, attributes: attributes as [NSObject : AnyObject])
+    
+    return attributedString
+    }*/
+    
+    func imageForEmptyDataSet(scrollView: UIScrollView!) -> UIImage! {
+        return UIImage(named: "emptyset-main-discover")
+    }
+    
+    func backgroundColorForEmptyDataSet(scrollView: UIScrollView!) -> UIColor! {
+        return sprubixGray
     }
     
     // UICollectionViewDataSource

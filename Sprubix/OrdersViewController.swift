@@ -8,8 +8,9 @@
 
 import UIKit
 import AFNetworking
+import DZNEmptyDataSet
 
-class OrdersViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
+class OrdersViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, DZNEmptyDataSetSource, DZNEmptyDataSetDelegate {
     
     @IBOutlet var toolBarView: UIView!
     var button1: UIButton! // active (processing, shipping requested)
@@ -52,6 +53,10 @@ class OrdersViewController: UIViewController, UITableViewDataSource, UITableView
         currentOrderStatus = activeStatuses
         
         initToolBar()
+        
+        // empty dataset
+        ordersTableView.emptyDataSetSource = self
+        ordersTableView.emptyDataSetDelegate = self
     }
     
     override func viewWillAppear(animated: Bool) {
@@ -401,5 +406,126 @@ class OrdersViewController: UIViewController, UITableViewDataSource, UITableView
     // nav bar button callbacks
     func backTapped(sender: UIBarButtonItem) {
         self.navigationController?.popViewControllerAnimated(true)
+    }
+    
+    // DZNEmptyDataSetSource
+    func titleForEmptyDataSet(scrollView: UIScrollView!) -> NSAttributedString! {
+        var text: String = ""
+        let shoppable_type: String = (defaults.objectForKey("userData")!.objectForKey("shoppable_type") as! String).componentsSeparatedByString("\\").last!
+        
+        switch shoppable_type {
+        case "Shopper":
+            if currentOrderStatus == activeStatuses {
+                text = "\nItems awaiting seller's actions"
+            }
+            else if currentOrderStatus == fulfilledStatuses {
+                text = "\nItems that are on the way to you"
+            }
+            else if currentOrderStatus == cancelledStatuses {
+                text = "\nItems that were cancelled"
+            }
+            
+        case "Shop":
+            if currentOrderStatus == activeStatuses {
+                text = "\nItems awaiting your actions"
+            }
+            else if currentOrderStatus == fulfilledStatuses {
+                text = "\nItems on the way to your customers"
+            }
+            else if currentOrderStatus == cancelledStatuses {
+                text = "\nItems that were cancelled"
+            }
+        
+        default:
+            break
+        }
+        
+        let attributes: NSDictionary = [
+            NSFontAttributeName: UIFont.boldSystemFontOfSize(18.0),
+            NSForegroundColorAttributeName: UIColor.darkGrayColor()
+        ]
+        
+        let attributedString: NSAttributedString = NSAttributedString(string: text, attributes: attributes as [NSObject : AnyObject])
+        
+        return attributedString
+    }
+    
+    func descriptionForEmptyDataSet(scrollView: UIScrollView!) -> NSAttributedString! {
+        var text: String = ""
+        let shoppable_type: String = (defaults.objectForKey("userData")!.objectForKey("shoppable_type") as! String).componentsSeparatedByString("\\").last!
+        
+        switch shoppable_type {
+        case "Shopper":
+            if currentOrderStatus == activeStatuses {
+                text = "When you check out an item, you'll see it here."
+            }
+            else if currentOrderStatus == fulfilledStatuses {
+                text = "When the seller sends out the item, you'll see it here."
+            }
+            else if currentOrderStatus == cancelledStatuses {
+                text = "When you cancel an item, you'll see it here."
+            }
+            
+        case "Shop":
+            if currentOrderStatus == activeStatuses {
+                text = "When you have items to fulfill, you'll see it here."
+            }
+            else if currentOrderStatus == fulfilledStatuses {
+                text = "When you send out an item, you'll see it here."
+            }
+            else if currentOrderStatus == cancelledStatuses {
+                text = "When an item is cancelled, you'll see it here."
+            }
+        
+        default:
+            break
+        }
+        
+        
+        var paragraph: NSMutableParagraphStyle = NSMutableParagraphStyle.new()
+        paragraph.lineBreakMode = NSLineBreakMode.ByWordWrapping
+        paragraph.alignment = NSTextAlignment.Center
+        
+        let attributes: NSDictionary = [
+            NSFontAttributeName: UIFont.boldSystemFontOfSize(14.0),
+            NSForegroundColorAttributeName: UIColor.lightGrayColor(),
+            NSParagraphStyleAttributeName: paragraph
+        ]
+        
+        let attributedString: NSAttributedString = NSAttributedString(string: text, attributes: attributes as [NSObject : AnyObject])
+        
+        return attributedString
+    }
+    
+    /*func buttonTitleForEmptyDataSet(scrollView: UIScrollView!, forState state: UIControlState) -> NSAttributedString! {
+    let text: String = "Button Title"
+    
+    let attributes: NSDictionary = [
+    NSFontAttributeName: UIFont.boldSystemFontOfSize(17.0)
+    ]
+    
+    let attributedString: NSAttributedString = NSAttributedString(string: text, attributes: attributes as [NSObject : AnyObject])
+    
+    return attributedString
+    }*/
+    
+    func imageForEmptyDataSet(scrollView: UIScrollView!) -> UIImage! {
+        var image: UIImage!
+        
+        if currentOrderStatus == activeStatuses {
+            image = UIImage(named: "emptyset-orders-active")
+        }
+        else if currentOrderStatus == fulfilledStatuses {
+            image = UIImage(named: "emptyset-orders-fulfilled")
+        }
+        else if currentOrderStatus == cancelledStatuses {
+            image = UIImage(named: "emptyset-orders-cancelled")
+        }
+        
+        return image
+    }
+    
+    func backgroundColorForEmptyDataSet(scrollView: UIScrollView!) -> UIColor! {
+        return sprubixGray
     }
 }

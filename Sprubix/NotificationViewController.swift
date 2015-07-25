@@ -214,7 +214,7 @@ class NotificationViewController: UIViewController, DZNEmptyDataSetSource, DZNEm
     
     // DZNEmptyDataSetSource
     func titleForEmptyDataSet(scrollView: UIScrollView!) -> NSAttributedString! {
-        let text: String = "Title For Empty Data Set"
+        let text: String = "\nActivity related to you"
         
         let attributes: NSDictionary = [
             NSFontAttributeName: UIFont.boldSystemFontOfSize(18.0),
@@ -227,7 +227,7 @@ class NotificationViewController: UIViewController, DZNEmptyDataSetSource, DZNEm
     }
     
     func descriptionForEmptyDataSet(scrollView: UIScrollView!) -> NSAttributedString! {
-        let text: String = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+        let text: String = "When someone comments, likes, or creates an outfit\n from the items you own, you'll see it here."
         
         var paragraph: NSMutableParagraphStyle = NSMutableParagraphStyle.new()
         paragraph.lineBreakMode = NSLineBreakMode.ByWordWrapping
@@ -244,7 +244,7 @@ class NotificationViewController: UIViewController, DZNEmptyDataSetSource, DZNEm
         return attributedString
     }
     
-    func buttonTitleForEmptyDataSet(scrollView: UIScrollView!, forState state: UIControlState) -> NSAttributedString! {
+    /*func buttonTitleForEmptyDataSet(scrollView: UIScrollView!, forState state: UIControlState) -> NSAttributedString! {
         let text: String = "Button Title"
         
         let attributes: NSDictionary = [
@@ -254,10 +254,10 @@ class NotificationViewController: UIViewController, DZNEmptyDataSetSource, DZNEm
         let attributedString: NSAttributedString = NSAttributedString(string: text, attributes: attributes as [NSObject : AnyObject])
         
         return attributedString
-    }
+    }*/
     
     func imageForEmptyDataSet(scrollView: UIScrollView!) -> UIImage! {
-        return UIImage(named: "main-like-filled-large")
+        return UIImage(named: "emptyset-notifications")
     }
     
     func backgroundColorForEmptyDataSet(scrollView: UIScrollView!) -> UIColor! {

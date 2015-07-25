@@ -184,7 +184,7 @@ class InventoryViewController: UIViewController, UITableViewDataSource, UITableV
     
     // DZNEmptyDataSetSource
     func titleForEmptyDataSet(scrollView: UIScrollView!) -> NSAttributedString! {
-        let text: String = "Title For Empty Data Set"
+        let text: String = "\nItems you are selling"
         
         let attributes: NSDictionary = [
             NSFontAttributeName: UIFont.boldSystemFontOfSize(18.0),
@@ -197,7 +197,7 @@ class InventoryViewController: UIViewController, UITableViewDataSource, UITableV
     }
     
     func descriptionForEmptyDataSet(scrollView: UIScrollView!) -> NSAttributedString! {
-        let text: String = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+        let text: String = "When you put something up for sale, you'll see it here."
         
         var paragraph: NSMutableParagraphStyle = NSMutableParagraphStyle.new()
         paragraph.lineBreakMode = NSLineBreakMode.ByWordWrapping
@@ -215,7 +215,7 @@ class InventoryViewController: UIViewController, UITableViewDataSource, UITableV
     }
     
     func buttonTitleForEmptyDataSet(scrollView: UIScrollView!, forState state: UIControlState) -> NSAttributedString! {
-        let text: String = "Button Title"
+        let text: String = ""
         
         let attributes: NSDictionary = [
             NSFontAttributeName: UIFont.boldSystemFontOfSize(17.0)
@@ -227,7 +227,7 @@ class InventoryViewController: UIViewController, UITableViewDataSource, UITableV
     }
     
     func imageForEmptyDataSet(scrollView: UIScrollView!) -> UIImage! {
-        return UIImage(named: "main-like-filled-large")
+        return UIImage(named: "emptyset-inventory-instock")
     }
     
     func backgroundColorForEmptyDataSet(scrollView: UIScrollView!) -> UIColor! {

@@ -296,10 +296,9 @@ class EditProfileViewController: UITableViewController, UITextViewDelegate {
         }
         
         if count(profileDescription.text) > 255 {
-            message += "The name must be under 30 characters\n"
+            message += "The description is too long\n"
             valid = false
         }
-        
         
         return (valid, message)
     }

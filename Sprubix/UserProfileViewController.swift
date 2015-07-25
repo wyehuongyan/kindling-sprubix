@@ -407,7 +407,16 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
     
     // DZNEmptyDataSetSource
     func titleForEmptyDataSet(scrollView: UIScrollView!) -> NSAttributedString! {
-        let text: String = "Title For Empty Data Set"
+        var text: String = ""
+        
+        switch(currentProfileState) {
+        case .Outfits:
+            text = "\nOutfits you created"
+        case .Pieces:
+            text = "\nItems in your closet"
+        case .Community:
+            text = "\nOutfits by the community"
+        }
         
         let attributes: NSDictionary = [
             NSFontAttributeName: UIFont.boldSystemFontOfSize(18.0),
@@ -420,7 +429,16 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
     }
     
     func descriptionForEmptyDataSet(scrollView: UIScrollView!) -> NSAttributedString! {
-        let text: String = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+        var text: String = ""
+        
+        switch(currentProfileState) {
+        case .Outfits:
+            text = "When you create or spruce and outfit, you'll see it here."
+        case .Pieces:
+            text = "When you upload an item, you'll see it here"
+        case .Community:
+            text = "When the community creates outfit for you, you'll see it here"
+        }
         
         var paragraph: NSMutableParagraphStyle = NSMutableParagraphStyle.new()
         paragraph.lineBreakMode = NSLineBreakMode.ByWordWrapping
@@ -437,7 +455,7 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
         return attributedString
     }
     
-    func buttonTitleForEmptyDataSet(scrollView: UIScrollView!, forState state: UIControlState) -> NSAttributedString! {
+    /*func buttonTitleForEmptyDataSet(scrollView: UIScrollView!, forState state: UIControlState) -> NSAttributedString! {
         let text: String = "Button Title"
         
         let attributes: NSDictionary = [
@@ -447,7 +465,7 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
         let attributedString: NSAttributedString = NSAttributedString(string: text, attributes: attributes as [NSObject : AnyObject])
         
         return attributedString
-    }
+    }*/
     
     func backgroundColorForEmptyDataSet(scrollView: UIScrollView!) -> UIColor! {
         return sprubixGray
