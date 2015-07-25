@@ -553,8 +553,13 @@ class CheckoutViewController: UIViewController, UITableViewDataSource, UITableVi
                 var status = responseObject["status"] as! String
                 
                 if status == "200" {
+                    var userOrderId = responseObject["user_order_id"] as! Int
+                    
                     // bring user to CheckoutOrderViewController
                     let checkoutOrderViewController = CheckoutOrderViewController()
+                    
+                    checkoutOrderViewController.userOrderId = userOrderId
+                    
                     self.navigationController?.pushViewController(checkoutOrderViewController, animated: true)
                 
                 } else if status == "500" {

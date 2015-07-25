@@ -8,12 +8,16 @@
 
 import UIKit
 import MRProgress
+import AFNetworking
 
 class CheckoutOrderViewController: UIViewController {
 
     // custom nav bar
     var newNavBar: UINavigationBar!
     var newNavItem: UINavigationItem!
+    
+    var userOrderId: Int!
+    var userOrder: NSDictionary!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -25,6 +29,8 @@ class CheckoutOrderViewController: UIViewController {
         let checkmarkIcon = MRCheckmarkIconView(frame: CGRectMake(screenWidth / 4, checkmarkIconWidth / 2, checkmarkIconWidth, checkmarkIconWidth))
         
         view.addSubview(checkmarkIcon)
+        
+        retrieveUserOrder()
     }
     
     override func viewWillAppear(animated: Bool) {
@@ -66,6 +72,104 @@ class CheckoutOrderViewController: UIViewController {
         
         // 5. add the nav bar to the main view
         self.view.addSubview(newNavBar)
+    }
+    
+    func retrieveUserOrder() {
+        // REST call to server to retrieve user order
+        manager.POST(SprubixConfig.URL.api + "/order/user",
+            parameters: [
+                "user_order_id": userOrderId,
+            ],
+            success: { (operation: AFHTTPRequestOperation!, responseObject:
+                AnyObject!) in
+                
+                self.userOrder = responseObject as! NSDictionary
+                
+                var shopOrders = self.userOrder["shop_orders"] as! [NSDictionary]
+                
+                for shopOrder in shopOrders {
+                    // send firebase notification
+                    self.sendNotification(shopOrder)
+                }
+            },
+            failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                println("Error: " + error.localizedDescription)
+        })
+    }
+    
+    private func sendNotification(shopOrder: NSDictionary) {
+        let userData: NSDictionary? = defaults.dictionaryForKey("userData")
+        
+        if userData != nil {
+            // firebase collections: users and notifications
+            let notificationsRef = firebaseRef.childByAppendingPath("notifications")
+            
+            let senderUsername = userData!["username"] as! String
+            let senderImage = userData!["image"] as! String
+            
+            let createdAt = timestamp
+            let shoppableType: String? = userData!["shoppable_type"] as? String
+            
+            var receiverUsername: String!
+            
+            // receiver should be shop
+            var shop = shopOrder["user"] as! NSDictionary
+            receiverUsername = shop["username"] as! String
+        
+            var shopOrderId = shopOrder["id"] as! Int
+            var shopOrderUid = shopOrder["uid"] as! String
+            var shopOrderStatus = shopOrder["order_status"] as! NSDictionary
+            var orderStatusTitle = shopOrderStatus["name"] as! String
+            var orderStatusId = shopOrderStatus["id"] as! Int
+            
+            let receiverUserNotificationsRef = firebaseRef.childByAppendingPath("users/\(receiverUsername)/notifications")
+            
+            // push new notifications
+            let notificationRef = notificationsRef.childByAutoId()
+            
+            let notification = [
+                "order_alert": [
+                    "shop_order": [
+                        "id": shopOrderId,
+                        "uid": shopOrderUid,
+                    ],
+                    "status": orderStatusTitle,
+                    "status_id": orderStatusId
+                ],
+                "created_at": createdAt,
+                "sender": [
+                    "username": senderUsername, // yourself
+                    "image": senderImage
+                ],
+                "receiver": receiverUsername,
+                "type": "order_alert",
+                "unread": true
+            ]
+            
+            notificationRef.setValue(notification, withCompletionBlock: {
+                
+                (error:NSError?, ref:Firebase!) in
+                
+                if (error != nil) {
+                    println("Error: Notification could not be added.")
+                } else {
+                    // update target user notifications
+                    let receiverUserNotificationRef = receiverUserNotificationsRef.childByAppendingPath(notificationRef.key)
+                    
+                    receiverUserNotificationRef.updateChildValues([
+                        "created_at": createdAt,
+                        "unread": true
+                        ], withCompletionBlock: {
+                            
+                            (error:NSError?, ref:Firebase!) in
+                            
+                            if (error != nil) {
+                                println("Error: Notification Key could not be added to Users.")
+                            }
+                    })
+                }
+            })
+        }
     }
     
     // nav bar button callbacks

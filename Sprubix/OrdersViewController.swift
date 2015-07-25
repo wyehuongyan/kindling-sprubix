@@ -344,7 +344,7 @@ class OrdersViewController: UIViewController, UITableViewDataSource, UITableView
             
             let shopOrderDetailsViewController = UIStoryboard.shopOrderDetailsViewController()
             shopOrderDetailsViewController!.orderNum = shopOrder["uid"] as! String
-            shopOrderDetailsViewController!.shopOrder = shopOrder
+            shopOrderDetailsViewController!.shopOrder = shopOrder.mutableCopy() as! NSMutableDictionary
             
             self.navigationController?.pushViewController(shopOrderDetailsViewController!, animated: true)
         }

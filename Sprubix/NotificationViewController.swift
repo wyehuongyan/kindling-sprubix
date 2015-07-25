@@ -75,11 +75,6 @@ class NotificationViewController: UIViewController, DZNEmptyDataSetSource, DZNEm
                         self.notifications.insert(notificationDict, atIndex: 0)
                         self.notificationKeyPositions.insert(snapshot.key as String, atIndex: 0)
                         self.insertRowAtTop(notificationDict)
-                        
-                        // reload table
-//                        if self.notificationTableView != nil {
-//                            self.notificationTableView.reloadData() // change it to insertRow
-//                        }
                     }
                 })
             })
@@ -111,11 +106,6 @@ class NotificationViewController: UIViewController, DZNEmptyDataSetSource, DZNEm
                     self.notificationKeyPositions.removeAtIndex(pos!)
                     self.deleteRow(pos!)
                 }
-                
-//                // reload table
-//                if self.notificationTableView != nil {
-//                    self.notificationTableView.reloadData() // change it to deleteRow
-//                }
             })
             
         } else {
@@ -293,8 +283,7 @@ class NotificationViewController: UIViewController, DZNEmptyDataSetSource, DZNEm
         let senderUsername = sender["username"] as! String
         let senderImageURL = NSURL(string: sender["image"] as! String)
         
-        let poutfit = notification["poutfit"] as! NSDictionary
-        let poutfitImageURL = NSURL(string: poutfit["image"] as! String)
+        var poutfit = notification["poutfit"] as? NSDictionary
         
         let type = notification["type"] as! String
         let createdAt = notification["created_at"] as! String
@@ -317,6 +306,32 @@ class NotificationViewController: UIViewController, DZNEmptyDataSetSource, DZNEm
             let commentBody = comment["body"] as! String
             
             notificationMessage = "@\(senderUsername) mentioned you in a comment: \(commentBody) \(duration)"
+        case "order_alert":
+            let orderAlert = notification["order_alert"] as! NSDictionary
+            let shopOrder = orderAlert["shop_order"] as! NSDictionary
+            
+            let orderStatusId = orderAlert["status_id"] as! Int
+            let orderStatus = orderAlert["status"] as! String
+            
+            let shopOrderUid = shopOrder["uid"] as! String
+            
+            cell.itemId = shopOrder["id"] as? Int
+            
+            switch orderStatusId {
+            case 1, 2:
+                notificationMessage = "@\(senderUsername) bought something from you! (\(orderStatus))"
+            case 3:
+                notificationMessage = "@\(senderUsername) has sent out your items from Shop Order \(shopOrderUid)"
+            case 4:
+                notificationMessage = "@\(senderUsername) has received the items from Shop Order \(shopOrderUid)"
+            case 7:
+                notificationMessage = "@\(senderUsername) has cancelled Shop Order \(shopOrderUid)"
+            case 8:
+                notificationMessage = "@\(senderUsername) has requested to cancel Shop Order \(shopOrderUid)"
+            default:
+                 notificationMessage = "@\(senderUsername) has updated Shop Order \(shopOrderUid) to \(orderStatus)"
+            }
+            
         default:
             fatalError("Error: Unknown notification type")
         }
@@ -388,22 +403,42 @@ class NotificationViewController: UIViewController, DZNEmptyDataSetSource, DZNEm
         cell.userImageView.addGestureRecognizer(goToUserProfileGestureRecognizer)
         cell.userImageView.userInteractionEnabled = true
         
-        // item image view
-        cell.itemImageView.setImageWithURL(poutfitImageURL)
-        
-        let poutfitKey = poutfit["key"] as! String
-        var poutfitData = split(poutfitKey) {$0 == "_"}
-        var itemType = poutfitData[0]
-        var itemId = poutfitData[1].toInt()
-        
-        cell.itemType = itemType
-        cell.itemId = itemId
-        
-        let goToItemTypeDetailsGestureRecognizer: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: "goToItemTypeDetails:")
-        goToItemTypeDetailsGestureRecognizer.cancelsTouchesInView = true
-        
-        cell.itemImageView.addGestureRecognizer(goToItemTypeDetailsGestureRecognizer)
-        cell.itemImageView.userInteractionEnabled = true
+        if poutfit != nil {
+            // item image view
+            var poutfitImageURL = NSURL(string: poutfit!["image"] as! String)
+            
+            cell.itemImageView.setImageWithURL(poutfitImageURL)
+            
+            let poutfitKey = poutfit!["key"] as! String
+            var poutfitData = split(poutfitKey) {$0 == "_"}
+            var itemType = poutfitData[0]
+            var itemId = poutfitData[1].toInt()
+            
+            cell.itemType = itemType
+            cell.itemId = itemId
+            
+            let goToItemTypeDetailsGestureRecognizer: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: "goToItemTypeDetails:")
+            goToItemTypeDetailsGestureRecognizer.cancelsTouchesInView = true
+            
+            cell.itemImageView.addGestureRecognizer(goToItemTypeDetailsGestureRecognizer)
+            cell.itemImageView.userInteractionEnabled = true
+        } else {
+            switch type {
+            case "order_alert":
+                cell.itemImageView.image = UIImage(named: "sidemenu-orders")
+                cell.itemImageView.layer.borderColor = UIColor.whiteColor().CGColor
+                cell.itemImageView.backgroundColor = UIColor.whiteColor()
+                
+                let goToShopOrderDetailsGestureRecognizer: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: "goToShopOrderDetails:")
+                goToShopOrderDetailsGestureRecognizer.cancelsTouchesInView = true
+                
+                cell.itemImageView.addGestureRecognizer(goToShopOrderDetailsGestureRecognizer)
+                cell.itemImageView.userInteractionEnabled = true
+                
+            default:
+                fatalError("Error: Unknown notification type")
+            }
+        }
         
         return cell
     }
@@ -544,6 +579,38 @@ class NotificationViewController: UIViewController, DZNEmptyDataSetSource, DZNEm
             default:
                 fatalError("Error: Invalid notification cell item type.")
             }
+        }
+    }
+    
+    func goToShopOrderDetails(gesture: UITapGestureRecognizer) {
+        let parentView = gesture.view?.superview
+        
+        if parentView != nil {
+            var notificationCell = parentView?.superview as! NotificationCell
+            
+            var itemId = notificationCell.itemId
+            
+            // REST call to server to retrieve shop orders
+            manager.POST(SprubixConfig.URL.api + "/orders/shop",
+                parameters: [
+                    "shop_order_ids": [itemId!]
+                ],
+                success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                    
+                    let shopOrders = responseObject["data"] as! [NSDictionary]
+                    var shopOrder: NSDictionary? = shopOrders.first
+                    
+                    if shopOrder != nil {
+                        let shopOrderDetailsViewController = UIStoryboard.shopOrderDetailsViewController()
+                        shopOrderDetailsViewController!.orderNum = shopOrder!["uid"] as! String
+                        shopOrderDetailsViewController!.shopOrder = shopOrder!.mutableCopy() as! NSMutableDictionary
+                        
+                        self.navigationController?.pushViewController(shopOrderDetailsViewController!, animated: true)
+                    }
+                },
+                failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                    println("Error: " + error.localizedDescription)
+            })
         }
     }
     

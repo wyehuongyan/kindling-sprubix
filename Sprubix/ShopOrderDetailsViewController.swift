@@ -8,10 +8,11 @@
 
 import UIKit
 import AFNetworking
+import TSMessages
 
 class ShopOrderDetailsViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
 
-    var shopOrder: NSDictionary!
+    var shopOrder: NSMutableDictionary!
     var orderNum: String!
     var orderStatuses: [NSDictionary] = [NSDictionary]()
     var customerId: Int?
@@ -25,6 +26,7 @@ class ShopOrderDetailsViewController: UIViewController, UITableViewDataSource, U
     @IBOutlet var shopOrderDetailsTableView: UITableView!
     
     var orderHeaderView: UIView!
+    var currentOrderStatusId: Int!
     
     // custom nav bar
     var newNavBar: UINavigationBar!
@@ -278,12 +280,12 @@ class ShopOrderDetailsViewController: UIViewController, UITableViewDataSource, U
             
             let orderStatus = shopOrder["order_status"] as! NSDictionary
             let orderStatusName = orderStatus["name"] as! String
-            let orderStatusId = orderStatus["id"] as! Int
+            currentOrderStatusId = orderStatus["id"] as! Int
             
             var statusImageName = ""
             var statusTintColor = UIColor.lightGrayColor()
             
-            cell.orderStatusId = orderStatusId
+            cell.orderStatusId = currentOrderStatusId
             cell.setStatusImage()
             cell.status.text = orderStatusName
             
@@ -336,14 +338,29 @@ class ShopOrderDetailsViewController: UIViewController, UITableViewDataSource, U
                 action in
                 
                 // handler
-                self.changeOrderStatus(action.title)
+                self.changeOrderStatus(action.title, orderStatusId: orderStatusId)
             })
             
-            alertViewController.addAction(buttonAction)
+            switch orderStatusId {
+            case 4:
+                // only add "Shipping Received" if current status is "Shipping Posted"
+                if currentOrderStatusId == 3 {
+                    alertViewController.addAction(buttonAction)
+                }
+            case 3, 4, 6, 7, 8:
+                // do not add "Request to Cancel" and other statuses if order is already "Cancelled"
+                if currentOrderStatusId != 7 {
+                    alertViewController.addAction(buttonAction)
+                } else {
+                    alertViewController.title = "This order is already cancelled."
+                }
+            default:
+                alertViewController.addAction(buttonAction)
+            }
         }
         
         // add cancel button
-        let cancelAction = UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Cancel, handler: {
+        let cancelAction = UIAlertAction(title: "Back", style: UIAlertActionStyle.Cancel, handler: {
             action in
             // handler
             self.dismissViewControllerAnimated(true, completion: nil)
@@ -469,8 +486,155 @@ class ShopOrderDetailsViewController: UIViewController, UITableViewDataSource, U
         return 3
     }
     
-    func changeOrderStatus(orderStatus: String) {
+    func changeOrderStatus(orderStatusTitle: String, orderStatusId: Int) {
+        if orderStatusId == 7 || orderStatusId == 8 {
+            
+            var cancelMessage = "You have requested to cancel this item and ask for a refund."
+            
+            if orderStatusId == 7 {
+                // Cancelled
+                cancelMessage = "Setting this status will create a new refund ticket for this order."
+            }
+            
+            var alert = UIAlertController(title: "Are you sure?", message: cancelMessage, preferredStyle: UIAlertControllerStyle.Alert)
+            alert.view.tintColor = sprubixColor
+            
+            // Yes
+            alert.addAction(UIAlertAction(title: "Yes, I'm sure", style: UIAlertActionStyle.Default, handler: { action in
+                
+                self.updateOrderStatus(orderStatusTitle, orderStatusId: orderStatusId)
+            }))
+            
+            // No
+            alert.addAction(UIAlertAction(title: "No", style: UIAlertActionStyle.Cancel, handler: nil))
+            
+            self.presentViewController(alert, animated: true, completion: nil)
+        } else {
+            self.updateOrderStatus(orderStatusTitle, orderStatusId: orderStatusId)
+        }
+    }
+    
+    private func updateOrderStatus(orderStatusTitle: String, orderStatusId: Int) {
+        let shopOrderId = shopOrder["id"] as! Int
+        
         // REST call to server to update order status
+        manager.POST(SprubixConfig.URL.api + "/order/shop/\(shopOrderId)",
+            parameters: [
+                "order_status_id": orderStatusId
+            ],
+            success: { (operation: AFHTTPRequestOperation!, responseObject:
+                AnyObject!) in
+                
+                var status = responseObject["status"] as! String
+                var automatic: NSTimeInterval = 0
+                
+                if status == "200" {
+                    // success
+                    TSMessage.showNotificationInViewController(                        TSMessage.defaultViewController(), title: "Success!", subtitle: "Order status updated", image: UIImage(named: "filter-check"), type: TSMessageNotificationType.Success, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: true)
+                    
+                    var orderStatus = responseObject["order_status"] as! NSDictionary
+                    
+                    self.shopOrder.setObject(orderStatus.mutableCopy(), forKey: "order_status")
+                    
+                    var indexPath = NSIndexPath(forRow: 0, inSection: 2)
+                    
+                    self.shopOrderDetailsTableView.reloadRowsAtIndexPaths([indexPath], withRowAnimation: UITableViewRowAnimation.None)
+                    
+                    self.sendNotification(orderStatusTitle, orderStatusId: orderStatusId)
+                } else if status == "500" {
+                    // error exception
+                    TSMessage.showNotificationInViewController(                        TSMessage.defaultViewController(), title: "Error", subtitle: "Something went wrong.\nPlease try again.", image: UIImage(named: "filter-cross"), type: TSMessageNotificationType.Error, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: true)
+                }
+            },
+            failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                println("Error: " + error.localizedDescription)
+                
+                var automatic: NSTimeInterval = 0
+                
+                // error exception
+                TSMessage.showNotificationInViewController(                        TSMessage.defaultViewController(), title: "Error", subtitle: "Something went wrong.\nPlease try again.", image: UIImage(named: "filter-cross"), type: TSMessageNotificationType.Error, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: true)
+        })
+    }
+    
+    private func sendNotification(orderStatusTitle: String, orderStatusId: Int) {
+        let userData: NSDictionary? = defaults.dictionaryForKey("userData")
+        
+        if userData != nil {
+            // firebase collections: users and notifications
+            let notificationsRef = firebaseRef.childByAppendingPath("notifications")
+            
+            let senderUsername = userData!["username"] as! String
+            let senderImage = userData!["image"] as! String
+            
+            let createdAt = timestamp
+            let shoppableType: String? = userData!["shoppable_type"] as? String
+            
+            var receiverUsername: String!
+            
+            if shoppableType?.lowercaseString.rangeOfString("shopper") != nil {
+                // shopper
+                // receiver should be shop
+                var shop = shopOrder["user"] as! NSDictionary
+                receiverUsername = shop["username"] as! String
+                
+            } else {
+                // shop
+                // receiver should be shopper
+                var buyer = shopOrder["buyer"] as! NSDictionary
+                receiverUsername = buyer["username"] as! String
+            }
+            
+            var shopOrderId = shopOrder["id"] as! Int
+            var shopOrderUid = shopOrder["uid"] as! String
+            
+            let receiverUserNotificationsRef = firebaseRef.childByAppendingPath("users/\(receiverUsername)/notifications")
+            
+            // push new notifications
+            let notificationRef = notificationsRef.childByAutoId()
+            
+            let notification = [
+                "order_alert": [
+                    "shop_order": [
+                        "id": shopOrderId,
+                        "uid": shopOrderUid,
+                    ],
+                    "status": orderStatusTitle,
+                    "status_id": orderStatusId
+                ],
+                "created_at": createdAt,
+                "sender": [
+                    "username": senderUsername, // yourself
+                    "image": senderImage
+                ],
+                "receiver": receiverUsername,
+                "type": "order_alert",
+                "unread": true
+            ]
+            
+            notificationRef.setValue(notification, withCompletionBlock: {
+                
+                (error:NSError?, ref:Firebase!) in
+                
+                if (error != nil) {
+                    println("Error: Notification could not be added.")
+                } else {
+                    // update target user notifications
+                    let receiverUserNotificationRef = receiverUserNotificationsRef.childByAppendingPath(notificationRef.key)
+                    
+                    receiverUserNotificationRef.updateChildValues([
+                        "created_at": createdAt,
+                        "unread": true
+                        ], withCompletionBlock: {
+                            
+                            (error:NSError?, ref:Firebase!) in
+                            
+                            if (error != nil) {
+                                println("Error: Notification Key could not be added to Users.")
+                            }
+                    })
+                }
+            })
+        }
     }
     
     // nav bar button callbacks

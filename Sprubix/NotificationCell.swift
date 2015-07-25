@@ -25,14 +25,14 @@ class NotificationCell: UITableViewCell {
         notificationLabel.textColor = UIColor.grayColor()
         notificationLabel.preferredMaxLayoutWidth = screenWidth - userImageView.frame.size.width - itemImageView.frame.size.width - 40 // 40 is padding on the sides of the imageviews
         
-        userImageView.backgroundColor = sprubixGray
+        userImageView.backgroundColor = sprubixLightGray
         userImageView.contentMode = UIViewContentMode.ScaleAspectFit
         userImageView.layer.cornerRadius = userImageView.frame.size.width / 2
         userImageView.clipsToBounds = true
         userImageView.layer.borderWidth = 0.5
         userImageView.layer.borderColor = UIColor.lightGrayColor().CGColor
         
-        itemImageView.backgroundColor = sprubixGray
+        itemImageView.backgroundColor = sprubixLightGray
         itemImageView.contentMode = UIViewContentMode.ScaleAspectFit
         itemImageView.layer.cornerRadius = 5
         itemImageView.clipsToBounds = true
