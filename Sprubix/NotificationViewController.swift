@@ -51,15 +51,6 @@ class NotificationViewController: UIViewController, DZNEmptyDataSetSource, DZNEm
                 //println(snapshot.value.objectForKey("created_at"))
                 //println(snapshot.value.objectForKey("unread"))
                 
-                SidePanelOption.alerts.counter[SidePanelOption.Option.Notifications.toString()] = SidePanelOption.alerts.counter[SidePanelOption.Option.Notifications.toString()]! + 1
-                
-                // update mainBadge
-                if SidePanelOption.alerts.total > 0 {
-                    mainBadge.alpha = 1.0
-                }
-                
-                mainBadge.text = "\(SidePanelOption.alerts.total!)"
-                
                 // retrieve notification data
                 let notificationRef = firebaseRef.childByAppendingPath("notifications/\(snapshot.key)")
                 
@@ -75,6 +66,18 @@ class NotificationViewController: UIViewController, DZNEmptyDataSetSource, DZNEm
                         self.notifications.insert(notificationDict, atIndex: 0)
                         self.notificationKeyPositions.insert(snapshot.key as String, atIndex: 0)
                         self.insertRowAtTop(notificationDict)
+                        
+                        if notificationDict["unread"] as! Bool {
+                            // update alert badge number
+                            SidePanelOption.alerts.counter[SidePanelOption.Option.Notifications.toString()] = SidePanelOption.alerts.counter[SidePanelOption.Option.Notifications.toString()]! + 1
+                        }
+                        
+                        // update mainBadge
+                        if SidePanelOption.alerts.total > 0 {
+                            mainBadge.alpha = 1.0
+                        }
+                        
+                        mainBadge.text = "\(SidePanelOption.alerts.total!)"
                     }
                 })
             })
@@ -135,7 +138,47 @@ class NotificationViewController: UIViewController, DZNEmptyDataSetSource, DZNEm
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
         
-        notificationTableView.reloadData()
+        //notificationTableView.reloadData()
+    }
+    
+    override func viewDidAppear(animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        // set all user notifications to "read"
+        for notificationKey in notificationKeyPositions {
+            let userNotificationRef = userNotificationsRef.childByAppendingPath("\(notificationKey)")
+            
+            var unread = [
+                "unread": false
+            ]
+            
+            userNotificationRef.updateChildValues(unread, withCompletionBlock: { (error:NSError?, ref: Firebase!) in
+                
+                if (error != nil) {
+                    println("Error: User notification could not be set to unread.")
+                } else {
+                    // set notification to unread as well
+                    let notificationRef = firebaseRef.childByAppendingPath("notifications/\(notificationKey)")
+                    
+                    notificationRef.updateChildValues(unread, withCompletionBlock: {
+                        (error:NSError?, ref: Firebase!) in
+                        
+                        if (error != nil) {
+                            println("Error: Notification could not be set to unread.")
+                        } else {
+                            SidePanelOption.alerts.counter[SidePanelOption.Option.Notifications.toString()] = 0
+                            
+                            // update mainBadge
+                            if SidePanelOption.alerts.total <= 0 {
+                                mainBadge.alpha = 0
+                            }
+                            
+                            mainBadge.text = "\(SidePanelOption.alerts.total!)"
+                        }
+                    })
+                }
+            })
+        }
     }
     
     func initNavBar() {

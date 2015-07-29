@@ -575,18 +575,21 @@ class ShopOrderDetailsViewController: UIViewController, UITableViewDataSource, U
             let shoppableType: String? = userData!["shoppable_type"] as? String
             
             var receiverUsername: String!
+            var receiverId: Int!
             
             if shoppableType?.lowercaseString.rangeOfString("shopper") != nil {
                 // shopper
                 // receiver should be shop
                 var shop = shopOrder["user"] as! NSDictionary
                 receiverUsername = shop["username"] as! String
+                receiverId = shop["id"] as! Int
                 
             } else {
                 // shop
                 // receiver should be shopper
                 var buyer = shopOrder["buyer"] as! NSDictionary
                 receiverUsername = buyer["username"] as! String
+                receiverId = buyer["id"] as! Int
             }
             
             var shopOrderId = shopOrder["id"] as! Int
@@ -637,6 +640,16 @@ class ShopOrderDetailsViewController: UIViewController, UITableViewDataSource, U
                                 println("Error: Notification Key could not be added to Users.")
                             }
                     })
+                    
+                    // send APNS
+                    let recipientId = receiverId
+                    let senderId = userData!["id"] as! Int
+                    
+                    if recipientId != senderId {
+                        let pushMessage = "Status of Shop Order \(shopOrderUid): \(orderStatusTitle)"
+                        
+                        APNS.sendPushNotification(pushMessage, recipientId: recipientId)
+                    }
                 }
             })
         }

@@ -836,6 +836,16 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
                                                 self.outfitsLiked.setObject(true, forKey: outfitId)
                                             }
                                     })
+                                    
+                                    // send APNS
+                                    let recipientId = receiver["id"] as! Int
+                                    let senderId = userData!["id"] as! Int
+                                    
+                                    if recipientId != senderId {
+                                        let pushMessage = "\(senderUsername) liked your outfit."
+                                        
+                                        APNS.sendPushNotification(pushMessage, recipientId: recipientId)
+                                    }
                                 }
                             })
                             
@@ -870,6 +880,7 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         commentsViewController?.prevViewIsOutfit = true
         commentsViewController?.poutfitImageURL = thumbnailURLString
         commentsViewController?.receiverUsername = receiverUsername
+        commentsViewController?.receiverId = receiverId
         commentsViewController?.poutfitIdentifier = poutfitIdentifier
         
         navigationController!.delegate = nil

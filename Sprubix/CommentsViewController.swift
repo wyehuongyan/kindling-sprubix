@@ -23,6 +23,7 @@ class CommentsViewController: UIViewController, UITextViewDelegate, UITableViewD
     var poutfitIdentifier: String!
     var poutfitImageURL: String!
     var receiverUsername: String!
+    var receiverId: Int!
     var prevViewIsOutfit: Bool = false
     
     var makeKeyboardVisible = true
@@ -232,6 +233,16 @@ class CommentsViewController: UIViewController, UITextViewDelegate, UITableViewD
                                                             println("Comment Mention Notification added successfully!")
                                                         }
                                                 })
+                                                
+                                                // send APNS
+                                                let recipientId = mentionedUser["id"] as! Int
+                                                let senderId = userData!["id"] as! Int
+                                                
+                                                if recipientId != senderId {
+                                                    let pushMessage = "\(senderUsername) mentioned you in a comment: \(commentBody)"
+                                                    
+                                                    APNS.sendPushNotification(pushMessage, recipientId: recipientId)
+                                                }
                                             }
                                         })
                                         
@@ -283,6 +294,16 @@ class CommentsViewController: UIViewController, UITextViewDelegate, UITableViewD
                                         println("Comment sent successfully!")
                                     }
                             })
+                            
+                            // send APNS
+                            let recipientId = self.receiverId
+                            let senderId = userData!["id"] as! Int
+                            
+                            if recipientId != senderId {
+                                let pushMessage = "\(senderUsername) left a comment: \(commentBody)"
+                                
+                                APNS.sendPushNotification(pushMessage, recipientId: recipientId)
+                            }
                         }
                     })
                 }

@@ -8,6 +8,7 @@
 
 import UIKit
 import TSMessages
+import PermissionScope
 
 enum SlideOutState {
     case Collapsed
@@ -42,8 +43,12 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
     var cartViewController: CartViewController?
     var ordersViewController: OrdersViewController?
     
+    var notificationScope = PermissionScope()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        registerNotifications()
         
         // main feed
         mainFeedController = MainFeedController()
@@ -63,11 +68,44 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
         sprubixNavigationController.view.addGestureRecognizer(panGestureRecognizer)
     }
     
+    func registerNotifications() {
+        // register for push notifications (ios 8)
+        
+        // initialized permissions
+        notificationScope.addPermission(PermissionConfig(type: .Notifications, demands: .Required, message: "We use this to send you\r\noutfit suggestions and order updates", notificationCategories: .None))
+        
+        notificationScope.tintColor = sprubixColor
+        notificationScope.headerLabel.text = "Hey there,"
+        notificationScope.headerLabel.textColor = UIColor.darkGrayColor()
+        notificationScope.bodyLabel.textColor = UIColor.lightGrayColor()
+    }
+    
+    override func viewDidAppear(animated: Bool) {
+        let userData: NSDictionary? = defaults.dictionaryForKey("userData")
+        
+        if userData != nil {
+            notificationScope.show(authChange: { (finished, results) -> Void in
+                var settings: UIUserNotificationSettings = UIUserNotificationSettings(forTypes: UIUserNotificationType.Alert | UIUserNotificationType.Sound | UIUserNotificationType.Badge, categories: nil)
+                
+                UIApplication.sharedApplication().registerUserNotificationSettings(settings)
+                UIApplication.sharedApplication().registerForRemoteNotifications()
+                
+                }, cancelled: { (results) -> Void in
+                    println("Unable to register to push notifications, thing was cancelled")
+            })
+        }
+    }
+    
     override func prefersStatusBarHidden() -> Bool {
         return true
     }
     
     // SidePanelViewControllerDelegate
+    func showMainFeed() {
+        sprubixNavigationController.delegate = nil
+        sprubixNavigationController.popToRootViewControllerAnimated(true)
+    }
+    
     func showUserProfile(user: NSDictionary) {
         userProfileViewController = UIStoryboard.userProfileViewController()
         

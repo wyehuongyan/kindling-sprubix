@@ -814,6 +814,16 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
                                             
                                             if (error != nil) {
                                                 println("Error: Notification Key could not be added to Users.")
+                                            } else {
+                                                // send APNS
+                                                let recipientId = receiver["id"] as! Int
+                                                let senderId = userData!["id"] as! Int
+                                                
+                                                if recipientId != senderId {
+                                                    let pushMessage = "\(senderUsername) liked your item."
+                                                    
+                                                    APNS.sendPushNotification(pushMessage, recipientId: recipientId)
+                                                }
                                             }
                                     })
                                     
@@ -1082,6 +1092,7 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
         commentsViewController?.delegate = containerViewController
         commentsViewController?.poutfitImageURL = thumbnailURLString
         commentsViewController?.receiverUsername = user["username"] as! String
+        commentsViewController?.receiverId = user["id"] as! Int
         commentsViewController?.poutfitIdentifier = "outfit_\(outfitId)"
         commentsViewController?.prevViewIsOutfit = true
         
@@ -1617,6 +1628,7 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
                 commentsViewController?.delegate = containerViewController
                 commentsViewController?.poutfitImageURL = thumbnailURLString
                 commentsViewController?.receiverUsername = pieceUser["username"] as! String
+                commentsViewController?.receiverId = pieceUser["id"] as! Int
                 commentsViewController?.poutfitIdentifier = "piece_\(pieceId)"
                 
                 navController!.delegate = nil

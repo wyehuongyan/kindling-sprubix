@@ -56,6 +56,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         checkLoggedIn()
         
+        // handle push notifications when app is not running
+        var apnsBody: NSDictionary? = (launchOptions?[UIApplicationLaunchOptionsRemoteNotificationKey] as? NSDictionary)
+        
+        if apnsBody != nil {
+            // Do your code with apnsBody
+            containerViewController.showMainFeed()
+        }
+        
         // Mixpanel - App Launched
         var currentUserId = -1  // New user (or not logged in)
         
@@ -84,28 +92,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func applicationWillEnterForeground(application: UIApplication) {
         // Called as part of the transition from the background to the inactive state; here you can undo many of the changes made on entering the background.
-        /*
-        let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        let sprubixFeedVC = storyboard.instantiateViewControllerWithIdentifier("SprubixFeed") as UIViewController
-        let signInVC = storyboard.instantiateViewControllerWithIdentifier("SignIn") as UIViewController
-        
-        var activeController:UIViewController = self.window!.rootViewController!
-        
-        if activeController.isKindOfClass(UINavigationController) {
-            activeController = (activeController as UINavigationController).visibleViewController
-        }
-        
-        if let loggedIn = defaults.stringForKey("loggedIn") {
-            println("okokokokok")
-            self.window?.makeKeyAndVisible()
-        } else {
-            self.window?.makeKeyAndVisible()
-            activeController.presentViewController(signInVC, animated: true, completion: nil)
-        }
-        */
         
         checkLoggedIn();
-        
     }
     
     func checkLoggedIn() {
@@ -181,7 +169,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     // MARK: - Core Data stack
-
     lazy var applicationDocumentsDirectory: NSURL = {
         // The directory the application uses to store the Core Data store file. This code uses a directory named "com.sprubix.Sprubix" in the application's documents Application Support directory.
         let urls = NSFileManager.defaultManager().URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask)
@@ -230,7 +217,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }()
 
     // MARK: - Core Data Saving support
-
     func saveContext () {
         if let moc = self.managedObjectContext {
             var error: NSError? = nil
@@ -243,5 +229,49 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
     }
 
+    // MARK: Push Notifications
+    func application(application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: NSData) {
+        
+        let tokenChars = UnsafePointer<CChar>(deviceToken.bytes)
+        var tokenString = ""
+        
+        for var i = 0; i < deviceToken.length; i++ {
+            tokenString += String(format: "%02.2hhx", arguments: [tokenChars[i]])
+        }
+        
+        // send token to server for storage
+        manager.POST(SprubixConfig.URL.api + "/auth/apns/token",
+            parameters: [
+                "device_token": tokenString
+            ],
+            success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                
+                var status = responseObject["status"] as! String
+                
+                if status == "200" {
+                    println("Device token set successfully")
+                } else if status == "500" {
+                    println("Error in setting device token: \(responseObject)")
+                }
+            },
+            failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                println("Error: " + error.localizedDescription)
+        })
+    }
+    
+    func application(application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: NSError) {
+        println("Failed to get token. Error: \(error)")
+    }
+    
+    func application(application: UIApplication, didReceiveRemoteNotification userInfo: [NSObject : AnyObject]) {
+        if application.applicationState == UIApplicationState.Active {
+            // application already in foreground
+            println("APNS received. Application in foreground.")
+        } else {
+            // app was brought from background to foreground
+            println("APNS received. Application entering from bg to fg.")
+            containerViewController.showMainFeed()
+        }
+    }
 }
 

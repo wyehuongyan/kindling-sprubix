@@ -355,6 +355,28 @@ class SprubixReachability {
     }
 }
 
+// APNS
+class APNS {
+    class func sendPushNotification(message: String, recipientId: Int) {
+        manager.POST(SprubixConfig.URL.api + "/queue/notification/send",
+            parameters: [
+                "message": message,
+                "recipient_id": recipientId
+            ],
+            success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                
+                var status = responseObject["status"] as! String
+                
+                if status == "500" {
+                    println(responseObject)
+                }
+            },
+            failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                println("Error: " + error.localizedDescription)
+        })
+    }
+}
+
 // Firebase
 class FirebaseAuth {
     class func retrieveFirebaseToken() {
