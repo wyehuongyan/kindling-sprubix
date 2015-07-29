@@ -158,36 +158,16 @@ class ProvideFeedbackViewController: UIViewController, UITableViewDataSource, UI
         if validateResult.valid {
             
             let userData: NSDictionary = defaults.dictionaryForKey("userData")!
-            manager.requestSerializer = AFJSONRequestSerializer()
             
-            manager.POST(SprubixConfig.URL.mandrill + "/messages/send",
+            manager.POST(SprubixConfig.URL.api + "/mail/feedback",
                 parameters: [
-                    "key" : SprubixConfig.Token.mandrill,
-                    "message" : [
-                        "html" : contentText.text.stringByReplacingOccurrencesOfString("\n", withString: "<br/>"),
-                        "text" : contentText.text,
-                        "subject" : emailSubject + " from " + (userData["username"] as! String),
-                        "from_email" : userData["email"] as! String,
-                        "from_name" : userData["username"] as! String,
-                        "to" : [[
-                            "email" : emailSprubixSupport,
-                            "name" : "Team Sprubix",
-                            "type" : "to"
-                            ]],
-                        "headers": [
-                            "Reply-To": userData["email"] as! String
-                        ],
-                        "tags": [
-                            emailTag
-                        ],
-                        "subaccount" : userData["id"] as! Int
-                    ]
+                    "content" : contentText.text
                 ],
                 success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
-                    var data = (responseObject as! [NSDictionary])[0]
+                    var data = responseObject as! NSDictionary
                     var status = data.objectForKey("status") as! String
                     
-                    if status == "sent" {
+                    if status == "200" {
                         // email sent
                         // success
                         TSMessage.showNotificationInViewController(
@@ -245,9 +225,6 @@ class ProvideFeedbackViewController: UIViewController, UITableViewDataSource, UI
                         canBeDismissedByUser: true)
             })
             
-            // Change AFNetworking to Html
-            manager.requestSerializer = AFHTTPRequestSerializer()
-            
         } else {
             // error exception
             TSMessage.showNotificationInViewController(
@@ -263,6 +240,7 @@ class ProvideFeedbackViewController: UIViewController, UITableViewDataSource, UI
                 atPosition: TSMessageNotificationPosition.Bottom,
                 canBeDismissedByUser: true)
         }
+
     }
     
     func validateInputs() -> (valid: Bool, message: String) {
