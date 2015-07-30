@@ -135,9 +135,9 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
         let activityViewWidth: CGFloat = 50
         activityView = UIActivityIndicatorView(activityIndicatorStyle: UIActivityIndicatorViewStyle.White)
         activityView.color = sprubixColor
-        activityView.frame = CGRect(x: screenWidth / 2 - activityViewWidth / 2, y: ((screenHeight - userProfileHeaderHeight) / 2 - activityViewWidth / 2) + userProfileHeaderHeight, width: activityViewWidth, height: activityViewWidth)
+        activityView.frame = CGRect(x: screenWidth / 2 - activityViewWidth / 2, y: ((screenHeight - userProfileHeaderHeight) / 3 - activityViewWidth / 2) + userProfileHeaderHeight, width: activityViewWidth, height: activityViewWidth)
         
-        profileCollectionView.addSubview(activityView)
+        view.addSubview(activityView)
     }
     
     func initCollectionViewLayouts() {
@@ -568,7 +568,7 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
             
             if userId != nil {
                 self.currentProfileState = .Outfits
-                self.profileCollectionView.reloadData()
+                self.showEmptyDataSet()
                 activityView.startAnimating()
                 
                 manager.GET(SprubixConfig.URL.api + "/user/\(userId!)/outfits",
@@ -576,24 +576,25 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
                     success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
                         self.outfits = responseObject["data"] as! [NSDictionary]
                         
-                        self.currentProfileState = .Outfits
-                        self.currentPage = responseObject["current_page"] as? Int
-                        self.lastPage = responseObject["last_page"] as? Int
-                        self.activityView.stopAnimating()
-                        
-                        if self.outfits.count > 0 {
-                            //self.outfitsLoaded = true
-                            self.hideEmptyDataSet()
-                            self.profileCollectionView.reloadData()
+                        // if state is still pieces (user may switch away)
+                        if self.currentProfileState == .Outfits {
+                            self.currentPage = responseObject["current_page"] as? Int
+                            self.lastPage = responseObject["last_page"] as? Int
+                            self.activityView.stopAnimating()
                             
-                            // set layout
-                            self.profileCollectionView.collectionViewLayout.invalidateLayout()
-                            self.profileCollectionView.setCollectionViewLayout(self.userOutfitsLayout, animated: false)
-                        } else {
-                            //println("Oops, there are no outfits in your closet.")
-                            self.showEmptyDataSet()
+                            if self.outfits.count > 0 {
+                                //self.outfitsLoaded = true
+                                self.hideEmptyDataSet()
+                                self.profileCollectionView.reloadData()
+                                
+                                // set layout
+                                self.profileCollectionView.collectionViewLayout.invalidateLayout()
+                                self.profileCollectionView.setCollectionViewLayout(self.userOutfitsLayout, animated: false)
+                            } else {
+                                //println("Oops, there are no outfits in your closet.")
+                                self.showEmptyDataSet()
+                            }
                         }
-
                     },
                     failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                         println("Error: " + error.localizedDescription)
@@ -620,7 +621,7 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
             
             if userId != nil {
                 self.currentProfileState = .Pieces
-                self.profileCollectionView.reloadData()
+                self.showEmptyDataSet()
                 activityView.startAnimating()
                 
                 manager.GET(SprubixConfig.URL.api + "/user/\(userId!)/pieces",
@@ -628,22 +629,24 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
                     success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
                         self.pieces = responseObject["data"] as! [NSDictionary]
                         
-                        self.currentProfileState = .Pieces
-                        self.currentPage = responseObject["current_page"] as? Int
-                        self.lastPage = responseObject["last_page"] as? Int
-                        self.activityView.stopAnimating()
-                        
-                        if self.pieces.count > 0 {
-                            //self.piecesLoaded = true
-                            self.hideEmptyDataSet()
-                            self.profileCollectionView.reloadData()
+                        // if state is still pieces (user may switch away)
+                        if self.currentProfileState == .Pieces {
+                            self.currentPage = responseObject["current_page"] as? Int
+                            self.lastPage = responseObject["last_page"] as? Int
+                            self.activityView.stopAnimating()
                             
-                            // set layout
-                            self.profileCollectionView.collectionViewLayout.invalidateLayout()
-                            self.profileCollectionView.setCollectionViewLayout(self.userPiecesLayout, animated: false)
-                        } else {
-                            //println("Oops, there are no pieces in your closet.")
-                            self.showEmptyDataSet()
+                            if self.pieces.count > 0 {
+                                //self.piecesLoaded = true
+                                self.hideEmptyDataSet()
+                                self.profileCollectionView.reloadData()
+                                
+                                // set layout
+                                self.profileCollectionView.collectionViewLayout.invalidateLayout()
+                                self.profileCollectionView.setCollectionViewLayout(self.userPiecesLayout, animated: false)
+                            } else {
+                                //println("Oops, there are no pieces in your closet.")
+                                self.showEmptyDataSet()
+                            }
                         }
                     },
                     failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
@@ -670,7 +673,7 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
             
             if userId != nil {
                 self.currentProfileState = .Community
-                self.profileCollectionView.reloadData()
+                self.showEmptyDataSet()
                 activityView.startAnimating()
                 
                 manager.GET(SprubixConfig.URL.api + "/user/\(userId!)/outfits/community",
@@ -678,24 +681,25 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
                     success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
                         self.communityOutfits = responseObject["data"] as! [NSDictionary]
                         
-                        self.currentProfileState = .Community
-                        self.currentPage = responseObject["current_page"] as? Int
-                        self.lastPage = responseObject["last_page"] as? Int
-                        self.activityView.stopAnimating()
-                        
-                        if self.communityOutfits.count > 0 {
-                            //self.communityLoaded = true
-                            self.hideEmptyDataSet()
-                            self.profileCollectionView.reloadData()
+                        // if state is still community (user may switch away)
+                        if self.currentProfileState == .Community {
+                            self.currentPage = responseObject["current_page"] as? Int
+                            self.lastPage = responseObject["last_page"] as? Int
+                            self.activityView.stopAnimating()
                             
-                            // set layout
-                            self.profileCollectionView.collectionViewLayout.invalidateLayout()
-                            self.profileCollectionView.setCollectionViewLayout(self.userOutfitsLayout, animated: false)
-                        } else {
-                            //println("Oops, there are no community outfits in your closet.")
-                            self.showEmptyDataSet()
+                            if self.communityOutfits.count > 0 {
+                                //self.communityLoaded = true
+                                self.hideEmptyDataSet()
+                                self.profileCollectionView.reloadData()
+                                
+                                // set layout
+                                self.profileCollectionView.collectionViewLayout.invalidateLayout()
+                                self.profileCollectionView.setCollectionViewLayout(self.userOutfitsLayout, animated: false)
+                            } else {
+                                //println("Oops, there are no community outfits in your closet.")
+                                self.showEmptyDataSet()
+                            }
                         }
-                        
                     },
                     failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                         println("Error: " + error.localizedDescription)
