@@ -44,6 +44,8 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
     var ordersViewController: OrdersViewController?
     
     var notificationScope = PermissionScope()
+    var statusBarHidden = true
+    var statusBarStyle = UIStatusBarStyle.Default
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -54,7 +56,6 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
         mainFeedController = MainFeedController()
         mainFeedController.delegate = self
         sprubixNavigationController = UINavigationController(rootViewController: mainFeedController)
-        sprubixNavigationController.view.backgroundColor = UIColor.whiteColor()
         
         view.addSubview(sprubixNavigationController.view)
         addChildViewController(sprubixNavigationController)
@@ -97,7 +98,15 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
     }
     
     override func prefersStatusBarHidden() -> Bool {
-        return true
+        return statusBarHidden;
+    }
+    
+    override func preferredStatusBarUpdateAnimation() -> UIStatusBarAnimation {
+        return UIStatusBarAnimation.Slide
+    }
+    
+    override func preferredStatusBarStyle() -> UIStatusBarStyle {
+        return statusBarStyle
     }
     
     // SidePanelViewControllerDelegate
@@ -268,6 +277,10 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
             currentState = .SidePanelExpanded
             
             animateSprubixFeedXPosition(targetPosition: CGRectGetWidth(sprubixNavigationController.view.frame) - sprubixFeedExpandedOffset)
+            
+            statusBarHidden = true
+            sprubixNavigationController.setNavigationBarHidden(true, animated: true)
+            self.setNeedsStatusBarAppearanceUpdate()
         } else {
             animateSprubixFeedXPosition(targetPosition: 0) { finished in
                 self.currentState = .Collapsed
@@ -288,6 +301,11 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
                         self.darkenedOverlay = nil
                 })
             }
+            
+            statusBarHidden = false
+            sprubixNavigationController.setNavigationBarHidden(false, animated: true)
+            
+            self.setNeedsStatusBarAppearanceUpdate()
         }
     }
     

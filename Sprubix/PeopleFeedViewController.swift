@@ -39,6 +39,9 @@ class PeopleFeedViewController: UIViewController, DZNEmptyDataSetSource, DZNEmpt
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
         
+        containerViewController.statusBarHidden = false
+        self.setNeedsStatusBarAppearanceUpdate()
+        
         initNavBar()
     }
     
@@ -47,6 +50,9 @@ class PeopleFeedViewController: UIViewController, DZNEmptyDataSetSource, DZNEmpt
         
         self.shyNavBarManager = nil
         self.navigationController?.setNavigationBarHidden(true, animated: true)
+        
+        containerViewController.statusBarHidden = true
+        self.setNeedsStatusBarAppearanceUpdate()
     }
     
     func initNavBar() {
@@ -131,7 +137,7 @@ class PeopleFeedViewController: UIViewController, DZNEmptyDataSetSource, DZNEmpt
     func initDropdown() {
         // init dropdown
         if dropdownWrapper == nil {
-            dropdownWrapper = UIView(frame: CGRectMake(0, navigationHeight, screenWidth, screenHeight - navigationHeight))
+            dropdownWrapper = UIView(frame: CGRectMake(0, navigationHeaderAndStatusbarHeight, screenWidth, screenHeight - navigationHeaderAndStatusbarHeight))
             dropdownWrapper?.clipsToBounds = true
             dropdownWrapper?.userInteractionEnabled = true
             dropdownWrapper?.backgroundColor = UIColor.clearColor().colorWithAlphaComponent(0.3)
@@ -214,7 +220,7 @@ class PeopleFeedViewController: UIViewController, DZNEmptyDataSetSource, DZNEmpt
             // show dropdownView
             UIView.animateWithDuration(0.5, delay: 0.0, usingSpringWithDamping: 0.9, initialSpringVelocity: 0, options: .CurveEaseInOut, animations: {
                 self.dropdownWrapper!.alpha = 1.0
-                self.dropdownView?.frame.origin.y = navigationHeight
+                self.dropdownView?.frame.origin.y = navigationHeaderAndStatusbarHeight
 
                 self.dropdownVisible = true
                 }, completion: nil)

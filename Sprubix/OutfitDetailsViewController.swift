@@ -49,10 +49,6 @@ class OutfitDetailsViewController: UICollectionViewController, UICollectionViewD
         fatalError("init(coder:) has not been implemented")
     }
     
-    override func prefersStatusBarHidden() -> Bool {
-        return true
-    }
-    
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
         

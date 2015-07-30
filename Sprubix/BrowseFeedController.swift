@@ -34,6 +34,8 @@ class BrowseFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDat
     var newNavBar:UINavigationBar!
     var newNavItem:UINavigationItem!
     
+    var activityView: UIActivityIndicatorView!
+    
     // drop down
     var sprubixTitle: SprubixButtonIconRight!
     var dropdownWrapper: UIView?
@@ -62,6 +64,9 @@ class BrowseFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDat
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
         
+        containerViewController.statusBarHidden = false
+        self.setNeedsStatusBarAppearanceUpdate()
+        
         initNavBar()
         
         if self.shyNavBarManager.scrollView == nil {
@@ -83,6 +88,9 @@ class BrowseFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDat
         
         self.shyNavBarManager = nil
         self.navigationController?.setNavigationBarHidden(true, animated: true)
+        
+        containerViewController.statusBarHidden = true
+        self.setNeedsStatusBarAppearanceUpdate()
     }
     
     private func initCollectionViewLayout() {
@@ -118,6 +126,14 @@ class BrowseFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDat
         })
         
         view.addSubview(discoverCollectionView)
+        
+        // here the spinner is initialized
+        let activityViewWidth: CGFloat = 50
+        activityView = UIActivityIndicatorView(activityIndicatorStyle: UIActivityIndicatorViewStyle.White)
+        activityView.color = sprubixColor
+        activityView.frame = CGRect(x: screenWidth / 2 - activityViewWidth / 2, y: screenHeight / 2 - activityViewWidth / 2, width: activityViewWidth, height: activityViewWidth)
+        
+        view.addSubview(activityView)
     }
     
     func initNavBar() {
@@ -222,6 +238,11 @@ class BrowseFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDat
     
     // REST calls
     func retrieveOutfits() {
+        
+        if outfits.count <= 0 {
+            activityView.startAnimating()
+        }
+        
         // retrieve 3 example pieces
         manager.POST(SprubixConfig.URL.api + "/outfits/ids",
             parameters: [
@@ -241,6 +262,7 @@ class BrowseFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDat
                 }
                 */
                 
+                self.activityView.stopAnimating()
                 self.discoverCollectionView.reloadData()
             },
             failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
@@ -251,7 +273,7 @@ class BrowseFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDat
     func initDropdown() {
         // init dropdown
         if dropdownWrapper == nil {
-            dropdownWrapper = UIView(frame: CGRectMake(0, navigationHeight, screenWidth, screenHeight - navigationHeight))
+            dropdownWrapper = UIView(frame: CGRectMake(0, navigationHeaderAndStatusbarHeight, screenWidth, screenHeight - navigationHeaderAndStatusbarHeight))
             dropdownWrapper?.clipsToBounds = true
             dropdownWrapper?.userInteractionEnabled = true
             dropdownWrapper?.backgroundColor = UIColor.clearColor().colorWithAlphaComponent(0.3)
@@ -449,7 +471,7 @@ class BrowseFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDat
             // show dropdownView
             UIView.animateWithDuration(0.5, delay: 0.0, usingSpringWithDamping: 0.9, initialSpringVelocity: 0, options: .CurveEaseInOut, animations: {
                 self.dropdownWrapper!.alpha = 1.0
-                self.dropdownView?.frame.origin.y = navigationHeight
+                self.dropdownView?.frame.origin.y = navigationHeaderAndStatusbarHeight
                 self.discoverCollectionView.scrollEnabled = false
                 self.dropdownVisible = true
                 }, completion: nil)
