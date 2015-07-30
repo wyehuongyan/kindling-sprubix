@@ -11,6 +11,8 @@ import CoreData
 import AFNetworking
 import AFNetworkActivityLogger
 import Mixpanel
+import Fabric
+import Crashlytics
 
 struct SprubixConfig {
     struct URL {
@@ -74,6 +76,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             "Timestamp": NSDate()
         ])
         // Mixpanel - End
+        
+        Fabric.with([Crashlytics()])
         
         return true
     }

@@ -358,7 +358,7 @@ class SprubixReachability {
 // APNS
 class APNS {
     class func sendPushNotification(message: String, recipientId: Int) {
-        manager.POST(SprubixConfig.URL.api + "/queue/notification/send",
+        manager.POST(SprubixConfig.URL.api + "/notification/send",
             parameters: [
                 "message": message,
                 "recipient_id": recipientId
