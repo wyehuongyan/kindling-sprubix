@@ -343,17 +343,13 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
             case .Changed:
                 if (gestureIsDraggingFromLeftToRight || currentState == .SidePanelExpanded) {
                     
-                    recognizer.view!.center.x = recognizer.view!.center.x + recognizer.translationInView(view).x
+                    self.sidePanelViewController!.view.center.x = self.sidePanelViewController!.view.center.x + recognizer.translationInView(view).x
                     recognizer.setTranslation(CGPointZero, inView: view)
-
-                    if recognizer.view!.center.x < screenWidth / 2 {
-                       recognizer.view!.center.x = screenWidth / 2
-                    }
                 }
             case .Ended:
                 if (sidePanelViewController != nil) {
                     // animate the side panel open or closed based on whether the view has moved more or less than halfway
-                    let hasMovedGreaterThanHalfway = recognizer.view!.center.x > view.bounds.size.width
+                    let hasMovedGreaterThanHalfway = self.sidePanelViewController!.view.center.x > 0
                     animateSidePanel(shouldExpand: hasMovedGreaterThanHalfway)
                 }
             default:
