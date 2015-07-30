@@ -117,9 +117,7 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         spruceViewController?.view.removeFromSuperview()
         spruceViewController = nil
         
-        if self.shyNavBarManager.scrollView == nil {
-            self.shyNavBarManager.scrollView = self.mainCollectionView
-        }
+        self.shyNavBarManager.scrollView = self.mainCollectionView
         
         commentsViewController?.view.removeFromSuperview()
         commentsViewController = nil

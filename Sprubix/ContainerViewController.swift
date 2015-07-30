@@ -102,7 +102,7 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
     }
     
     override func preferredStatusBarUpdateAnimation() -> UIStatusBarAnimation {
-        return UIStatusBarAnimation.Slide
+        return UIStatusBarAnimation.None
     }
     
     override func preferredStatusBarStyle() -> UIStatusBarStyle {
@@ -265,8 +265,9 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
     
     func addChildSidePanelController(sidePanelVC: SidePanelViewController) {
         sidePanelVC.delegate = self
+        sidePanelVC.view.frame.origin.x = -screenWidth
         
-        view.insertSubview(sidePanelVC.view, atIndex: 0)
+        view.insertSubview(sidePanelVC.view, atIndex: 1)
         
         addChildViewController(sidePanelVC)
         sidePanelVC.didMoveToParentViewController(self)
@@ -276,13 +277,12 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
         if shouldExpand {
             currentState = .SidePanelExpanded
             
-            animateSprubixFeedXPosition(targetPosition: CGRectGetWidth(sprubixNavigationController.view.frame) - sprubixFeedExpandedOffset)
+            animateSideMenuXPosition(targetPosition: -sprubixFeedExpandedOffset)
             
             statusBarHidden = true
             sprubixNavigationController.setNavigationBarHidden(true, animated: true)
-            self.setNeedsStatusBarAppearanceUpdate()
         } else {
-            animateSprubixFeedXPosition(targetPosition: 0) { finished in
+            animateSideMenuXPosition(targetPosition: -screenWidth) { finished in
                 self.currentState = .Collapsed
                 
                 if self.sidePanelViewController != nil {
@@ -302,16 +302,15 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
                 })
             }
             
-            statusBarHidden = false
+            self.statusBarHidden = false
             sprubixNavigationController.setNavigationBarHidden(false, animated: true)
-            
-            self.setNeedsStatusBarAppearanceUpdate()
         }
     }
     
-    func animateSprubixFeedXPosition(#targetPosition: CGFloat, completion: ((Bool) -> Void)! = nil) {
+    func animateSideMenuXPosition(#targetPosition: CGFloat, completion: ((Bool) -> Void)! = nil) {
         UIView.animateWithDuration(0.5, delay: 0, usingSpringWithDamping: 0.9, initialSpringVelocity: 0, options: .CurveEaseInOut, animations: {
-            self.sprubixNavigationController.view.frame.origin.x = targetPosition
+            self.sidePanelViewController!.view.frame.origin.x = targetPosition
+            
             }, completion: completion)
     }
     

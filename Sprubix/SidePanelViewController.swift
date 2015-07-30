@@ -54,7 +54,7 @@ class SidePanelViewController: UIViewController, UITableViewDataSource, UITableV
             let profileImageLength:CGFloat = 100
             
             // 30 is the sprubixfeed offset of 60 divided by 2. 50 is arbitary value, but should convert to constraint
-            profileImage.frame = CGRect(x: (view.bounds.width / 2) - (profileImageLength / 2) - 30, y: 30, width: profileImageLength, height: profileImageLength)
+            profileImage.frame = CGRect(x: (view.bounds.width / 2) - (profileImageLength / 2) + 30, y: 30, width: profileImageLength, height: profileImageLength)
             
             // circle mask
             profileImage.layer.cornerRadius = profileImage.frame.size.width / 2
@@ -65,7 +65,7 @@ class SidePanelViewController: UIViewController, UITableViewDataSource, UITableV
             
             // create username UILabel
             let profileNameLength:CGFloat = 200
-            profileName.frame = CGRect(x: (view.bounds.width / 2) - (profileNameLength / 2) - 30, y: profileImage.center.y + 60, width: profileNameLength, height: 21)
+            profileName.frame = CGRect(x: (view.bounds.width / 2) - (profileNameLength / 2) + 30, y: profileImage.center.y + 60, width: profileNameLength, height: 21)
             //profileName.font = UIFont(name: profileName.font.fontName, size: 17)
             profileName.textColor = UIColor.darkGrayColor()
             profileName.text = userData!["username"] as? String
