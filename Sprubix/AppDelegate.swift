@@ -25,10 +25,8 @@ struct SprubixConfig {
     }
     struct Token {
         static let mixpanel = ""
-        static let mandrill = "9rrdIp0n5J_o9NGlaRuluQ"
         
         //static let mixpanel = "a96ce08c8510210b59025890ce360c3b"
-        //static let mandrill = "THiGmvjb1CPogbh__ThPTw"
     }
 }
 

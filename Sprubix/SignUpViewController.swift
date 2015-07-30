@@ -272,33 +272,20 @@ class SignUpViewController: UIViewController, UITableViewDataSource, UITableView
                             // Mixpanel - End
                             
                             // Mandrill - Add subaccount
-                            var dateFormatter: NSDateFormatter = NSDateFormatter()
-                            dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
-                            let signupTimeStr = dateFormatter.stringFromDate(signupTime)
-                            
-                            manager.requestSerializer = AFJSONRequestSerializer()
-                            
-                            manager.POST(SprubixConfig.URL.mandrill + "/subaccounts/add",
+                            manager.POST(SprubixConfig.URL.api + "/mail/subaccount/create",
                                 parameters: [
-                                    "key" : SprubixConfig.Token.mandrill,
                                     "id" : data.objectForKey("id") as! Int,
-                                    "name" : data.objectForKey("username") as! String,
-                                    "notes" : "Signed up on " + signupTimeStr,
+                                    "name" : data.objectForKey("username") as! String
                                 ],
                                 success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
-                                    var data = responseObject as! NSDictionary
-                                    
                                     // Print reply from server
-                                    println(data)
+                                    println("Mandrill subaccount created")
                                     
                                 },
                                 failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                                     println("Error: " + error.localizedDescription)
                                     
                             })
-                            
-                            // Change AFNetworking to Html
-                            manager.requestSerializer = AFHTTPRequestSerializer()
                             // Mandrill - End
                         }
                     },
