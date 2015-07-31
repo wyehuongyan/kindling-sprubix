@@ -266,9 +266,9 @@ class FavoritesViewController: UIViewController, DZNEmptyDataSetSource, DZNEmpty
         
         switch(currentFavoriteState) {
         case .Outfits:
-            text = "\nOutfits that you like"
+            text = "\nOutfits that you've liked"
         case .Pieces:
-            text = "\nItems that you like"
+            text = "\nItems that you've liked"
         }
         
         let attributes: NSDictionary = [
@@ -286,7 +286,7 @@ class FavoritesViewController: UIViewController, DZNEmptyDataSetSource, DZNEmpty
         
         switch(currentFavoriteState) {
         case .Outfits:
-            text = "When you like an outfit or item, you'll see it here."
+            text = "When you like an outfit, you'll see it here."
         case .Pieces:
             text = "When you like an item, you'll see it here."
         }

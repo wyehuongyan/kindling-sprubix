@@ -66,6 +66,12 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, SprucePieceF
         
         self.navigationController?.view.layer.addAnimation(transition, forKey: kCATransition)
         self.navigationController?.pushViewController(spruceSearchViewController, animated: false)
+        
+        // Mixpanel - Search, Spruce
+        mixpanel.track("Search", properties: [
+            "Type": "Spruce"
+        ])
+        // Mixpanel - End
     }
     
     func closetSelection(sender: AnyObject) {
@@ -83,6 +89,12 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, SprucePieceF
         
         self.navigationController?.view.layer.addAnimation(transition, forKey: kCATransition)
         self.navigationController?.pushViewController(myClosetViewController, animated: false)
+        
+        // Mixpanel - Use Closet, Spruce
+        mixpanel.track("Use Closet", properties: [
+            "Type": "Spruce"
+        ])
+        // Mixpanel - End
     }
     
     func addPiece(sender: AnyObject) {
@@ -825,6 +837,13 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, SprucePieceF
         spruceShareViewController.numPieces = images.count
         
         self.navigationController?.pushViewController(spruceShareViewController, animated: true)
+        
+        // Mixpanel - Create Outfit Share, Closet, Outfit
+        mixpanel.track("Create Outfit Share", properties: [
+            "Method": "Closet",
+            "Type" : "Outfit"
+        ])
+        // Mixpanel - End
     }
 }
 

@@ -184,7 +184,7 @@ class InventoryViewController: UIViewController, UITableViewDataSource, UITableV
     
     // DZNEmptyDataSetSource
     func titleForEmptyDataSet(scrollView: UIScrollView!) -> NSAttributedString! {
-        let text: String = "\nItems you are selling"
+        let text: String = "\nItems you're selling"
         
         let attributes: NSDictionary = [
             NSFontAttributeName: UIFont.boldSystemFontOfSize(18.0),
@@ -197,7 +197,7 @@ class InventoryViewController: UIViewController, UITableViewDataSource, UITableV
     }
     
     func descriptionForEmptyDataSet(scrollView: UIScrollView!) -> NSAttributedString! {
-        let text: String = "When you put something up for sale, you'll see it here."
+        let text: String = "When you put an item up for sale, you'll see it here."
         
         var paragraph: NSMutableParagraphStyle = NSMutableParagraphStyle.new()
         paragraph.lineBreakMode = NSLineBreakMode.ByWordWrapping
@@ -214,8 +214,8 @@ class InventoryViewController: UIViewController, UITableViewDataSource, UITableV
         return attributedString
     }
     
-    func buttonTitleForEmptyDataSet(scrollView: UIScrollView!, forState state: UIControlState) -> NSAttributedString! {
-        let text: String = ""
+    /*func buttonTitleForEmptyDataSet(scrollView: UIScrollView!, forState state: UIControlState) -> NSAttributedString! {
+        let text: String = "Button Title"
         
         let attributes: NSDictionary = [
             NSFontAttributeName: UIFont.boldSystemFontOfSize(17.0)
@@ -224,7 +224,7 @@ class InventoryViewController: UIViewController, UITableViewDataSource, UITableV
         let attributedString: NSAttributedString = NSAttributedString(string: text, attributes: attributes as [NSObject : AnyObject])
         
         return attributedString
-    }
+    }*/
     
     func imageForEmptyDataSet(scrollView: UIScrollView!) -> UIImage! {
         return UIImage(named: "emptyset-inventory-instock")
@@ -349,6 +349,13 @@ class InventoryViewController: UIViewController, UITableViewDataSource, UITableV
             currentChoice = sender
             sender.addSubview(buttonLine)
             sender.tintColor = sprubixColor
+            
+            // Mixpanel - Viewed Inventory, All
+            mixpanel.track("Viewed Inventory", properties: [
+                "Source": "Inventory View",
+                "Tab": "All"
+            ])
+            // Mixpanel - End
         }
     }
     
@@ -359,6 +366,13 @@ class InventoryViewController: UIViewController, UITableViewDataSource, UITableV
             currentChoice = sender
             sender.addSubview(buttonLine)
             sender.tintColor = sprubixColor
+            
+            // Mixpanel - Viewed Inventory, Low Stock
+            mixpanel.track("Viewed Inventory", properties: [
+                "Source": "Inventory View",
+                "Tab": "Low Stock"
+            ])
+            // Mixpanel - End
         }
     }
     

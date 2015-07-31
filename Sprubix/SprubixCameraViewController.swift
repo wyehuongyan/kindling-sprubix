@@ -389,6 +389,14 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
 
         var chosenImage = info[UIImagePickerControllerOriginalImage] as! UIImage
         dismissViewControllerAnimated(true, completion: nil)
+        
+        // Mixpanel - Take Photo, Library
+        let currentPieceType: String = self.selectedPiecesOrdered[Int(self.snappedCount)].lowercaseString.capitalizeFirst
+        mixpanel.track("Take Photo", properties: [
+            "Source": "Library",
+            "Type" : currentPieceType
+        ])
+        // Mixpanel - End
 
         setPreviewStillImage(chosenImage)
     }
@@ -405,6 +413,15 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
         UIView.animateWithDuration(0.225, animations: { () -> Void in
             self.cameraPreview.alpha = 0.0
         })
+        
+        // Mixpanel - Take Photo, Camera
+        let currentPieceType: String = self.selectedPiecesOrdered[Int(self.snappedCount)].lowercaseString.capitalizeFirst
+        
+        mixpanel.track("Take Photo", properties: [
+            "Source": "Camera",
+            "Type" : currentPieceType
+        ])
+        // Mixpanel - End
         
         self.camera?.captureStillImage({ (image) -> Void in
             self.setPreviewStillImage(image)
@@ -467,6 +484,10 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
                         // Animation done
                         self.resetPieceSelector()
                     }
+                    
+                    // Mixpanel - Edit Photo
+                    mixpanel.track("Edit Photo")
+                    // Mixpanel - End
                     
                 } else {
                     // shift view to cameraPreview

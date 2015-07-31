@@ -7,9 +7,10 @@
 //
 
 import UIKit
+import DZNEmptyDataSet
 import AFNetworking
 
-class PaymentMethodsViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
+class PaymentMethodsViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, DZNEmptyDataSetSource, DZNEmptyDataSetDelegate {
 
     @IBOutlet var paymentMethodTableView: UITableView!
     let paymentMethodCellIdentifier: String = "PaymentMethodCell"
@@ -26,6 +27,10 @@ class PaymentMethodsViewController: UIViewController, UITableViewDataSource, UIT
         view.backgroundColor = sprubixGray
         
         paymentMethodTableView.backgroundColor = sprubixGray
+        
+        // empty dataset
+        paymentMethodTableView.emptyDataSetSource = self
+        paymentMethodTableView.emptyDataSetDelegate = self
         
         // get rid of line seperator for empty cells
         paymentMethodTableView.tableFooterView = UIView(frame: CGRectZero)
@@ -234,6 +239,58 @@ class PaymentMethodsViewController: UIViewController, UITableViewDataSource, UIT
     
     func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
         return 68.0
+    }
+    
+    // DZNEmptyDataSetSource
+    func titleForEmptyDataSet(scrollView: UIScrollView!) -> NSAttributedString! {
+        let text: String = "\nYour payment methods"
+        
+        let attributes: NSDictionary = [
+            NSFontAttributeName: UIFont.boldSystemFontOfSize(18.0),
+            NSForegroundColorAttributeName: UIColor.darkGrayColor()
+        ]
+        
+        let attributedString: NSAttributedString = NSAttributedString(string: text, attributes: attributes as [NSObject : AnyObject])
+        
+        return attributedString
+    }
+    
+    func descriptionForEmptyDataSet(scrollView: UIScrollView!) -> NSAttributedString! {
+        let text: String = "When you add a payment method, you'll see it here."
+        
+        var paragraph: NSMutableParagraphStyle = NSMutableParagraphStyle.new()
+        paragraph.lineBreakMode = NSLineBreakMode.ByWordWrapping
+        paragraph.alignment = NSTextAlignment.Center
+        
+        let attributes: NSDictionary = [
+            NSFontAttributeName: UIFont.boldSystemFontOfSize(14.0),
+            NSForegroundColorAttributeName: UIColor.lightGrayColor(),
+            NSParagraphStyleAttributeName: paragraph
+        ]
+        
+        let attributedString: NSAttributedString = NSAttributedString(string: text, attributes: attributes as [NSObject : AnyObject])
+        
+        return attributedString
+    }
+    
+    /*func buttonTitleForEmptyDataSet(scrollView: UIScrollView!, forState state: UIControlState) -> NSAttributedString! {
+        let text: String = "Button Title"
+        
+        let attributes: NSDictionary = [
+        NSFontAttributeName: UIFont.boldSystemFontOfSize(17.0)
+        ]
+        
+        let attributedString: NSAttributedString = NSAttributedString(string: text, attributes: attributes as [NSObject : AnyObject])
+        
+        return attributedString
+    }*/
+    
+    func imageForEmptyDataSet(scrollView: UIScrollView!) -> UIImage! {
+        return UIImage(named: "emptyset-payment-methods")
+    }
+    
+    func backgroundColorForEmptyDataSet(scrollView: UIScrollView!) -> UIColor! {
+        return sprubixGray
     }
     
     func deletePaymentMethod(paymentMethodId: Int) {

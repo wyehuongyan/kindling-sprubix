@@ -366,6 +366,13 @@ class OrdersViewController: UIViewController, UITableViewDataSource, UITableView
             
             currentOrderStatus = activeStatuses
             retrieveOrders()
+            
+            // Mixpanel - Viewed Orders, Active
+            mixpanel.track("Viewed Orders", properties: [
+                "Source": "Orders View",
+                "Tab": "Active"
+            ])
+            // Mixpanel - End
         }
     }
     
@@ -379,6 +386,13 @@ class OrdersViewController: UIViewController, UITableViewDataSource, UITableView
             
             currentOrderStatus = fulfilledStatuses
             retrieveOrders()
+            
+            // Mixpanel - Viewed Orders, Fulfilled
+            mixpanel.track("Viewed Orders", properties: [
+                "Source": "Orders View",
+                "Tab": "Fulfilled"
+            ])
+            // Mixpanel - End
         }
     }
     
@@ -392,6 +406,13 @@ class OrdersViewController: UIViewController, UITableViewDataSource, UITableView
             
             currentOrderStatus = cancelledStatuses
             retrieveOrders()
+            
+            // Mixpanel - Viewed Orders, Cancelled
+            mixpanel.track("Viewed Orders", properties: [
+                "Source": "Orders View",
+                "Tab": "Cancelled"
+            ])
+            // Mixpanel - End
         }
     }
     
@@ -457,21 +478,21 @@ class OrdersViewController: UIViewController, UITableViewDataSource, UITableView
         switch shoppable_type {
         case "Shopper":
             if currentOrderStatus == activeStatuses {
-                text = "When you check out an item, you'll see it here."
+                text = "When you checked out an item, you'll see it here."
             }
             else if currentOrderStatus == fulfilledStatuses {
-                text = "When the seller sends out the item, you'll see it here."
+                text = "When the seller sent out the item, you'll see it here."
             }
             else if currentOrderStatus == cancelledStatuses {
-                text = "When you cancel an item, you'll see it here."
+                text = "When an item is cancelled, you'll see it here."
             }
             
         case "Shop":
             if currentOrderStatus == activeStatuses {
-                text = "When you have items to fulfill, you'll see it here."
+                text = "When you have items to be fulfilled, you'll see it here."
             }
             else if currentOrderStatus == fulfilledStatuses {
-                text = "When you send out an item, you'll see it here."
+                text = "When you sent out an item, you'll see it here."
             }
             else if currentOrderStatus == cancelledStatuses {
                 text = "When an item is cancelled, you'll see it here."
@@ -479,8 +500,7 @@ class OrdersViewController: UIViewController, UITableViewDataSource, UITableView
         
         default:
             break
-        }
-        
+        }   
         
         var paragraph: NSMutableParagraphStyle = NSMutableParagraphStyle.new()
         paragraph.lineBreakMode = NSLineBreakMode.ByWordWrapping

@@ -18,7 +18,6 @@ struct SprubixConfig {
         //static let api: String = "http://192.168.1.3/~shion/kindling-core/public/index.php"
         static let api: String = "http://192.168.1.5/~wyehuongyan/kindling-core/public/index.php"
         static let firebase: String = "https://sprubixtest.firebaseio.com/"
-        static let mandrill: String = "https://mandrillapp.com/api/1.0"
         
         //static let api: String = "http://api.sprubix.com"
         //static let firebase: String = "https://sprubix.firebaseio.com/"

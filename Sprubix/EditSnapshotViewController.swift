@@ -748,6 +748,12 @@ class EditSnapshotViewController: UIViewController {
             
             emptyNavItem.title = "Brightness"
             
+            // Mixpanel - Click Filters, Brightness
+            mixpanel.track("Click Filters", properties: [
+                "Type" : "Brightness"
+            ])
+            // Mixpanel - End
+            
         case contrastBtn:
             
             gpuImageFilter = GPUImageContrastFilter()
@@ -759,6 +765,12 @@ class EditSnapshotViewController: UIViewController {
             selectedEditingMode = .Contrast
             
             emptyNavItem.title = "Contrast"
+            
+            // Mixpanel - Click Filters, Contrast
+            mixpanel.track("Click Filters", properties: [
+                "Type" : "Contrast"
+            ])
+            // Mixpanel - End
             
         case sharpenBtn:
             
@@ -772,6 +784,12 @@ class EditSnapshotViewController: UIViewController {
             selectedEditingMode = .Sharpness
             
             emptyNavItem.title = "Sharpen"
+            
+            // Mixpanel - Click Filters, Sharpen
+            mixpanel.track("Click Filters", properties: [
+                "Type" : "Sharpen"
+            ])
+            // Mixpanel - End
             
         default:
             fatalError("Unknown edit button pressed")
@@ -1000,6 +1018,13 @@ class EditSnapshotViewController: UIViewController {
                 snapshotShareController.totalHeight = totalHeight
                 
                 self.navigationController?.pushViewController(snapshotShareController, animated: true)
+                
+                // Mixpanel - Create Outfit Share, Camera, Outfit
+                mixpanel.track("Create Outfit Share", properties: [
+                    "Method": "Camera",
+                    "Type" : "Outfit"
+                ])
+                // Mixpanel - End
             } else {
                 println("Only one piece, not qualified to be outfit")
                 
@@ -1025,6 +1050,18 @@ class EditSnapshotViewController: UIViewController {
                 }
                 
                 self.navigationController?.pushViewController(snapshotDetailsController, animated: true)
+                
+                // Mixpanel - Create Outfit Share, Camera, Piece
+                mixpanel.track("Create Outfit Share", properties: [
+                    "Method": "Camera",
+                    "Type" : "Piece"
+                ])
+                // Mixpanel - Add Item Details, Camera, Piece
+                mixpanel.track("Add Item Details", properties: [
+                    "Method": "Camera",
+                    "Type" : "Piece"
+                ])
+                // Mixpanel - End
             }
         } else {
             // send this image back to AddDetails view
