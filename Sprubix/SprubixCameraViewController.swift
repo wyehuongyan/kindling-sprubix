@@ -384,7 +384,7 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
         calculatePage(scrollView)
     }
     
-    //MARK: PhotoLibrary Delegates
+    // MARK: PhotoLibrary Delegates
     func imagePickerController(picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [NSObject : AnyObject]) {
 
         var chosenImage = info[UIImagePickerControllerOriginalImage] as! UIImage

@@ -9,24 +9,37 @@
 import UIKit
 import AFNetworking
 import TSMessages
+import PermissionScope
 
-class EditProfileViewController: UITableViewController, UITextViewDelegate {
+enum SelectedPhotoType {
+    case Profile
+    case Cover
+}
+
+class EditProfileViewController: UITableViewController, UITextViewDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate, CroppedImageProtocol {
     
     // custom nav bar
     var newNavBar: UINavigationBar!
     var newNavItem: UINavigationItem!
     
     // Profile details
-    @IBOutlet var profileImage:UIImageView! = UIImageView()
-    @IBOutlet var profileCoverImage:UIImageView! = UIImageView()
-    @IBOutlet var profileName:UITextField!
-    @IBOutlet var profileDescription:UITextView!
+    @IBOutlet var profileImage: UIImageView! = UIImageView()
+    @IBOutlet var profileCoverImage: UIImageView! = UIImageView()
+    @IBOutlet var profileName: UITextField!
+    @IBOutlet var profileDescription: UITextView!
     let profileDescriptionDefault = "Tell us more about yourself!"
 
+    // photo
+    let cameraPscope = PermissionScope()
+    let photoPscope = PermissionScope()
+    let imagePicker = UIImagePickerController()
+    var currentPhotoType: SelectedPhotoType = .Profile
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         initUserInfo()
+        initPhotoLibrary()
         
         view.backgroundColor = sprubixGray
     }
@@ -127,6 +140,61 @@ class EditProfileViewController: UITableViewController, UITextViewDelegate {
         self.navigationController?.navigationBar.tintColor = UIColor.lightGrayColor()
     }
     
+    func initPhotoLibrary() {
+        // initialized permissions
+        cameraPscope.addPermission(PermissionConfig(type: .Camera, demands: .Required, message: "We need this so you can snap\r\nawesome pictures of your items!", notificationCategories: .None))
+        
+        cameraPscope.tintColor = sprubixColor
+        cameraPscope.headerLabel.text = "Hey there,"
+        cameraPscope.headerLabel.textColor = UIColor.darkGrayColor()
+        cameraPscope.bodyLabel.textColor = UIColor.lightGrayColor()
+        
+        photoPscope.addPermission(PermissionConfig(type: .Photos, demands: .Required, message: "We need this so you can import\r\nawesome pictures of your items!", notificationCategories: .None))
+        
+        photoPscope.tintColor = sprubixColor
+        photoPscope.headerLabel.text = "Hey there,"
+        photoPscope.headerLabel.textColor = UIColor.darkGrayColor()
+        photoPscope.bodyLabel.textColor = UIColor.lightGrayColor()
+        
+        imagePicker.delegate = self
+        imagePicker.navigationBar.translucent = true
+        imagePicker.navigationBar.barTintColor = sprubixGray
+    }
+    
+    // MARK: PhotoLibrary Delegates
+    func imagePickerController(picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [NSObject : AnyObject]) {
+        
+        var chosenImage = info[UIImagePickerControllerOriginalImage] as! UIImage
+        dismissViewControllerAnimated(true, completion: nil)
+        
+        let editProfilePhotoViewController = EditProfilePhotoViewController()
+        
+        switch currentPhotoType {
+        case .Profile:
+            // show edit photo view controller
+            // // with square mask
+            editProfilePhotoViewController.photoType = .Profile
+            
+        case .Cover:
+            // show edit photo view controller
+            // // with rectangle mask
+            editProfilePhotoViewController.photoType = .Cover
+            
+        default:
+            fatalError("Error: Invalid Photo State in EditProfileViewController.")
+        }
+        
+        editProfilePhotoViewController.photoImageView.image = chosenImage
+        editProfilePhotoViewController.delegate = self
+        
+        self.navigationController?.pushViewController(editProfilePhotoViewController, animated: false)
+    }
+    
+    func imagePickerControllerDidCancel(picker: UIImagePickerController) {
+        dismissViewControllerAnimated(true, completion: nil)
+    }
+    
+    // nav bar button callbacks
     func backTapped(sender: UIBarButtonItem) {
         self.navigationController?.popViewControllerAnimated(true)
     }
@@ -255,6 +323,8 @@ class EditProfileViewController: UITableViewController, UITextViewDelegate {
         default:
             break
         }
+        
+        tableView.deselectRowAtIndexPath(indexPath, animated: true)
     }
     
     // UITextViewDelegate
@@ -305,28 +375,36 @@ class EditProfileViewController: UITableViewController, UITextViewDelegate {
     
     func showPhotoMenu(section: Int) {
         
-        var menuTitle: String = ""
-        
-        if section == 0 {
-            // Section, profile photo
-            menuTitle = "Change Profile Photo"
-        } else {
-            // Section, cover photo
-            menuTitle = "Change Cover Photo"
+        switch section {
+        case 0:
+            currentPhotoType = .Profile
+        case 1:
+            currentPhotoType = .Cover
+        default:
+            fatalError("Error: Invalid Photo Type in EditProfileViewController.")
         }
         
-        let actionSheetController: UIAlertController = UIAlertController(title: menuTitle, message: "", preferredStyle: .Alert)
+        let actionSheetController: UIAlertController = UIAlertController(title: nil, message: nil, preferredStyle: UIAlertControllerStyle.ActionSheet)
         actionSheetController.view.tintColor = sprubixColor
 
-        let takePictureAction: UIAlertAction = UIAlertAction(title: "Take Photo", style: .Default) { action -> Void in
+        let takePictureAction: UIAlertAction = UIAlertAction(title: "Take Photo", style: UIAlertActionStyle.Default) { action -> Void in
             println("Take Photo")
         }
         
-        let choosePictureAction: UIAlertAction = UIAlertAction(title: "Choose from Library", style: .Default) { action -> Void in
-            println("Choose from Library")
+        let choosePictureAction: UIAlertAction = UIAlertAction(title: "Choose from Library", style: UIAlertActionStyle.Default) { action -> Void in
+
+            self.photoPscope.show(authChange: { (finished, results) -> Void in
+                //println("got results \(results)")
+                self.imagePicker.allowsEditing = false
+                self.imagePicker.sourceType = UIImagePickerControllerSourceType.PhotoLibrary
+                
+                self.presentViewController(self.imagePicker, animated: true, completion: nil)
+                }, cancelled: { (results) -> Void in
+                    //println("thing was cancelled")
+            })
         }
         
-        let cancelAction: UIAlertAction = UIAlertAction(title: "Cancel", style: .Cancel) { action -> Void in
+        let cancelAction: UIAlertAction = UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Cancel) { action -> Void in
             // Dismiss the action sheet, do nothing
         }
         
@@ -336,5 +414,14 @@ class EditProfileViewController: UITableViewController, UITextViewDelegate {
         
         //Present the AlertController
         self.presentViewController(actionSheetController, animated: true, completion: nil)
+    }
+    
+    // CroppedImageProtocol
+    func profilePhotoCropped(croppedImage: UIImage) {
+        profileImage.image = croppedImage
+    }
+    
+    func coverPhotoCropped(croppedImage: UIImage) {
+        profileCoverImage.image = croppedImage
     }
 }

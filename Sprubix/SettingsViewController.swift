@@ -69,14 +69,14 @@ class SettingsViewController: UITableViewController {
             // account
             switch indexPath.row {
             case 0:
-                println("Edit Profile")
+                //println("Edit Profile")
                 
                 let editProfileViewController = UIStoryboard.editProfileViewController()
                 
                 self.navigationController?.pushViewController(editProfileViewController!, animated: true)
                 
             case 1:
-                println("Change Password")
+                //println("Change Password")
                 
                 let editPasswordViewController = EditPasswordViewController()
                 
@@ -88,14 +88,14 @@ class SettingsViewController: UITableViewController {
             // biling & delivery
             switch indexPath.row {
             case 0:
-                println("Payment Methods")
+                //println("Payment Methods")
 
                 let paymentMethodsViewController = UIStoryboard.paymentMethodsViewController()
                 
                 self.navigationController?.pushViewController(paymentMethodsViewController!, animated: true)
                 
             case 1:
-                println("Delivery Addresses")
+                //println("Delivery Addresses")
                 
                 let deliveryAddressesViewController = UIStoryboard.deliveryAddressesViewController()
                 
@@ -107,13 +107,13 @@ class SettingsViewController: UITableViewController {
             // support
             switch indexPath.row {
             case 0:
-                println("Help Center")
+                //println("Help Center")
                 
                 let helpCenterViewController = HelpCenterViewController()
                 
                 self.navigationController?.pushViewController(helpCenterViewController, animated: true)
             case 1:
-                println("Provide Feedback")
+                //println("Provide Feedback")
                 
                 let provideFeedbackViewController = ProvideFeedbackViewController()
                 
@@ -125,7 +125,8 @@ class SettingsViewController: UITableViewController {
             // logout
             switch indexPath.row {
             case 0:
-                println("Logout")
+                //println("Logout")
+                
                 // remove firebase sskeychain
                 // remove userData and userId from defaults
                 let userData: NSDictionary? = defaults.dictionaryForKey("userData")
