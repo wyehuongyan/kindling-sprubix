@@ -58,7 +58,11 @@ PODS:
     - Braintree/API
   - CHTCollectionViewWaterfallLayout (0.8)
   - coinbase-official/OAuth (2.1.4)
+  - Crashlytics (3.1.0)
   - DZNEmptyDataSet (1.5.2)
+  - Fabric (1.2.8):
+    - Fabric/Base (= 1.2.8)
+  - Fabric/Base (1.2.8)
   - Firebase (2.2.2)
   - GPUImage (0.1.6)
   - HexColors (2.2.1)
@@ -130,7 +134,9 @@ DEPENDENCIES:
   - AMTagListView (~> 0.6.3)
   - Braintree
   - CHTCollectionViewWaterfallLayout (~> 0.8)
+  - Crashlytics
   - DZNEmptyDataSet (~> 1.5.2)
+  - Fabric
   - Firebase (>= 2.2.2)
   - GPUImage (~> 0.1.4)
   - KLCPopup (~> 1.0)
@@ -161,7 +167,9 @@ SPEC CHECKSUMS:
   Braintree: 1796b67efcf832019d1da1b8a1d779e202e3796f
   CHTCollectionViewWaterfallLayout: 058823cc65c9d84e059b0a85eede517550da0334
   coinbase-official: 4ad3ac862840657b4184345eb84af8166ab2b04e
+  Crashlytics: ef9a58a4e806b316a1748c06432f6f847ba09ac6
   DZNEmptyDataSet: 741da409081a4bf707c949c964623a6ad1799772
+  Fabric: a9eabe53915e9f1db55a84dd2838737928675878
   Firebase: e35cdd2561bf4fea9c1e384e9400a9c173d19e47
   GPUImage: 4675ce4a5370ca92fcea8623b2a08b8f0c51b940
   HexColors: abfd172e329dab59888614ccba6f216cec59289d

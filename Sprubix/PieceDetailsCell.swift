@@ -1191,6 +1191,7 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         commentsViewController?.delegate = containerViewController
         commentsViewController?.poutfitImageURL = thumbnailURLString
         commentsViewController?.receiverUsername = user["username"] as! String
+        commentsViewController?.receiverId = user["id"] as! Int
         commentsViewController?.poutfitIdentifier = "piece_\(pieceId)"
         
         navController!.delegate = nil

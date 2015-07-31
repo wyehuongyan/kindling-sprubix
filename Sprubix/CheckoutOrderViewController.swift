@@ -167,6 +167,16 @@ class CheckoutOrderViewController: UIViewController {
                                 println("Error: Notification Key could not be added to Users.")
                             }
                     })
+                    
+                    // send APNS
+                    let recipientId = shop["id"] as! Int
+                    let senderId = userData!["id"] as! Int
+                    
+                    if recipientId != senderId {
+                        let pushMessage = "\(senderUsername) bought something from you!"
+                        
+                        APNS.sendPushNotification(pushMessage, recipientId: recipientId)
+                    }
                 }
             })
         }

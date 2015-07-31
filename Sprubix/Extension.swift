@@ -47,3 +47,13 @@ extension UICollectionView{
         return NSIndexPath(forRow: index, inSection: 0)
     }
 }
+
+extension UINavigationController {
+    public override func childViewControllerForStatusBarHidden() -> UIViewController? {
+        return self.topViewController
+    }
+    
+    public override func childViewControllerForStatusBarStyle() -> UIViewController? {
+        return self.topViewController
+    }
+}

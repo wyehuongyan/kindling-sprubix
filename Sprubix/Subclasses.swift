@@ -332,7 +332,7 @@ class SprubixReachability {
         var notificationType: TSMessageNotificationType!
         
         switch code {
-        case -1005:
+        case -1004, -1005:
             errorTitle = "Server Offline"
             errorMessage = "The connection to the server is currently unavailable."
             notificationType = TSMessageNotificationType.Warning
@@ -352,6 +352,28 @@ class SprubixReachability {
         
         // warning message
         TSMessage.showNotificationInViewController(                        TSMessage.defaultViewController(), title: errorTitle, subtitle: errorMessage, image: nil, type: notificationType, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: false)
+    }
+}
+
+// APNS
+class APNS {
+    class func sendPushNotification(message: String, recipientId: Int) {
+        manager.POST(SprubixConfig.URL.api + "/notification/send",
+            parameters: [
+                "message": message,
+                "recipient_id": recipientId
+            ],
+            success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                
+                var status = responseObject["status"] as! String
+                
+                if status == "500" {
+                    println(responseObject)
+                }
+            },
+            failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                println("Error: " + error.localizedDescription)
+        })
     }
 }
 

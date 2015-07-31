@@ -28,6 +28,8 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
     var lastContentOffset:CGFloat = 0
     var lastNavOffset:CGFloat = 0
     
+    var activityView: UIActivityIndicatorView!
+    
     let cellInfoViewHeight: CGFloat = 80
     
     var spruceViewController: SpruceViewController?
@@ -49,28 +51,7 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         super.viewDidLoad()
         
         initCollectionViewLayout()
-        
-        mainCollectionView = UICollectionView(frame: view.bounds, collectionViewLayout: outfitsLayout)
-        
-        mainCollectionView.autoresizingMask = UIViewAutoresizing.FlexibleWidth | UIViewAutoresizing.FlexibleHeight
-        mainCollectionView.showsVerticalScrollIndicator = true
-        
-        mainCollectionView.registerClass(MainFeedCell.self, forCellWithReuseIdentifier: mainFeedCellIdentifier)
-        
-        mainCollectionView.alwaysBounceVertical = true
-        mainCollectionView.backgroundColor = sprubixGray
-        
-        mainCollectionView.dataSource = self;
-        mainCollectionView.delegate = self;
-        
-        // infinite scrolling
-        mainCollectionView.addInfiniteScrollingWithActionHandler({
-            if SprubixReachability.isConnectedToNetwork() {
-                self.insertMoreOutfits()
-            }
-        })
-        
-        view.addSubview(mainCollectionView)
+        initCollectionView()
         
         // sprubix title
         let logoImageWidth:CGFloat = 80
@@ -122,6 +103,9 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
         
+        containerViewController.statusBarHidden = false
+        self.setNeedsStatusBarAppearanceUpdate()
+        
         initNavBar()
         
         // other stuff
@@ -133,9 +117,7 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         spruceViewController?.view.removeFromSuperview()
         spruceViewController = nil
         
-        if self.shyNavBarManager.scrollView == nil {
-            self.shyNavBarManager.scrollView = self.mainCollectionView
-        }
+        self.shyNavBarManager.scrollView = self.mainCollectionView
         
         commentsViewController?.view.removeFromSuperview()
         commentsViewController = nil
@@ -165,6 +147,9 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
 
         self.shyNavBarManager = nil
         self.navigationController?.setNavigationBarHidden(true, animated: true)
+        
+        containerViewController.statusBarHidden = true
+        self.setNeedsStatusBarAppearanceUpdate()
     }
     
     func initNavBar() {
@@ -218,11 +203,48 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         outfitsLayout.columnCount = 2
     }
     
+    func initCollectionView() {
+        mainCollectionView = UICollectionView(frame: view.bounds, collectionViewLayout: outfitsLayout)
+        
+        mainCollectionView.autoresizingMask = UIViewAutoresizing.FlexibleWidth | UIViewAutoresizing.FlexibleHeight
+        mainCollectionView.showsVerticalScrollIndicator = true
+        
+        mainCollectionView.registerClass(MainFeedCell.self, forCellWithReuseIdentifier: mainFeedCellIdentifier)
+        
+        mainCollectionView.alwaysBounceVertical = true
+        mainCollectionView.backgroundColor = sprubixGray
+        
+        mainCollectionView.dataSource = self;
+        mainCollectionView.delegate = self;
+        
+        // infinite scrolling
+        mainCollectionView.addInfiniteScrollingWithActionHandler({
+            if SprubixReachability.isConnectedToNetwork() {
+                self.insertMoreOutfits()
+            }
+        })
+        
+        view.addSubview(mainCollectionView)
+        
+        // here the spinner is initialized
+        let activityViewWidth: CGFloat = 50
+        activityView = UIActivityIndicatorView(activityIndicatorStyle: UIActivityIndicatorViewStyle.White)
+        activityView.color = sprubixColor
+        activityView.frame = CGRect(x: screenWidth / 2 - activityViewWidth / 2, y: screenHeight / 2 - activityViewWidth / 2, width: activityViewWidth, height: activityViewWidth)
+        
+        view.addSubview(activityView)
+    }
+    
     // REST calls
     func retrieveOutfits(scrollToTop: Bool = false) {
         let userId:Int? = defaults.objectForKey("userId") as? Int
         
         if userId != nil {
+            
+            if outfits.count <= 0 {
+                activityView.startAnimating()
+            }
+            
             // retrieve 3 example pieces
             manager.POST(SprubixConfig.URL.api + "/user/\(userId!)/outfits/following",
                 parameters: nil,
@@ -238,6 +260,7 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
                         self.mainCollectionView.emptyDataSetDelegate = nil
                     }
                     
+                    self.activityView.stopAnimating()
                     self.refreshControl.endRefreshing()
                     self.mainCollectionView.infiniteScrollingView.stopAnimating()
                     self.mainCollectionView.reloadData()
@@ -351,7 +374,7 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
     func initDropdown() {
         // init dropdown
         if dropdownWrapper == nil {
-            dropdownWrapper = UIView(frame: CGRectMake(0, navigationHeight, screenWidth, screenHeight - navigationHeight))
+            dropdownWrapper = UIView(frame: CGRectMake(0, navigationHeaderAndStatusbarHeight, screenWidth, screenHeight - navigationHeaderAndStatusbarHeight))
             dropdownWrapper?.clipsToBounds = true
             dropdownWrapper?.userInteractionEnabled = true
             dropdownWrapper?.backgroundColor = UIColor.clearColor().colorWithAlphaComponent(0.3)
@@ -836,6 +859,16 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
                                                 self.outfitsLiked.setObject(true, forKey: outfitId)
                                             }
                                     })
+                                    
+                                    // send APNS
+                                    let recipientId = receiver["id"] as! Int
+                                    let senderId = userData!["id"] as! Int
+                                    
+                                    if recipientId != senderId {
+                                        let pushMessage = "\(senderUsername) liked your outfit."
+                                        
+                                        APNS.sendPushNotification(pushMessage, recipientId: recipientId)
+                                    }
                                 }
                             })
                             
@@ -870,6 +903,7 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         commentsViewController?.prevViewIsOutfit = true
         commentsViewController?.poutfitImageURL = thumbnailURLString
         commentsViewController?.receiverUsername = receiverUsername
+        commentsViewController?.receiverId = receiverId
         commentsViewController?.poutfitIdentifier = poutfitIdentifier
         
         navigationController!.delegate = nil
@@ -944,7 +978,7 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
             // show dropdownView
             UIView.animateWithDuration(0.5, delay: 0.0, usingSpringWithDamping: 0.9, initialSpringVelocity: 0, options: .CurveEaseInOut, animations: {
                 self.dropdownWrapper!.alpha = 1.0
-                self.dropdownView?.frame.origin.y = navigationHeight
+                self.dropdownView?.frame.origin.y = navigationHeaderAndStatusbarHeight
                 self.mainCollectionView.scrollEnabled = false
                 self.dropdownVisible = true
                 }, completion: nil)

@@ -8,6 +8,7 @@
 
 import UIKit
 import TSMessages
+import PermissionScope
 
 enum SlideOutState {
     case Collapsed
@@ -42,14 +43,19 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
     var cartViewController: CartViewController?
     var ordersViewController: OrdersViewController?
     
+    var notificationScope = PermissionScope()
+    var statusBarHidden = true
+    var statusBarStyle = UIStatusBarStyle.Default
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        registerNotifications()
         
         // main feed
         mainFeedController = MainFeedController()
         mainFeedController.delegate = self
         sprubixNavigationController = UINavigationController(rootViewController: mainFeedController)
-        sprubixNavigationController.view.backgroundColor = UIColor.whiteColor()
         
         view.addSubview(sprubixNavigationController.view)
         addChildViewController(sprubixNavigationController)
@@ -63,11 +69,52 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
         sprubixNavigationController.view.addGestureRecognizer(panGestureRecognizer)
     }
     
+    func registerNotifications() {
+        // register for push notifications (ios 8)
+        
+        // initialized permissions
+        notificationScope.addPermission(PermissionConfig(type: .Notifications, demands: .Required, message: "We use this to send you\r\noutfit suggestions and order updates", notificationCategories: .None))
+        
+        notificationScope.tintColor = sprubixColor
+        notificationScope.headerLabel.text = "Hey there,"
+        notificationScope.headerLabel.textColor = UIColor.darkGrayColor()
+        notificationScope.bodyLabel.textColor = UIColor.lightGrayColor()
+    }
+    
+    override func viewDidAppear(animated: Bool) {
+        let userData: NSDictionary? = defaults.dictionaryForKey("userData")
+        
+        if userData != nil {
+            notificationScope.show(authChange: { (finished, results) -> Void in
+                var settings: UIUserNotificationSettings = UIUserNotificationSettings(forTypes: UIUserNotificationType.Alert | UIUserNotificationType.Sound | UIUserNotificationType.Badge, categories: nil)
+                
+                UIApplication.sharedApplication().registerUserNotificationSettings(settings)
+                UIApplication.sharedApplication().registerForRemoteNotifications()
+                
+                }, cancelled: { (results) -> Void in
+                    println("Unable to register to push notifications, thing was cancelled")
+            })
+        }
+    }
+    
     override func prefersStatusBarHidden() -> Bool {
-        return true
+        return statusBarHidden;
+    }
+    
+    override func preferredStatusBarUpdateAnimation() -> UIStatusBarAnimation {
+        return UIStatusBarAnimation.None
+    }
+    
+    override func preferredStatusBarStyle() -> UIStatusBarStyle {
+        return statusBarStyle
     }
     
     // SidePanelViewControllerDelegate
+    func showMainFeed() {
+        sprubixNavigationController.delegate = nil
+        sprubixNavigationController.popToRootViewControllerAnimated(true)
+    }
+    
     func showUserProfile(user: NSDictionary) {
         userProfileViewController = UIStoryboard.userProfileViewController()
         
@@ -218,8 +265,9 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
     
     func addChildSidePanelController(sidePanelVC: SidePanelViewController) {
         sidePanelVC.delegate = self
+        sidePanelVC.view.frame.origin.x = -screenWidth
         
-        view.insertSubview(sidePanelVC.view, atIndex: 0)
+        view.insertSubview(sidePanelVC.view, atIndex: 1)
         
         addChildViewController(sidePanelVC)
         sidePanelVC.didMoveToParentViewController(self)
@@ -229,9 +277,12 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
         if shouldExpand {
             currentState = .SidePanelExpanded
             
-            animateSprubixFeedXPosition(targetPosition: CGRectGetWidth(sprubixNavigationController.view.frame) - sprubixFeedExpandedOffset)
+            animateSideMenuXPosition(targetPosition: -sprubixFeedExpandedOffset)
+            
+            statusBarHidden = true
+            sprubixNavigationController.setNavigationBarHidden(true, animated: true)
         } else {
-            animateSprubixFeedXPosition(targetPosition: 0) { finished in
+            animateSideMenuXPosition(targetPosition: -screenWidth) { finished in
                 self.currentState = .Collapsed
                 
                 if self.sidePanelViewController != nil {
@@ -250,12 +301,16 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
                         self.darkenedOverlay = nil
                 })
             }
+            
+            self.statusBarHidden = false
+            sprubixNavigationController.setNavigationBarHidden(false, animated: true)
         }
     }
     
-    func animateSprubixFeedXPosition(#targetPosition: CGFloat, completion: ((Bool) -> Void)! = nil) {
+    func animateSideMenuXPosition(#targetPosition: CGFloat, completion: ((Bool) -> Void)! = nil) {
         UIView.animateWithDuration(0.5, delay: 0, usingSpringWithDamping: 0.9, initialSpringVelocity: 0, options: .CurveEaseInOut, animations: {
-            self.sprubixNavigationController.view.frame.origin.x = targetPosition
+            self.sidePanelViewController!.view.frame.origin.x = targetPosition
+            
             }, completion: completion)
     }
     
@@ -288,17 +343,13 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
             case .Changed:
                 if (gestureIsDraggingFromLeftToRight || currentState == .SidePanelExpanded) {
                     
-                    recognizer.view!.center.x = recognizer.view!.center.x + recognizer.translationInView(view).x
+                    self.sidePanelViewController!.view.center.x = self.sidePanelViewController!.view.center.x + recognizer.translationInView(view).x
                     recognizer.setTranslation(CGPointZero, inView: view)
-
-                    if recognizer.view!.center.x < screenWidth / 2 {
-                       recognizer.view!.center.x = screenWidth / 2
-                    }
                 }
             case .Ended:
                 if (sidePanelViewController != nil) {
                     // animate the side panel open or closed based on whether the view has moved more or less than halfway
-                    let hasMovedGreaterThanHalfway = recognizer.view!.center.x > view.bounds.size.width
+                    let hasMovedGreaterThanHalfway = self.sidePanelViewController!.view.center.x > 0
                     animateSidePanel(shouldExpand: hasMovedGreaterThanHalfway)
                 }
             default:
