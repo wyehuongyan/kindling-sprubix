@@ -46,7 +46,8 @@
 		845048BE1A9ECC81008BDBAA /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 845048BD1A9ECC81008BDBAA /* Images.xcassets */; };
 		845048C11A9ECC81008BDBAA /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 845048BF1A9ECC81008BDBAA /* LaunchScreen.xib */; };
 		845048CD1A9ECC81008BDBAA /* SprubixTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 845048CC1A9ECC81008BDBAA /* SprubixTests.swift */; };
-		845834BB1B6B2EB0007C6F6B /* EditProfilePhotoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 845834BA1B6B2EB0007C6F6B /* EditProfilePhotoViewController.swift */; };
+		845834BB1B6B2EB0007C6F6B /* EditProfileCropPhotoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 845834BA1B6B2EB0007C6F6B /* EditProfileCropPhotoViewController.swift */; };
+		845834BF1B6CC834007C6F6B /* EditProfileSnapPhotoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 845834BE1B6CC834007C6F6B /* EditProfileSnapPhotoViewController.swift */; };
 		846027A31B18B17B00A28C78 /* CommentsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846027A21B18B17B00A28C78 /* CommentsViewController.swift */; };
 		846027A51B18B71900A28C78 /* CommentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846027A41B18B71900A28C78 /* CommentCell.swift */; };
 		846C97931ABAB11F0050D0BC /* Subclasses.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846C97921ABAB11F0050D0BC /* Subclasses.swift */; };
@@ -165,7 +166,8 @@
 		845048CB1A9ECC81008BDBAA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		845048CC1A9ECC81008BDBAA /* SprubixTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SprubixTests.swift; sourceTree = "<group>"; };
 		845048D61A9ECFE2008BDBAA /* Sprubix-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Sprubix-Bridging-Header.h"; sourceTree = SOURCE_ROOT; };
-		845834BA1B6B2EB0007C6F6B /* EditProfilePhotoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EditProfilePhotoViewController.swift; sourceTree = "<group>"; };
+		845834BA1B6B2EB0007C6F6B /* EditProfileCropPhotoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EditProfileCropPhotoViewController.swift; sourceTree = "<group>"; };
+		845834BE1B6CC834007C6F6B /* EditProfileSnapPhotoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EditProfileSnapPhotoViewController.swift; sourceTree = "<group>"; };
 		846027A21B18B17B00A28C78 /* CommentsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommentsViewController.swift; sourceTree = "<group>"; };
 		846027A41B18B71900A28C78 /* CommentCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommentCell.swift; sourceTree = "<group>"; };
 		846C97921ABAB11F0050D0BC /* Subclasses.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Subclasses.swift; sourceTree = "<group>"; };
@@ -420,7 +422,8 @@
 				8482B86A1B490F930017CEEF /* DeliveryAddressesViewController.swift */,
 				8482B86F1B493B1F0017CEEF /* DeliveryAddressesDetailsViewController.swift */,
 				059E98921B563B85007A5A42 /* EditProfileViewController.swift */,
-				845834BA1B6B2EB0007C6F6B /* EditProfilePhotoViewController.swift */,
+				845834BA1B6B2EB0007C6F6B /* EditProfileCropPhotoViewController.swift */,
+				845834BE1B6CC834007C6F6B /* EditProfileSnapPhotoViewController.swift */,
 				052925CE1B578CE400B939F8 /* EditPasswordViewController.swift */,
 				05F7EDDF1B58EA0F00CB2665 /* HelpCenterViewController.swift */,
 				05F7EDE11B593EA200CB2665 /* ProvideFeedbackViewController.swift */,
@@ -835,7 +838,7 @@
 				8475ECFB1B24055D0000111A /* FavoritesViewController.swift in Sources */,
 				845048B91A9ECC81008BDBAA /* SignInViewController.swift in Sources */,
 				84C664921B3AEA5400E18FF7 /* DeliveryOptionsDetailsViewController.swift in Sources */,
-				845834BB1B6B2EB0007C6F6B /* EditProfilePhotoViewController.swift in Sources */,
+				845834BB1B6B2EB0007C6F6B /* EditProfileCropPhotoViewController.swift in Sources */,
 				84B334EC1AAB1F9B00B9707D /* ContainerViewController.swift in Sources */,
 				8475ECFD1B25D4F80000111A /* SettingsViewController.swift in Sources */,
 				8482B8761B4E65870017CEEF /* PaymentMethodsDetailsViewController.swift in Sources */,
@@ -850,6 +853,7 @@
 				84FDB9601B1595FA00E8D720 /* NotificationCell.swift in Sources */,
 				8488717F1B369CBA001D60A1 /* InventoryCell.swift in Sources */,
 				84470D8A1AECC41B007E9A93 /* MainFeedController.swift in Sources */,
+				845834BF1B6CC834007C6F6B /* EditProfileSnapPhotoViewController.swift in Sources */,
 				8405D0531B5A615D00B42752 /* OrderCell.swift in Sources */,
 				84C9AC3E1AA06041009ADF5C /* SignUpViewController.swift in Sources */,
 				84B334E51AAB00DD00B9707D /* SidePanelViewController.swift in Sources */,

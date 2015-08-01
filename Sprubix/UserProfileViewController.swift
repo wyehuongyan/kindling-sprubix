@@ -17,7 +17,7 @@ enum ProfileState {
     case Community
 }
 
-class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataSetDelegate, UICollectionViewDataSource, CHTCollectionViewDelegateWaterfallLayout, TransitionProtocol, UserProfileHeaderDelegate {
+class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataSetDelegate, UICollectionViewDataSource, CHTCollectionViewDelegateWaterfallLayout, TransitionProtocol, UserProfileHeaderDelegate, EditProfileProtocol {
     
     var user: NSDictionary?
     
@@ -35,6 +35,9 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
     let userProfileHeaderIdentifier = "UserProfileHeader"
     let userProfileFooterIdentifier = "UserProfileFooter"
 
+    var headerReusableView: UserProfileHeader!
+    var footerReusableView: UserProfileFooter!
+    
     var userOutfitsLayout:SprubixStretchyHeader!
     var userPiecesLayout:SprubixStretchyHeader!
     
@@ -60,6 +63,8 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
         if ownProfile == true {
             // followUserButton is now an edit profile button
             let editProfileViewController = UIStoryboard.editProfileViewController()
+            
+            editProfileViewController!.delegate = self
             
             self.navigationController?.delegate = nil
             self.navigationController?.pushViewController(editProfileViewController!, animated: true)
@@ -297,24 +302,23 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
     
     func collectionView(collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, atIndexPath indexPath: NSIndexPath) -> UICollectionReusableView {
         
-        var reusableView:UICollectionReusableView!
-        
         if kind == CHTCollectionElementKindSectionHeader {
-            reusableView = collectionView.dequeueReusableSupplementaryViewOfKind(kind, withReuseIdentifier: userProfileHeaderIdentifier, forIndexPath: indexPath) as! UserProfileHeader
+            headerReusableView = collectionView.dequeueReusableSupplementaryViewOfKind(kind, withReuseIdentifier: userProfileHeaderIdentifier, forIndexPath: indexPath) as! UserProfileHeader
             
             if user != nil {
-                (reusableView as! UserProfileHeader).user = user
-            } else {
-                
-            }
-            (reusableView as! UserProfileHeader).setProfileInfo()
-            (reusableView as! UserProfileHeader).delegate = self
+                headerReusableView.user = user
+            } 
+
+            headerReusableView.setProfileInfo()
+            headerReusableView.delegate = self
+            
+            return headerReusableView
             
         } else if kind == CHTCollectionElementKindSectionFooter {
-            reusableView = collectionView.dequeueReusableSupplementaryViewOfKind(kind, withReuseIdentifier: userProfileFooterIdentifier, forIndexPath: indexPath) as! UICollectionReusableView
+            footerReusableView = collectionView.dequeueReusableSupplementaryViewOfKind(kind, withReuseIdentifier: userProfileFooterIdentifier, forIndexPath: indexPath) as! UserProfileFooter
         }
         
-        return reusableView
+        return footerReusableView
     }
     
     func collectionView(collectionView: UICollectionView, didSelectItemAtIndexPath indexPath: NSIndexPath) {
@@ -721,6 +725,16 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
             // set layout
             self.profileCollectionView.setCollectionViewLayout(self.userOutfitsLayout, animated: false)
         }
+    }
+    
+    // EditProfileProtocol
+    func updateUser(user: NSDictionary) {
+        self.user = user
+        
+        headerReusableView.user = user
+        headerReusableView.setProfileInfo()
+        headerReusableView.setNeedsDisplay()
+        headerReusableView.setNeedsLayout()
     }
     
     private func reloadUserItems() {

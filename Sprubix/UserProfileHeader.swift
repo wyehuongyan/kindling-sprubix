@@ -218,7 +218,7 @@ class UserProfileHeader: UICollectionReusableView, UIScrollViewDelegate {
             let userCoverURL = NSURL(string: user!["cover"] as! String)
             let username = user!["username"] as! String!
             let name = user!["name"] as! String!
-
+            
             profileImage.setImageWithURL(userThumbnailURL)
             coverImageContent.setImageWithURL(userCoverURL)
             

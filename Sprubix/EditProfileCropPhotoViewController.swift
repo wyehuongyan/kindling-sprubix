@@ -1,5 +1,5 @@
 //
-//  EditProfilePhotoViewController.swift
+//  EditProfileCropPhotoViewController.swift
 //  Sprubix
 //
 //  Created by Yan Wye Huong on 31/7/15.
@@ -13,7 +13,7 @@ protocol CroppedImageProtocol {
     func coverPhotoCropped(croppedImage: UIImage)
 }
 
-class EditProfilePhotoViewController: UIViewController, UIScrollViewDelegate {
+class EditProfileCropPhotoViewController: UIViewController, UIScrollViewDelegate {
     
     var delegate: CroppedImageProtocol?
     
@@ -24,6 +24,7 @@ class EditProfilePhotoViewController: UIViewController, UIScrollViewDelegate {
     var borderedView: UIView!
     
     var photoType: SelectedPhotoType = SelectedPhotoType.Profile
+    var fromSnapPhotoView: Bool = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -64,7 +65,7 @@ class EditProfilePhotoViewController: UIViewController, UIScrollViewDelegate {
         if image != nil {
             
             if photoType == SelectedPhotoType.Cover {
-                editProfilePhotoScrollView = UIScrollView(frame: CGRectMake(0, screenHeight / 2 - screenWidth / 2, screenWidth, coverImageHeight))
+                editProfilePhotoScrollView = UIScrollView(frame: CGRectMake(0, screenHeight / 2 - coverImageHeight / 2, screenWidth, coverImageHeight))
                 
             } else {
                 editProfilePhotoScrollView = UIScrollView(frame: CGRectMake(0, screenHeight / 2 - screenWidth / 2, screenWidth, screenWidth))
@@ -95,7 +96,7 @@ class EditProfilePhotoViewController: UIViewController, UIScrollViewDelegate {
             
         case SelectedPhotoType.Cover:
             // with rectangle mask
-            borderedView = UIView(frame: CGRectMake(0, screenHeight / 2 - screenWidth / 2, screenWidth, coverImageHeight))
+            borderedView = UIView(frame: CGRectMake(0, screenHeight / 2 - coverImageHeight / 2, screenWidth, coverImageHeight))
             
         default:
             fatalError("Error: Invalid Photo State in EditProfileViewController.")
@@ -183,7 +184,13 @@ class EditProfilePhotoViewController: UIViewController, UIScrollViewDelegate {
         transition.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
         
         self.navigationController!.view.layer.addAnimation(transition, forKey: kCATransition)
-        self.navigationController!.popViewControllerAnimated(false)
+        
+        if fromSnapPhotoView {
+            // pop twice
+            self.navigationController!.popToViewController(self.navigationController?.childViewControllers[self.navigationController!.childViewControllers.count - 3] as! UIViewController, animated: false)
+        } else {
+            self.navigationController!.popViewControllerAnimated(false)
+        }
     }
     
     func chooseButtonPressed(sender: UIButton) {

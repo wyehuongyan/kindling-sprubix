@@ -17,7 +17,13 @@ enum SelectedPhotoType {
     case Cover
 }
 
+protocol EditProfileProtocol {
+    func updateUser(user: NSDictionary)
+}
+
 class EditProfileViewController: UITableViewController, UITextViewDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate, CroppedImageProtocol {
+    
+    var delegate: EditProfileProtocol?
     
     // custom nav bar
     var newNavBar: UINavigationBar!
@@ -31,7 +37,6 @@ class EditProfileViewController: UITableViewController, UITextViewDelegate, UIIm
     let profileDescriptionDefault = "Tell us more about yourself!"
 
     // photo
-    let cameraPscope = PermissionScope()
     let photoPscope = PermissionScope()
     let imagePicker = UIImagePickerController()
     var currentPhotoType: SelectedPhotoType = .Profile
@@ -146,13 +151,6 @@ class EditProfileViewController: UITableViewController, UITextViewDelegate, UIIm
     
     func initPhotoLibrary() {
         // initialized permissions
-        cameraPscope.addPermission(PermissionConfig(type: .Camera, demands: .Required, message: "We need this so you can snap\r\nawesome pictures of your items!", notificationCategories: .None))
-        
-        cameraPscope.tintColor = sprubixColor
-        cameraPscope.headerLabel.text = "Hey there,"
-        cameraPscope.headerLabel.textColor = UIColor.darkGrayColor()
-        cameraPscope.bodyLabel.textColor = UIColor.lightGrayColor()
-        
         photoPscope.addPermission(PermissionConfig(type: .Photos, demands: .Required, message: "We need this so you can import\r\nawesome pictures of your items!", notificationCategories: .None))
         
         photoPscope.tintColor = sprubixColor
@@ -171,27 +169,13 @@ class EditProfileViewController: UITableViewController, UITextViewDelegate, UIIm
         var chosenImage = info[UIImagePickerControllerOriginalImage] as! UIImage
         dismissViewControllerAnimated(true, completion: nil)
         
-        let editProfilePhotoViewController = EditProfilePhotoViewController()
+        let editProfileCropPhotoViewController = EditProfileCropPhotoViewController()
         
-        switch currentPhotoType {
-        case .Profile:
-            // show edit photo view controller
-            // // with square mask
-            editProfilePhotoViewController.photoType = .Profile
-            
-        case .Cover:
-            // show edit photo view controller
-            // // with rectangle mask
-            editProfilePhotoViewController.photoType = .Cover
-            
-        default:
-            fatalError("Error: Invalid Photo State in EditProfileViewController.")
-        }
+        editProfileCropPhotoViewController.photoType = currentPhotoType
+        editProfileCropPhotoViewController.photoImageView.image = chosenImage
+        editProfileCropPhotoViewController.delegate = self
         
-        editProfilePhotoViewController.photoImageView.image = chosenImage
-        editProfilePhotoViewController.delegate = self
-        
-        self.navigationController?.pushViewController(editProfilePhotoViewController, animated: false)
+        self.navigationController?.pushViewController(editProfileCropPhotoViewController, animated: false)
     }
     
     func imagePickerControllerDidCancel(picker: UIImagePickerController) {
@@ -210,7 +194,7 @@ class EditProfileViewController: UITableViewController, UITextViewDelegate, UIIm
         
         let validateResult = self.validateInputs()
         let delay: NSTimeInterval = 2
-        let viewDelay: Double = 2.5
+        let viewDelay: Double = 2.0
         
         if validateResult.valid {
             let profileInfo: NSMutableDictionary = NSMutableDictionary()
@@ -274,6 +258,8 @@ class EditProfileViewController: UITableViewController, UITextViewDelegate, UIIm
                         defaults.setObject(cleanData["id"], forKey: "userId")
                         defaults.setObject(cleanData, forKey: "userData")
                         defaults.synchronize()
+                        
+                        self.delegate?.updateUser(data)
                         
                         Delay.delay(viewDelay) {
                             self.navigationController?.popViewControllerAnimated(true)
@@ -430,7 +416,20 @@ class EditProfileViewController: UITableViewController, UITextViewDelegate, UIIm
         actionSheetController.view.tintColor = sprubixColor
 
         let takePictureAction: UIAlertAction = UIAlertAction(title: "Take Photo", style: UIAlertActionStyle.Default) { action -> Void in
-            println("Take Photo")
+
+            let editProfileSnapPhotoViewController = EditProfileSnapPhotoViewController()
+            
+            editProfileSnapPhotoViewController.photoType = self.currentPhotoType
+            editProfileSnapPhotoViewController.editProfileViewController = self
+            
+            let transition = CATransition()
+            transition.duration = 0.3
+            transition.type = kCATransitionMoveIn
+            transition.subtype = kCATransitionFromTop
+            transition.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
+            
+            self.navigationController?.view.layer.addAnimation(transition, forKey: kCATransition)
+            self.navigationController!.pushViewController(editProfileSnapPhotoViewController, animated: false)
         }
         
         let choosePictureAction: UIAlertAction = UIAlertAction(title: "Choose from Library", style: UIAlertActionStyle.Default) { action -> Void in
