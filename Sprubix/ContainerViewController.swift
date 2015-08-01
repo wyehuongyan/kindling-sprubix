@@ -342,8 +342,14 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
                 }
             case .Changed:
                 if (gestureIsDraggingFromLeftToRight || currentState == .SidePanelExpanded) {
+                
+                    addSidePanelViewController()
+                    addDarkenedOverlay()
+                
+                    if self.sidePanelViewController != nil {
+                        self.sidePanelViewController!.view.center.x = self.sidePanelViewController!.view.center.x + recognizer.translationInView(view).x
+                    }
                     
-                    self.sidePanelViewController!.view.center.x = self.sidePanelViewController!.view.center.x + recognizer.translationInView(view).x
                     recognizer.setTranslation(CGPointZero, inView: view)
                 }
             case .Ended:

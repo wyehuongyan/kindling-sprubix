@@ -17,6 +17,8 @@ class EditProfilePhotoViewController: UIViewController, UIScrollViewDelegate {
     
     var delegate: CroppedImageProtocol?
     
+    let coverImageHeight: CGFloat = 250
+    
     var editProfilePhotoScrollView: UIScrollView!
     var photoImageView: UIImageView = UIImageView()
     var borderedView: UIView!
@@ -45,7 +47,14 @@ class EditProfilePhotoViewController: UIViewController, UIScrollViewDelegate {
         editProfilePhotoScrollView.maximumZoomScale = 4.0
         editProfilePhotoScrollView.zoomScale = minScale
         
-        editProfilePhotoScrollView.setContentOffset(CGPointMake(0, (screenHeight - screenWidth) / 4), animated: false)
+        // convert contentsize to points
+        var imageHeight = photoImageView.frame.height / photoImageView.frame.width * screenWidth
+        
+        // if image height (in points) is longer than the width of the scrollview (in points)
+        if imageHeight > editProfilePhotoScrollView.frame.width {
+            editProfilePhotoScrollView.setContentOffset(CGPointMake(0, (screenHeight - screenWidth) / 4), animated: false)
+        }
+
         centerScrollViewContents()
     }
     
@@ -55,7 +64,7 @@ class EditProfilePhotoViewController: UIViewController, UIScrollViewDelegate {
         if image != nil {
             
             if photoType == SelectedPhotoType.Cover {
-                editProfilePhotoScrollView = UIScrollView(frame: CGRectMake(0, screenHeight / 2 - screenWidth / 2, screenWidth, 300))
+                editProfilePhotoScrollView = UIScrollView(frame: CGRectMake(0, screenHeight / 2 - screenWidth / 2, screenWidth, coverImageHeight))
                 
             } else {
                 editProfilePhotoScrollView = UIScrollView(frame: CGRectMake(0, screenHeight / 2 - screenWidth / 2, screenWidth, screenWidth))
@@ -86,7 +95,7 @@ class EditProfilePhotoViewController: UIViewController, UIScrollViewDelegate {
             
         case SelectedPhotoType.Cover:
             // with rectangle mask
-            borderedView = UIView(frame: CGRectMake(0, screenHeight / 2 - screenWidth / 2, screenWidth, 300)) // 300 = profile header height
+            borderedView = UIView(frame: CGRectMake(0, screenHeight / 2 - screenWidth / 2, screenWidth, coverImageHeight))
             
         default:
             fatalError("Error: Invalid Photo State in EditProfileViewController.")

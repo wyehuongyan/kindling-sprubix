@@ -59,7 +59,10 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
     @IBAction func followUser(sender: AnyObject) {
         if ownProfile == true {
             // followUserButton is now an edit profile button
-            println("edit profile")
+            let editProfileViewController = UIStoryboard.editProfileViewController()
+            
+            self.navigationController?.delegate = nil
+            self.navigationController?.pushViewController(editProfileViewController!, animated: true)
         } else {
             // follow user
             if alreadyFollowed != true {

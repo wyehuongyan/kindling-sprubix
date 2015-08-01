@@ -56,84 +56,8 @@ class SnapshotShareController: UIViewController, UITableViewDelegate, UITableVie
         
         view.backgroundColor = UIColor.whiteColor()
         
-        // tableview
-        shareTableView = UITableView(frame: CGRect(x: 0, y: navigationHeight, width: screenWidth, height: screenHeight - navigationHeight), style: UITableViewStyle.Plain)
-        shareTableView.delegate = self
-        shareTableView.dataSource = self
-        shareTableView.showsVerticalScrollIndicator = false
-        shareTableView.separatorStyle = UITableViewCellSeparatorStyle.None
-        shareTableView.userInteractionEnabled = true
-        
-        self.view.addSubview(shareTableView)
-        
-        // register method when tapped to hide keyboard
-        let tableTapGestureRecognizer:UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: "tableTapped:")
-        self.view.addGestureRecognizer(tableTapGestureRecognizer)
-        
-        shareButton = UIButton(frame: CGRect(x: 0, y: screenHeight - navigationHeight, width: screenWidth, height: navigationHeight))
-        shareButton.backgroundColor = sprubixColor
-        shareButton.titleLabel?.font = UIFont.boldSystemFontOfSize(18.0)
-        shareButton.setTitle("Share it!", forState: UIControlState.Normal)
-        shareButton.addTarget(self, action: "shareButtonPressed:", forControlEvents: UIControlEvents.TouchUpInside)
-        
-        self.view.addSubview(shareButton)
-        
-        // outfit image view
-        var totalPieceHeight: CGFloat = 0
-        
-        // calculate % of height each piece takes
-        for imageViewHeight in imageViewHeights {
-            var fraction = imageViewHeight / totalHeight
-            heightPercentages.append(fraction)
-            
-            totalPieceHeight += imageViewHeight
-        }
-        
-        // instantiate sprubixPieces 
-        for var i = 0; i < images.count; i++ {
-            images[i] = resizeImage(images[i], width: screenWidth)
-            var type = selectedPiecesOrdered[i]
-            
-            var sprubixPiece = SprubixPiece()
-            sprubixPiece.images.append(images[i])
-            sprubixPiece.type = type
-            
-            sprubixPieces.append(sprubixPiece)
-        }
-        
-        if totalPieceHeight > outfitViewHeight {
-            totalPieceHeight = outfitViewHeight
-        }
-        
-        outfitImageView = UIImageView(frame: CGRectMake(0, 0, screenWidth, totalPieceHeight))
-        outfitImageView.backgroundColor = sprubixGray
-        
-        oldFrameRect = shareTableView.frame
-        
-        // retrieve
-        retrieveOutfitCategories()
-    }
-    
-    private func retrieveOutfitCategories() {
-        if outfitCategories.count <= 0 {
-            // REST call to retrieve outfit categories
-            manager.GET(SprubixConfig.URL.api + "/piece/categories",
-                parameters: nil,
-                success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
-                    var categories = responseObject as? [NSDictionary]
-                    
-                    if categories != nil {
-                        for category in categories! {
-                            var categoryName = category["name"] as? String
-                            
-                            self.outfitCategories.append(categoryName!)
-                        }
-                    }
-                },
-                failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
-                    println("Error: " + error.localizedDescription)
-            })
-        }
+        initTableView()
+        initOutfitView()
     }
     
     override func viewWillAppear(animated: Bool) {
@@ -142,6 +66,16 @@ class SnapshotShareController: UIViewController, UITableViewDelegate, UITableVie
         // listen to keyboard show/hide events
         NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("keyboardWillChange:"), name:UIKeyboardWillChangeFrameNotification, object: nil);
         
+        initNavBar()
+    }
+    
+    override func viewWillDisappear(animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardWillChangeFrameNotification, object: nil)
+    }
+    
+    func initNavBar() {
         // 1. hide existing nav bar
         self.navigationController?.setNavigationBarHidden(true, animated: true)
         
@@ -171,7 +105,65 @@ class SnapshotShareController: UIViewController, UITableViewDelegate, UITableVie
         
         // 5. add the nav bar to the main view
         self.view.addSubview(newNavBar)
-
+    }
+    
+    func initTableView() {
+        // tableview
+        shareTableView = UITableView(frame: CGRect(x: 0, y: navigationHeight, width: screenWidth, height: screenHeight - navigationHeight), style: UITableViewStyle.Plain)
+        shareTableView.delegate = self
+        shareTableView.dataSource = self
+        shareTableView.showsVerticalScrollIndicator = false
+        shareTableView.separatorStyle = UITableViewCellSeparatorStyle.None
+        shareTableView.userInteractionEnabled = true
+        
+        self.view.addSubview(shareTableView)
+        
+        // register method when tapped to hide keyboard
+        let tableTapGestureRecognizer:UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: "tableTapped:")
+        self.view.addGestureRecognizer(tableTapGestureRecognizer)
+        
+        shareButton = UIButton(frame: CGRect(x: 0, y: screenHeight - navigationHeight, width: screenWidth, height: navigationHeight))
+        shareButton.backgroundColor = sprubixColor
+        shareButton.titleLabel?.font = UIFont.boldSystemFontOfSize(18.0)
+        shareButton.setTitle("Share it!", forState: UIControlState.Normal)
+        shareButton.addTarget(self, action: "shareButtonPressed:", forControlEvents: UIControlEvents.TouchUpInside)
+        
+        self.view.addSubview(shareButton)
+    }
+    
+    func initOutfitView() {
+        // outfit image view
+        var totalPieceHeight: CGFloat = 0
+        
+        // calculate % of height each piece takes
+        for imageViewHeight in imageViewHeights {
+            var fraction = imageViewHeight / totalHeight
+            heightPercentages.append(fraction)
+            
+            totalPieceHeight += imageViewHeight
+        }
+        
+        // instantiate sprubixPieces
+        for var i = 0; i < images.count; i++ {
+            images[i] = resizeImage(images[i], width: screenWidth)
+            var type = selectedPiecesOrdered[i]
+            
+            var sprubixPiece = SprubixPiece()
+            sprubixPiece.images.append(images[i])
+            sprubixPiece.type = type
+            
+            sprubixPieces.append(sprubixPiece)
+        }
+        
+        if totalPieceHeight > outfitViewHeight {
+            totalPieceHeight = outfitViewHeight
+        }
+        
+        outfitImageView = UIImageView(frame: CGRectMake(0, 0, screenWidth, totalPieceHeight))
+        outfitImageView.backgroundColor = sprubixGray
+        
+        oldFrameRect = shareTableView.frame
+        
         var yPosition: CGFloat = 0
         let pieceTagIconWidth: CGFloat = 50
         
@@ -181,7 +173,7 @@ class SnapshotShareController: UIViewController, UITableViewDelegate, UITableVie
             var pieceView: UIImageView = UIImageView(frame: CGRectMake(0, yPosition, screenWidth, height))
             
             // add the item tag icon
-            var pieceTagIcon: UIImageView = UIImageView(image: UIImage(named: "details-info-add"))
+            let pieceTagIcon: UIImageView = UIImageView(image: UIImage(named: "details-info-add"))
             pieceTagIcon.frame = CGRectMake(screenWidth - pieceTagIconWidth, 0, pieceTagIconWidth, pieceTagIconWidth)
             Glow.addGlow(pieceTagIcon)
             
@@ -201,12 +193,6 @@ class SnapshotShareController: UIViewController, UITableViewDelegate, UITableVie
             
             outfitImageView.addSubview(pieceView)
         }
-    }
-    
-    override func viewWillDisappear(animated: Bool) {
-        super.viewWillDisappear(animated)
-        
-        NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardWillChangeFrameNotification, object: nil)
     }
     
     // tableViewDelegate

@@ -245,15 +245,12 @@ class SignInViewController: UIViewController, UITextFieldDelegate, UITableViewDa
     
     func saveCookies(userId: Int) {
         // persisting cookies
-        
         var cookies:NSData = NSKeyedArchiver.archivedDataWithRootObject(NSHTTPCookieStorage.sharedHTTPCookieStorage().cookies!)
         
         //defaults.setObject(cookies, forKey: "sessionCookies")
         defaults.setObject(userId, forKey: "userId")
         defaults.synchronize()
-        
     }
-    
     
     /**
     * Handler for keyboard change event

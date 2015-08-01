@@ -10,6 +10,7 @@ import UIKit
 import AFNetworking
 import TSMessages
 import PermissionScope
+import MRProgress
 
 enum SelectedPhotoType {
     case Profile
@@ -34,6 +35,9 @@ class EditProfileViewController: UITableViewController, UITextViewDelegate, UIIm
     let photoPscope = PermissionScope()
     let imagePicker = UIImagePickerController()
     var currentPhotoType: SelectedPhotoType = .Profile
+    
+    var profileImageDirty = false
+    var coverImageDirty = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -219,20 +223,43 @@ class EditProfileViewController: UITableViewController, UITextViewDelegate, UIIm
                 profileInfo.setObject(profileDescription.text, forKey: "description")
             }
             
-            manager.POST(SprubixConfig.URL.api + "/update/profile",
+            // convert image into data for upload
+            var profileImageData: NSData? = profileImageDirty ?  UIImageJPEGRepresentation(profileImage.image, 0.5) : nil
+            
+            var profileCoverImageData: NSData? = coverImageDirty ?  UIImageJPEGRepresentation(profileCoverImage.image, 0.5) : nil
+            
+            var requestOperation: AFHTTPRequestOperation = manager.POST(SprubixConfig.URL.api + "/update/profile",
                 parameters: profileInfo,
-                success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                constructingBodyWithBlock: { formData in
+                    let data: AFMultipartFormData = formData
+                    
+                    // append profile image
+                    if profileImageData != nil {
+                        data.appendPartWithFileData(profileImageData!, name: "profile", fileName: "profile.jpg", mimeType: "image/jpeg")
+                    }
+                    
+                    if profileCoverImageData != nil {
+                        // append cover image
+                        data.appendPartWithFileData(profileCoverImageData!, name: "cover", fileName: "cover.jpg", mimeType: "image/jpeg")
+                    }
+                },
+                success: { (operation: AFHTTPRequestOperation!, responseObject:
+                    AnyObject!) in
                     var response = responseObject as! NSDictionary
                     var status = response["status"] as! String
                     var message = response["message"] as! String
-                    var data = response["data"] as! NSDictionary
+                    
+                    // Print reply from server
+                    println(message + " " + status)
                     
                     if status == "200" {
+                        var data = response["user"] as! NSDictionary
+                        
                         // success
                         TSMessage.showNotificationInViewController(
                             TSMessage.defaultViewController(),
                             title: "Success!",
-                            subtitle: "Profile details updated",
+                            subtitle: "Profile updated",
                             image: UIImage(named: "filter-check"),
                             type: TSMessageNotificationType.Success,
                             duration: delay,
@@ -243,19 +270,20 @@ class EditProfileViewController: UITableViewController, UITextViewDelegate, UIIm
                             canBeDismissedByUser: true)
                         
                         // update cache
-                        var storedData: NSMutableDictionary = defaults.objectForKey("userData")!.mutableCopy() as! NSMutableDictionary
-                        storedData.removeObjectForKey("name")
-                        storedData.removeObjectForKey("description")
-                        storedData.setObject(self.profileName.text, forKey: "name")
-                        storedData.setObject(self.profileDescription.text, forKey: "description")
-                        defaults.removeObjectForKey("userData")
-                        defaults.setObject(storedData, forKey: "userData")
+                        var cleanData = self.cleanDictionary(data as! NSMutableDictionary)
+                        defaults.setObject(cleanData["id"], forKey: "userId")
+                        defaults.setObject(cleanData, forKey: "userData")
+                        defaults.synchronize()
                         
                         Delay.delay(viewDelay) {
                             self.navigationController?.popViewControllerAnimated(true)
                         }
                         
-                    } else {
+                        println(data)
+                        
+                    } else if status == "500" {
+                        var exception = response["exception"] as! String
+                        
                         // error exception
                         TSMessage.showNotificationInViewController(
                             TSMessage.defaultViewController(),
@@ -269,11 +297,10 @@ class EditProfileViewController: UITableViewController, UITextViewDelegate, UIIm
                             buttonCallback: nil,
                             atPosition: TSMessageNotificationPosition.Bottom,
                             canBeDismissedByUser: true)
+                        
+                        println(exception)
                     }
-                    
-                    // Print reply from server
-                    println(message + " " + status)
-                    println(data)
+
                 },
                 failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                     println("Error: " + error.localizedDescription)
@@ -292,6 +319,21 @@ class EditProfileViewController: UITableViewController, UITextViewDelegate, UIIm
                         atPosition: TSMessageNotificationPosition.Bottom,
                         canBeDismissedByUser: true)
             })
+            
+            if profileImageDirty || coverImageDirty {
+                // upload progress only if there's an image
+                requestOperation.setUploadProgressBlock { (bytesWritten: UInt, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) -> Void in
+                    var percentDone: Double = Double(totalBytesWritten) / Double(totalBytesExpectedToWrite)
+                    
+                    println("percentage done: \(percentDone)")
+                }
+                
+                // overlay indicator
+                var overlayView: MRProgressOverlayView = MRProgressOverlayView.showOverlayAddedTo(self.view, animated: true)
+                overlayView.setModeAndProgressWithStateOfOperation(requestOperation)
+                
+                overlayView.tintColor = sprubixColor
+            }
         
         } else {
             // Validation failed
@@ -416,12 +458,26 @@ class EditProfileViewController: UITableViewController, UITextViewDelegate, UIIm
         self.presentViewController(actionSheetController, animated: true, completion: nil)
     }
     
+    func cleanDictionary(dict: NSMutableDictionary)->NSMutableDictionary {
+        var mutableDict: NSMutableDictionary = dict.mutableCopy() as! NSMutableDictionary
+        mutableDict.enumerateKeysAndObjectsUsingBlock { (key, obj, stop) -> Void in
+            if (obj.isKindOfClass(NSNull.classForCoder())) {
+                mutableDict.setObject("", forKey: (key as! NSString))
+            } else if (obj.isKindOfClass(NSDictionary.classForCoder())) {
+                mutableDict.setObject(self.cleanDictionary(obj as! NSMutableDictionary), forKey: (key as! NSString))
+            }
+        }
+        return mutableDict
+    }
+    
     // CroppedImageProtocol
     func profilePhotoCropped(croppedImage: UIImage) {
         profileImage.image = croppedImage
+        profileImageDirty = true
     }
     
     func coverPhotoCropped(croppedImage: UIImage) {
         profileCoverImage.image = croppedImage
+        coverImageDirty = true
     }
 }
