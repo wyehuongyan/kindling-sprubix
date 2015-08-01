@@ -152,7 +152,7 @@ class SettingsViewController: UITableViewController {
                 sprubixNotificationViewController?.removeFirebaseListeners()
                 sprubixNotificationViewController?.removeFromParentViewController()
                 sprubixNotificationViewController = nil
-                SidePanelOption.alerts.counter[SidePanelOption.Option.Notifications.toString()] = 0
+                SidePanelOption.alerts.counter[SidePanelOption.Option.Activity.toString()] = 0
                 
                 self.navigationController?.presentViewController(signInVC, animated: true, completion: nil)
                 self.navigationController?.popViewControllerAnimated(true) // pop settings view controller

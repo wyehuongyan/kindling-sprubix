@@ -21,7 +21,7 @@ class SidePanelOption {
 
     enum Option {
         case Messages
-        case Notifications
+        case Activity
         case CreateOutfit
         case Favorites
         case Settings
@@ -34,7 +34,7 @@ class SidePanelOption {
             switch self {
             case .Messages:
                 return "Messages"
-            case .Notifications:
+            case .Activity:
                 return "Activity"
             case .CreateOutfit:
                 return "Create Outfit"
@@ -58,7 +58,7 @@ class SidePanelOption {
     struct alerts {
         static var counter:[String:Int] = [
             SidePanelOption.Option.Messages.toString(): 0,
-            SidePanelOption.Option.Notifications.toString(): 0,
+            SidePanelOption.Option.Activity.toString(): 0,
             SidePanelOption.Option.Settings.toString(): 0
         ]
         
@@ -89,7 +89,7 @@ class SidePanelOption {
     class func userOptions() -> Array<SidePanelOption> {
         return [
             //SidePanelOption(option: Option.Messages, image: UIImage(named: "sidemenu-messages")),
-            SidePanelOption(option: Option.Notifications, image: UIImage(named: "sidemenu-notifications")),
+            SidePanelOption(option: Option.Activity, image: UIImage(named: "sidemenu-notifications")),
             SidePanelOption(option: Option.CreateOutfit, image: UIImage(named: "sidemenu-create")),
             SidePanelOption(option: Option.Favorites, image: UIImage(named: "sidemenu-likes")),
             SidePanelOption(option: Option.Cart, image: UIImage(named: "sidemenu-cart")),
@@ -101,7 +101,7 @@ class SidePanelOption {
     class func shopOptions() -> Array<SidePanelOption> {
         return [
             //SidePanelOption(option: Option.Messages, image: UIImage(named: "sidemenu-messages")),
-            SidePanelOption(option: Option.Notifications, image: UIImage(named: "sidemenu-notifications")),
+            SidePanelOption(option: Option.Activity, image: UIImage(named: "sidemenu-notifications")),
             SidePanelOption(option: Option.CreateOutfit, image: UIImage(named: "sidemenu-create")),
             SidePanelOption(option: Option.Favorites, image: UIImage(named: "sidemenu-likes")),
             SidePanelOption(option: Option.Inventory, image: UIImage(named: "sidemenu-inventory")),

@@ -134,7 +134,7 @@ class SidePanelViewController: UIViewController, UITableViewDataSource, UITableV
         switch option {
         case .Messages:
             break
-        case .Notifications:
+        case .Activity:
             delegate?.showNotifications()
             
             // Mixpanel - Viewed Notifications, Side Panel
