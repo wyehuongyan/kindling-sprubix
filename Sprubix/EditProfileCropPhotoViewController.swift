@@ -51,9 +51,9 @@ class EditProfileCropPhotoViewController: UIViewController, UIScrollViewDelegate
         // convert contentsize to points
         var imageHeight = photoImageView.frame.height / photoImageView.frame.width * screenWidth
         
-        // if image height (in points) is longer than the width of the scrollview (in points)
-        if imageHeight > editProfilePhotoScrollView.frame.width {
-            editProfilePhotoScrollView.setContentOffset(CGPointMake(0, (screenHeight - screenWidth) / 4), animated: false)
+        // if image height (in points) is longer than the height of the scrollview (in points)
+        if imageHeight > editProfilePhotoScrollView.frame.height {
+            editProfilePhotoScrollView.setContentOffset(CGPointMake(0, (imageHeight - editProfilePhotoScrollView.frame.height) / 2), animated: false)
         }
 
         centerScrollViewContents()
