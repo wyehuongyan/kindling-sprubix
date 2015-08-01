@@ -107,10 +107,6 @@ class SpruceShareViewController: UIViewController, UITableViewDelegate, UITableV
         
         // 5. add the nav bar to the main view
         self.view.addSubview(newNavBar)
-        
-        // Mixpanel - Spruce Outfit Share Page
-        mixpanel.track("Spruce Outfit Share")
-        // Mixpanel - End
     }
     
     override func viewWillDisappear(animated: Bool) {
@@ -426,8 +422,10 @@ class SpruceShareViewController: UIViewController, UITableViewDelegate, UITableV
                 self.navigationController?.popToViewController(self.navigationController?.viewControllers.first! as! UIViewController, animated: false)
             }
             
-            // Mixpanel - Spruce Outfit Image Upload, Success
-            mixpanel.track("Spruce Outfit Image Upload", properties: [
+            // Mixpanel - Create Outfit Image Upload, Success
+            mixpanel.track("Create Outfit Image Upload", properties: [
+                "Method": "Closet",
+                "Type": "Outfit",
                 "Status": "Success"
             ])
             mixpanel.people.increment("Outfits Created", by: 1)
@@ -437,8 +435,10 @@ class SpruceShareViewController: UIViewController, UITableViewDelegate, UITableV
             // failure block
             println("Upload Fail")
             
-            // Mixpanel - Spruce Outfit Image Upload, Fail
-            mixpanel.track("Spruce Outfit Image Upload", properties: [
+            // Mixpanel - Create Outfit Image Upload, Fail
+            mixpanel.track("Create Outfit Image Upload", properties: [
+                "Method": "Closet",
+                "Type": "Outfit",
                 "Status": "Fail"
             ])
             // Mixpanel - End

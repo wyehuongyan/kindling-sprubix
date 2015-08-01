@@ -418,11 +418,11 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
         
         switch(currentProfileState) {
         case .Outfits:
-            text = "\nOutfits you created"
+            text = "\nOutfits you've created"
         case .Pieces:
             text = "\nItems in your closet"
         case .Community:
-            text = "\nOutfits by the community"
+            text = "\nOutfits created by the community"
         }
         
         let attributes: NSDictionary = [
@@ -440,11 +440,11 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
         
         switch(currentProfileState) {
         case .Outfits:
-            text = "When you create or spruce and outfit, you'll see it here."
+            text = "When you create or spruce an outfit, you'll see it here."
         case .Pieces:
             text = "When you upload an item, you'll see it here"
         case .Community:
-            text = "When the community creates outfit for you, you'll see it here"
+            text = "When the community creates an outfit for you, you'll see it here"
         }
         
         var paragraph: NSMutableParagraphStyle = NSMutableParagraphStyle.new()

@@ -431,6 +431,10 @@ class CheckoutViewController: UIViewController, UITableViewDataSource, UITableVi
             
             overlay.tintColor = sprubixColor
             
+            // Mixpanel - Placed Order, Timer
+            mixpanel.timeEvent("Placed Order")
+            // Mixpanel - End
+            
             // check stock again in case last item has been bought
             verifyStock { (insufficient) -> Void in
                 if insufficient != nil {
@@ -448,10 +452,22 @@ class CheckoutViewController: UIViewController, UITableViewDataSource, UITableVi
                                 // // if transaction OK, create new order
                                 let transactionId = responseObject["BT_transaction_id"] as! String
                                 self.createOrder(transactionId)
+                                
+                                // Mixpanel - Placed Order, Success
+                                mixpanel.track("Placed Order", properties: [
+                                    "Status": "Success"
+                                ])
+                                // Mixpanel - End
                             }
                             
                         } else if status == "500" {
                             println(responseObject["exception"] as! String)
+                            
+                            // Mixpanel - Placed Order, Fail
+                            mixpanel.track("Placed Order", properties: [
+                                "Status": "Fail"
+                            ])
+                            // Mixpanel - End
                         }
                     })
                 }

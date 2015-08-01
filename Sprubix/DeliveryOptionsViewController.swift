@@ -144,8 +144,8 @@ class DeliveryOptionsViewController: UIViewController, UITableViewDataSource, UI
         return attributedString
     }
     
-    func buttonTitleForEmptyDataSet(scrollView: UIScrollView!, forState state: UIControlState) -> NSAttributedString! {
-        let text: String = ""
+    /*func buttonTitleForEmptyDataSet(scrollView: UIScrollView!, forState state: UIControlState) -> NSAttributedString! {
+        let text: String = "Button Title"
         
         let attributes: NSDictionary = [
             NSFontAttributeName: UIFont.boldSystemFontOfSize(17.0)
@@ -154,10 +154,10 @@ class DeliveryOptionsViewController: UIViewController, UITableViewDataSource, UI
         let attributedString: NSAttributedString = NSAttributedString(string: text, attributes: attributes as [NSObject : AnyObject])
         
         return attributedString
-    }
+    }*/
     
     func imageForEmptyDataSet(scrollView: UIScrollView!) -> UIImage! {
-        return UIImage(named: "emptyset-fulfilment")
+        return UIImage(named: "emptyset-delivery-options")
     }
     
     func backgroundColorForEmptyDataSet(scrollView: UIScrollView!) -> UIColor! {

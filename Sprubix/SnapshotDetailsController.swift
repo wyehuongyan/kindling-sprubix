@@ -1082,6 +1082,10 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
 
             sprubixDict.setObject(pieces, forKey: "pieces")
             
+            // Mixpanel - Spruce Outfit Image Upload, Timer
+            mixpanel.timeEvent("Spruce Outfit Image Upload")
+            // Mixpanel - End
+            
             // upload piece data
             var requestOperation: AFHTTPRequestOperation = manager.POST(SprubixConfig.URL.api + "/upload/piece/create", parameters: sprubixDict, constructingBodyWithBlock: { formData in
                 let data: AFMultipartFormData = formData
@@ -1114,9 +1118,25 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
                         self.navigationController?.popToViewController(self.navigationController?.viewControllers.first! as! UIViewController, animated: false)
                     }
                     
+                    // Mixpanel - Create Outfit Image Upload, Success
+                    mixpanel.track("Create Outfit Image Upload", properties: [
+                        "Method": "Camera",
+                        "Type" : "Piece",
+                        "Status": "Success"
+                    ])
+                    // Mixpanel - End
+                    
                 }, failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                     // failure block
                     println("Upload Fail")
+                    
+                    // Mixpanel - Create Outfit Image Upload, Fail
+                    mixpanel.track("Create Outfit Image Upload", properties: [
+                        "Method": "Camera",
+                        "Type" : "Piece",
+                        "Status": "Fail"
+                    ])
+                    // Mixpanel - End
             })
 
             // upload progress

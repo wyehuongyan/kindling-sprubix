@@ -401,6 +401,13 @@ class SnapshotShareController: UIViewController, UITableViewDelegate, UITableVie
             snapshotDetailsController.sprubixPiece = sprubixPieces[pos!]
             
             self.navigationController?.pushViewController(snapshotDetailsController, animated: true)
+            
+            // Mixpanel - Add Item Details, Camera, Outfit
+            mixpanel.track("Add Item Details", properties: [
+                "Method": "Camera",
+                "Type" : "Outfit"
+            ])
+            // Mixpanel - End
         }
     }
     
@@ -594,6 +601,10 @@ class SnapshotShareController: UIViewController, UITableViewDelegate, UITableVie
         
         sprubixOutfitDict.setObject(pieces, forKey: "pieces")
         
+        // Mixpanel - Spruce Outfit Image Upload, Timer
+        mixpanel.timeEvent("Spruce Outfit Image Upload")
+        // Mixpanel - End
+        
         // upload:
         // 1. outfit finalimage
         // 2. piece images for each sprubixPiece
@@ -642,9 +653,26 @@ class SnapshotShareController: UIViewController, UITableViewDelegate, UITableVie
                     self.navigationController?.popToViewController(self.navigationController?.viewControllers.first! as! UIViewController, animated: false)
                 }
                 
+                // Mixpanel - Create Outfit Image Upload, Success
+                mixpanel.track("Create Outfit Image Upload", properties: [
+                    "Method": "Camera",
+                    "Type" : "Outfit",
+                    "Status": "Success"
+                ])
+                mixpanel.people.increment("Outfits Created", by: 1)
+                // Mixpanel - End
+                
             }, failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                 // failure block
                 println("Upload Fail")
+                
+                // Mixpanel - Create Outfit Image Upload, Fail
+                mixpanel.track("Create Outfit Image Upload", properties: [
+                    "Method": "Camera",
+                    "Type" : "Outfit",
+                    "Status": "Fail"
+                ])
+                // Mixpanel - End
         })
         
         // upload progress

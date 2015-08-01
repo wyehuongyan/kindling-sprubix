@@ -174,7 +174,8 @@ class SidePanelViewController: UIViewController, UITableViewDataSource, UITableV
             
             // Mixpanel - Viewed Inventory, Side Panel
             mixpanel.track("Viewed Inventory", properties: [
-                "Source": "Side Panel"
+                "Source": "Side Panel",
+                "Tab": "All"
             ])
             // Mixpanel - End
             break
@@ -189,6 +190,13 @@ class SidePanelViewController: UIViewController, UITableViewDataSource, UITableV
             break
         case .Orders:
             delegate?.showOrders()
+            
+            // Mixpanel - Viewed Orders, Side Panel
+            mixpanel.track("Viewed Orders", properties: [
+                "Source": "Side Panel",
+                "Tab": "Active"
+            ])
+            // Mixpanel - End
             break
         case .DeliveryOptions:
             delegate?.showDeliveryOptions()

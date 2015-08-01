@@ -112,12 +112,20 @@ class SettingsViewController: UITableViewController {
                 let helpCenterViewController = HelpCenterViewController()
                 
                 self.navigationController?.pushViewController(helpCenterViewController, animated: true)
+                
+                // Mixpanel - Viewed Help
+                mixpanel.track("Viewed Help")
+                // Mixpanel - End
             case 1:
                 //println("Provide Feedback")
                 
                 let provideFeedbackViewController = ProvideFeedbackViewController()
                 
                 self.navigationController?.pushViewController(provideFeedbackViewController, animated: true)
+                
+                // Mixpanel - Viewed Feedback
+                mixpanel.track("Viewed Feedback")
+                // Mixpanel - End
             default:
                 fatalError("Unknown static cell for settings.")
             }

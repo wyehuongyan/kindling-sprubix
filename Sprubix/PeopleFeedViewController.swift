@@ -43,6 +43,12 @@ class PeopleFeedViewController: UIViewController, DZNEmptyDataSetSource, DZNEmpt
         self.setNeedsStatusBarAppearanceUpdate()
         
         initNavBar()
+        
+        // Mixpanel - Viewed Main Feed, Following
+        mixpanel.track("Viewed Main Feed", properties: [
+            "Page": "People"
+        ])
+        // Mixpanel - End
     }
     
     override func viewWillDisappear(animated: Bool) {
@@ -311,7 +317,7 @@ class PeopleFeedViewController: UIViewController, DZNEmptyDataSetSource, DZNEmpt
     }
     
     func descriptionForEmptyDataSet(scrollView: UIScrollView!) -> NSAttributedString! {
-        let text: String = "Find new people to follow"
+        let text: String = "Find new people to follow."
         
         var paragraph: NSMutableParagraphStyle = NSMutableParagraphStyle.new()
         paragraph.lineBreakMode = NSLineBreakMode.ByWordWrapping

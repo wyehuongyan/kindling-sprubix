@@ -186,7 +186,7 @@ class CreateOutfitViewController: UIViewController {
         
         // Mixpanel - Create Outfit, Camera
         mixpanel.track("Create Outfit", properties: [
-            "Type": "Camera"
+            "Method": "Camera"
         ])
         // Mixpanel - End
     }
@@ -209,7 +209,7 @@ class CreateOutfitViewController: UIViewController {
         
         // Mixpanel - Create Outfit, Closet
         mixpanel.track("Create Outfit", properties: [
-            "Type": "Closet"
+            "Method": "Closet"
         ])
         // Mixpanel - End
     }

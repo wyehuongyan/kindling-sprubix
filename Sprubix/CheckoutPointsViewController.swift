@@ -401,5 +401,9 @@ class CheckoutPointsViewController: UIViewController, UITableViewDataSource, UIT
         checkoutViewController?.delegate = cartViewController?.delegate
         
         self.navigationController?.pushViewController(checkoutViewController!, animated: true)
+        
+        // Mixpanel - Viewed Checkout
+        mixpanel.track("Viewed Checkout")
+        // Mixpanel - End
     }
 }

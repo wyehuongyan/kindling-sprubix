@@ -364,7 +364,7 @@ class BrowseFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDat
     }
     
     func descriptionForEmptyDataSet(scrollView: UIScrollView!) -> NSAttributedString! {
-        let text: String = "Here's all the outfits from around the world."
+        let text: String = "Here's the outfits from around the world."
         
         var paragraph: NSMutableParagraphStyle = NSMutableParagraphStyle.new()
         paragraph.lineBreakMode = NSLineBreakMode.ByWordWrapping
