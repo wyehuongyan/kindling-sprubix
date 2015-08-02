@@ -26,7 +26,7 @@ class SidePanelCell: UITableViewCell {
         
         if numAlerts != nil && numAlerts > 0 {
             let badgeWidth: CGFloat = 20
-            var badge: UILabel = UILabel(frame: CGRectMake(10, 5, badgeWidth, badgeWidth))
+            var badge: UILabel = UILabel(frame: CGRectMake(70, 5, badgeWidth, badgeWidth))
             
             badge.backgroundColor = sprubixColor
             badge.layer.cornerRadius = badgeWidth / 2

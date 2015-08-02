@@ -77,6 +77,8 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        view.backgroundColor = UIColor.whiteColor()
+        
         // initialized permissions
         cameraPscope.addPermission(PermissionConfig(type: .Camera, demands: .Required, message: "We need this so you can snap\r\nawesome pictures of your items!", notificationCategories: .None))
         
@@ -296,7 +298,7 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
     
     func initializeCamera() {
         if camera == nil {
-            camera = SprubixCamera(sender: self)
+            camera = SprubixCamera(sender: self, front: false)
         }
     }
     
@@ -384,7 +386,7 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
         calculatePage(scrollView)
     }
     
-    //MARK: PhotoLibrary Delegates
+    // MARK: PhotoLibrary Delegates
     func imagePickerController(picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [NSObject : AnyObject]) {
 
         var chosenImage = info[UIImagePickerControllerOriginalImage] as! UIImage

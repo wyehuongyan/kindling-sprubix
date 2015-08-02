@@ -116,6 +116,31 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, SprucePieceF
         
         view.backgroundColor = UIColor.whiteColor()
         
+        initToolBar()
+        initSprucePieceFeeds()
+    }
+    
+    override func viewWillDisappear(animated: Bool) {
+        super.viewWillDisappear(animated)
+    }
+    
+    override func viewWillAppear(animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        initNavBar()
+
+        // Mixpanel - Spruce Outfit (prevents coming from Create > Spruce Closet
+        if outfit != nil {
+            mixpanel.track("Spruce Outfit", properties: [
+            "Outfit ID": outfit!.objectForKey("id") as! Int,
+            "Owner User ID": outfit!.objectForKey("user_id") as! Int
+            ])
+            mixpanel.people.increment("Spruce Outfit", by: 1)
+        }
+        // Mixpanel - End
+    }
+    
+    func initToolBar() {
         // create uitoolbar programmatically
         let spruceToolbar: UIToolbar = UIToolbar(frame: CGRectMake(0, screenHeight - navigationHeight, screenWidth, navigationHeight))
         
@@ -170,28 +195,6 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, SprucePieceF
         spruceToolbar.setItems([trashPieceBarButton, flexibleSpace, searchBarButton, closetBarButton, addPieceBarButton], animated: true)
         
         view.addSubview(spruceToolbar)
-        
-        initSprucePieceFeeds()
-    }
-    
-    override func viewWillDisappear(animated: Bool) {
-        super.viewWillDisappear(animated)
-    }
-    
-    override func viewWillAppear(animated: Bool) {
-        super.viewWillAppear(animated)
-        
-        initNavBar()
-
-        // Mixpanel - Spruce Outfit (prevents coming from Create > Spruce Closet
-        if outfit != nil {
-            mixpanel.track("Spruce Outfit", properties: [
-            "Outfit ID": outfit!.objectForKey("id") as! Int,
-            "Owner User ID": outfit!.objectForKey("user_id") as! Int
-            ])
-            mixpanel.people.increment("Spruce Outfit", by: 1)
-        }
-        // Mixpanel - End
     }
     
     func initSprucePieceFeeds() {

@@ -69,7 +69,7 @@ class NotificationViewController: UIViewController, DZNEmptyDataSetSource, DZNEm
                         
                         if notificationDict["unread"] as! Bool {
                             // update alert badge number
-                            SidePanelOption.alerts.counter[SidePanelOption.Option.Notifications.toString()] = SidePanelOption.alerts.counter[SidePanelOption.Option.Notifications.toString()]! + 1
+                            SidePanelOption.alerts.counter[SidePanelOption.Option.Activity.toString()] = SidePanelOption.alerts.counter[SidePanelOption.Option.Activity.toString()]! + 1
                         }
                         
                         // update mainBadge
@@ -91,7 +91,7 @@ class NotificationViewController: UIViewController, DZNEmptyDataSetSource, DZNEm
                 
                 // only update badge count if its unread
                 if unread == true {
-                    SidePanelOption.alerts.counter[SidePanelOption.Option.Notifications.toString()] = SidePanelOption.alerts.counter[SidePanelOption.Option.Notifications.toString()]! - 1
+                    SidePanelOption.alerts.counter[SidePanelOption.Option.Activity.toString()] = SidePanelOption.alerts.counter[SidePanelOption.Option.Activity.toString()]! - 1
                     
                     // update mainBadge
                     if SidePanelOption.alerts.total <= 0 {
@@ -166,7 +166,7 @@ class NotificationViewController: UIViewController, DZNEmptyDataSetSource, DZNEm
                         if (error != nil) {
                             println("Error: Notification could not be set to unread.")
                         } else {
-                            SidePanelOption.alerts.counter[SidePanelOption.Option.Notifications.toString()] = 0
+                            SidePanelOption.alerts.counter[SidePanelOption.Option.Activity.toString()] = 0
                             
                             // update mainBadge
                             if SidePanelOption.alerts.total <= 0 {

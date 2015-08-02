@@ -428,59 +428,48 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
             
             Glow.addGlow(itemSizeImage)
             
-            if isShop != true {
-                itemDetailsSize = UITextField(frame: CGRectMake(itemImageViewWidth, itemSpecHeight * 3, screenWidth - itemImageViewWidth - 20, itemSpecHeight))
-                itemDetailsSize.tintColor = sprubixColor
-                itemDetailsSize.placeholder = "What size is it?"
-                itemDetailsSize.returnKeyType = UIReturnKeyType.Done
-                itemDetailsSize.delegate = self
+            itemDetailsSizeButton = UIButton(frame: CGRectMake(itemImageViewWidth, itemSpecHeight * 3, screenWidth - itemImageViewWidth - 20, itemSpecHeight))
+            itemDetailsSize = UITextField(frame: CGRectMake(0, 0, screenWidth - itemImageViewWidth - 20, itemSpecHeight))
+            itemDetailsSize.tintColor = sprubixColor
+            itemDetailsSize.placeholder = "What size is it?"
+            itemDetailsSize.enabled = false
+            itemDetailsSizeButton.addSubview(itemDetailsSize)
+            itemDetailsSizeButton.addTarget(self, action: "addMoreSizesPressed:", forControlEvents: UIControlEvents.TouchUpInside)
+            
+            if sprubixPiece.size != nil {
+                var pieceSizesString = sprubixPiece.size
+                var pieceSizesData:NSData = pieceSizesString.dataUsingEncoding(NSUTF8StringEncoding)!
                 
-                if sprubixPiece.size != nil {
-                    var pieceSizesString = sprubixPiece.size
-                    var pieceSizesData:NSData = pieceSizesString.dataUsingEncoding(NSUTF8StringEncoding)!
-                    
-                    pieceSizesArray = NSJSONSerialization.JSONObjectWithData(pieceSizesData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSArray
-                    
+                pieceSizesArray = NSJSONSerialization.JSONObjectWithData(pieceSizesData, options: NSJSONReadingOptions.MutableContainers, error: nil) as? NSArray
+                
+                if pieceSizesArray != nil {
                     itemDetailsSize.text = pieceSizesArray.componentsJoinedByString("/")
-                }
-                
-                pieceSpecsView.addSubview(itemDetailsSize)
-            } else {
-                itemDetailsSizeButton = UIButton(frame: CGRectMake(itemImageViewWidth, itemSpecHeight * 3, screenWidth - itemImageViewWidth - 20, itemSpecHeight))
-                itemDetailsSize = UITextField(frame: CGRectMake(0, 0, screenWidth - itemImageViewWidth - 20, itemSpecHeight))
-                itemDetailsSize.tintColor = sprubixColor
-                itemDetailsSize.placeholder = "What size is it?"
-                itemDetailsSize.enabled = false
-                itemDetailsSizeButton.addSubview(itemDetailsSize)
-                itemDetailsSizeButton.addTarget(self, action: "addMoreSizesPressed:", forControlEvents: UIControlEvents.TouchUpInside)
-                
-                if sprubixPiece.size != nil {
-                    var pieceSizesString = sprubixPiece.size
-                    var pieceSizesData:NSData = pieceSizesString.dataUsingEncoding(NSUTF8StringEncoding)!
+                } else {
+                    pieceSizesArray = NSArray(array: [pieceSizesString])
                     
-                    pieceSizesArray = NSJSONSerialization.JSONObjectWithData(pieceSizesData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSArray
-                    
-                    itemDetailsSize.text = pieceSizesArray.componentsJoinedByString("/")
+                    itemDetailsSize.text = pieceSizesString
                 }
-                
-                // add more sizes
-                let addMoreSizesWidth: CGFloat = 25
-                var addMoreSizes = UIButton(frame: CGRectMake(0, -1, addMoreSizesWidth, addMoreSizesWidth))
-                addMoreSizes.setImage(UIImage(named: "main-cta-add"), forState: UIControlState.Normal)
-                addMoreSizes.addTarget(self, action: "addMoreSizesPressed:", forControlEvents: UIControlEvents.TouchUpInside)
-                addMoreSizes.imageView?.layer.cornerRadius = addMoreSizes.imageView!.frame.height / 2
-                addMoreSizes.imageView?.layer.borderColor = sprubixLightGray.CGColor
-                addMoreSizes.imageView?.layer.borderWidth = 2.0
-                addMoreSizes.clipsToBounds = true
-                
-                var offsetView: UIView = UIView(frame: addMoreSizes.bounds)
-                offsetView.addSubview(addMoreSizes)
-                
-                itemDetailsSize.rightView = offsetView
-                itemDetailsSize.rightViewMode = UITextFieldViewMode.Always
-                
-                pieceSpecsView.addSubview(itemDetailsSizeButton)
-                
+            }
+            
+            // add more sizes
+            let addMoreSizesWidth: CGFloat = 25
+            var addMoreSizes = UIButton(frame: CGRectMake(0, -1, addMoreSizesWidth, addMoreSizesWidth))
+            addMoreSizes.setImage(UIImage(named: "main-cta-add"), forState: UIControlState.Normal)
+            addMoreSizes.addTarget(self, action: "addMoreSizesPressed:", forControlEvents: UIControlEvents.TouchUpInside)
+            addMoreSizes.imageView?.layer.cornerRadius = addMoreSizes.imageView!.frame.height / 2
+            addMoreSizes.imageView?.layer.borderColor = sprubixLightGray.CGColor
+            addMoreSizes.imageView?.layer.borderWidth = 2.0
+            addMoreSizes.clipsToBounds = true
+            
+            var offsetView: UIView = UIView(frame: addMoreSizes.bounds)
+            offsetView.addSubview(addMoreSizes)
+            
+            itemDetailsSize.rightView = offsetView
+            itemDetailsSize.rightViewMode = UITextFieldViewMode.Always
+            
+            pieceSpecsView.addSubview(itemDetailsSizeButton)
+            
+            if isShop {
                 // quantity
                 var itemQuantityImage = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
                 itemQuantityImage.setImage(UIImage(named: "view-item-quantity"), forState: UIControlState.Normal)
@@ -890,70 +879,72 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
         // increase the number of rows for quantity
         // // itemPriceImage and itemDetailsPrice posY ++ by height increment
         
-        // reset first
-        itemPriceImage.frame.origin.y = itemSpecHeight * 5
-        itemDetailsPrice.frame.origin.y = itemSpecHeight * 5
-        
-        itemSpecHeightTotal = isShop != true ? itemSpecHeight * 4 : itemSpecHeight * 6
-        
-        for moreQuantityTextField in moreQuantityTextFields {
-            moreQuantityTextField.removeFromSuperview()
-        }
-        
-        if sizes.count > 1 {
-            let heightIncrease = (CGFloat(sizes.count) * itemSpecHeight) - itemSpecHeight
+        if isShop {
+            // reset first
+            itemPriceImage.frame.origin.y = itemSpecHeight * 5
+            itemDetailsPrice.frame.origin.y = itemSpecHeight * 5
             
-            // add size leftview on first quantity textfield
-            var sizeLabel: UILabel = UILabel()
-            sizeLabel.text = sizes[0] as? String
-            sizeLabel.frame = CGRectMake(0, 0, sizeLabel.intrinsicContentSize().width + 10, itemDetailsPrice.frame.height)
-            sizeLabel.textColor = UIColor.lightGrayColor()
-            sizeLabel.textAlignment = NSTextAlignment.Left
+            itemSpecHeightTotal = isShop != true ? itemSpecHeight * 4 : itemSpecHeight * 6
             
-            itemDetailsQuantity.leftView = sizeLabel
-            itemDetailsQuantity.leftViewMode = UITextFieldViewMode.Always
+            for moreQuantityTextField in moreQuantityTextFields {
+                moreQuantityTextField.removeFromSuperview()
+            }
             
-            // add more rows to quantity
-            let numNewRows = sizes.count - 1
-            
-            moreQuantityTextFields.removeAll()
-            
-            for var i = 0; i < numNewRows; i++ {
-                var itemDetailsMoreQuantity = UITextField(frame: CGRectMake(itemDetailsQuantity.frame.origin.x, itemDetailsPrice.frame.origin.y + (CGFloat(i) * itemSpecHeight), itemDetailsQuantity.frame.size.width, itemDetailsQuantity.frame.size.height))
-                itemDetailsMoreQuantity.tintColor = sprubixColor
-                itemDetailsMoreQuantity.placeholder = "How much quantity?"
-                itemDetailsMoreQuantity.keyboardType = UIKeyboardType.NumberPad
-                itemDetailsMoreQuantity.returnKeyType = UIReturnKeyType.Done
-                itemDetailsMoreQuantity.delegate = self
+            if sizes.count > 1 {
+                let heightIncrease = (CGFloat(sizes.count) * itemSpecHeight) - itemSpecHeight
                 
-                // add leftview
+                // add size leftview on first quantity textfield
                 var sizeLabel: UILabel = UILabel()
-                sizeLabel.text = sizes[i + 1] as? String
+                sizeLabel.text = sizes[0] as? String
                 sizeLabel.frame = CGRectMake(0, 0, sizeLabel.intrinsicContentSize().width + 10, itemDetailsPrice.frame.height)
                 sizeLabel.textColor = UIColor.lightGrayColor()
                 sizeLabel.textAlignment = NSTextAlignment.Left
                 
-                itemDetailsMoreQuantity.leftView = sizeLabel
-                itemDetailsMoreQuantity.leftViewMode = UITextFieldViewMode.Always
+                itemDetailsQuantity.leftView = sizeLabel
+                itemDetailsQuantity.leftViewMode = UITextFieldViewMode.Always
                 
-                pieceSpecsView.addSubview(itemDetailsMoreQuantity)
-                moreQuantityTextFields.append(itemDetailsMoreQuantity)
+                // add more rows to quantity
+                let numNewRows = sizes.count - 1
+                
+                moreQuantityTextFields.removeAll()
+                
+                for var i = 0; i < numNewRows; i++ {
+                    var itemDetailsMoreQuantity = UITextField(frame: CGRectMake(itemDetailsQuantity.frame.origin.x, itemDetailsPrice.frame.origin.y + (CGFloat(i) * itemSpecHeight), itemDetailsQuantity.frame.size.width, itemDetailsQuantity.frame.size.height))
+                    itemDetailsMoreQuantity.tintColor = sprubixColor
+                    itemDetailsMoreQuantity.placeholder = "How much quantity?"
+                    itemDetailsMoreQuantity.keyboardType = UIKeyboardType.NumberPad
+                    itemDetailsMoreQuantity.returnKeyType = UIReturnKeyType.Done
+                    itemDetailsMoreQuantity.delegate = self
+                    
+                    // add leftview
+                    var sizeLabel: UILabel = UILabel()
+                    sizeLabel.text = sizes[i + 1] as? String
+                    sizeLabel.frame = CGRectMake(0, 0, sizeLabel.intrinsicContentSize().width + 10, itemDetailsPrice.frame.height)
+                    sizeLabel.textColor = UIColor.lightGrayColor()
+                    sizeLabel.textAlignment = NSTextAlignment.Left
+                    
+                    itemDetailsMoreQuantity.leftView = sizeLabel
+                    itemDetailsMoreQuantity.leftViewMode = UITextFieldViewMode.Always
+                    
+                    pieceSpecsView.addSubview(itemDetailsMoreQuantity)
+                    moreQuantityTextFields.append(itemDetailsMoreQuantity)
+                }
+                
+                itemPriceImage.frame.origin.y += heightIncrease
+                itemDetailsPrice.frame.origin.y += heightIncrease
+                
+                itemSpecHeightTotal = itemSpecHeightTotal + heightIncrease
+                
             }
             
-            itemPriceImage.frame.origin.y += heightIncrease
-            itemDetailsPrice.frame.origin.y += heightIncrease
+            // update new height for pieceSpecsView
+            pieceSpecsView.frame.size.height = itemSpecHeightTotal
             
-            itemSpecHeightTotal = itemSpecHeightTotal + heightIncrease
+            itemPriceImage.setNeedsLayout()
+            itemDetailsPrice.setNeedsLayout()
             
+            itemTableView.reloadRowsAtIndexPaths([NSIndexPath(forRow: 3, inSection: 0)], withRowAnimation: UITableViewRowAnimation.None)
         }
-        
-        // update new height for pieceSpecsView
-        pieceSpecsView.frame.size.height = itemSpecHeightTotal
-        
-        itemPriceImage.setNeedsLayout()
-        itemDetailsPrice.setNeedsLayout()
-        
-        itemTableView.reloadRowsAtIndexPaths([NSIndexPath(forRow: 3, inSection: 0)], withRowAnimation: UITableViewRowAnimation.None)
     }
     
     // button callbacks
@@ -1040,13 +1031,16 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
                 }
             }
             
-            // loop through more moreQuantityTextFields
-            pieceQuantityDict.setObject(itemDetailsQuantity.text, forKey: pieceSizesArray[0] as! String)
-            
-            for moreQuantityTextField in moreQuantityTextFields {
-                if moreQuantityTextField.leftView != nil {
-                    let moreSize = (moreQuantityTextField.leftView as! UILabel).text
-                    pieceQuantityDict.setObject(moreQuantityTextField.text, forKey: moreSize!)
+            if isShop {
+                if pieceSizesArray != nil && pieceSizesArray.count > 0 {
+                    pieceQuantityDict.setObject(itemDetailsQuantity.text, forKey: pieceSizesArray[0] as! String)
+                }
+                
+                for moreQuantityTextField in moreQuantityTextFields {
+                    if moreQuantityTextField.leftView != nil {
+                        let moreSize = (moreQuantityTextField.leftView as! UILabel).text
+                        pieceQuantityDict.setObject(moreQuantityTextField.text, forKey: moreSize!)
+                    }
                 }
             }
             
@@ -1170,13 +1164,17 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
                 }
             }
             
-            // loop through more moreQuantityTextFields
-            pieceQuantityDict.setObject(itemDetailsQuantity.text, forKey: pieceSizesArray[0] as! String)
-            
-            for moreQuantityTextField in moreQuantityTextFields {
-                if moreQuantityTextField.leftView != nil {
-                    let moreSize = (moreQuantityTextField.leftView as! UILabel).text
-                    pieceQuantityDict.setObject(moreQuantityTextField.text, forKey: moreSize!)
+            if isShop {
+                if pieceSizesArray != nil && pieceSizesArray.count > 0 {
+                    pieceQuantityDict.setObject(itemDetailsQuantity.text, forKey: pieceSizesArray[0] as! String)
+                }
+                    
+                // loop through more moreQuantityTextFields
+                for moreQuantityTextField in moreQuantityTextFields {
+                    if moreQuantityTextField.leftView != nil {
+                        let moreSize = (moreQuantityTextField.leftView as! UILabel).text
+                        pieceQuantityDict.setObject(moreQuantityTextField.text, forKey: moreSize!)
+                    }
                 }
             }
             
@@ -1192,6 +1190,8 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
             
             if fromInventoryView == false {
                 delegate?.setSprubixPiece(sprubixPiece, position: pos)
+                
+                println(sprubixPiece)
                 
                 self.navigationController?.popViewControllerAnimated(true)
             } else {

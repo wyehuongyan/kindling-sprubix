@@ -16,7 +16,7 @@ protocol UserProfileHeaderDelegate {
 }
 
 class UserProfileHeader: UICollectionReusableView, UIScrollViewDelegate {
-    let bgImageHeight:CGFloat = 300
+    let bgImageHeight:CGFloat = 250
     let userInfoHeight:CGFloat = 250
     let toolbarHeight:CGFloat = 50
     let userInfoNumPages = 2
@@ -54,7 +54,7 @@ class UserProfileHeader: UICollectionReusableView, UIScrollViewDelegate {
     }
     
     func initHeaderImage() {
-        coverImageContent.frame = bounds
+        coverImageContent.frame = CGRectMake(0, 0, screenWidth, bgImageHeight)
         coverImageContent.contentMode = UIViewContentMode.ScaleAspectFill
         coverImageContent.clipsToBounds = true
         coverImageContent.autoresizingMask = UIViewAutoresizing.FlexibleHeight
@@ -218,7 +218,7 @@ class UserProfileHeader: UICollectionReusableView, UIScrollViewDelegate {
             let userCoverURL = NSURL(string: user!["cover"] as! String)
             let username = user!["username"] as! String!
             let name = user!["name"] as! String!
-
+            
             profileImage.setImageWithURL(userThumbnailURL)
             coverImageContent.setImageWithURL(userCoverURL)
             

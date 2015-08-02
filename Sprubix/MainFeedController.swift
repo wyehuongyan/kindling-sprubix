@@ -12,6 +12,7 @@ import CHTCollectionViewWaterfallLayout
 import AFNetworking
 import SVPullToRefresh
 import TSMessages
+import Crashlytics
 
 class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataSetDelegate, UICollectionViewDataSource, OutfitInteractionProtocol, CHTCollectionViewDelegateWaterfallLayout, TransitionProtocol {
     var delegate: SidePanelViewControllerDelegate?
@@ -52,6 +53,8 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         
         initCollectionViewLayout()
         initCollectionView()
+        
+        //Crashlytics.sharedInstance().crash()
         
         // sprubix title
         let logoImageWidth:CGFloat = 80
@@ -218,7 +221,7 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         let activityViewWidth: CGFloat = 50
         activityView = UIActivityIndicatorView(activityIndicatorStyle: UIActivityIndicatorViewStyle.White)
         activityView.color = sprubixColor
-        activityView.frame = CGRect(x: screenWidth / 2 - activityViewWidth / 2, y: screenHeight / 2 - activityViewWidth / 2, width: activityViewWidth, height: activityViewWidth)
+        activityView.frame = CGRect(x: screenWidth / 2 - activityViewWidth / 2, y: screenHeight / 3 - activityViewWidth / 2, width: activityViewWidth, height: activityViewWidth)
         
         view.addSubview(activityView)
     }
@@ -228,11 +231,6 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         let userId:Int? = defaults.objectForKey("userId") as? Int
         
         if userId != nil {
-            
-            if outfits.count <= 0 {
-                activityView.startAnimating()
-            }
-            
             // retrieve 3 example pieces
             manager.POST(SprubixConfig.URL.api + "/user/\(userId!)/outfits/following",
                 parameters: nil,
@@ -248,7 +246,6 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
                         self.mainCollectionView.emptyDataSetDelegate = nil
                     }
                     
-                    self.activityView.stopAnimating()
                     self.refreshControl.endRefreshing()
                     self.mainCollectionView.infiniteScrollingView.stopAnimating()
                     self.mainCollectionView.reloadData()

@@ -22,11 +22,11 @@ class SprubixCamera: NSObject {
     var sessionQueue: dispatch_queue_t!
     var stillImageOutput: AVCaptureStillImageOutput?
     
-    init(sender: AnyObject) {
+    init(sender: AnyObject, front: Bool) {
         super.init()
         self.delegate = sender as? SprubixCameraDelegate
         self.setObservers()
-        self.initializeSession()
+        self.initializeSession(front)
     }
     
     deinit {
@@ -35,14 +35,15 @@ class SprubixCamera: NSObject {
     
     // MARK: Session
     
-    func initializeSession() {
+    func initializeSession(front: Bool) {
         self.session = AVCaptureSession()
         self.session.sessionPreset = AVCaptureSessionPresetPhoto
         self.sessionQueue = dispatch_queue_create("camera session", DISPATCH_QUEUE_SERIAL)
         
         dispatch_async(self.sessionQueue) {
             self.session.beginConfiguration()
-            self.addVideoInput()
+
+            front ? self.addVideoInputFront() : self.addVideoInputBack()
             self.addStillImageOutput()
             self.session.commitConfiguration()
             
@@ -110,9 +111,21 @@ class SprubixCamera: NSObject {
     
     // MARK: Configuration
     
-    func addVideoInput() {
+    func addVideoInputBack() {
         var error: NSError?
         var device: AVCaptureDevice = self.deviceWithMediaTypeWithPosition(AVMediaTypeVideo, position: AVCaptureDevicePosition.Back)
+        var input: AVCaptureDeviceInput = AVCaptureDeviceInput.deviceInputWithDevice(device, error: &error) as! AVCaptureDeviceInput
+        
+        if error == nil {
+            if self.session.canAddInput(input) {
+                self.session.addInput(input)
+            }
+        }
+    }
+    
+    func addVideoInputFront() {
+        var error: NSError?
+        var device: AVCaptureDevice = self.deviceWithMediaTypeWithPosition(AVMediaTypeVideo, position: AVCaptureDevicePosition.Front)
         var input: AVCaptureDeviceInput = AVCaptureDeviceInput.deviceInputWithDevice(device, error: &error) as! AVCaptureDeviceInput
         
         if error == nil {
