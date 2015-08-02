@@ -45,9 +45,7 @@ class PeopleFeedViewController: UIViewController, DZNEmptyDataSetSource, DZNEmpt
         initNavBar()
         
         // Mixpanel - Viewed Main Feed, Following
-        mixpanel.track("Viewed Main Feed", properties: [
-            "Page": "People"
-        ])
+        MixpanelService.track("App Launched", propertySet: ["Page": "People"])
         // Mixpanel - End
     }
     

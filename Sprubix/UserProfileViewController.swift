@@ -409,13 +409,28 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
     func titleForEmptyDataSet(scrollView: UIScrollView!) -> NSAttributedString! {
         var text: String = ""
         
+        // Default descriptions, for other profiles
         switch(currentProfileState) {
         case .Outfits:
-            text = "\nOutfits you've created"
+            text = "Outfits created"
         case .Pieces:
-            text = "\nItems in your closet"
+            text = "Items in closet"
         case .Community:
-            text = "\nOutfits created by the community"
+            text = "Outfits created by the community"
+        }
+        
+        // Own profile
+        if let targetUserId:Int? = user!["id"] as? Int, userId:Int? = defaults.objectForKey("userId") as? Int {
+            if targetUserId == userId {
+                switch(currentProfileState) {
+                case .Outfits:
+                    text = "Outfits you've created"
+                case .Pieces:
+                    text = "Items in your closet"
+                case .Community:
+                    text = "Outfits created by the community"
+                }
+            }
         }
         
         let attributes: NSDictionary = [
@@ -431,13 +446,28 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
     func descriptionForEmptyDataSet(scrollView: UIScrollView!) -> NSAttributedString! {
         var text: String = ""
         
+        // Default descriptions, for other profiles
         switch(currentProfileState) {
         case .Outfits:
-            text = "When you create or spruce an outfit, you'll see it here."
+            text = "No outfits yet!"
         case .Pieces:
-            text = "When you upload an item, you'll see it here"
+            text = "No items yet!"
         case .Community:
-            text = "When the community creates an outfit for you, you'll see it here"
+            text = "No outfits yet!"
+        }
+        
+        // Own profile
+        if let targetUserId:Int? = user!["id"] as? Int, userId:Int? = defaults.objectForKey("userId") as? Int {
+            if targetUserId == userId {
+                switch(currentProfileState) {
+                case .Outfits:
+                    text = "When you create or spruce an outfit, you'll see it here."
+                case .Pieces:
+                    text = "When you upload an item, you'll see it here"
+                case .Community:
+                    text = "When the community creates an outfit for you, you'll see it here"
+                }
+            }
         }
         
         var paragraph: NSMutableParagraphStyle = NSMutableParagraphStyle.new()
@@ -568,7 +598,8 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
             
             if userId != nil {
                 self.currentProfileState = .Outfits
-                self.showEmptyDataSet()
+                //self.showEmptyDataSet()
+                self.hideEmptyDataSet()
                 activityView.startAnimating()
                 
                 manager.GET(SprubixConfig.URL.api + "/user/\(userId!)/outfits",
@@ -584,7 +615,7 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
                             
                             if self.outfits.count > 0 {
                                 //self.outfitsLoaded = true
-                                self.hideEmptyDataSet()
+                                //self.hideEmptyDataSet()
                                 self.profileCollectionView.reloadData()
                                 
                                 // set layout
@@ -621,7 +652,8 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
             
             if userId != nil {
                 self.currentProfileState = .Pieces
-                self.showEmptyDataSet()
+                //self.showEmptyDataSet()
+                self.hideEmptyDataSet()
                 activityView.startAnimating()
                 
                 manager.GET(SprubixConfig.URL.api + "/user/\(userId!)/pieces",
@@ -637,7 +669,7 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
                             
                             if self.pieces.count > 0 {
                                 //self.piecesLoaded = true
-                                self.hideEmptyDataSet()
+                                //self.hideEmptyDataSet()
                                 self.profileCollectionView.reloadData()
                                 
                                 // set layout
@@ -673,7 +705,8 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
             
             if userId != nil {
                 self.currentProfileState = .Community
-                self.showEmptyDataSet()
+                //self.showEmptyDataSet()
+                self.hideEmptyDataSet()
                 activityView.startAnimating()
                 
                 manager.GET(SprubixConfig.URL.api + "/user/\(userId!)/outfits/community",
@@ -689,7 +722,7 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
                             
                             if self.communityOutfits.count > 0 {
                                 //self.communityLoaded = true
-                                self.hideEmptyDataSet()
+                                //self.hideEmptyDataSet()
                                 self.profileCollectionView.reloadData()
                                 
                                 // set layout

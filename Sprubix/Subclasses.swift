@@ -483,3 +483,159 @@ class FirebaseAuth {
         }
     }
 }
+
+// Mixpanel
+class MixpanelService {
+    
+    // Register user for Mixpanel People
+    class func register(data: NSDictionary) {
+        
+        let email: String = data["email"] as! String
+        let id: Int = data["id"] as! Int
+        let username: String = data["username"] as! String
+        let distinctId: String = mixpanel.distinctId
+        
+        mixpanel.createAlias(email, forDistinctID: distinctId)
+        mixpanel.identify(email)
+        
+        mixpanel.people.set([
+            "$email": email,
+            "ID": id,
+            "Username": username,
+            "$first_name": username,
+            "$last_name": "",
+            "$created": NSDate(),
+            "Points" : 0,
+            "Exposed Outfits": 0,
+            "Liked Outfits": 0,
+            "Liked Pieces": 0,
+            "Outfits Created": 0,
+            "Spruce Outfit": 0,
+            "Spruce Outfit Swipe": 0,
+            "Viewed Outfit Details": 0,
+            "Viewed Piece Details": 0,
+            "Viewed Outfit Comments": 0,
+            "Viewed Piece Comments": 0
+        ])
+        
+        println("Mixpanel People created for \(username) with id \(id) & alias \(email) for distinctId \(distinctId)")
+    }
+    
+    // Identify user, set Super Properties
+    class func setup() {
+        // User logged in
+        if let userData = defaults.dictionaryForKey("userData") {
+            let email: String = userData["email"] as! String
+            let id: Int = userData["id"] as! Int
+            let username: String = userData["username"] as! String
+            
+            mixpanel.identify(email)
+            mixpanel.registerSuperProperties([
+                "User ID": id,
+                "Timestamp": NSDate()
+            ])
+            
+            println("MixpanelService.setup: \(username) identified with \(email)")
+        } else {
+            println("MixpanelService.setup: userData not found, please login or create an account")
+        }
+    }
+    
+    // Get user id, -1 if new user
+    class func getUserIdWithNewUser() -> Int {
+        var currentUserId: Int = -1  // New user (or not logged in)
+        
+        // User logged in
+        if let userData = defaults.dictionaryForKey("userData") {
+            let id: Int = userData["id"] as! Int
+            currentUserId = id
+        }
+        return currentUserId
+    }
+    
+    // Track Event
+    class func track(eventName: String, propertySet: [String: AnyObject]? = nil) {
+        var errorMessage: String = ""
+        
+        switch eventName {
+            
+        case "App Launched":
+            let id = getUserIdWithNewUser()
+            
+            mixpanel.track(eventName, properties: [
+                "User ID": id,
+                "Timestamp": NSDate()
+            ])
+            
+        case "Viewed Signup Page":
+            let id = getUserIdWithNewUser()
+            
+            mixpanel.track(eventName, properties: [
+                "User ID": id,
+                "Timestamp": NSDate()
+            ])
+            
+        case "User Signed Up":
+            if let property = propertySet {
+                var id: Int = getUserIdWithNewUser()
+                let status: String = property["Status"] as! String
+                
+                if status == "Success" {
+                    id = property["User ID"] as! Int
+                }
+                
+                mixpanel.track(eventName, properties: [
+                    "User ID": id,
+                    "Status": status,
+                    "Timestamp": NSDate()
+                ])
+            } else {
+                errorMessage = "MixpanelService.track: eventName \'\(eventName)\', no data passed"
+            }
+            
+        case "Viewed Main Feed":
+            // Only trigger if signed in
+            if let userData = defaults.dictionaryForKey("userData") {
+                if let property = propertySet {
+                    let page: String = property["Page"] as! String
+                    
+                    mixpanel.track(eventName, properties: ["Page": page])
+                } else {
+                    errorMessage = "MixpanelService.track: eventName \'\(eventName)\', no data passed"
+                }
+            }
+        
+        default:
+            errorMessage = "MixpanelService.track: eventName \'\(eventName)\' unavailable, no event tracked"
+        }
+        
+        if errorMessage != "" {
+            println (errorMessage)
+        }
+    }
+}
+
+// Mandrill
+class MandrillService {
+    // Register user for Mixpanel People
+    class func register(data: NSDictionary) {
+        
+        let id: Int = data["id"] as! Int
+        let username: String = data["username"] as! String
+        
+        manager.POST(SprubixConfig.URL.api + "/mail/subaccount/create",
+            parameters: [
+                "id" : id,
+                "name" : username
+            ],
+            success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                // Print reply from server
+                println("Mandrill subaccount created for \(username) with id \(id)")
+                
+            },
+            failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                println("Error: " + error.localizedDescription)
+                
+        })
+    }
+}

@@ -125,20 +125,8 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         // retrieve following outfits
         retrieveOutfits()
         
-        // Mixpanel - Setup
-        if let localUserId = NSUserDefaults.standardUserDefaults().objectForKey("userId") as? Int {
-            mixpanel.identify(defaults.valueForKeyPath("userData")?.objectForKey("email") as! String)
-            mixpanel.registerSuperProperties([
-                "User ID": defaults.valueForKeyPath("userData")?.objectForKey("id") as! Int,
-                "Timestamp": NSDate()
-            ])
-            
-            // Mixpanel - Viewed Main Feed, Following
-            mixpanel.track("Viewed Main Feed", properties: [
-                "Page": "Following"
-            ])
-            // Mixpanel - End
-        }
+        // Mixpanel - Viewed Main Feed, Following
+        MixpanelService.track("App Launched", propertySet: ["Page": "Following"])
         // Mixpanel - End
     }
     
@@ -269,12 +257,6 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
                         self.mainCollectionView.layoutIfNeeded()
                         self.mainCollectionView.scrollToItemAtIndexPath(NSIndexPath(forItem: 0, inSection: 0), atScrollPosition: UICollectionViewScrollPosition.Bottom, animated: true)
                     }
-                    
-                    // Mixpanel - Exposed Outfits
-                    if self.outfits.count > 0 {
-                        mixpanel.people.increment("Exposed Outfits", by: self.outfits.count)
-                    }
-                    // Mixpanel - End
                 },
                 failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                     println("Error: " + error.localizedDescription)
@@ -313,12 +295,6 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
                         }
                         
                         self.mainCollectionView.infiniteScrollingView.stopAnimating()
-                        
-                        // Mixpanel - Exposed Outfits
-                        if moreOutfits.count > 0 {
-                            mixpanel.people.increment("Exposed Outfits", by: moreOutfits.count)
-                        }
-                        // Mixpanel - End
                     },
                     failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                         println("Error: " + error.localizedDescription)
@@ -577,6 +553,9 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         }
         
         lastNavOffset = self.navigationController!.navigationBar.frame.origin.y
+        
+        // Count exposed outfits
+        countExposedOutfits()
     }
     
     func detailsViewControllerLayout () -> UICollectionViewFlowLayout {
@@ -1025,5 +1004,29 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
             }, completion: nil)
         
         dismissDropdown(UITapGestureRecognizer())
+    }
+    
+    func countExposedOutfits() {
+        let cells = mainCollectionView.visibleCells() as! [MainFeedCell]
+        
+        // For every visible cell
+        for cell in cells {
+            // Outfits that don't exist in array
+            if !contains(exposedOutfits,cell.outfitId) {
+                let cellAbsolutePos: CGRect = view.convertRect(cell.frame, fromView: mainCollectionView)
+                let posMoved: CGFloat = view.frame.height - cellAbsolutePos.origin.y
+                
+                // Outfit considered seen if half-of-cell is on-screen
+                if posMoved > cell.frame.height/2 {
+                    exposedOutfits.append(cell.outfitId)
+                    
+                    // Mixpanel - Exposed Outfits
+                    mixpanel.people.increment("Exposed Outfits", by: 1)
+                    // Mixpanel - End
+                }
+            }
+        }
+        
+        
     }
 }

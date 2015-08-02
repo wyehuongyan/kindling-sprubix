@@ -221,6 +221,9 @@ class SignInViewController: UIViewController, UITextFieldDelegate, UITableViewDa
                         //self.saveCookies(userId);
                         FirebaseAuth.retrieveFirebaseToken()
                         
+                        // Mixpanel - Setup
+                        MixpanelService.setup()
+                        
                         // redirect to containerViewController (not sprubixFeedController)
                         self.dismissViewControllerAnimated(true, completion: nil)
                     }
