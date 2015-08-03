@@ -64,16 +64,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
         
         // Mixpanel - App Launched
-        var currentUserId = -1  // New user (or not logged in)
-        
-        if let localUserId = NSUserDefaults.standardUserDefaults().objectForKey("userId") as? Int {
-            currentUserId = localUserId
-        }
-        
-        mixpanel.track("App Launched", properties: [
-            "User ID": currentUserId,
-            "Timestamp": NSDate()
-        ])
+        MixpanelService.track("App Launched")
         // Mixpanel - End
         
         Fabric.with([Crashlytics()])
@@ -122,11 +113,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                     println("I am logged in!")
                     
                     // Mixpanel - Setup
-                    mixpanel.identify(self.defaults.valueForKeyPath("userData")?.objectForKey("email") as! String)
-                    mixpanel.registerSuperProperties([
-                        "User ID": self.defaults.valueForKeyPath("userData")?.objectForKey("id") as! Int,
-                        "Timestamp": NSDate()
-                    ])
+                    MixpanelService.setup()
                     // Mixpanel - End
                     
                 } else {

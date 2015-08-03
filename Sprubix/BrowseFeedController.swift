@@ -87,9 +87,7 @@ class BrowseFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDat
         }
         
         // Mixpanel - Viewed Main Feed, Discover
-        mixpanel.track("Viewed Main Feed", properties: [
-            "Page": "Discover"
-        ])
+        MixpanelService.track("App Launched", propertySet: ["Page": "Discover"])
         // Mixpanel - End
     }
     

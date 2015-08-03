@@ -157,6 +157,9 @@ class SettingsViewController: UITableViewController {
                 self.navigationController?.presentViewController(signInVC, animated: true, completion: nil)
                 self.navigationController?.popViewControllerAnimated(true) // pop settings view controller
                 
+                // exposed outfits, reset counter
+                exposedOutfits.removeAll()
+                
             default:
                 fatalError("Unknown static cell for settings.")
             }

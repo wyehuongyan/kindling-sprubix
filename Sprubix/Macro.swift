@@ -38,3 +38,7 @@ var mainBadge: UILabel = UILabel()
 // 2. when clicking on notifications option in side panel (ContainerViewController)
 // 3. when mainfeed's viewDidAppear (MainFeedController)
 // reasons: 1 happens when token expires and new token is retrieve, and a relogin is done. 3 happens when there's no sign in (due to cookies). 2 is incase 1 and 3 fails.
+
+
+// exposed outfits
+var exposedOutfits = [Int]()

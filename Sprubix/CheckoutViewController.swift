@@ -457,6 +457,8 @@ class CheckoutViewController: UIViewController, UITableViewDataSource, UITableVi
                                 mixpanel.track("Placed Order", properties: [
                                     "Status": "Success"
                                 ])
+                                // Mixpanel - People, Revenue
+                                mixpanel.people.trackCharge(self.orderTotal)
                                 // Mixpanel - End
                             }
                             

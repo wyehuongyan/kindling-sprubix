@@ -83,17 +83,8 @@ class SignUpViewController: UIViewController, UITableViewDataSource, UITableView
         
         self.navigationController?.interactivePopGestureRecognizer.delegate = self;
         
-        // Mixpanel - App Launched
-        var currentUserId = -1  // New user (or not logged in)
-        
-        if let localUserId = NSUserDefaults.standardUserDefaults().objectForKey("userId") as? Int {
-            currentUserId = localUserId
-        }
-        
-        mixpanel.track("Viewed Signup Page", properties: [
-            "User ID": currentUserId,
-            "Timestamp": NSDate()
-        ])
+        // Mixpanel - Viewed Signup Page
+        MixpanelService.track("Viewed Signup Page")
         // Mixpanel - End
     }
     
@@ -181,8 +172,6 @@ class SignUpViewController: UIViewController, UITableViewDataSource, UITableView
             
             if validateResult.valid {
                 
-                let signupTime: NSDate = NSDate()
-                
                 manager.POST(SprubixConfig.URL.api + "/auth/register",
                     parameters: [
                         "username" : userNameText.text.lowercaseString,
@@ -244,48 +233,14 @@ class SignUpViewController: UIViewController, UITableViewDataSource, UITableView
                             // Mixpanel - Signed Up, Success
                             mixpanel.track("User Signed Up", properties: [
                                 "User ID": data.objectForKey("id") as! Int,
-                                "Status": "Success",
-                                "Timestamp": signupTime
+                                "Status": "Success"
                             ])
-                            
-                            mixpanel.createAlias(data.objectForKey("email") as! String, forDistinctID: mixpanel.distinctId)
-                            mixpanel.identify(data.objectForKey("email") as! String)
-                            
-                            mixpanel.people.set([
-                                "$email": data.objectForKey("email") as! String,
-                                "ID": data.objectForKey("id") as! Int,
-                                "Username": data.objectForKey("username") as! String,
-                                "$first_name": data.objectForKey("username") as! String,
-                                "$last_name": "",
-                                "$created": signupTime,
-                                "Exposed Outfits": 0,
-                                "Liked Outfits": 0,
-                                "Liked Pieces": 0,
-                                "Outfits Created": 0,
-                                "Spruce Outfit": 0,
-                                "Spruce Outfit Swipe": 0,
-                                "Viewed Outfit Details": 0,
-                                "Viewed Piece Details": 0,
-                                "Viewed Outfit Comments": 0,
-                                "Viewed Piece Comments": 0
-                            ])
+                            // Mixpanel - Register
+                            //MixpanelService.register(data)
                             // Mixpanel - End
                             
                             // Mandrill - Add subaccount
-                            manager.POST(SprubixConfig.URL.api + "/mail/subaccount/create",
-                                parameters: [
-                                    "id" : data.objectForKey("id") as! Int,
-                                    "name" : data.objectForKey("username") as! String
-                                ],
-                                success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
-                                    // Print reply from server
-                                    println("Mandrill subaccount created")
-                                    
-                                },
-                                failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
-                                    println("Error: " + error.localizedDescription)
-                                    
-                            })
+                            MandrillService.register(data)
                             // Mandrill - End
                         }
                     },
@@ -307,17 +262,7 @@ class SignUpViewController: UIViewController, UITableViewDataSource, UITableView
                             canBeDismissedByUser: true)
                         
                         // Mixpanel - Signed Up, Fail
-                        var currentUserId = -1  // New user (or not logged in)
-                        
-                        if let localUserId = NSUserDefaults.standardUserDefaults().objectForKey("userId") as? Int {
-                            currentUserId = localUserId
-                        }
-                        
-                        mixpanel.track("User Signed Up", properties: [
-                            "User ID": currentUserId,
-                            "Status": "Fail",
-                            "Timestamp": signupTime
-                        ])
+                        MixpanelService.track("User Signed Up", propertySet: ["Status" : "Fail"])
                         // Mixpanel - End
                 })
                 
