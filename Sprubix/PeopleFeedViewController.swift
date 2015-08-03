@@ -8,10 +8,21 @@
 
 import UIKit
 import DZNEmptyDataSet
+import AFNetworking
 
-class PeopleFeedViewController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataSetDelegate {
+class PeopleFeedViewController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataSetDelegate, UITableViewDataSource, UITableViewDelegate, PeopleInteractionProtocol {
 
     var delegate: SidePanelViewControllerDelegate?
+    
+    let userImageViewWidth: CGFloat = 60.0
+    let itemPreviewImageViewWidth = (screenWidth - 40.0) / 3
+    
+    let peopleFeedCellIdentifier: String = "PeopleFeedCell"
+    var people: [NSDictionary] = [NSDictionary]()
+    var peopleTableView: UITableView!
+    
+    var refreshControl: UIRefreshControl!
+    var activityView: UIActivityIndicatorView!
     
     // drop down
     var sprubixTitle: SprubixButtonIconRight!
@@ -27,13 +38,10 @@ class PeopleFeedViewController: UIViewController, DZNEmptyDataSetSource, DZNEmpt
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        view.backgroundColor = sprubixGray
+        view.backgroundColor = UIColor.whiteColor()
         
+        initTableView()
         initDropdown()
-        
-        // empty dataset
-        //peopleCollectionView.emptyDataSetSource = self
-        //peopleCollectionView.emptyDataSetDelegate = self
     }
     
     override func viewWillAppear(animated: Bool) {
@@ -43,6 +51,11 @@ class PeopleFeedViewController: UIViewController, DZNEmptyDataSetSource, DZNEmpt
         self.setNeedsStatusBarAppearanceUpdate()
         
         initNavBar()
+        retrievePeople()
+        
+        if self.shyNavBarManager.scrollView == nil {
+            self.shyNavBarManager.scrollView = self.peopleTableView
+        }
         
         // Mixpanel - Viewed Main Feed, Following
         mixpanel.track("Viewed Main Feed", properties: [
@@ -140,6 +153,39 @@ class PeopleFeedViewController: UIViewController, DZNEmptyDataSetSource, DZNEmpt
         self.navigationItem.titleView?.userInteractionEnabled = true
     }
     
+    func initTableView() {
+        peopleTableView = UITableView(frame: view.bounds)
+        peopleTableView.dataSource = self
+        peopleTableView.delegate = self
+        peopleTableView.backgroundColor = sprubixGray
+        
+        peopleTableView.registerClass(PeopleFeedCell.self, forCellReuseIdentifier: peopleFeedCellIdentifier)
+        
+        // get rid of line seperator for empty cells
+        peopleTableView.tableFooterView = UIView(frame: CGRectZero)
+        
+        // empty dataset
+        peopleTableView.emptyDataSetSource = self
+        peopleTableView.emptyDataSetDelegate = self
+        
+        view.addSubview(peopleTableView)
+        
+        // here the spinner is initialized
+        let activityViewWidth: CGFloat = 50
+        activityView = UIActivityIndicatorView(activityIndicatorStyle: UIActivityIndicatorViewStyle.White)
+        activityView.color = sprubixColor
+        activityView.frame = CGRect(x: screenWidth / 2 - activityViewWidth / 2, y: screenHeight / 3 - activityViewWidth / 2, width: activityViewWidth, height: activityViewWidth)
+        
+        view.addSubview(activityView)
+        
+        // refresh control
+        refreshControl = UIRefreshControl()
+        refreshControl.tintColor = sprubixColor
+        refreshControl.addTarget(self, action: "refresh:", forControlEvents: UIControlEvents.ValueChanged)
+        peopleTableView.insertSubview(refreshControl, atIndex: 0)
+        refreshControl.endRefreshing()
+    }
+    
     func initDropdown() {
         // init dropdown
         if dropdownWrapper == nil {
@@ -219,6 +265,143 @@ class PeopleFeedViewController: UIViewController, DZNEmptyDataSetSource, DZNEmpt
         view.addSubview(dropdownView!)
     }
     
+    func retrievePeople() {
+        
+        if people.count <= 0 {
+            activityView.startAnimating()
+        }
+        
+        // REST call to server to retrieve people
+        manager.GET(SprubixConfig.URL.api + "/people/pieces",
+            parameters: nil,
+            success: { (operation: AFHTTPRequestOperation!, responseObject:
+                AnyObject!) in
+                
+                self.people = responseObject as! [NSDictionary]
+                self.peopleTableView.reloadData()
+                self.activityView.stopAnimating()
+                self.refreshControl.endRefreshing()
+            },
+            failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                println("Error: " + error.localizedDescription)
+
+                self.activityView.stopAnimating()
+                self.refreshControl.endRefreshing()
+                
+                SprubixReachability.handleError(error.code)
+        })
+    }
+    
+    func refresh(sender: AnyObject) {
+        retrievePeople()
+    }
+    
+    // MARK: UITableViewDataSource
+    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCellWithIdentifier(peopleFeedCellIdentifier, forIndexPath: indexPath) as! PeopleFeedCell
+        
+        let person = people[indexPath.row] as NSDictionary
+        
+        let userImageString = person["image"] as! String
+        let username = person["username"] as? String
+        let pieces = person["pieces"] as! [NSDictionary]
+        
+        cell.userImageView.setImageWithURL(NSURL(string: userImageString))
+        cell.userRealNameLabel.text = person["name"] as? String
+        cell.user = person
+
+        cell.delegate = self
+        
+        if username != nil {
+            cell.userNameLabel.text = "@\(username!)"
+        }
+        
+        cell.initItemPreview(pieces)
+        
+        cell.selectionStyle = UITableViewCellSelectionStyle.None
+        
+        return cell
+    }
+    
+    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return people.count
+    }
+    
+    func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
+        
+        var rowHeight: CGFloat = itemPreviewImageViewWidth + userImageViewWidth + 40.0
+        
+        if people.count > 0 {
+            let person = people[indexPath.row] as NSDictionary
+            let pieces = person["pieces"] as! [NSDictionary]
+            
+            if pieces.count > 3 {
+                rowHeight = 2 * itemPreviewImageViewWidth + userImageViewWidth + 50.0
+            }
+        }
+        
+        return rowHeight
+    }
+    
+    // PeopleInteractionProtocol
+    func followUser(user: NSDictionary) {
+        println("followed")
+    }
+    
+    func unfollowUser(user: NSDictionary) {
+        println("unfollowed")
+    }
+    
+    func showProfile(user: NSDictionary) {
+        containerViewController.showUserProfile(user)
+    }
+    
+    func showPieceDetails(piece: NSDictionary) {
+        let pieceId = piece["id"] as? Int
+        
+        if pieceId != nil {
+            manager.POST(SprubixConfig.URL.api + "/pieces",
+                parameters: [
+                    "id": pieceId!
+                ],
+                success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                    
+                    var piece = (responseObject["data"] as! NSArray)[0] as! NSDictionary
+                    
+                    let pieceDetailsViewController = PieceDetailsViewController(collectionViewLayout: self.detailsViewControllerLayout(), currentIndexPath: NSIndexPath(forRow: 0, inSection: 0))
+                    
+                    pieceDetailsViewController.pieces = [piece]
+                    pieceDetailsViewController.user = piece["user"] as! NSDictionary
+                    
+                    // push outfitDetailsViewController onto navigation stack
+                    let transition = CATransition()
+                    transition.duration = 0.3
+                    transition.type = kCATransitionMoveIn
+                    transition.subtype = kCATransitionFromTop
+                    transition.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
+                    
+                    self.navigationController?.view.layer.addAnimation(transition, forKey: kCATransition)
+                    self.navigationController!.pushViewController(pieceDetailsViewController, animated: false)
+                },
+                failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                    println("Error: " + error.localizedDescription)
+            })
+        }
+    }
+    
+    func detailsViewControllerLayout () -> UICollectionViewFlowLayout {
+        let flowLayout = UICollectionViewFlowLayout()
+        
+        let itemSize = CGSizeMake(screenWidth, screenHeight)
+        
+        flowLayout.itemSize = itemSize
+        flowLayout.minimumLineSpacing = 0
+        flowLayout.minimumInteritemSpacing = 0
+        flowLayout.scrollDirection = .Horizontal
+        
+        return flowLayout
+    }
+    
     func navbarTitlePressed(sender: UIButton) {
         if dropdownVisible != true {
             sprubixTitle.selected = true
@@ -256,7 +439,7 @@ class PeopleFeedViewController: UIViewController, DZNEmptyDataSetSource, DZNEmpt
         var prevChild: AnyObject = self.navigationController!.viewControllers[childrenCount-2]
         
         if prevChild.isKindOfClass(BrowseFeedController) {
-            UIView.transitionWithView(self.navigationController!.view, duration: 0.5, options: UIViewAnimationOptions.TransitionCrossDissolve, animations: {
+            UIView.transitionWithView(self.navigationController!.view, duration: 0.3, options: UIViewAnimationOptions.TransitionCrossDissolve, animations: {
                 self.navigationController?.popViewControllerAnimated(false)
                 }, completion: nil)
             
@@ -267,7 +450,7 @@ class PeopleFeedViewController: UIViewController, DZNEmptyDataSetSource, DZNEmpt
                 browseFeedController!.delegate = containerViewController
             }
             
-            UIView.transitionWithView(self.navigationController!.view, duration: 0.5, options: UIViewAnimationOptions.TransitionCrossDissolve, animations: {
+            UIView.transitionWithView(self.navigationController!.view, duration: 0.3, options: UIViewAnimationOptions.TransitionCrossDissolve, animations: {
                 self.navigationController?.pushViewController(browseFeedController!, animated: false)
                 }, completion: nil)
             
@@ -284,13 +467,13 @@ class PeopleFeedViewController: UIViewController, DZNEmptyDataSetSource, DZNEmpt
         var prevChild: AnyObject = self.navigationController!.viewControllers[childrenCount-2]
         
         if prevChild.isKindOfClass(MainFeedController) {
-            UIView.transitionWithView(self.navigationController!.view, duration: 0.5, options: UIViewAnimationOptions.TransitionCrossDissolve, animations: {
+            UIView.transitionWithView(self.navigationController!.view, duration: 0.3, options: UIViewAnimationOptions.TransitionCrossDissolve, animations: {
                 self.navigationController?.popViewControllerAnimated(false)
                 }, completion: nil)
             
             dismissDropdown(UITapGestureRecognizer())
         } else {
-            UIView.transitionWithView(self.navigationController!.view, duration: 0.5, options: UIViewAnimationOptions.TransitionCrossDissolve, animations: {
+            UIView.transitionWithView(self.navigationController!.view, duration: 0.3, options: UIViewAnimationOptions.TransitionCrossDissolve, animations: {
                 self.navigationController?.popToRootViewControllerAnimated(false)
                 }, completion: nil)
             

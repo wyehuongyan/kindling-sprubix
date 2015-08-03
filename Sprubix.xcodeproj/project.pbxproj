@@ -48,6 +48,8 @@
 		845048CD1A9ECC81008BDBAA /* SprubixTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 845048CC1A9ECC81008BDBAA /* SprubixTests.swift */; };
 		845834BB1B6B2EB0007C6F6B /* EditProfileCropPhotoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 845834BA1B6B2EB0007C6F6B /* EditProfileCropPhotoViewController.swift */; };
 		845834BF1B6CC834007C6F6B /* EditProfileSnapPhotoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 845834BE1B6CC834007C6F6B /* EditProfileSnapPhotoViewController.swift */; };
+		845834C11B6F5994007C6F6B /* PeopleFeedCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 845834C01B6F5994007C6F6B /* PeopleFeedCell.swift */; };
+		845834C31B6F94CD007C6F6B /* SearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 845834C21B6F94CD007C6F6B /* SearchViewController.swift */; };
 		846027A31B18B17B00A28C78 /* CommentsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846027A21B18B17B00A28C78 /* CommentsViewController.swift */; };
 		846027A51B18B71900A28C78 /* CommentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846027A41B18B71900A28C78 /* CommentCell.swift */; };
 		846C97931ABAB11F0050D0BC /* Subclasses.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846C97921ABAB11F0050D0BC /* Subclasses.swift */; };
@@ -168,6 +170,8 @@
 		845048D61A9ECFE2008BDBAA /* Sprubix-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Sprubix-Bridging-Header.h"; sourceTree = SOURCE_ROOT; };
 		845834BA1B6B2EB0007C6F6B /* EditProfileCropPhotoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EditProfileCropPhotoViewController.swift; sourceTree = "<group>"; };
 		845834BE1B6CC834007C6F6B /* EditProfileSnapPhotoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EditProfileSnapPhotoViewController.swift; sourceTree = "<group>"; };
+		845834C01B6F5994007C6F6B /* PeopleFeedCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PeopleFeedCell.swift; sourceTree = "<group>"; };
+		845834C21B6F94CD007C6F6B /* SearchViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchViewController.swift; sourceTree = "<group>"; };
 		846027A21B18B17B00A28C78 /* CommentsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommentsViewController.swift; sourceTree = "<group>"; };
 		846027A41B18B71900A28C78 /* CommentCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommentCell.swift; sourceTree = "<group>"; };
 		846C97921ABAB11F0050D0BC /* Subclasses.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Subclasses.swift; sourceTree = "<group>"; };
@@ -403,6 +407,7 @@
 				846027A21B18B17B00A28C78 /* CommentsViewController.swift */,
 				8488717B1B32D163001D60A1 /* BrowseFeedController.swift */,
 				8405D0661B5F8B6000B42752 /* PeopleFeedViewController.swift */,
+				845834C21B6F94CD007C6F6B /* SearchViewController.swift */,
 			);
 			name = Feed;
 			sourceTree = "<group>";
@@ -603,6 +608,7 @@
 			children = (
 				84470D8B1AED1847007E9A93 /* MainFeedCell.swift */,
 				846027A41B18B71900A28C78 /* CommentCell.swift */,
+				845834C01B6F5994007C6F6B /* PeopleFeedCell.swift */,
 			);
 			name = Feed;
 			sourceTree = "<group>";
@@ -849,6 +855,7 @@
 				84B334EA1AAB0CC900B9707D /* SidePanelCell.swift in Sources */,
 				8482B86E1B4926CC0017CEEF /* DeliveryAddressCell.swift in Sources */,
 				84C664901B3AD7EB00E18FF7 /* DeliveryOptionCell.swift in Sources */,
+				845834C11B6F5994007C6F6B /* PeopleFeedCell.swift in Sources */,
 				845048B41A9ECC81008BDBAA /* AppDelegate.swift in Sources */,
 				84FDB9601B1595FA00E8D720 /* NotificationCell.swift in Sources */,
 				8488717F1B369CBA001D60A1 /* InventoryCell.swift in Sources */,
@@ -861,6 +868,7 @@
 				8405D0571B5B60BC00B42752 /* ShopOrderDetailsViewController.swift in Sources */,
 				8405D0651B5F709000B42752 /* CustomerDetailsRecentOrdersCell.swift in Sources */,
 				843B81A11AFCB71900FA2DD2 /* SnapshotShareController.swift in Sources */,
+				845834C31B6F94CD007C6F6B /* SearchViewController.swift in Sources */,
 				846C97991ABD545A0050D0BC /* SpruceViewController.swift in Sources */,
 				84B335361AB1ADBD00B9707D /* ProfilePieceCell.swift in Sources */,
 				8405D05F1B5CB83500B42752 /* OrderDetailsContactCell.swift in Sources */,

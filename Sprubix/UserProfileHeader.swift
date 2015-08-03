@@ -26,6 +26,8 @@ class UserProfileHeader: UICollectionReusableView, UIScrollViewDelegate {
     var button2:UIButton!
     var button3:UIButton!
     
+    var profileDescriptionBG: UIView!
+    
     var currentChoice:UIButton!
     
     var buttonLine:UIView!
@@ -184,12 +186,13 @@ class UserProfileHeader: UICollectionReusableView, UIScrollViewDelegate {
         userInfoScrollView.addSubview(profileName)
         
         // create user description
-        var profileDescriptionBG:UIView = UIView(frame: CGRect(x: bounds.width, y: 0, width: bounds.width, height: bounds.height))
-        profileDescriptionBG.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.2)
+        profileDescriptionBG = UIView(frame: CGRect(x: 0, y: 0, width: bounds.width * 2, height: bounds.height))
+        profileDescriptionBG.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.4)
+        profileDescriptionBG.alpha = 0
         
         profileDescription = UILabel()
         let profileDescriptionLength:CGFloat = bounds.width
-        profileDescription.frame = CGRect(x: (bounds.width / 2) - (profileDescriptionLength / 2), y: 100, width: profileDescriptionLength, height: 21)
+        profileDescription.frame = CGRect(x: ((bounds.width / 2) - (profileDescriptionLength / 2)) + bounds.width, y: 100, width: profileDescriptionLength, height: 21)
         profileDescription.text = "User Description"
         profileDescription.lineBreakMode = .ByWordWrapping // or NSLineBreakMode.ByWordWrapping
         profileDescription.numberOfLines = 0
@@ -208,8 +211,8 @@ class UserProfileHeader: UICollectionReusableView, UIScrollViewDelegate {
         pageControl.clipsToBounds = true
         pageControl.autoresizingMask = UIViewAutoresizing.FlexibleTopMargin
         
-        addSubview(pageControl) // do not add to scrollview or it will be scrolled away!
         addSubview(userInfoScrollView)
+        addSubview(pageControl) // do not add to scrollview or it will be scrolled away!
     }
     
     func setProfileInfo() {
@@ -234,7 +237,10 @@ class UserProfileHeader: UICollectionReusableView, UIScrollViewDelegate {
     
     func calculatePageIndicator() {
         let pageWidth = userInfoScrollView.frame.size.width
-        let page = Int(floor((userInfoScrollView.contentOffset.x * 2.0 + pageWidth) / (pageWidth * 2.0)))
+        let value = (userInfoScrollView.contentOffset.x * 2.0 + pageWidth) / (pageWidth * 2.0)
+        let page = Int(floor(value))
+        
+        profileDescriptionBG.alpha = (value - 0.5)
         
         pageControl.currentPage = page
     }

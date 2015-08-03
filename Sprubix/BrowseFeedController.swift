@@ -11,7 +11,7 @@ import DZNEmptyDataSet
 import CHTCollectionViewWaterfallLayout
 import AFNetworking
 
-class BrowseFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataSetDelegate, UITextFieldDelegate, UICollectionViewDataSource, CHTCollectionViewDelegateWaterfallLayout {
+class BrowseFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataSetDelegate, UITextFieldDelegate, UICollectionViewDataSource, OutfitInteractionProtocol, CHTCollectionViewDelegateWaterfallLayout, TransitionProtocol {
     
     var delegate: SidePanelViewControllerDelegate?
     var outfits: [NSDictionary] = [NSDictionary]()
@@ -34,7 +34,11 @@ class BrowseFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDat
     var newNavBar:UINavigationBar!
     var newNavItem:UINavigationItem!
     
+    var refreshControl: UIRefreshControl!
     var activityView: UIActivityIndicatorView!
+    
+    var spruceViewController: SpruceViewController?
+    var commentsViewController: CommentsViewController?
     
     // drop down
     var sprubixTitle: SprubixButtonIconRight!
@@ -56,6 +60,13 @@ class BrowseFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDat
         initCollectionView()
         initDropdown()
         
+        // refresh control
+        refreshControl = UIRefreshControl()
+        refreshControl.tintColor = sprubixColor
+        refreshControl.addTarget(self, action: "refresh:", forControlEvents: UIControlEvents.ValueChanged)
+        discoverCollectionView.insertSubview(refreshControl, atIndex: 0)
+        refreshControl.endRefreshing()
+        
         // empty dataset
         discoverCollectionView.emptyDataSetSource = self
         discoverCollectionView.emptyDataSetDelegate = self
@@ -68,13 +79,12 @@ class BrowseFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDat
         self.setNeedsStatusBarAppearanceUpdate()
         
         initNavBar()
+        retrieveOutfits()
         
         if self.shyNavBarManager.scrollView == nil {
             self.shyNavBarManager.scrollView = self.discoverCollectionView
             //self.shyNavBarManager.extensionView = searchBarView
         }
-        
-        retrieveOutfits()
         
         // Mixpanel - Viewed Main Feed, Discover
         mixpanel.track("Viewed Main Feed", properties: [
@@ -122,7 +132,9 @@ class BrowseFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDat
         
         // infinite scrolling
         discoverCollectionView.addInfiniteScrollingWithActionHandler({
-            //self.insertMoreOutfits()
+            if SprubixReachability.isConnectedToNetwork() {
+                self.insertMoreOutfits()
+            }
         })
         
         view.addSubview(discoverCollectionView)
@@ -131,7 +143,7 @@ class BrowseFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDat
         let activityViewWidth: CGFloat = 50
         activityView = UIActivityIndicatorView(activityIndicatorStyle: UIActivityIndicatorViewStyle.White)
         activityView.color = sprubixColor
-        activityView.frame = CGRect(x: screenWidth / 2 - activityViewWidth / 2, y: screenHeight / 2 - activityViewWidth / 2, width: activityViewWidth, height: activityViewWidth)
+        activityView.frame = CGRect(x: screenWidth / 2 - activityViewWidth / 2, y: screenHeight / 3 - activityViewWidth / 2, width: activityViewWidth, height: activityViewWidth)
         
         view.addSubview(activityView)
     }
@@ -237,21 +249,18 @@ class BrowseFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDat
     }
     
     // REST calls
-    func retrieveOutfits() {
+    func retrieveOutfits(scrollToTop: Bool = false) {
         
         if outfits.count <= 0 {
             activityView.startAnimating()
         }
         
         // retrieve 3 example pieces
-        manager.POST(SprubixConfig.URL.api + "/outfits/ids",
-            parameters: [
-                "ids": ["5", "6", "7", "8"]
-            ],
+        manager.POST(SprubixConfig.URL.api + "/outfits",
+            parameters: nil,
             success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
                 self.outfits = responseObject["data"] as! [NSDictionary]
                 
-                /*
                 if self.outfits.count <= 0 {
                     // empty dataset
                     self.discoverCollectionView.emptyDataSetSource = self
@@ -260,16 +269,389 @@ class BrowseFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDat
                     self.discoverCollectionView.emptyDataSetSource = nil
                     self.discoverCollectionView.emptyDataSetDelegate = nil
                 }
-                */
                 
                 self.activityView.stopAnimating()
+                self.refreshControl.endRefreshing()
+                self.discoverCollectionView.infiniteScrollingView.stopAnimating()
                 self.discoverCollectionView.reloadData()
+                
+                if scrollToTop {
+                    self.discoverCollectionView.layoutIfNeeded()
+                    self.discoverCollectionView.scrollToItemAtIndexPath(NSIndexPath(forItem: 0, inSection: 0), atScrollPosition: UICollectionViewScrollPosition.Bottom, animated: true)
+                }
             },
             failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                 println("Error: " + error.localizedDescription)
+
+                self.activityView.stopAnimating()
+                self.refreshControl.endRefreshing()
+                self.discoverCollectionView.infiniteScrollingView.stopAnimating()
+                
+                SprubixReachability.handleError(error.code)
         })
     }
     
+    // infinite scrolling
+    func insertMoreOutfits() {
+        if outfits.count > 0 {
+            let lastOutfit: NSDictionary = outfits.last!
+            let lastOutfitId = lastOutfit["id"] as! Int
+            let userId:Int? = defaults.objectForKey("userId") as? Int
+            
+            if userId != nil {
+                // retrieve 3 example pieces
+                manager.POST(SprubixConfig.URL.api + "/outfits",
+                    parameters: [
+                        "last_outfit_id": lastOutfitId
+                    ],
+                    success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                        
+                        let moreOutfits = responseObject as! [NSDictionary]
+                        
+                        for moreOutfit in moreOutfits {
+                            self.outfits.append(moreOutfit)
+                            
+                            self.discoverCollectionView.insertItemsAtIndexPaths([NSIndexPath(forItem: self.outfits.count - 1, inSection: 0)])
+                        }
+                        
+                        self.discoverCollectionView.infiniteScrollingView.stopAnimating()
+                    },
+                    failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                        println("Error: " + error.localizedDescription)
+                        
+                        self.discoverCollectionView.infiniteScrollingView.stopAnimating()
+                        
+                        SprubixReachability.handleError(error.code)
+                })
+            } else {
+                println("userId not found, please login or create an account")
+            }
+        } else {
+            self.discoverCollectionView.infiniteScrollingView.stopAnimating()
+        }
+    }
+    
+    func refresh(sender: AnyObject) {
+        retrieveOutfits(scrollToTop: true)
+    }
+    
+    // OutfitInteractionProtocol
+    func setOutfitsLiked(outfitId: Int, liked: Bool) {
+        outfitsLiked.setObject(liked, forKey: outfitId)
+    }
+    
+    func unlikedOutfit(outfitId: Int, itemIdentifier: String, receiver: NSDictionary) {
+        let userData: NSDictionary? = defaults.dictionaryForKey("userData")
+        
+        if userData != nil {
+            // firebase collections: users, likes, poutfits and notifications
+            let likesRef = firebaseRef.childByAppendingPath("likes")
+            let notificationsRef = firebaseRef.childByAppendingPath("notifications")
+            let poutfitsRef = firebaseRef.childByAppendingPath("poutfits")
+            let poutfitLikesRef = poutfitsRef.childByAppendingPath("\(itemIdentifier)/likes")
+            
+            let senderUsername = userData!["username"] as! String
+            let receiverUsername = receiver["username"] as! String
+            let poutfitRef = firebaseRef.childByAppendingPath("poutfits/\(itemIdentifier)")
+            let poutfitLikesUserRef = poutfitLikesRef.childByAppendingPath(senderUsername) // to be removed
+            
+            let receiverUserNotificationsRef = firebaseRef.childByAppendingPath("users/\(receiverUsername)/notifications")
+            let senderLikesRef = firebaseRef.childByAppendingPath("users/\(senderUsername)/likes")
+            
+            // check if user has already liked this outfit
+            poutfitLikesUserRef.observeSingleEventOfType(.Value, withBlock: {
+                snapshot in
+                
+                if (snapshot.value as? NSNull) != nil {
+                    // does not exist, already unliked
+                    println("You have already unliked this outfit")
+                    
+                    self.outfitsLiked.setObject(false, forKey: outfitId)
+                } else {
+                    // was liked, set it to unliked here
+                    poutfitLikesUserRef.observeSingleEventOfType(.Value, withBlock: {
+                        snapshot in
+                        
+                        if (snapshot.value as? NSNull) != nil {
+                            // does not exist
+                            println("Error: Like key in Poutfits could not be found.")
+                        } else {
+                            // exists
+                            var likeRefKey = snapshot.value as! String
+                            
+                            let likeRef = likesRef.childByAppendingPath(likeRefKey) // to be removed
+                            
+                            let likeRefNotificationKey = likeRef.childByAppendingPath("notification")
+                            
+                            likeRefNotificationKey.observeSingleEventOfType(.Value, withBlock: { snapshot in
+                                
+                                if (snapshot.value as? NSNull) != nil {
+                                    // does not exist
+                                    println("Error: Notification key in Likes could not be found.")
+                                } else {
+                                    var notificationRefKey = snapshot.value as! String
+                                    
+                                    let notificationRef = notificationsRef.childByAppendingPath(notificationRefKey) // to be removed
+                                    
+                                    let receiverUserNotificationRef = receiverUserNotificationsRef.childByAppendingPath(notificationRefKey) // to be removed
+                                    
+                                    let senderLikeRef = senderLikesRef.childByAppendingPath(likeRefKey) // to be removed
+                                    
+                                    // remove all values
+                                    senderLikeRef.removeValue()
+                                    notificationRef.removeValue()
+                                    receiverUserNotificationRef.removeValue()
+                                    likeRef.removeValue()
+                                    poutfitLikesUserRef.removeValue()
+                                    
+                                    self.outfitsLiked.setObject(false, forKey: outfitId)
+                                    
+                                    // update poutfitRef num of likes
+                                    let poutfitLikeCountRef = poutfitRef.childByAppendingPath("num_likes")
+                                    
+                                    poutfitLikeCountRef.runTransactionBlock({
+                                        (currentData:FMutableData!) in
+                                        
+                                        var value = currentData.value as? Int
+                                        
+                                        if value == nil {
+                                            value = 0
+                                        } else {
+                                            if value > 0 {
+                                                value = value! - 1
+                                            }
+                                        }
+                                        
+                                        currentData.value = value!
+                                        
+                                        return FTransactionResult.successWithValue(currentData)
+                                    })
+                                    
+                                    println("Outfit unliked successfully!")
+                                }
+                            })
+                            
+                        }
+                    })
+                }
+            })
+        } else {
+            println("userData not found, please login or create an account")
+        }
+    }
+    
+    func likedOutfit(outfitId: Int, thumbnailURLString: String, itemIdentifier: String, receiver: NSDictionary) {
+        let userData: NSDictionary? = defaults.dictionaryForKey("userData")
+        
+        if userData != nil {
+            // firebase collections: users, likes, poutfits and notifications
+            let likesRef = firebaseRef.childByAppendingPath("likes")
+            let notificationsRef = firebaseRef.childByAppendingPath("notifications")
+            let poutfitsRef = firebaseRef.childByAppendingPath("poutfits")
+            let poutfitLikesRef = poutfitsRef.childByAppendingPath("\(itemIdentifier)/likes")
+            
+            let senderUsername = userData!["username"] as! String
+            let senderImage = userData!["image"] as! String
+            let receiverUsername = receiver["username"] as! String
+            let poutfitRef = firebaseRef.childByAppendingPath("poutfits/\(itemIdentifier)")
+            let poutfitLikesUserRef = poutfitLikesRef.childByAppendingPath(senderUsername)
+            
+            let receiverUserNotificationsRef = firebaseRef.childByAppendingPath("users/\(receiverUsername)/notifications")
+            let senderLikesRef = firebaseRef.childByAppendingPath("users/\(senderUsername)/likes")
+            
+            let createdAt = timestamp
+            
+            // check if user has already liked this outfit
+            poutfitLikesUserRef.observeSingleEventOfType(.Value, withBlock: {
+                snapshot in
+                
+                if (snapshot.value as? NSNull) != nil {
+                    // does not exist, add it
+                    let likeRef = likesRef.childByAutoId()
+                    
+                    let like = [
+                        "author": senderUsername, // yourself
+                        "created_at": createdAt,
+                        "poutfit": itemIdentifier
+                    ]
+                    
+                    likeRef.setValue(like, withCompletionBlock: {
+                        (error:NSError?, ref:Firebase!) in
+                        
+                        if (error != nil) {
+                            println("Error: Like could not be added.")
+                        } else {
+                            // like added successfully
+                            
+                            // update poutfitRef num of likes
+                            let poutfitLikeCountRef = poutfitRef.childByAppendingPath("num_likes")
+                            
+                            poutfitLikeCountRef.runTransactionBlock({
+                                (currentData:FMutableData!) in
+                                
+                                var value = currentData.value as? Int
+                                
+                                if value == nil {
+                                    value = 0
+                                }
+                                
+                                currentData.value = value! + 1
+                                
+                                return FTransactionResult.successWithValue(currentData)
+                            })
+                            
+                            // update child values: poutfits
+                            poutfitLikesRef.updateChildValues([
+                                userData!["username"] as! String: likeRef.key
+                                ])
+                            
+                            // update child values: user
+                            let senderLikeRef = senderLikesRef.childByAppendingPath(likeRef.key)
+                            
+                            senderLikeRef.updateChildValues([
+                                "created_at": createdAt,
+                                "poutfit": itemIdentifier
+                                ], withCompletionBlock: {
+                                    
+                                    (error:NSError?, ref:Firebase!) in
+                                    
+                                    if (error != nil) {
+                                        println("Error: Like Key could not be added to User Likes.")
+                                    }
+                            })
+                            
+                            // push new notifications
+                            let notificationRef = notificationsRef.childByAutoId()
+                            
+                            let notification = [
+                                "poutfit": [
+                                    "key": itemIdentifier,
+                                    "image": thumbnailURLString
+                                ],
+                                "created_at": createdAt,
+                                "sender": [
+                                    "username": senderUsername, // yourself
+                                    "image": senderImage
+                                ],
+                                "receiver": receiverUsername,
+                                "type": "like",
+                                "like": likeRef.key,
+                                "unread": true
+                            ]
+                            
+                            notificationRef.setValue(notification, withCompletionBlock: {
+                                
+                                (error:NSError?, ref:Firebase!) in
+                                
+                                if (error != nil) {
+                                    println("Error: Notification could not be added.")
+                                } else {
+                                    // update target user notifications
+                                    let receiverUserNotificationRef = receiverUserNotificationsRef.childByAppendingPath(notificationRef.key)
+                                    
+                                    receiverUserNotificationRef.updateChildValues([
+                                        "created_at": createdAt,
+                                        "unread": true
+                                        ], withCompletionBlock: {
+                                            
+                                            (error:NSError?, ref:Firebase!) in
+                                            
+                                            if (error != nil) {
+                                                println("Error: Notification Key could not be added to Users.")
+                                            }
+                                    })
+                                    
+                                    // update likes with notification key
+                                    likeRef.updateChildValues([
+                                        "notification": notificationRef.key
+                                        ], withCompletionBlock: {
+                                            
+                                            (error:NSError?, ref:Firebase!) in
+                                            
+                                            if (error != nil) {
+                                                println("Error: Notification Key could not be added to Likes.")
+                                            } else {
+                                                println("Outfit liked successfully!")
+                                                // add to outfits dictionary
+                                                self.outfitsLiked.setObject(true, forKey: outfitId)
+                                            }
+                                    })
+                                    
+                                    // send APNS
+                                    let recipientId = receiver["id"] as! Int
+                                    let senderId = userData!["id"] as! Int
+                                    
+                                    if recipientId != senderId {
+                                        let pushMessage = "\(senderUsername) liked your outfit."
+                                        
+                                        APNS.sendPushNotification(pushMessage, recipientId: recipientId)
+                                    }
+                                }
+                            })
+                        }
+                    })
+                    
+                } else {
+                    println("You have already liked this outfit")
+                    
+                    // add to outfits dictionary
+                    self.outfitsLiked.setObject(true, forKey: outfitId)
+                }
+            })
+            
+        } else {
+            println("userData not found, please login or create an account")
+        }
+    }
+    
+    func commentOutfit(poutfitIdentifier: String, thumbnailURLString: String, receiverUsername: String, outfitId: Int, receiverId: Int) {
+        commentsViewController = UIStoryboard(name: "Main", bundle: NSBundle.mainBundle()).instantiateViewControllerWithIdentifier("CommentsView") as? CommentsViewController
+        
+        // init
+        commentsViewController?.delegate = containerViewController
+        commentsViewController?.prevViewIsOutfit = true
+        commentsViewController?.poutfitImageURL = thumbnailURLString
+        commentsViewController?.receiverUsername = receiverUsername
+        commentsViewController?.receiverId = receiverId
+        commentsViewController?.poutfitIdentifier = poutfitIdentifier
+        
+        navigationController!.delegate = nil
+        navigationController!.pushViewController(commentsViewController!, animated: true)
+    }
+    
+    func showProfile(user: NSDictionary) {
+        delegate?.showUserProfile(user)
+    }
+    
+    func tappedOutfit(indexPath: NSIndexPath) {
+        discoverCollectionView.layoutIfNeeded()
+        
+        let outfitDetailsViewController = OutfitDetailsViewController(collectionViewLayout: detailsViewControllerLayout(), currentIndexPath:indexPath)
+        outfitDetailsViewController.outfits = outfits
+        
+        discoverCollectionView.setToIndexPath(indexPath)
+        
+        navigationController!.delegate = transitionDelegateHolder
+        navigationController!.pushViewController(outfitDetailsViewController, animated: true)
+    }
+    
+    func spruceOutfit(indexPath: NSIndexPath) {
+        var selectedOutfit = outfits[indexPath.row] as NSDictionary
+        var user = selectedOutfit["user"] as! NSDictionary
+        
+        if spruceViewController == nil {
+            spruceViewController = SpruceViewController()
+            spruceViewController?.outfit = selectedOutfit
+            spruceViewController?.userIdFrom = user["id"] as! Int
+            spruceViewController?.usernameFrom = user["username"] as! String
+            spruceViewController?.userThumbnailFrom = user["image"] as! String
+            
+            self.shyNavBarManager = nil
+            navigationController!.delegate = nil
+            self.navigationController?.pushViewController(self.spruceViewController!, animated: true)
+        }
+    }
+
     func initDropdown() {
         // init dropdown
         if dropdownWrapper == nil {
@@ -412,7 +794,7 @@ class BrowseFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDat
         var outfit = outfits[indexPath.row] as NSDictionary
         
         // assign delegate and indexPath
-        //cell.delegate = self
+        cell.delegate = self
         cell.indexPath = indexPath
         
         var outfitId = outfit["id"] as! Int
@@ -449,6 +831,19 @@ class BrowseFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDat
         return cell
     }
     
+    func detailsViewControllerLayout () -> UICollectionViewFlowLayout {
+        let flowLayout = UICollectionViewFlowLayout()
+        
+        let itemSize = CGSizeMake(screenWidth, screenHeight)
+        
+        flowLayout.itemSize = itemSize
+        flowLayout.minimumLineSpacing = 0
+        flowLayout.minimumInteritemSpacing = 0
+        flowLayout.scrollDirection = .Horizontal
+        
+        return flowLayout
+    }
+    
     // CHTCollectionViewDelegateWaterfallLayout
     func collectionView(collectionView: UICollectionView!, layout collectionViewLayout: UICollectionViewLayout!, sizeForItemAtIndexPath indexPath: NSIndexPath!) -> CGSize {
         var itemHeight:CGFloat!
@@ -461,6 +856,11 @@ class BrowseFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDat
         let imageHeight = itemHeight * gridWidth/itemWidth
         
         return CGSizeMake(gridWidth, imageHeight + cellInfoViewHeight)
+    }
+    
+    // TransitionProtocol
+    func transitionCollectionView() -> UICollectionView!{
+        return discoverCollectionView
     }
     
     // nav bar button callbacks
@@ -501,7 +901,7 @@ class BrowseFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDat
         var prevChild: AnyObject = self.navigationController!.viewControllers[childrenCount-2]
         
         if prevChild.isKindOfClass(PeopleFeedViewController) {
-            UIView.transitionWithView(self.navigationController!.view, duration: 0.5, options: UIViewAnimationOptions.TransitionCrossDissolve, animations: {
+            UIView.transitionWithView(self.navigationController!.view, duration: 0.3, options: UIViewAnimationOptions.TransitionCrossDissolve, animations: {
                 self.navigationController?.popViewControllerAnimated(false)
                 }, completion: nil)
             
@@ -512,7 +912,7 @@ class BrowseFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDat
                 peopleFeedController!.delegate = containerViewController
             }
             
-            UIView.transitionWithView(self.navigationController!.view, duration: 0.5, options: UIViewAnimationOptions.TransitionCrossDissolve, animations: {
+            UIView.transitionWithView(self.navigationController!.view, duration: 0.3, options: UIViewAnimationOptions.TransitionCrossDissolve, animations: {
                 self.navigationController?.pushViewController(peopleFeedController!, animated: false)
                 }, completion: nil)
             
@@ -529,13 +929,13 @@ class BrowseFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDat
         var prevChild: AnyObject = self.navigationController!.viewControllers[childrenCount-2]
         
         if prevChild.isKindOfClass(MainFeedController) {
-            UIView.transitionWithView(self.navigationController!.view, duration: 0.5, options: UIViewAnimationOptions.TransitionCrossDissolve, animations: {
+            UIView.transitionWithView(self.navigationController!.view, duration: 0.3, options: UIViewAnimationOptions.TransitionCrossDissolve, animations: {
                 self.navigationController?.popViewControllerAnimated(false)
                 }, completion: nil)
             
             dismissDropdown(UITapGestureRecognizer())
         } else {
-            UIView.transitionWithView(self.navigationController!.view, duration: 0.5, options: UIViewAnimationOptions.TransitionCrossDissolve, animations: {
+            UIView.transitionWithView(self.navigationController!.view, duration: 0.3, options: UIViewAnimationOptions.TransitionCrossDissolve, animations: {
                 self.navigationController?.popToRootViewControllerAnimated(false)
                 }, completion: nil)
             

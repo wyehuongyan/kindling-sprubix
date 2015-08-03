@@ -332,6 +332,10 @@ class SprubixReachability {
         var notificationType: TSMessageNotificationType!
         
         switch code {
+        case -1003:
+            errorTitle = "Server Not Found"
+            errorMessage = "The specified server is not found."
+            notificationType = TSMessageNotificationType.Warning
         case -1004, -1005:
             errorTitle = "Server Offline"
             errorMessage = "The connection to the server is currently unavailable."

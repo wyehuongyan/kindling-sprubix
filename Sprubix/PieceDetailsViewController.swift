@@ -130,7 +130,7 @@ class PieceDetailsViewController: UICollectionViewController, UICollectionViewDe
         var childrenCount = self.navigationController!.viewControllers.count
         var prevChild: AnyObject = self.navigationController!.viewControllers[childrenCount-2]
         
-        if prevChild.isKindOfClass(OutfitDetailsViewController) || prevChild.isKindOfClass(NotificationViewController) || prevChild.isKindOfClass(CartViewController) {
+        if prevChild.isKindOfClass(OutfitDetailsViewController) || prevChild.isKindOfClass(NotificationViewController) || prevChild.isKindOfClass(CartViewController) || prevChild.isKindOfClass(PeopleFeedViewController) {
             //println("this is how we roll")
             self.navigationController!.delegate = nil
             

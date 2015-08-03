@@ -145,7 +145,7 @@ class EditProfileSnapPhotoViewController: UIViewController, SprubixCameraDelegat
         
         toggleFrontCamera = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
         toggleFrontCamera.frame = CGRectMake(cameraCapture.frame.origin.x / 2 - toggleFrontCameraButtonWidth / 2, cameraCapture.frame.origin.y + (cameraCapture.frame.height / 2 - toggleFrontCameraButtonWidth / 2), toggleFrontCameraButtonWidth, toggleFrontCameraButtonWidth)
-        image = UIImage(named: "camera-roll")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
+        image = UIImage(named: "camera-switch")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
         toggleFrontCamera.setImage(image, forState: UIControlState.Normal)
         toggleFrontCamera.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
         toggleFrontCamera.imageView?.tintColor = UIColor.lightGrayColor()
@@ -157,7 +157,7 @@ class EditProfileSnapPhotoViewController: UIViewController, SprubixCameraDelegat
         // retake photo button
         retakePhoto = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
         retakePhoto.frame = toggleFrontCamera.frame
-        image = UIImage(named: "filter-cross")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
+        image = UIImage(named: "snapshot-retake")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
         retakePhoto.setImage(image, forState: UIControlState.Normal)
         retakePhoto.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
         retakePhoto.imageView?.tintColor = UIColor.lightGrayColor()

@@ -16,22 +16,20 @@ import Crashlytics
 
 class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataSetDelegate, UICollectionViewDataSource, OutfitInteractionProtocol, CHTCollectionViewDelegateWaterfallLayout, TransitionProtocol {
     var delegate: SidePanelViewControllerDelegate?
-    
-    let mainFeedCellIdentifier = "MainFeedCell"
-    var mainCollectionView: UICollectionView!
-    
     var outfits: [NSDictionary] = [NSDictionary]()
     var outfitsLiked: NSMutableDictionary = NSMutableDictionary()
+    
+    let cellInfoViewHeight: CGFloat = 80
+    let mainFeedCellIdentifier = "MainFeedCell"
+    var mainCollectionView: UICollectionView!
     var outfitsLayout: SprubixStretchyHeader!
     
-    var refreshControl: UIRefreshControl!
     var createOutfitButton: UIButton!
     var lastContentOffset:CGFloat = 0
     var lastNavOffset:CGFloat = 0
     
+    var refreshControl: UIRefreshControl!
     var activityView: UIActivityIndicatorView!
-    
-    let cellInfoViewHeight: CGFloat = 80
     
     var spruceViewController: SpruceViewController?
     var commentsViewController: CommentsViewController?
@@ -243,6 +241,10 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         let userId:Int? = defaults.objectForKey("userId") as? Int
         
         if userId != nil {
+            if outfits.count <= 0 {
+                activityView.startAnimating()
+            }
+            
             // retrieve 3 example pieces
             manager.POST(SprubixConfig.URL.api + "/user/\(userId!)/outfits/following",
                 parameters: nil,
@@ -258,6 +260,7 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
                         self.mainCollectionView.emptyDataSetDelegate = nil
                     }
                     
+                    self.activityView.stopAnimating()
                     self.refreshControl.endRefreshing()
                     self.mainCollectionView.infiniteScrollingView.stopAnimating()
                     self.mainCollectionView.reloadData()
@@ -276,6 +279,7 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
                 failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                     println("Error: " + error.localizedDescription)
                     
+                    self.activityView.stopAnimating()
                     self.refreshControl.endRefreshing()
                     self.mainCollectionView.infiniteScrollingView.stopAnimating()
                     
@@ -1003,7 +1007,7 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
             browseFeedController!.delegate = containerViewController
         }
         
-        UIView.transitionWithView(self.navigationController!.view, duration: 0.5, options: UIViewAnimationOptions.TransitionCrossDissolve, animations: {
+        UIView.transitionWithView(self.navigationController!.view, duration: 0.3, options: UIViewAnimationOptions.TransitionCrossDissolve, animations: {
             self.navigationController?.pushViewController(browseFeedController!, animated: false)
         }, completion: nil)
         
@@ -1017,7 +1021,7 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
             peopleFeedController!.delegate = containerViewController
         }
         
-        UIView.transitionWithView(self.navigationController!.view, duration: 0.5, options: UIViewAnimationOptions.TransitionCrossDissolve, animations: {
+        UIView.transitionWithView(self.navigationController!.view, duration: 0.3, options: UIViewAnimationOptions.TransitionCrossDissolve, animations: {
             self.navigationController?.pushViewController(peopleFeedController!, animated: false)
             }, completion: nil)
         
