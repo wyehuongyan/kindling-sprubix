@@ -26,14 +26,14 @@
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="mEw-OZ-Fua" id="1ma-Mt-jed">
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="icon-placeholder.png" translatesAutoresizingMaskIntoConstraints="NO" id="6LN-dS-mKK">
+                                                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="6LN-dS-mKK">
                                                     <rect key="frame" x="550" y="10" width="40" height="40"/>
                                                     <constraints>
                                                         <constraint firstAttribute="height" priority="999" constant="40" id="1ga-gt-isy"/>
                                                         <constraint firstAttribute="width" priority="999" constant="40" id="WWy-zU-kcP"/>
                                                     </constraints>
                                                 </imageView>
-                                                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="icon-placeholder.png" translatesAutoresizingMaskIntoConstraints="NO" id="hXG-5r-221">
+                                                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="hXG-5r-221">
                                                     <rect key="frame" x="10" y="10" width="40" height="40"/>
                                                     <constraints>
                                                         <constraint firstAttribute="height" constant="40" id="7To-jc-Tj1"/>
@@ -218,7 +218,4 @@
             <point key="canvasLocation" x="1089" y="-631"/>
         </scene>
     </scenes>
-    <resources>
-        <image name="icon-placeholder.png" width="64" height="64"/>
-    </resources>
 </document>

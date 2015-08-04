@@ -43,9 +43,11 @@ class MainFeedCell: UICollectionViewCell, TransitionWaterfallGridViewProtocol {
     var spruceButton: UIButton!
     var likeButton: UIButton!
     var commentsButton: UIButton!
+    var cartIconButton: UIButton!
     
     var liked: Bool?
     var outfitId: Int!
+    var purchasable: Bool?
     
     let padding: CGFloat = 5
     var likeImageView:UIImageView!
@@ -170,10 +172,25 @@ class MainFeedCell: UICollectionViewCell, TransitionWaterfallGridViewProtocol {
         var infoViewBottom: UIView = UIView(frame: CGRectMake(0, infoView.frame.size.height / 2, frame.size.width, infoView.frame.size.height / 2))
         infoViewBottom.backgroundColor = sprubixLightGray
         
-        // like button
+        // purchasable icon
         let likeButtonWidth = frame.size.width / 6
+        cartIconButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+        var image = UIImage(named: "sidemenu-cart")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
+        
+        cartIconButton.setImage(image, forState: UIControlState.Normal)
+        cartIconButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+        cartIconButton.imageView?.tintColor = sprubixColor
+        cartIconButton.backgroundColor = sprubixLightGray
+        cartIconButton.frame = CGRectMake(3 * likeButtonWidth, 0, likeButtonWidth, infoViewBottom.frame.size.height)
+        cartIconButton.imageEdgeInsets = UIEdgeInsetsMake(5, 5, 5, 5)
+
+        if purchasable != nil && purchasable! {
+            infoViewBottom.addSubview(cartIconButton)
+        }
+        
+        // like button
         likeButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
-        var image = UIImage(named: "main-like")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
+        image = UIImage(named: "main-like")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
         
         likeButton.setImage(image, forState: UIControlState.Normal)
         likeButton.setImage(UIImage(named: "main-like-filled"), forState: UIControlState.Selected)

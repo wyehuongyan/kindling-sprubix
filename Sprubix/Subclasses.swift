@@ -355,7 +355,15 @@ class SprubixReachability {
         var automatic: NSTimeInterval = 0
         
         // warning message
-        TSMessage.showNotificationInViewController(                        TSMessage.defaultViewController(), title: errorTitle, subtitle: errorMessage, image: nil, type: notificationType, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: false)
+        TSMessage.showNotificationInViewController(                        TSMessage.defaultViewController(), title: errorTitle, subtitle: errorMessage, image: nil, type: notificationType, duration: automatic, callback: {
+                // logged out, show sign in vc again
+                if code == -1011 {
+                    let signInVC = UIStoryboard(name: "Auth", bundle: nil).instantiateViewControllerWithIdentifier("SignInNav") as! UIViewController
+                
+                    containerViewController.presentViewController(signInVC, animated: true, completion: nil)
+                }
+            
+            }, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: false)
     }
 }
 

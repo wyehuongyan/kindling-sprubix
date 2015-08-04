@@ -204,7 +204,7 @@
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="btn-zd-QBs" id="bjM-Cs-BdS">
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="icon-placeholder.png" translatesAutoresizingMaskIntoConstraints="NO" id="Hhs-Fs-ye8">
+                                                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="Hhs-Fs-ye8">
                                                     <rect key="frame" x="10" y="10" width="40" height="40"/>
                                                     <constraints>
                                                         <constraint firstAttribute="width" priority="999" constant="40" id="E75-4f-6Si"/>
@@ -347,7 +347,6 @@
         </scene>
     </scenes>
     <resources>
-        <image name="icon-placeholder.png" width="64" height="64"/>
         <image name="main-comments" width="40" height="40"/>
         <image name="main-hamburger" width="40" height="40"/>
         <image name="main-like" width="40" height="40"/>

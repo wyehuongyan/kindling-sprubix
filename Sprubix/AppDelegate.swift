@@ -94,8 +94,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         var activeController:UIViewController = self.window!.rootViewController!
         
-        println("The current activeController is \(activeController)")
-        
         if activeController.isKindOfClass(UINavigationController) {
             println("This active controller is a UINavigationController")
             activeController = (activeController as! UINavigationController).visibleViewController
@@ -132,6 +130,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
                     } else {
                         self.window!.makeKeyAndVisible()
+                        
+                        println("The current activeController is \(activeController)")
+                        
                         activeController.presentViewController(signInVC, animated: true, completion: nil)
                         
                     }

@@ -496,6 +496,7 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         var outfitId = outfit["id"] as! Int
         cell.itemIdentifier = "outfit_\(outfitId)"
         cell.outfitId = outfitId
+        cell.purchasable = outfit["purchasable"] as? Bool
         
         // assign image
         var outfitImagesString = outfit["images"] as! NSString
