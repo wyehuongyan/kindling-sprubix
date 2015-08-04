@@ -605,8 +605,7 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
             
             if userId != nil {
                 self.currentProfileState = .Outfits
-                //self.showEmptyDataSet()
-                self.hideEmptyDataSet()
+                self.showEmptyDataSet()
                 activityView.startAnimating()
                 
                 manager.GET(SprubixConfig.URL.api + "/user/\(userId!)/outfits",
@@ -622,7 +621,7 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
                             
                             if self.outfits.count > 0 {
                                 //self.outfitsLoaded = true
-                                //self.hideEmptyDataSet()
+                                self.hideEmptyDataSet()
                                 self.profileCollectionView.reloadData()
                                 
                                 // set layout
@@ -659,8 +658,7 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
             
             if userId != nil {
                 self.currentProfileState = .Pieces
-                //self.showEmptyDataSet()
-                self.hideEmptyDataSet()
+                self.showEmptyDataSet()
                 activityView.startAnimating()
                 
                 manager.GET(SprubixConfig.URL.api + "/user/\(userId!)/pieces",
@@ -676,7 +674,7 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
                             
                             if self.pieces.count > 0 {
                                 //self.piecesLoaded = true
-                                //self.hideEmptyDataSet()
+                                self.hideEmptyDataSet()
                                 self.profileCollectionView.reloadData()
                                 
                                 // set layout
@@ -712,8 +710,7 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
             
             if userId != nil {
                 self.currentProfileState = .Community
-                //self.showEmptyDataSet()
-                self.hideEmptyDataSet()
+                self.showEmptyDataSet()
                 activityView.startAnimating()
                 
                 manager.GET(SprubixConfig.URL.api + "/user/\(userId!)/outfits/community",
@@ -729,7 +726,7 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
                             
                             if self.communityOutfits.count > 0 {
                                 //self.communityLoaded = true
-                                //self.hideEmptyDataSet()
+                                self.hideEmptyDataSet()
                                 self.profileCollectionView.reloadData()
                                 
                                 // set layout
