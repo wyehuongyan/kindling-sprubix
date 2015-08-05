@@ -433,11 +433,13 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
         if targetUserId != nil && targetUserId != userId {
             manager.POST(SprubixConfig.URL.api + "/user/followed",
                 parameters: [
-                    "id": userId!
+                    "id": targetUserId!
                 ],
                 success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
                     
                     self.alreadyFollowed = responseObject["already_followed"] as? Bool
+                    
+                    println(responseObject)
                     
                     if self.alreadyFollowed != nil {
                         if self.alreadyFollowed == true {

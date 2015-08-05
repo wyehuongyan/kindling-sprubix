@@ -97,6 +97,7 @@ class PeopleFeedCell: UITableViewCell {
         followButton.imageEdgeInsets = UIEdgeInsetsMake(10, 0, 10, 0)
         followButton.addTarget(self, action: "followTapped:", forControlEvents: UIControlEvents.TouchUpInside)
         followButton.exclusiveTouch = true
+        followButton.alpha = 0.0
         
         followButton.layer.cornerRadius = userNameLabelHeight
         followButton.layer.borderWidth = 1.0
@@ -177,14 +178,22 @@ class PeopleFeedCell: UITableViewCell {
         }
         
         // set follow button
-        followButton.selected = followed
+        let userId:Int? = defaults.objectForKey("userId") as? Int
         
-        if followButton.selected {
-            followButton.backgroundColor = sprubixColor
-            followButton.imageView?.tintColor = UIColor.whiteColor()
+        if user["id"] as? Int != userId {
+            followButton.selected = followed
+            
+            if followButton.selected {
+                followButton.backgroundColor = sprubixColor
+                followButton.imageView?.tintColor = UIColor.whiteColor()
+            } else {
+                followButton.backgroundColor = UIColor.whiteColor()
+                followButton.imageView?.tintColor = sprubixColor
+            }
+            
+            followButton.alpha = 1.0
         } else {
-            followButton.backgroundColor = UIColor.whiteColor()
-            followButton.imageView?.tintColor = sprubixColor
+            followButton.alpha = 0.0
         }
     }
     
