@@ -71,9 +71,71 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
         } else {
             // follow user
             if alreadyFollowed != true {
-                println("follow user")
+                self.followUserButton.setTitle("Unfollow", forState: UIControlState.Normal)
+                
+                manager.POST(SprubixConfig.URL.api + "/user/follow",
+                    parameters: [
+                        "follow_user_id": user!["id"] as! Int
+                    ],
+                    success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                        
+                        var status = responseObject["status"] as! String
+                        
+                        if status == "200" {
+                            //println("followed")
+                            
+                        } else if status == "500" {
+                            //println("error in following user")
+                            
+                            self.followUserButton.setTitle("Follow", forState: UIControlState.Normal)
+                        }
+                    },
+                    failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                        println("Error: " + error.localizedDescription)
+                        
+                        self.followUserButton.setTitle("Follow", forState: UIControlState.Normal)
+                })
             } else {
-                println("unfollow user")
+                // unfollow user
+                
+                let username = user!["username"] as! String
+                
+                var alert = UIAlertController(title: "Stop following \(username)?", message: nil, preferredStyle: UIAlertControllerStyle.ActionSheet)
+                alert.view.tintColor = sprubixColor
+                
+                // Yes
+                alert.addAction(UIAlertAction(title: "Unfollow", style: UIAlertActionStyle.Destructive, handler: { action in
+                    
+                    self.followUserButton.setTitle("Follow", forState: UIControlState.Normal)
+                    
+                    manager.POST(SprubixConfig.URL.api + "/user/unfollow",
+                        parameters: [
+                            "unfollow_user_id": self.user!["id"] as! Int
+                        ],
+                        success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                            
+                            var status = responseObject["status"] as! String
+                            
+                            if status == "200" {
+                                //println("unfollowed")
+                                
+                            } else if status == "500" {
+                                //println("error in unfollowing user")
+                                
+                                self.followUserButton.setTitle("UnFollow", forState: UIControlState.Normal)
+                            }
+                        },
+                        failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                            println("Error: " + error.localizedDescription)
+                            
+                            self.followUserButton.setTitle("UnFollow", forState: UIControlState.Normal)
+                    })
+                }))
+                
+                // No
+                alert.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Cancel, handler: nil))
+                
+                self.presentViewController(alert, animated: true, completion: nil)
             }
         }
     }

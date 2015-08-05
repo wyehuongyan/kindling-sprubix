@@ -11,8 +11,8 @@ import UIKit
 protocol PeopleInteractionProtocol {
     func showProfile(user: NSDictionary)
     func showPieceDetails(piece: NSDictionary)
-    func followUser(user: NSDictionary)
-    func unfollowUser(user: NSDictionary)
+    func followUser(user: NSDictionary, sender: UIButton)
+    func unfollowUser(user: NSDictionary, sender: UIButton)
 }
 
 class PeopleFeedCell: UITableViewCell {
@@ -23,6 +23,7 @@ class PeopleFeedCell: UITableViewCell {
     
     var pieces: [NSDictionary]!
     var user: NSDictionary!
+    var followed: Bool!
     
     var userImageView: UIImageView!
     var userRealNameLabel: UILabel!
@@ -90,6 +91,7 @@ class PeopleFeedCell: UITableViewCell {
 
         var image: UIImage = UIImage(named: "main-people")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
         followButton.setImage(image, forState: UIControlState.Normal)
+        followButton.setImage(UIImage(named: "filter-check"), forState: UIControlState.Selected)
         followButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
         followButton.imageView?.tintColor = sprubixColor
         followButton.imageEdgeInsets = UIEdgeInsetsMake(10, 0, 10, 0)
@@ -173,6 +175,17 @@ class PeopleFeedCell: UITableViewCell {
             itemPreviewImageView.addGestureRecognizer(goToPieceDetailsGestureRecognizer)
             
         }
+        
+        // set follow button
+        followButton.selected = followed
+        
+        if followButton.selected {
+            followButton.backgroundColor = sprubixColor
+            followButton.imageView?.tintColor = UIColor.whiteColor()
+        } else {
+            followButton.backgroundColor = UIColor.whiteColor()
+            followButton.imageView?.tintColor = sprubixColor
+        }
     }
     
     func followTapped(sender: UIButton) {
@@ -183,13 +196,13 @@ class PeopleFeedCell: UITableViewCell {
             sender.imageView?.tintColor = UIColor.whiteColor()
             
             // follow
-            delegate?.followUser(user)
+            delegate?.followUser(user, sender: sender)
             
         } else {
             sender.backgroundColor = UIColor.whiteColor()
             sender.imageView?.tintColor = sprubixColor
             
-            delegate?.unfollowUser(user)
+            delegate?.unfollowUser(user, sender: sender)
         }
     }
     

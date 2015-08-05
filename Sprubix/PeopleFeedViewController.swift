@@ -307,6 +307,7 @@ class PeopleFeedViewController: UIViewController, DZNEmptyDataSetSource, DZNEmpt
         cell.userImageView.setImageWithURL(NSURL(string: userImageString))
         cell.userRealNameLabel.text = person["name"] as? String
         cell.user = person
+        cell.followed = person["followed"] as! Bool
 
         cell.delegate = self
         
@@ -342,12 +343,58 @@ class PeopleFeedViewController: UIViewController, DZNEmptyDataSetSource, DZNEmpt
     }
     
     // PeopleInteractionProtocol
-    func followUser(user: NSDictionary) {
-        println("followed")
+    func followUser(user: NSDictionary, sender: UIButton) {
+        manager.POST(SprubixConfig.URL.api + "/user/follow",
+            parameters: [
+                "follow_user_id": user["id"] as! Int
+            ],
+            success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                
+                var status = responseObject["status"] as! String
+                
+                if status == "200" {
+                    //println("followed")
+                    
+                } else if status == "500" {
+                    //println("error in following user")
+                    
+                    sender.backgroundColor = UIColor.whiteColor()
+                    sender.imageView?.tintColor = sprubixColor
+                }
+            },
+            failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                println("Error: " + error.localizedDescription)
+                
+                sender.backgroundColor = UIColor.whiteColor()
+                sender.imageView?.tintColor = sprubixColor
+        })
     }
     
-    func unfollowUser(user: NSDictionary) {
-        println("unfollowed")
+    func unfollowUser(user: NSDictionary, sender: UIButton) {
+        manager.POST(SprubixConfig.URL.api + "/user/unfollow",
+            parameters: [
+                "unfollow_user_id": user["id"] as! Int
+            ],
+            success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                
+                var status = responseObject["status"] as! String
+                
+                if status == "200" {
+                    //println("unfollowed")
+                    
+                } else if status == "500" {
+                    //println("error in unfollowing user")
+                    
+                    sender.backgroundColor = sprubixColor
+                    sender.imageView?.tintColor = UIColor.whiteColor()
+                }
+            },
+            failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                println("Error: " + error.localizedDescription)
+                
+                sender.backgroundColor = sprubixColor
+                sender.imageView?.tintColor = UIColor.whiteColor()
+        })
     }
     
     func showProfile(user: NSDictionary) {
