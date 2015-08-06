@@ -73,7 +73,7 @@ class EditProfileViewController: UITableViewController, UITextViewDelegate, UIIm
             let userThumbnailURL = NSURL(string: userData!["image"] as! String)
             let userCoverURL = NSURL(string: userData!["cover"] as! String)
             let userName = userData!["name"] as! String
-            let userDescription = userData!["description"] as! String
+            let userDescription = userData!["description"] as? String
             
             // Set profile image
             profileImage.setImageWithURL(userThumbnailURL)
@@ -107,7 +107,11 @@ class EditProfileViewController: UITableViewController, UITextViewDelegate, UIIm
             profileDescription.textContainer.maximumNumberOfLines = 3
             
             if (userDescription != "") {
-                profileDescription.text = userDescription
+                var userDescriptionData: NSData = userDescription!.dataUsingEncoding(NSUTF8StringEncoding)!
+                
+                var userDescriptionDict: NSDictionary = NSJSONSerialization.JSONObjectWithData(userDescriptionData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSDictionary
+                
+                profileDescription.text = userDescriptionDict["description"] as? String
             } else {
                 profileDescription.text = profileDescriptionDefault
             }

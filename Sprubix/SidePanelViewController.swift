@@ -19,6 +19,7 @@ protocol SidePanelViewControllerDelegate {
     func showInventory()
     func showCart()
     func showOrders()
+    func showRefunds()
     func showDeliveryOptions()
 }
 
@@ -51,10 +52,10 @@ class SidePanelViewController: UIViewController, UITableViewDataSource, UITableV
             let userThumbnailURL = NSURL(string: userData!["image"] as! String)
             
             profileImage.setImageWithURL(userThumbnailURL)
-            let profileImageLength:CGFloat = 100
+            let profileImageLength:CGFloat = 90
             
             // 30 is the sprubixfeed offset of 60 divided by 2. 50 is arbitary value, but should convert to constraint
-            profileImage.frame = CGRect(x: (view.bounds.width / 2) - (profileImageLength / 2) + 30, y: 30, width: profileImageLength, height: profileImageLength)
+            profileImage.frame = CGRect(x: (view.bounds.width / 2) - (profileImageLength / 2) + 30, y: 25, width: profileImageLength, height: profileImageLength)
             
             // circle mask
             profileImage.layer.cornerRadius = profileImage.frame.size.width / 2
@@ -65,7 +66,7 @@ class SidePanelViewController: UIViewController, UITableViewDataSource, UITableV
             
             // create username UILabel
             let profileNameLength:CGFloat = 200
-            profileName.frame = CGRect(x: (view.bounds.width / 2) - (profileNameLength / 2) + 30, y: profileImage.center.y + 60, width: profileNameLength, height: 21)
+            profileName.frame = CGRect(x: (view.bounds.width / 2) - (profileNameLength / 2) + 30, y: profileImage.center.y + 50, width: profileNameLength, height: 21)
             //profileName.font = UIFont(name: profileName.font.fontName, size: 17)
             profileName.textColor = UIColor.darkGrayColor()
             profileName.text = userData!["username"] as? String
@@ -197,6 +198,9 @@ class SidePanelViewController: UIViewController, UITableViewDataSource, UITableV
                 "Tab": "Active"
             ])
             // Mixpanel - End
+            break
+        case .Refunds:
+            delegate?.showRefunds()
             break
         case .DeliveryOptions:
             delegate?.showDeliveryOptions()

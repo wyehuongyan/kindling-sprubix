@@ -194,6 +194,10 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
         sprubixNavigationController.pushViewController(ordersViewController!, animated: true)
     }
     
+    func showRefunds() {
+        println("Show refunds")
+    }
+    
     func showCart() {
         cartViewController = UIStoryboard.cartViewController()
         cartViewController!.delegate = self
@@ -314,11 +318,13 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
             }, completion: completion)
     }
     
-    func showShadowForSprubixFeedController(shouldShowShadow: Bool) {
-        if shouldShowShadow {
-            sprubixNavigationController.view.layer.shadowOpacity = 0.8
-        } else {
-            sprubixNavigationController.view.layer.shadowOpacity = 0.0
+    func showShadowForSidePanelController(shouldShowShadow: Bool) {
+        if sidePanelViewController != nil {
+            if shouldShowShadow {
+                sidePanelViewController!.view.layer.shadowOpacity = 0.8
+            } else {
+                sidePanelViewController!.view.layer.shadowOpacity = 0.0
+            }
         }
     }
     
@@ -338,7 +344,7 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
                         addDarkenedOverlay()
                     }
                     
-                    //showShadowForSprubixFeedController(true)
+                    showShadowForSidePanelController(true)
                 }
             case .Changed:
                 if (gestureIsDraggingFromLeftToRight || currentState == .SidePanelExpanded) {

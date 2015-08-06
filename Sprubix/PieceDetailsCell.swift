@@ -24,6 +24,9 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
     
     var parentOutfitId: Int? // to detect if this piece was accessed from an outfit
     
+    var currentPage: Int?
+    var lastPage: Int?
+    
     var piece: NSDictionary!
     var user: NSDictionary!
     var inspiredBy: NSDictionary!
@@ -118,6 +121,8 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
             numTotalComments = 0
         }
         
+        currentPage = 0
+        lastPage = 0
         numTotalLikes = 0
     }
     
@@ -143,6 +148,11 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         
         singlePieceCollectionView.dataSource = self;
         singlePieceCollectionView.delegate = self;
+        
+        // infinite scrolling
+        singlePieceCollectionView.addInfiniteScrollingWithActionHandler({
+            self.insertMoreOutfits()
+        })
         
         addSubview(singlePieceCollectionView)
         
@@ -475,7 +485,7 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
                 // add info into buyPieceInfo
                 buyPieceInfo = NSMutableDictionary()
                 buyPieceInfo?.setObject(piece["id"] as! Int, forKey: "piece_id")
-                buyPieceInfo?.setObject(user["id"] as! Int, forKey: "seller_id")
+                buyPieceInfo?.setObject(piece["user_id"] as! Int, forKey: "seller_id")
                 
                 if parentOutfitId != nil {
                     // this piece was accessed via an outfit
@@ -648,12 +658,40 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         manager.GET(SprubixConfig.URL.api + "/piece/\(pieceId)/outfits",
             parameters: nil,
             success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                self.currentPage = responseObject["current_page"] as? Int
+                self.lastPage = responseObject["last_page"] as? Int
                 self.outfits = responseObject["data"] as! [NSDictionary]
                 self.singlePieceCollectionView.reloadData()
             },
             failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                 println("Error: " + error.localizedDescription)
         })
+    }
+    
+    private func insertMoreOutfits() {
+        if currentPage < lastPage {
+            let pieceId:Int = piece["id"] as! Int
+            let nextPage = currentPage! + 1
+            
+            // retrieve outfits using this piece
+            manager.GET(SprubixConfig.URL.api + "/piece/\(pieceId)/outfits?page=\(nextPage)",
+                parameters: nil,
+                success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                    let moreOutfits = responseObject["data"] as! [NSDictionary]
+                    
+                    for moreOutfit in moreOutfits {
+                        self.outfits.append(moreOutfit)
+                        
+                        self.singlePieceCollectionView.insertItemsAtIndexPaths([NSIndexPath(forItem: self.outfits.count - 1, inSection: 0)])
+                    }
+                    
+                    self.currentPage = nextPage
+                    self.singlePieceCollectionView.infiniteScrollingView.stopAnimating()
+                },
+                failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                    println("Error: " + error.localizedDescription)
+            })
+        }
     }
     
     func calculatePageIndicator() {

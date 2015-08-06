@@ -326,7 +326,7 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
                             // add info into buyPieceInfo
                             buyPieceInfo = NSMutableDictionary()
                             buyPieceInfo?.setObject(piece["id"] as! Int, forKey: "piece_id")
-                            buyPieceInfo?.setObject(user["id"] as! Int, forKey: "seller_id")
+                            buyPieceInfo?.setObject(piece["user_id"] as! Int, forKey: "seller_id")
                             
                             // this piece was from this outfit
                             buyPieceInfo?.setObject(outfit["id"] as! Int, forKey: "outfit_id")

@@ -20,12 +20,15 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
     let imagePicker = UIImagePickerController()
     var photoLibraryButton: UIButton!
     
+    let buttonWidth: CGFloat = 80
     var headButton: UIButton!
     var topButton: UIButton!
+    var dressButton: UIButton!
     var bottomButton: UIButton!
     var feetButton: UIButton!
     
     var cameraPreview: UIView!
+    var cameraPreviewSilhouette: UIImageView!
     var handleBarView: UIView!
     var pieceSelectorView: UIView!
     var pieceSelectorlabel: UILabel!
@@ -166,7 +169,6 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
         self.view.addSubview(pieceSelectorlabel)
         
         // create four buttons
-        let buttonWidth: CGFloat = 80
         
         // head
         headButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
@@ -180,13 +182,23 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
         
         // top
         topButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
-        topButton.frame = CGRectMake(screenWidth / 2 - buttonWidth / 2, 0.4 * pieceSelectorView.frame.size.height - buttonWidth / 2, buttonWidth, buttonWidth)
+        topButton.frame = CGRectMake((screenWidth / 2 - buttonWidth / 2) - (0.2 * pieceSelectorView.frame.size.height) / 2, 0.4 * pieceSelectorView.frame.size.height - buttonWidth / 2, buttonWidth, buttonWidth)
         topButton.setImage(UIImage(named: "view-item-cat-top"), forState: UIControlState.Normal)
         topButton.backgroundColor = UIColor.lightGrayColor()
         topButton.layer.cornerRadius = buttonWidth / 2
         topButton.addTarget(self, action: "topPieceSelected:", forControlEvents: UIControlEvents.TouchUpInside)
         
         pieceSelectorView.addSubview(topButton)
+        
+        // dress
+        dressButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+        dressButton.frame = CGRectMake((screenWidth / 2 - buttonWidth / 2) + (0.2 * pieceSelectorView.frame.size.height) / 2, 0.4 * pieceSelectorView.frame.size.height - buttonWidth / 2, buttonWidth, buttonWidth)
+        dressButton.setImage(UIImage(named: "view-item-cat-dress"), forState: UIControlState.Normal)
+        dressButton.backgroundColor = UIColor.lightGrayColor()
+        dressButton.layer.cornerRadius = buttonWidth / 2
+        dressButton.addTarget(self, action: "dressPieceSelected:", forControlEvents: UIControlEvents.TouchUpInside)
+        
+        pieceSelectorView.addSubview(dressButton)
         
         // bottom
         bottomButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
@@ -265,8 +277,14 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
         topButton.selected = false
         topButton.backgroundColor = UIColor.lightGrayColor()
         
+        dressButton.selected = false
+        dressButton.backgroundColor = UIColor.lightGrayColor()
+        
         bottomButton.selected = false
         bottomButton.backgroundColor = UIColor.lightGrayColor()
+        
+        bottomButton.enabled = true
+        feetButton.frame.origin.y = 0.8 * self.pieceSelectorView.frame.size.height - buttonWidth / 2
         
         feetButton.selected = false
         feetButton.backgroundColor = UIColor.lightGrayColor()
@@ -306,6 +324,10 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
         if cameraPreview == nil {
             cameraPreview = UIView(frame: CGRectMake(0, 0, screenWidth, screenWidth / 0.75))
             
+            cameraPreviewSilhouette = UIImageView(frame: cameraPreview.bounds)
+            cameraPreviewSilhouette.contentMode = UIViewContentMode.ScaleAspectFit
+            cameraPreviewSilhouette.alpha = 0.5
+            
             var touch = UITapGestureRecognizer(target:self, action:"manualFocus:")
             cameraPreview.addGestureRecognizer(touch)
             
@@ -315,6 +337,8 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
             self.preview?.videoGravity = AVLayerVideoGravityResizeAspect
             self.preview?.frame = self.cameraPreview.bounds
             self.cameraPreview.layer.addSublayer(self.preview)
+            
+            cameraPreview.addSubview(cameraPreviewSilhouette)
         }
     }
     
@@ -509,12 +533,25 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
         switch currentPiece {
         case "HEAD":
             self.cameraCapture.setImage(UIImage(named: "view-item-cat-head"), forState: UIControlState.Normal)
+            cameraPreviewSilhouette.image = UIImage(named: "silhouette-head")
+            
         case "TOP":
-            self.cameraCapture.setImage(UIImage(named: "view-item-cat-top"), forState: UIControlState.Normal)
+            if dressButton.selected {
+                self.cameraCapture.setImage(UIImage(named: "view-item-cat-dress"), forState: UIControlState.Normal)
+                cameraPreviewSilhouette.image = UIImage(named: "silhouette-dress")
+            } else {
+                self.cameraCapture.setImage(UIImage(named: "view-item-cat-top"), forState: UIControlState.Normal)
+                cameraPreviewSilhouette.image = UIImage(named: "silhouette-top")
+            }
+            
         case "BOTTOM":
             self.cameraCapture.setImage(UIImage(named: "view-item-cat-bot"), forState: UIControlState.Normal)
+            cameraPreviewSilhouette.image = UIImage(named: "silhouette-shorts")
+            
         case "FEET":
             self.cameraCapture.setImage(UIImage(named: "view-item-cat-feet"), forState: UIControlState.Normal)
+            cameraPreviewSilhouette.image = UIImage(named: "silhouette-feet")
+            
         default:
             fatalError("Invalid piece info for setting snapbutton icon")
         }
@@ -573,6 +610,52 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
             sender.selected = true
             selectedCount += 1
             selectedPieces["TOP"] = true
+            
+            // if top is selected and dress is selected, deselect dress
+            if dressButton.selected {
+                dressButton.backgroundColor = UIColor.lightGrayColor()
+                dressButton.selected = false
+                selectedCount -= 1
+            }
+            
+            UIView.animateWithDuration(0.3, delay: 0, usingSpringWithDamping: 0.9, initialSpringVelocity: 0, options: .CurveEaseInOut, animations: {
+                
+                // shift feet icon down to original position
+                self.bottomButton.enabled = true
+                self.feetButton.frame.origin.y = 0.8 * self.pieceSelectorView.frame.size.height - self.buttonWidth / 2
+                
+                }, completion: nil)
+            
+        } else {
+            sender.backgroundColor = UIColor.lightGrayColor()
+            sender.selected = false
+            selectedCount -= 1
+            selectedPieces["TOP"] = false
+        }
+    }
+    
+    func dressPieceSelected(sender: UIButton) {
+        if sender.selected != true {
+            sender.backgroundColor = sprubixColor
+            sender.selected = true
+            selectedCount += 1
+            selectedPieces["TOP"] = true
+            
+            // if dress is selected and top is selected, deselect top
+            if topButton.selected {
+                topButton.backgroundColor = UIColor.lightGrayColor()
+                topButton.selected = false
+                selectedCount -= 1
+            }
+            
+            UIView.animateWithDuration(0.3, delay: 0, usingSpringWithDamping: 0.9, initialSpringVelocity: 0, options: .CurveEaseInOut, animations: {
+                
+                // shift feet icon up to bottom's position
+                self.bottomButton.enabled = false
+                self.feetButton.frame.origin.y = self.bottomButton.frame.origin.y
+                
+                }, completion: nil)
+            
         } else {
             sender.backgroundColor = UIColor.lightGrayColor()
             sender.selected = false

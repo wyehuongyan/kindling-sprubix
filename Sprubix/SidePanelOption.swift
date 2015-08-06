@@ -28,6 +28,7 @@ class SidePanelOption {
         case Inventory
         case Cart
         case Orders
+        case Refunds
         case DeliveryOptions
         
         func toString()->String {
@@ -48,6 +49,8 @@ class SidePanelOption {
                 return "My Cart"
             case .Orders:
                 return "Orders"
+            case .Refunds:
+                return "Refunds"
             case .DeliveryOptions:
                 return "Delivery Options"
             }
@@ -94,6 +97,7 @@ class SidePanelOption {
             SidePanelOption(option: Option.Favorites, image: UIImage(named: "sidemenu-likes")),
             SidePanelOption(option: Option.Cart, image: UIImage(named: "sidemenu-cart")),
             SidePanelOption(option: Option.Orders, image: UIImage(named: "sidemenu-orders")),
+            SidePanelOption(option: Option.Refunds, image: UIImage(named: "sidemenu-inventory")),
             SidePanelOption(option: Option.Settings, image: UIImage(named: "sidemenu-settings"))
         ]
     }
@@ -104,8 +108,9 @@ class SidePanelOption {
             SidePanelOption(option: Option.Activity, image: UIImage(named: "sidemenu-notifications")),
             SidePanelOption(option: Option.CreateOutfit, image: UIImage(named: "sidemenu-create")),
             SidePanelOption(option: Option.Favorites, image: UIImage(named: "sidemenu-likes")),
-            SidePanelOption(option: Option.Inventory, image: UIImage(named: "sidemenu-inventory")),
             SidePanelOption(option: Option.Orders, image: UIImage(named: "sidemenu-orders")),
+            SidePanelOption(option: Option.Refunds, image: UIImage(named: "sidemenu-inventory")),
+            SidePanelOption(option: Option.Inventory, image: UIImage(named: "sidemenu-inventory")),
             SidePanelOption(option: Option.DeliveryOptions, image: UIImage(named: "sidemenu-fulfilment")),
             SidePanelOption(option: Option.Settings, image: UIImage(named: "sidemenu-settings"))
         ]

@@ -438,7 +438,37 @@ class CheckoutViewController: UIViewController, UITableViewDataSource, UITableVi
             // check stock again in case last item has been bought
             verifyStock { (insufficient) -> Void in
                 if insufficient != nil {
+                    self.overlay.dismiss(true)
+                    
                     // stock insufficient
+                    var message = ""
+                    
+                    for var i = 1; i <= insufficient!.count; i++ {
+                        let insufficientItem = insufficient![i - 1]
+                        
+                        var itemName = insufficientItem["cart_item_name"] as! String
+                        var orderedSize = insufficientItem["size_ordered"] as! String
+                        var orderedQuantity = insufficientItem["quantity_ordered"] as! Int
+                        var remainingQuantity = insufficientItem["quantity_left"] as! String
+                        
+                        var itemMessage = "\n\(i). \(itemName) (Size: \(orderedSize), Ordered: \(orderedQuantity), Left: \(remainingQuantity))"
+                        
+                        message += itemMessage
+                    }
+                    
+                    // popup: these items are out of stock
+                    var alert = UIAlertController(title: "Insufficient stock", message: "Sorry, someone else bought these items before we did! \n\(message)", preferredStyle: UIAlertControllerStyle.Alert)
+                    alert.view.tintColor = sprubixColor
+                    
+                    // // choice: go back to cart to edit
+                    alert.addAction(UIAlertAction(title: "Edit My Cart", style: UIAlertActionStyle.Cancel, handler: { action in
+                        
+                        // pop twice
+                        self.navigationController!.popToViewController(self.navigationController?.childViewControllers[self.navigationController!.childViewControllers.count - 3] as! UIViewController, animated: true)
+                    }))
+                    
+                    self.presentViewController(alert, animated: true, completion: nil)
+                    
                 } else {
                     // perform BrainTree transaction
                     self.createTransaction({ (responseObject) -> Void in
@@ -470,6 +500,8 @@ class CheckoutViewController: UIViewController, UITableViewDataSource, UITableVi
                                 "Status": "Fail"
                             ])
                             // Mixpanel - End
+                            
+                            self.overlay.dismiss(true)
                         }
                     })
                 }
@@ -485,14 +517,14 @@ class CheckoutViewController: UIViewController, UITableViewDataSource, UITableVi
         }
     }
     
-    private func verifyStock(completionHandler: ((insufficient : NSDictionary?) -> Void)) {
+    private func verifyStock(completionHandler: ((insufficient : [NSDictionary]?) -> Void)) {
         manager.GET(SprubixConfig.URL.api + "/cart/verify",
             parameters: nil,
             success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
                 
-                var insufficientStock = responseObject["insufficient_stock"] as? NSDictionary
+                var insufficientStocks = responseObject["insufficient_stocks"] as? [NSDictionary]
                 
-                completionHandler(insufficient: insufficientStock)
+                completionHandler(insufficient: insufficientStocks)
             },
             failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                 println("Error: " + error.localizedDescription)
@@ -586,6 +618,8 @@ class CheckoutViewController: UIViewController, UITableViewDataSource, UITableVi
             },
             failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                 println("Error: " + error.localizedDescription)
+                
+                self.overlay.dismiss(true)
         })
     }
 }

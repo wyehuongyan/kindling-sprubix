@@ -43,6 +43,10 @@ class UserProfileHeader: UICollectionReusableView, UIScrollViewDelegate {
     var profileName:UILabel!
     var profileDescription:UILabel!
     
+    var numOutfits: UILabel!
+    var numFollowers: UILabel!
+    var numFollowing: UILabel!
+    
     required init(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -142,11 +146,11 @@ class UserProfileHeader: UICollectionReusableView, UIScrollViewDelegate {
         //let userData:NSDictionary! = defaults.dictionaryForKey("userData")
         //let userThumbnailURL = NSURL(string: user["image"] as NSString)
         
-        profileImage = UIImageView(image: UIImage(named: "person-placeholder.jpg"))
-        let profileImageLength:CGFloat = 100
+        profileImage = UIImageView()
+        let profileImageLength:CGFloat = 90
         
         // 50 is arbitary value, but should convert to constraint
-        profileImage.frame = CGRect(x: (bounds.width / 2) - (profileImageLength / 2), y: 50, width: profileImageLength, height: profileImageLength)
+        profileImage.frame = CGRect(x: (bounds.width / 2) - (profileImageLength / 2), y: 40, width: profileImageLength, height: profileImageLength)
         
         // circle mask
         profileImage.layer.cornerRadius = profileImage.frame.size.width / 2
@@ -159,10 +163,10 @@ class UserProfileHeader: UICollectionReusableView, UIScrollViewDelegate {
         // create real name UILabel
         profileRealName = UILabel()
         let profileNameLength:CGFloat = bounds.width
-        profileRealName.frame = CGRect(x: (bounds.width / 2) - (profileNameLength / 2), y: profileImage.center.y + 50, width: profileNameLength, height: 30)
+        profileRealName.frame = CGRect(x: (bounds.width / 2) - (profileNameLength / 2), y: profileImage.center.y + 45, width: profileNameLength, height: 30)
         profileRealName.text = "realname"
         profileRealName.textColor = UIColor.whiteColor()
-        profileRealName.font = UIFont(name: profileRealName.font.fontName, size: 22)
+        profileRealName.font = UIFont(name: profileRealName.font.fontName, size: 20)
         profileRealName.textAlignment = NSTextAlignment.Center
         profileRealName.layer.shadowOpacity = 0.8;
         profileRealName.layer.shadowRadius = 1.0;
@@ -173,10 +177,10 @@ class UserProfileHeader: UICollectionReusableView, UIScrollViewDelegate {
         
         // create username UILabel
         profileName = UILabel()
-        profileName.frame = CGRect(x: (bounds.width / 2) - (profileNameLength / 2), y: profileImage.center.y + 80, width: profileNameLength, height: 21)
+        profileName.frame = CGRect(x: (bounds.width / 2) - (profileNameLength / 2), y: profileImage.center.y + 70, width: profileNameLength, height: 20)
         profileName.text = "username"
         profileName.textColor = UIColor.whiteColor()
-        profileName.font = UIFont(name: profileName.font.fontName, size: 16)
+        profileName.font = UIFont(name: profileName.font.fontName, size: 14)
         profileName.textAlignment = NSTextAlignment.Center
         profileName.layer.shadowOpacity = 0.8;
         profileName.layer.shadowRadius = 1.0;
@@ -185,6 +189,84 @@ class UserProfileHeader: UICollectionReusableView, UIScrollViewDelegate {
         
         userInfoScrollView.addSubview(profileName)
         
+        // create outfits, followers, following
+        let followInfoViewWidth = screenWidth - 10
+        let followInfoView = UIView(frame: CGRectMake(screenWidth / 2 - followInfoViewWidth / 2, profileImage.center.y + 100, followInfoViewWidth, 40))
+        
+        userInfoScrollView.addSubview(followInfoView)
+        
+        // num outfits
+        numOutfits = UILabel(frame: CGRectMake(0, 0, followInfoViewWidth / 3, 20))
+        numOutfits.text = "0"
+        numOutfits.textColor = UIColor.whiteColor()
+        numOutfits.font = UIFont(name: profileName.font.fontName, size: 18)
+        numOutfits.textAlignment = NSTextAlignment.Center
+        numOutfits.layer.shadowOpacity = 0.8;
+        numOutfits.layer.shadowRadius = 1.0;
+        numOutfits.layer.shadowColor = UIColor.blackColor().CGColor;
+        numOutfits.layer.shadowOffset = CGSizeMake(0.0, 1.0);
+        
+        let numOutfitsText = UILabel(frame: CGRectMake(0, 20, followInfoViewWidth / 3, 20))
+        numOutfitsText.text = "Outfits"
+        numOutfitsText.textColor = UIColor.whiteColor()
+        numOutfitsText.font = UIFont(name: profileName.font.fontName, size: 12)
+        numOutfitsText.textAlignment = NSTextAlignment.Center
+        numOutfitsText.layer.shadowOpacity = 0.8;
+        numOutfitsText.layer.shadowRadius = 1.0;
+        numOutfitsText.layer.shadowColor = UIColor.blackColor().CGColor;
+        numOutfitsText.layer.shadowOffset = CGSizeMake(0.0, 1.0);
+        
+        followInfoView.addSubview(numOutfits)
+        followInfoView.addSubview(numOutfitsText)
+        
+        // num followers
+        numFollowers = UILabel(frame: CGRectMake(followInfoViewWidth / 3, 0, followInfoViewWidth / 3, 20))
+        numFollowers.text = "0"
+        numFollowers.textColor = UIColor.whiteColor()
+        numFollowers.font = UIFont(name: profileName.font.fontName, size: 18)
+        numFollowers.textAlignment = NSTextAlignment.Center
+        numFollowers.layer.shadowOpacity = 0.8;
+        numFollowers.layer.shadowRadius = 1.0;
+        numFollowers.layer.shadowColor = UIColor.blackColor().CGColor;
+        numFollowers.layer.shadowOffset = CGSizeMake(0.0, 1.0);
+        
+        let numFollowersText = UILabel(frame: CGRectMake(followInfoViewWidth / 3, 20, followInfoViewWidth / 3, 20))
+        numFollowersText.text = "Followers"
+        numFollowersText.textColor = UIColor.whiteColor()
+        numFollowersText.font = UIFont(name: profileName.font.fontName, size: 12)
+        numFollowersText.textAlignment = NSTextAlignment.Center
+        numFollowersText.layer.shadowOpacity = 0.8;
+        numFollowersText.layer.shadowRadius = 1.0;
+        numFollowersText.layer.shadowColor = UIColor.blackColor().CGColor;
+        numFollowersText.layer.shadowOffset = CGSizeMake(0.0, 1.0);
+        
+        followInfoView.addSubview(numFollowers)
+        followInfoView.addSubview(numFollowersText)
+        
+        // num following
+        numFollowing = UILabel(frame: CGRectMake(2 * followInfoViewWidth / 3, 0, followInfoViewWidth / 3, 20))
+        numFollowing.text = "0"
+        numFollowing.textColor = UIColor.whiteColor()
+        numFollowing.font = UIFont(name: profileName.font.fontName, size: 18)
+        numFollowing.textAlignment = NSTextAlignment.Center
+        numFollowing.layer.shadowOpacity = 0.8;
+        numFollowing.layer.shadowRadius = 1.0;
+        numFollowing.layer.shadowColor = UIColor.blackColor().CGColor;
+        numFollowing.layer.shadowOffset = CGSizeMake(0.0, 1.0);
+        
+        let numFollowingText = UILabel(frame: CGRectMake(2 * followInfoViewWidth / 3, 20, followInfoViewWidth / 3, 20))
+        numFollowingText.text = "Following"
+        numFollowingText.textColor = UIColor.whiteColor()
+        numFollowingText.font = UIFont(name: profileName.font.fontName, size: 12)
+        numFollowingText.textAlignment = NSTextAlignment.Center
+        numFollowingText.layer.shadowOpacity = 0.8;
+        numFollowingText.layer.shadowRadius = 1.0;
+        numFollowingText.layer.shadowColor = UIColor.blackColor().CGColor;
+        numFollowingText.layer.shadowOffset = CGSizeMake(0.0, 1.0);
+        
+        followInfoView.addSubview(numFollowing)
+        followInfoView.addSubview(numFollowingText)
+        
         // create user description
         profileDescriptionBG = UIView(frame: CGRect(x: 0, y: 0, width: bounds.width * 2, height: bounds.height))
         profileDescriptionBG.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.4)
@@ -192,10 +274,9 @@ class UserProfileHeader: UICollectionReusableView, UIScrollViewDelegate {
         
         profileDescription = UILabel()
         let profileDescriptionLength:CGFloat = bounds.width
-        profileDescription.frame = CGRect(x: ((bounds.width / 2) - (profileDescriptionLength / 2)) + bounds.width, y: 100, width: profileDescriptionLength, height: 21)
-        profileDescription.text = "User Description"
+        profileDescription.frame = CGRect(x: ((bounds.width / 2) - (profileDescriptionLength / 2)) + bounds.width, y: 80, width: profileDescriptionLength, height: 120)
         profileDescription.lineBreakMode = .ByWordWrapping // or NSLineBreakMode.ByWordWrapping
-        profileDescription.numberOfLines = 0
+        profileDescription.numberOfLines = 5
         profileDescription.textColor = UIColor.whiteColor()
         profileDescription.font = UIFont(name: profileDescription.font.fontName, size: 16)
         profileDescription.textAlignment = NSTextAlignment.Center
@@ -205,7 +286,7 @@ class UserProfileHeader: UICollectionReusableView, UIScrollViewDelegate {
         userInfoScrollView.addSubview(profileDescriptionBG)
         
         // create a page control to show paging indicators
-        pageControl = UIPageControl(frame: CGRect(x: 0, y: profileName.center.y + 20, width: bounds.width, height: 21))
+        pageControl = UIPageControl(frame: CGRect(x: 0, y: followInfoView.center.y + 20, width: bounds.width, height: 21))
         pageControl.numberOfPages = userInfoNumPages
         pageControl.currentPage = 0
         pageControl.clipsToBounds = true
@@ -227,7 +308,25 @@ class UserProfileHeader: UICollectionReusableView, UIScrollViewDelegate {
             
             profileRealName.text = name
             profileName.text = "@\(username)"
-            profileDescription.text = user!["description"] as? String
+            
+            var userDescriptionString = user!["description"] as? String
+            
+            if userDescriptionString != nil && userDescriptionString != "" {
+                var userDescriptionData: NSData = userDescriptionString!.dataUsingEncoding(NSUTF8StringEncoding)!
+                
+                var userDescriptionDict: NSDictionary = NSJSONSerialization.JSONObjectWithData(userDescriptionData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSDictionary
+                
+                profileDescription.text = userDescriptionDict["description"] as? String
+            }
+            
+            // follow info
+            let numOutfitsText = user!["num_outfits"] as! Int
+            let numFollowersText = user!["num_followers"] as! Int
+            let numFollowingText = user!["num_following"] as! Int
+            
+            numOutfits.text = "\(numOutfitsText)"
+            numFollowers.text = "\(numFollowersText)"
+            numFollowing.text = "\(numFollowingText)"
         }
     }
     

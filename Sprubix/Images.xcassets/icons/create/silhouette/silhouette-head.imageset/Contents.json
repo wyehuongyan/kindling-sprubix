@@ -1,0 +1,23 @@
+{
+  "images" : [
+    {
+      "idiom" : "universal",
+      "scale" : "1x",
+      "filename" : "camera_mask_hat@1x (deleted fa08d496217a07f7d024088f3ef8baa4).png"
+    },
+    {
+      "idiom" : "universal",
+      "scale" : "2x",
+      "filename" : "camera_mask_hat@2x (deleted e8961cbfcce554bb25569fc174ffc079).png"
+    },
+    {
+      "idiom" : "universal",
+      "scale" : "3x",
+      "filename" : "camera_mask_hat@3x (deleted 5b54ede45a0bf59709ff34d5a6d1b342).png"
+    }
+  ],
+  "info" : {
+    "version" : 1,
+    "author" : "xcode"
+  }
+}
