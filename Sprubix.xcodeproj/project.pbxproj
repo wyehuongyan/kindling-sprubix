@@ -50,6 +50,11 @@
 		845834BF1B6CC834007C6F6B /* EditProfileSnapPhotoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 845834BE1B6CC834007C6F6B /* EditProfileSnapPhotoViewController.swift */; };
 		845834C11B6F5994007C6F6B /* PeopleFeedCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 845834C01B6F5994007C6F6B /* PeopleFeedCell.swift */; };
 		845834C31B6F94CD007C6F6B /* SearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 845834C21B6F94CD007C6F6B /* SearchViewController.swift */; };
+		845834C71B73B8A5007C6F6B /* RefundsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 845834C61B73B8A5007C6F6B /* RefundsViewController.swift */; };
+		845834C91B7486E4007C6F6B /* RefundDetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 845834C81B7486E4007C6F6B /* RefundDetailsViewController.swift */; };
+		845834CC1B749327007C6F6B /* OrderDetailsRefundCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 845834CB1B749327007C6F6B /* OrderDetailsRefundCell.swift */; };
+		845834CF1B74A2AE007C6F6B /* RefundDetailsItemCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 845834CE1B74A2AE007C6F6B /* RefundDetailsItemCell.swift */; };
+		845834D11B74ABE6007C6F6B /* RefundDetailsFooterCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 845834D01B74ABE6007C6F6B /* RefundDetailsFooterCell.swift */; };
 		846027A31B18B17B00A28C78 /* CommentsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846027A21B18B17B00A28C78 /* CommentsViewController.swift */; };
 		846027A51B18B71900A28C78 /* CommentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846027A41B18B71900A28C78 /* CommentCell.swift */; };
 		846C97931ABAB11F0050D0BC /* Subclasses.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846C97921ABAB11F0050D0BC /* Subclasses.swift */; };
@@ -168,6 +173,11 @@
 		845834BE1B6CC834007C6F6B /* EditProfileSnapPhotoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EditProfileSnapPhotoViewController.swift; sourceTree = "<group>"; };
 		845834C01B6F5994007C6F6B /* PeopleFeedCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PeopleFeedCell.swift; sourceTree = "<group>"; };
 		845834C21B6F94CD007C6F6B /* SearchViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchViewController.swift; sourceTree = "<group>"; };
+		845834C61B73B8A5007C6F6B /* RefundsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RefundsViewController.swift; sourceTree = "<group>"; };
+		845834C81B7486E4007C6F6B /* RefundDetailsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RefundDetailsViewController.swift; sourceTree = "<group>"; };
+		845834CB1B749327007C6F6B /* OrderDetailsRefundCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OrderDetailsRefundCell.swift; sourceTree = "<group>"; };
+		845834CE1B74A2AE007C6F6B /* RefundDetailsItemCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RefundDetailsItemCell.swift; sourceTree = "<group>"; };
+		845834D01B74ABE6007C6F6B /* RefundDetailsFooterCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RefundDetailsFooterCell.swift; sourceTree = "<group>"; };
 		846027A21B18B17B00A28C78 /* CommentsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommentsViewController.swift; sourceTree = "<group>"; };
 		846027A41B18B71900A28C78 /* CommentCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommentCell.swift; sourceTree = "<group>"; };
 		846C97921ABAB11F0050D0BC /* Subclasses.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Subclasses.swift; sourceTree = "<group>"; };
@@ -307,6 +317,7 @@
 				8405D05C1B5CB7E700B42752 /* OrderDetailsUserCell.swift */,
 				8405D05E1B5CB83500B42752 /* OrderDetailsContactCell.swift */,
 				8405D0601B5CC7A700B42752 /* OrderDetailsStatusCell.swift */,
+				845834CB1B749327007C6F6B /* OrderDetailsRefundCell.swift */,
 				8405D0641B5F709000B42752 /* CustomerDetailsRecentOrdersCell.swift */,
 			);
 			name = Order;
@@ -377,6 +388,24 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		845834CA1B7486EA007C6F6B /* Refund */ = {
+			isa = PBXGroup;
+			children = (
+				845834C61B73B8A5007C6F6B /* RefundsViewController.swift */,
+				845834C81B7486E4007C6F6B /* RefundDetailsViewController.swift */,
+			);
+			name = Refund;
+			sourceTree = "<group>";
+		};
+		845834CD1B74A29B007C6F6B /* Refund */ = {
+			isa = PBXGroup;
+			children = (
+				845834CE1B74A2AE007C6F6B /* RefundDetailsItemCell.swift */,
+				845834D01B74ABE6007C6F6B /* RefundDetailsFooterCell.swift */,
+			);
+			name = Refund;
+			sourceTree = "<group>";
+		};
 		846C979A1ABD5BCC0050D0BC /* Spruce */ = {
 			isa = PBXGroup;
 			children = (
@@ -444,6 +473,7 @@
 				84C6648F1B3AD7EB00E18FF7 /* DeliveryOptionCell.swift */,
 				8405D05A1B5B612400B42752 /* Checkout */,
 				8405D05B1B5B612B00B42752 /* Order */,
+				845834CD1B74A29B007C6F6B /* Refund */,
 			);
 			name = Shop;
 			sourceTree = "<group>";
@@ -454,6 +484,7 @@
 				848871811B36A140001D60A1 /* InventoryViewController.swift */,
 				84C6648D1B3AB80600E18FF7 /* DeliveryOptionsViewController.swift */,
 				84C664911B3AEA5400E18FF7 /* DeliveryOptionsDetailsViewController.swift */,
+				845834CA1B7486EA007C6F6B /* Refund */,
 				8405D0581B5B60DF00B42752 /* Checkout */,
 				8405D0591B5B610200B42752 /* Order */,
 			);
@@ -820,6 +851,7 @@
 			files = (
 				846027A31B18B17B00A28C78 /* CommentsViewController.swift in Sources */,
 				84B335401AB2BB9E00B9707D /* Transition.swift in Sources */,
+				845834CF1B74A2AE007C6F6B /* RefundDetailsItemCell.swift in Sources */,
 				8488717C1B32D163001D60A1 /* BrowseFeedController.swift in Sources */,
 				8405D0631B5E607500B42752 /* CustomerDetailsViewController.swift in Sources */,
 				84B3353E1AB2BA2000B9707D /* TransitionProtocol.swift in Sources */,
@@ -831,7 +863,9 @@
 				845834BB1B6B2EB0007C6F6B /* EditProfileCropPhotoViewController.swift in Sources */,
 				84B334EC1AAB1F9B00B9707D /* ContainerViewController.swift in Sources */,
 				8475ECFD1B25D4F80000111A /* SettingsViewController.swift in Sources */,
+				845834CC1B749327007C6F6B /* OrderDetailsRefundCell.swift in Sources */,
 				8482B8761B4E65870017CEEF /* PaymentMethodsDetailsViewController.swift in Sources */,
+				845834D11B74ABE6007C6F6B /* RefundDetailsFooterCell.swift in Sources */,
 				8482B8681B47B3FF0017CEEF /* CartItemSectionFooter.swift in Sources */,
 				8405D0511B55481D00B42752 /* CheckoutPointsItemCell.swift in Sources */,
 				052925CF1B578CE400B939F8 /* EditPasswordViewController.swift in Sources */,
@@ -868,6 +902,7 @@
 				84C664981B4290D400E18FF7 /* CartItemCell.swift in Sources */,
 				84ACA1211AE790020084D4CF /* SprubixCamera.swift in Sources */,
 				8405D0671B5F8B6100B42752 /* PeopleFeedViewController.swift in Sources */,
+				845834C71B73B8A5007C6F6B /* RefundsViewController.swift in Sources */,
 				846C97A01ABDA6F00050D0BC /* SprucePieceFeedCell.swift in Sources */,
 				84C664961B4290AC00E18FF7 /* CartViewController.swift in Sources */,
 				846C97931ABAB11F0050D0BC /* Subclasses.swift in Sources */,
@@ -888,6 +923,7 @@
 				84B334E81AAB0C7D00B9707D /* SidePanelOption.swift in Sources */,
 				8405D02F1B4E8E7A00B42752 /* CheckoutViewController.swift in Sources */,
 				8405D0551B5B539000B42752 /* ShopOrdersViewController.swift in Sources */,
+				845834C91B7486E4007C6F6B /* RefundDetailsViewController.swift in Sources */,
 				84B3354A1AB4035A00B9707D /* OutfitDetailsCell.swift in Sources */,
 				8405D03C1B525F5B00B42752 /* CheckoutOrderViewController.swift in Sources */,
 				05F7EDE21B593EA200CB2665 /* ProvideFeedbackViewController.swift in Sources */,

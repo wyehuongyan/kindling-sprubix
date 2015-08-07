@@ -66,10 +66,6 @@ class BrowseFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDat
         refreshControl.addTarget(self, action: "refresh:", forControlEvents: UIControlEvents.ValueChanged)
         discoverCollectionView.insertSubview(refreshControl, atIndex: 0)
         refreshControl.endRefreshing()
-        
-        // empty dataset
-        discoverCollectionView.emptyDataSetSource = self
-        discoverCollectionView.emptyDataSetDelegate = self
     }
     
     override func viewWillAppear(animated: Bool) {
@@ -128,14 +124,18 @@ class BrowseFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDat
         discoverCollectionView.dataSource = self;
         discoverCollectionView.delegate = self;
         
+        // empty dataset
+        discoverCollectionView.emptyDataSetSource = self
+        discoverCollectionView.emptyDataSetDelegate = self
+        
+        view.addSubview(discoverCollectionView)
+        
         // infinite scrolling
         discoverCollectionView.addInfiniteScrollingWithActionHandler({
             if SprubixReachability.isConnectedToNetwork() {
                 self.insertMoreOutfits()
             }
         })
-        
-        view.addSubview(discoverCollectionView)
         
         // here the spinner is initialized
         let activityViewWidth: CGFloat = 50

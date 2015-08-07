@@ -95,10 +95,6 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         
         initButtons()
         initDropdown()
-        
-        // empty dataset
-        mainCollectionView.emptyDataSetSource = self
-        mainCollectionView.emptyDataSetDelegate = self
     }
     
     override func viewWillAppear(animated: Bool) {
@@ -206,14 +202,18 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         mainCollectionView.dataSource = self;
         mainCollectionView.delegate = self;
         
+        // empty dataset
+        mainCollectionView.emptyDataSetSource = self
+        mainCollectionView.emptyDataSetDelegate = self
+        
+        view.addSubview(mainCollectionView)
+        
         // infinite scrolling
         mainCollectionView.addInfiniteScrollingWithActionHandler({
             if SprubixReachability.isConnectedToNetwork() {
                 self.insertMoreOutfits()
             }
         })
-        
-        view.addSubview(mainCollectionView)
         
         // here the spinner is initialized
         let activityViewWidth: CGFloat = 50

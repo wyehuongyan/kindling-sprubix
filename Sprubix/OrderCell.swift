@@ -52,13 +52,13 @@ class OrderCell: UITableViewCell {
             statusImageName = "order-shipping-requested"
             statusTintColor = UIColor.orangeColor()
         case 7:
-            // Request to Cancel
-            statusImageName = "order-cancelled"
-            statusTintColor = UIColor.orangeColor()
-        case 8:
             // Cancelled
             statusImageName = "order-cancelled"
             statusTintColor = UIColor.redColor()
+        case 8:
+            // Request for Refund
+            statusImageName = "order-cancelled"
+            statusTintColor = UIColor.orangeColor()
         default:
             fatalError("Unknown order status in ShopOrderDetailsViewController")
         }

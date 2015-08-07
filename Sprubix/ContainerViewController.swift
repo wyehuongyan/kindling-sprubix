@@ -42,6 +42,7 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
     var deliveryOptionsViewController: DeliveryOptionsViewController?
     var cartViewController: CartViewController?
     var ordersViewController: OrdersViewController?
+    var refundDetailsViewController: RefundDetailsViewController?
     
     var notificationScope = PermissionScope()
     var statusBarHidden = true
@@ -195,7 +196,12 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
     }
     
     func showRefunds() {
-        println("Show refunds")
+        let refundsViewController = RefundsViewController()
+        
+        self.closeSidePanel()
+        
+        sprubixNavigationController.delegate = nil
+        sprubixNavigationController.pushViewController(refundsViewController, animated: true)
     }
     
     func showCart() {
@@ -410,6 +416,10 @@ extension UIStoryboard {
     
     class func shopOrderDetailsViewController() -> ShopOrderDetailsViewController? {
         return shopStoryboard().instantiateViewControllerWithIdentifier("ShopOrderDetailsView") as? ShopOrderDetailsViewController
+    }
+    
+    class func refundDetailsViewController() -> RefundDetailsViewController? {
+        return shopStoryboard().instantiateViewControllerWithIdentifier("RefundDetailsView") as? RefundDetailsViewController
     }
     
     class func customerDetailsViewController() -> CustomerDetailsViewController? {

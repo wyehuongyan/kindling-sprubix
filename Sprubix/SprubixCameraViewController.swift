@@ -648,6 +648,14 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
                 selectedCount -= 1
             }
             
+            // if dress is selected and bottom is selected, deselect bottom
+            if bottomButton.selected {
+                bottomButton.backgroundColor = UIColor.lightGrayColor()
+                bottomButton.selected = false
+                selectedCount -= 1
+                selectedPieces["BOTTOM"] = false
+            }
+            
             UIView.animateWithDuration(0.3, delay: 0, usingSpringWithDamping: 0.9, initialSpringVelocity: 0, options: .CurveEaseInOut, animations: {
                 
                 // shift feet icon up to bottom's position

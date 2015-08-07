@@ -189,7 +189,7 @@ class FavoritesViewController: UIViewController, DZNEmptyDataSetSource, DZNEmpty
         let activityViewWidth: CGFloat = 50
         activityView = UIActivityIndicatorView(activityIndicatorStyle: UIActivityIndicatorViewStyle.White)
         activityView.color = sprubixColor
-        activityView.frame = CGRect(x: screenWidth / 2 - activityViewWidth / 2, y: screenHeight / 2 - activityViewWidth / 2, width: activityViewWidth, height: activityViewWidth)
+        activityView.frame = CGRect(x: screenWidth / 2 - activityViewWidth / 2, y: screenHeight / 3 - activityViewWidth / 2, width: activityViewWidth, height: activityViewWidth)
         
         view.addSubview(activityView)
     }
