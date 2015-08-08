@@ -172,7 +172,7 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         sideMenuButtonItem.tintColor = UIColor(red: 170/255, green: 170/255, blue: 170/255, alpha: 1.0)
         
         var negativeSpacerItem: UIBarButtonItem = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.FixedSpace, target: nil, action: nil)
-        negativeSpacerItem.width = -16
+        negativeSpacerItem.width = -20
         
         self.navigationItem.leftBarButtonItems = [negativeSpacerItem, sideMenuButtonItem]
     }
