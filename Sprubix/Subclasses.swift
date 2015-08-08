@@ -530,6 +530,8 @@ class MixpanelService {
             "Viewed Piece Comments": 0
         ])
         
+        mixpanel.flush()
+        
         println("Mixpanel People created for \(username) with id \(id) & alias \(email) for distinctId \(distinctId)")
     }
     
@@ -546,6 +548,8 @@ class MixpanelService {
                 "User ID": id,
                 "Timestamp": NSDate()
             ])
+            
+            mixpanel.flush()
             
             println("MixpanelService.setup: \(username) identified with \(email)")
         } else {

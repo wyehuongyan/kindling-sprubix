@@ -3,75 +3,71 @@ PODS:
   - AFNetworkActivityLogger (2.0.4):
     - AFNetworking/NSURLConnection (~> 2.0)
     - AFNetworking/NSURLSession (~> 2.0)
-  - AFNetworking (2.5.3):
-    - AFNetworking/NSURLConnection (= 2.5.3)
-    - AFNetworking/NSURLSession (= 2.5.3)
-    - AFNetworking/Reachability (= 2.5.3)
-    - AFNetworking/Security (= 2.5.3)
-    - AFNetworking/Serialization (= 2.5.3)
-    - AFNetworking/UIKit (= 2.5.3)
-  - AFNetworking/NSURLConnection (2.5.3):
+  - AFNetworking (2.5.4):
+    - AFNetworking/NSURLConnection (= 2.5.4)
+    - AFNetworking/NSURLSession (= 2.5.4)
+    - AFNetworking/Reachability (= 2.5.4)
+    - AFNetworking/Security (= 2.5.4)
+    - AFNetworking/Serialization (= 2.5.4)
+    - AFNetworking/UIKit (= 2.5.4)
+  - AFNetworking/NSURLConnection (2.5.4):
     - AFNetworking/Reachability
     - AFNetworking/Security
     - AFNetworking/Serialization
-  - AFNetworking/NSURLSession (2.5.3):
+  - AFNetworking/NSURLSession (2.5.4):
     - AFNetworking/Reachability
     - AFNetworking/Security
     - AFNetworking/Serialization
-  - AFNetworking/Reachability (2.5.3)
-  - AFNetworking/Security (2.5.3)
-  - AFNetworking/Serialization (2.5.3)
-  - AFNetworking/UIKit (2.5.3):
+  - AFNetworking/Reachability (2.5.4)
+  - AFNetworking/Security (2.5.4)
+  - AFNetworking/Serialization (2.5.4)
+  - AFNetworking/UIKit (2.5.4):
     - AFNetworking/NSURLConnection
     - AFNetworking/NSURLSession
   - AMTagListView (0.6.3)
-  - Braintree (3.9.1):
-    - Braintree/API (= 3.9.1)
-    - Braintree/Coinbase (= 3.9.1)
-    - Braintree/Drop-In (= 3.9.1)
-    - Braintree/Payments (= 3.9.1)
-    - Braintree/PayPal (= 3.9.1)
-    - Braintree/UI (= 3.9.1)
-    - Braintree/Venmo (= 3.9.1)
-  - Braintree/API (3.9.1)
-  - Braintree/Coinbase (3.9.1):
+  - Braintree (3.9.2):
+    - Braintree/API (= 3.9.2)
+    - Braintree/Coinbase (= 3.9.2)
+    - Braintree/Drop-In (= 3.9.2)
+    - Braintree/Payments (= 3.9.2)
+    - Braintree/PayPal (= 3.9.2)
+    - Braintree/UI (= 3.9.2)
+    - Braintree/Venmo (= 3.9.2)
+  - Braintree/API (3.9.2)
+  - Braintree/Coinbase (3.9.2):
     - Braintree/API
-    - coinbase-official/OAuth (~> 2.1.1)
-  - Braintree/Drop-In (3.9.1):
+  - Braintree/Drop-In (3.9.2):
     - Braintree/API
     - Braintree/Coinbase
     - Braintree/Payments
     - Braintree/PayPal
     - Braintree/UI
     - Braintree/Venmo
-  - Braintree/Payments (3.9.1):
+  - Braintree/Payments (3.9.2):
     - Braintree/API
     - Braintree/Coinbase
     - Braintree/PayPal
     - Braintree/Venmo
-  - Braintree/PayPal (3.9.1):
+  - Braintree/PayPal (3.9.2):
     - Braintree/API
     - Braintree/UI
-  - Braintree/UI (3.9.1):
+  - Braintree/UI (3.9.2):
     - Braintree/API
-  - Braintree/Venmo (3.9.1):
+  - Braintree/Venmo (3.9.2):
     - Braintree/API
-  - CHTCollectionViewWaterfallLayout (0.8)
-  - coinbase-official/OAuth (2.1.4)
+  - CHTCollectionViewWaterfallLayout (0.9.1)
   - Crashlytics (3.1.0)
   - DZNEmptyDataSet (1.5.2)
   - Fabric (1.2.8):
     - Fabric/Base (= 1.2.8)
   - Fabric/Base (1.2.8)
-  - Firebase (2.2.2)
-  - GPUImage (0.1.6)
-  - HexColors (2.2.1)
+  - Firebase (2.3.3)
+  - GPUImage (0.1.7)
+  - HexColors (2.3.0)
   - KLCPopup (1.0)
-  - Mixpanel (2.8.1):
-    - Mixpanel/Mixpanel (= 2.8.1)
-  - Mixpanel/Mixpanel (2.8.1):
-    - Mixpanel/MPCategoryHelpers
-  - Mixpanel/MPCategoryHelpers (2.8.1)
+  - Mixpanel (2.8.2):
+    - Mixpanel/Mixpanel (= 2.8.2)
+  - Mixpanel/Mixpanel (2.8.2)
   - MLPAutoCompleteTextField (1.5)
   - MRProgress/ActivityIndicator (0.8.2):
     - MRProgress/Stopable
@@ -119,13 +115,13 @@ PODS:
   - MRProgress/ProgressBaseClass (0.8.2)
   - MRProgress/Stopable (0.8.2):
     - MRProgress/Helper
-  - PermissionScope (0.6)
+  - PermissionScope (0.7)
   - SSKeychain (1.2.3)
-  - STTweetLabel (3.1.20)
+  - STTweetLabel (3.1.21)
   - SVPullToRefresh (0.4.1)
-  - TLYShyNavBar (0.9.10)
-  - TSMessages (0.9.12):
-    - HexColors
+  - TLYShyNavBar (0.9.12)
+  - TSMessages (0.9.13):
+    - HexColors (~> 2.3.0)
 
 DEPENDENCIES:
   - ActionSheetPicker-3.0 (~> 1.6.2)
@@ -156,32 +152,31 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   TSMessages:
-    :commit: cbcbd0b397a6f4b167fdce6bc6379b68aa5bff95
+    :commit: 7ef3990de3c626e8f3e50bfabb53f76997e374ce
     :git: https://github.com/KrauseFx/TSMessages.git
 
 SPEC CHECKSUMS:
   ActionSheetPicker-3.0: cc9f90ae785070623e9b972270013c3242190fb0
   AFNetworkActivityLogger: 121486778117d53b3ab1c61d264b88081d0c3eee
-  AFNetworking: e1d86c2a96bb5d2e7408da36149806706ee122fe
+  AFNetworking: 05edc0ac4c4c8cf57bcf4b84be5b0744b6d8e71e
   AMTagListView: 3f95751a6bae491553800447d4f5deba033ca7da
-  Braintree: 1796b67efcf832019d1da1b8a1d779e202e3796f
-  CHTCollectionViewWaterfallLayout: 058823cc65c9d84e059b0a85eede517550da0334
-  coinbase-official: 4ad3ac862840657b4184345eb84af8166ab2b04e
-  Crashlytics: ef9a58a4e806b316a1748c06432f6f847ba09ac6
+  Braintree: 7df7050fd35c19a7e81409b15efe0320b980b3d4
+  CHTCollectionViewWaterfallLayout: 1a8da4fc662702cbddda8926ced266036a829f84
+  Crashlytics: 93e2f86363d53c002c6366a9d87e41f2eaee87c3
   DZNEmptyDataSet: 741da409081a4bf707c949c964623a6ad1799772
   Fabric: a9eabe53915e9f1db55a84dd2838737928675878
-  Firebase: e35cdd2561bf4fea9c1e384e9400a9c173d19e47
-  GPUImage: 4675ce4a5370ca92fcea8623b2a08b8f0c51b940
-  HexColors: abfd172e329dab59888614ccba6f216cec59289d
+  Firebase: 2db60272f68ce40c7d47e5ae6eddc16977c65d4c
+  GPUImage: 733a5f0fab92df9de1c37ba9df520a833ccb406d
+  HexColors: 6ad3947c3447a055a3aa8efa859def096351fe5f
   KLCPopup: 76c5a19227977f1e53d85236f9ef42257c168d98
-  Mixpanel: 93c4825025e6380ced273ed7178496282e385077
+  Mixpanel: f4d71ac2a306e7cda6ad03d4a2be249a0fd7a967
   MLPAutoCompleteTextField: ba4d507bbff2bd4f139d4197814fc8dd39caf77e
   MRProgress: f4cfe862082418e8f542f077772283f425d6c699
-  PermissionScope: 90a0d5261633d2292c02f3d419fbb4a1e1f4f5bf
+  PermissionScope: 1d27791185cca10c26f84d1aab905117dde50f39
   SSKeychain: 3f42991739c6c60a9cf1bbd4dff6c0d3694bcf3d
-  STTweetLabel: 52f443aa81eea297285150e343c0d49284df7dfe
+  STTweetLabel: 842bc86cdf13288414440405757478bd4820e1be
   SVPullToRefresh: ba2e718695a43253d8bea6852d2960097dc15d8c
-  TLYShyNavBar: 297414e49b9f779655cbe128d167f8227a30bae8
-  TSMessages: 2a52642128d7ab15b46930c810b9c9403a2b58f3
+  TLYShyNavBar: c39c12e01861ab87cc6d0d51867845c87d05f39d
+  TSMessages: 8f04ffae3ce56a324731dedd3b8fab3766878db2
 
 COCOAPODS: 0.37.2
