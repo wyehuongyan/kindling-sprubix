@@ -94,7 +94,7 @@ class PeopleFeedCell: UITableViewCell {
         followButton.setImage(UIImage(named: "filter-check"), forState: UIControlState.Selected)
         followButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
         followButton.imageView?.tintColor = sprubixColor
-        followButton.imageEdgeInsets = UIEdgeInsetsMake(5, 0, 7, 1)
+        followButton.imageEdgeInsets = UIEdgeInsetsMake(4, 0, 8, 1)
         followButton.addTarget(self, action: "followTapped:", forControlEvents: UIControlEvents.TouchUpInside)
         followButton.exclusiveTouch = true
         followButton.alpha = 0.0
@@ -190,6 +190,7 @@ class PeopleFeedCell: UITableViewCell {
             } else {
                 followButton.backgroundColor = UIColor.whiteColor()
                 followButton.imageView?.tintColor = sprubixColor
+                followButton.imageEdgeInsets = UIEdgeInsetsMake(4, 0, 8, 1)
             }
             
             followButton.alpha = 1.0
@@ -212,6 +213,7 @@ class PeopleFeedCell: UITableViewCell {
         } else {
             sender.backgroundColor = UIColor.whiteColor()
             sender.imageView?.tintColor = sprubixColor
+            sender.imageEdgeInsets = UIEdgeInsetsMake(4, 0, 8, 1)
             
             delegate?.unfollowUser(user, sender: sender)
         }

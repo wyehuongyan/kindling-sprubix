@@ -144,6 +144,8 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        view.backgroundColor = sprubixGray
+        
         // initialization
         if user != nil {
             initUserProfile()
@@ -195,11 +197,6 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
         profileCollectionView.dataSource = self;
         profileCollectionView.delegate = self;
         
-        // infinite scrolling
-        profileCollectionView.addInfiniteScrollingWithActionHandler({
-            self.insertMoreItems()
-        })
-        
         view.addSubview(profileCollectionView)
         
         // here the spinner is initialized
@@ -245,6 +242,15 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
         
         self.navigationController?.navigationBar.setBackgroundImage(UIImage(), forBarMetrics: UIBarMetrics.Default)
         self.navigationController?.navigationBar.shadowImage = UIImage()
+    }
+    
+    override func viewDidAppear(animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        // infinite scrolling
+        profileCollectionView.addInfiniteScrollingWithActionHandler({
+            self.insertMoreItems()
+        })
     }
     
     override func viewWillDisappear(animated: Bool) {

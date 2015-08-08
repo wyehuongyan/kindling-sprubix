@@ -127,6 +127,17 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         // Mixpanel - End
     }
     
+    override func viewDidAppear(animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        // infinite scrolling
+        mainCollectionView.addInfiniteScrollingWithActionHandler({
+            if SprubixReachability.isConnectedToNetwork() {
+                self.insertMoreOutfits()
+            }
+        })
+    }
+    
     override func viewWillDisappear(animated: Bool) {
         super.viewWillDisappear(animated)
 
@@ -207,13 +218,6 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         mainCollectionView.emptyDataSetDelegate = self
         
         view.addSubview(mainCollectionView)
-        
-        // infinite scrolling
-        mainCollectionView.addInfiniteScrollingWithActionHandler({
-            if SprubixReachability.isConnectedToNetwork() {
-                self.insertMoreOutfits()
-            }
-        })
         
         // here the spinner is initialized
         let activityViewWidth: CGFloat = 50

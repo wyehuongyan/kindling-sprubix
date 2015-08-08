@@ -58,6 +58,15 @@ class SpruceSearchResultsViewController: UIViewController, UICollectionViewDataS
         initNavBar()
     }
     
+    override func viewDidAppear(animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        // infinite scrolling
+        resultsCollectionView.addInfiniteScrollingWithActionHandler({
+            self.insertMorePieces()
+        })
+    }
+    
     func initNavBar() {
         // 1. hide existing nav bar
         self.navigationController?.setNavigationBarHidden(true, animated: true)
@@ -128,11 +137,6 @@ class SpruceSearchResultsViewController: UIViewController, UICollectionViewDataS
         
         resultsCollectionView.dataSource = self;
         resultsCollectionView.delegate = self;
-        
-        // infinite scrolling
-        resultsCollectionView.addInfiniteScrollingWithActionHandler({
-            self.insertMorePieces()
-        })
         
         view.addSubview(resultsCollectionView)
         
