@@ -90,16 +90,64 @@ class SprubixItemCommentRow: UIView {
             // commenter's nickname
             let commentUsernameHeight:CGFloat = 21
             var commentUsername:UILabel = UILabel(frame: CGRect(x: commentImageViewWidth + 28, y: 0, width: screenWidth - (commentImageViewWidth + 28), height: commentUsernameHeight))
-            commentUsername.textColor = tintColor
+            commentUsername.textColor = sprubixColor
             commentUsername.text = username
+            commentUsername.font = UIFont(name: "HelveticaNeue-Medium", size: 15.0)
             
             commentRowView.addSubview(commentUsername)
             
             // comment
-            var comment:UILabel = UILabel()
+            var comment: SprubixTweetLabel = SprubixTweetLabel()
             comment.lineBreakMode = NSLineBreakMode.ByWordWrapping
             comment.numberOfLines = 0
             comment.text = commentString
+            comment.textColor = UIColor.grayColor()
+            comment.font = UIFont.systemFontOfSize(15.0)
+            
+            comment.setAttributes([
+                NSForegroundColorAttributeName: sprubixColor
+                ], hotWord: STTweetHotWord.Handle)
+            comment.detectionBlock = { (hotWord: STTweetHotWord, string: String!, prot: String!, range: NSRange) in
+                
+                let hotWords: NSArray = ["Handle", "Hashtag", "Link"]
+                let hotWordType: String = hotWords[hotWord.hashValue] as! String
+                
+                println("hotWord type: \(hotWordType)")
+                println("string: \(string)")
+                
+                switch hotWordType {
+                case "Handle":
+                    // REST call to server to retrieve user details
+                    manager.POST(SprubixConfig.URL.api + "/users",
+                        parameters: [
+                            "username": string.stringByReplacingOccurrencesOfString("@", withString: "")
+                        ],
+                        success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                            
+                            var data = responseObject["data"] as? NSArray
+                            
+                            if data?.count > 0 {
+                                var user = data![0] as! NSDictionary
+                                
+                                // go to user profile
+                                containerViewController.showUserProfile(user)
+                            } else {
+                                println("Error: User Profile cannot load user.")
+                            }
+                        },
+                        failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                            println("Error: " + error.localizedDescription)
+                    })
+                case "HashTag":
+                    // do a search on this hashtag
+                    println("search hashtag")
+                case "Link":
+                    // webview to this link
+                    println("webview to link")
+                default:
+                    fatalError("Error: Invalid STTweetHotWord type.")
+                }
+            }
             
             let commentHeight = heightForTextLabel(comment.text!, font: comment.font, width: screenWidth - (commentImageViewWidth + 40), hasInsets: false)
             comment.frame = CGRect(x: commentImageViewWidth + 28, y: 18, width: screenWidth - (commentImageViewWidth + 40), height: commentHeight)

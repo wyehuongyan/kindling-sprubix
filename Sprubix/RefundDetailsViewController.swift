@@ -85,6 +85,9 @@ class RefundDetailsViewController: UIViewController, UITableViewDataSource, UITa
                 self.refundButton.enabled = false
                 self.refundButton.frame.origin.y = screenHeight
             
+                // adjust table height
+                self.refundDetailsTableView.frame.size.height = screenHeight - navigationHeight
+            
             }, completion: { finished in
         })
     }
@@ -96,6 +99,9 @@ class RefundDetailsViewController: UIViewController, UITableViewDataSource, UITa
                 self.refundButton.setTitle("Refund $\(refundAmount)", forState: UIControlState.Normal)
                 self.refundButton.enabled = true
                 self.refundButton.frame.origin.y = screenHeight - navigationHeight
+            
+                // adjust table height
+                self.refundDetailsTableView.frame.size.height = screenHeight - 2 * navigationHeight
             
             }, completion: { finished in
         })

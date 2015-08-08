@@ -63,7 +63,7 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
     var priceLabel: UILabel!
     var userThumbnail: UIImageView!
     
-    var pullLabel:UILabel!
+    let pullLabel: UILabel = UILabel()
     
     var outfitImageCell: UITableViewCell!
     var creditsCell: UITableViewCell!
@@ -168,7 +168,7 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
         {
         case 0:
             // uilabel for 'pull down to go back'
-            pullLabel = UILabel(frame: CGRect(x: 0, y: -40, width: screenWidth, height: 30))
+            pullLabel.frame = CGRect(x: 0, y: -40, width: screenWidth, height: 30)
             pullLabel.text = "Pull down to go back"
             pullLabel.textColor = UIColor.lightGrayColor()
             pullLabel.textAlignment = NSTextAlignment.Center

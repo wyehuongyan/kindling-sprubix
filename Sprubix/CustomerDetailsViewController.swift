@@ -20,7 +20,7 @@ class CustomerDetailsViewController: UIViewController, UITableViewDataSource, UI
     let orderCellIdentifier: String = "OrderCell"
     
     var customerId: Int?
-    var customerTotalSpending: String!
+    var customerTotalSpending: String = "0.00"
     
     @IBOutlet var customerDetailsTableView: UITableView!
     
