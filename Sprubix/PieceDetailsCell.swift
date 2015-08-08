@@ -691,6 +691,8 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
                 failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                     println("Error: " + error.localizedDescription)
             })
+        } else {
+            self.singlePieceCollectionView.infiniteScrollingView.stopAnimating()
         }
     }
     

@@ -13,6 +13,9 @@ protocol UserProfileHeaderDelegate {
     func loadUserOutfits()
     func loadUserPieces()
     func loadCommunityOutfits()
+    
+    func showEmptyDataSet()
+    func hideEmptyDataSet()
 }
 
 class UserProfileHeader: UICollectionReusableView, UIScrollViewDelegate {
@@ -353,6 +356,7 @@ class UserProfileHeader: UICollectionReusableView, UIScrollViewDelegate {
             sender.addSubview(buttonLine)
             sender.tintColor = sprubixColor
             
+            delegate?.showEmptyDataSet()
             delegate?.loadUserOutfits()
             
             // Mixpanel - Viewed User Profile, Profile
@@ -373,6 +377,7 @@ class UserProfileHeader: UICollectionReusableView, UIScrollViewDelegate {
             sender.addSubview(buttonLine)
             sender.tintColor = sprubixColor
             
+            delegate?.showEmptyDataSet()
             delegate?.loadUserPieces()
             
             // Mixpanel - Viewed User Profile, Profile
@@ -393,6 +398,7 @@ class UserProfileHeader: UICollectionReusableView, UIScrollViewDelegate {
             sender.addSubview(buttonLine)
             sender.tintColor = sprubixColor
             
+            delegate?.showEmptyDataSet()
             delegate?.loadCommunityOutfits()
             
             // Mixpanel - Viewed User Profile, Profile

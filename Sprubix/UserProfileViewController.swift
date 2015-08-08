@@ -43,6 +43,7 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
     
     let userProfileHeaderHeight:CGFloat = 300;
     var emptyDataTableView: UITableView?
+    var emptyDataView: UIView?
     
     var outfits:[NSDictionary] = [NSDictionary]()
     var pieces:[NSDictionary] = [NSDictionary]()
@@ -50,7 +51,7 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
     
     var profileCollectionView: UICollectionView!
     var currentProfileState: ProfileState = .Outfits
-    var activityView: UIActivityIndicatorView!
+    var activityView: UIActivityIndicatorView?
     
     @IBOutlet var closeUserProfileButton: UIBarButtonItem!
     @IBAction func closeUserProfile(sender: UIBarButtonItem) {
@@ -200,14 +201,6 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
         })
         
         view.addSubview(profileCollectionView)
-        
-        // here the spinner is initialized
-        let activityViewWidth: CGFloat = 50
-        activityView = UIActivityIndicatorView(activityIndicatorStyle: UIActivityIndicatorViewStyle.White)
-        activityView.color = sprubixColor
-        activityView.frame = CGRect(x: screenWidth / 2 - activityViewWidth / 2, y: ((screenHeight - userProfileHeaderHeight) / 3 - activityViewWidth / 2) + userProfileHeaderHeight, width: activityViewWidth, height: activityViewWidth)
-        
-        view.addSubview(activityView)
     }
     
     func initCollectionViewLayouts() {
@@ -459,14 +452,27 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
     }
     
     func showEmptyDataSet() {
-        if emptyDataTableView != nil {
-            emptyDataTableView?.removeFromSuperview()
-        }
+        emptyDataTableView?.removeFromSuperview()
+        emptyDataView?.removeFromSuperview()
+        activityView?.removeFromSuperview()
         
         emptyDataTableView = UITableView(frame: CGRectMake(0, userProfileHeaderHeight, screenWidth, screenHeight - userProfileHeaderHeight))
         
-        profileCollectionView.addSubview(emptyDataTableView!)
+        emptyDataView = UIView(frame: CGRectMake(0, userProfileHeaderHeight + emptyDataTableView!.frame.height, screenWidth, screenHeight))
+        emptyDataView?.backgroundColor = sprubixGray
+        
+        profileCollectionView?.addSubview(emptyDataTableView!)
+        profileCollectionView?.addSubview(emptyDataView!)
 
+        // here the spinner is initialized
+        let activityViewWidth: CGFloat = 50
+        
+        activityView = UIActivityIndicatorView(activityIndicatorStyle: UIActivityIndicatorViewStyle.White)
+        activityView?.color = sprubixColor
+        activityView?.frame = CGRect(x: screenWidth / 2 - activityViewWidth / 2, y: emptyDataTableView!.frame.height / 3 - activityViewWidth / 2, width: activityViewWidth, height: activityViewWidth)
+        
+        emptyDataTableView?.addSubview(activityView!)
+        
         emptyDataTableView?.emptyDataSetDelegate = self
         emptyDataTableView?.emptyDataSetSource = self
         emptyDataTableView?.tableFooterView = UIView()
@@ -474,6 +480,7 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
     
     func hideEmptyDataSet() {
         emptyDataTableView?.removeFromSuperview()
+        emptyDataView?.removeFromSuperview()
     }
     
     // DZNEmptyDataSetSource
@@ -669,8 +676,8 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
             
             if userId != nil {
                 self.currentProfileState = .Outfits
-                self.showEmptyDataSet()
-                activityView.startAnimating()
+                //self.showEmptyDataSet()
+                activityView?.startAnimating()
                 
                 manager.GET(SprubixConfig.URL.api + "/user/\(userId!)/outfits",
                     parameters: nil,
@@ -681,7 +688,7 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
                         if self.currentProfileState == .Outfits {
                             self.currentPage = responseObject["current_page"] as? Int
                             self.lastPage = responseObject["last_page"] as? Int
-                            self.activityView.stopAnimating()
+                            self.activityView?.stopAnimating()
                             
                             if self.outfits.count > 0 {
                                 //self.outfitsLoaded = true
@@ -700,7 +707,7 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
                     failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                         println("Error: " + error.localizedDescription)
                         
-                        self.activityView.stopAnimating()
+                        self.activityView?.stopAnimating()
                         SprubixReachability.handleError(error.code)
                 })
             } else {
@@ -722,8 +729,8 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
             
             if userId != nil {
                 self.currentProfileState = .Pieces
-                self.showEmptyDataSet()
-                activityView.startAnimating()
+                //self.showEmptyDataSet()
+                activityView?.startAnimating()
                 
                 manager.GET(SprubixConfig.URL.api + "/user/\(userId!)/pieces",
                     parameters: nil,
@@ -734,7 +741,7 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
                         if self.currentProfileState == .Pieces {
                             self.currentPage = responseObject["current_page"] as? Int
                             self.lastPage = responseObject["last_page"] as? Int
-                            self.activityView.stopAnimating()
+                            self.activityView?.stopAnimating()
                             
                             if self.pieces.count > 0 {
                                 //self.piecesLoaded = true
@@ -753,7 +760,7 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
                     failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                         println("Error: " + error.localizedDescription)
                         
-                        self.activityView.stopAnimating()
+                        self.activityView?.stopAnimating()
                         SprubixReachability.handleError(error.code)
                 })
             } else {
@@ -774,8 +781,8 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
             
             if userId != nil {
                 self.currentProfileState = .Community
-                self.showEmptyDataSet()
-                activityView.startAnimating()
+                //self.showEmptyDataSet()
+                activityView?.startAnimating()
                 
                 manager.GET(SprubixConfig.URL.api + "/user/\(userId!)/outfits/community",
                     parameters: nil,
@@ -786,7 +793,7 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
                         if self.currentProfileState == .Community {
                             self.currentPage = responseObject["current_page"] as? Int
                             self.lastPage = responseObject["last_page"] as? Int
-                            self.activityView.stopAnimating()
+                            self.activityView?.stopAnimating()
                             
                             if self.communityOutfits.count > 0 {
                                 //self.communityLoaded = true
@@ -805,7 +812,7 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
                     failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                         println("Error: " + error.localizedDescription)
                         
-                        self.activityView.stopAnimating()
+                        self.activityView?.stopAnimating()
                         SprubixReachability.handleError(error.code)
                 })
             } else {
