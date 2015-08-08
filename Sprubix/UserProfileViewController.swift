@@ -698,8 +698,8 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
             
             if userId != nil {
                 self.currentProfileState = .Outfits
-                //self.showEmptyDataSet()
                 activityView?.startAnimating()
+                profileCollectionView.scrollEnabled = false
                 
                 manager.GET(SprubixConfig.URL.api + "/user/\(userId!)/outfits",
                     parameters: nil,
@@ -725,6 +725,8 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
                                 self.showEmptyDataSet()
                             }
                         }
+                        
+                        self.profileCollectionView.scrollEnabled = true
                     },
                     failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                         println("Error: " + error.localizedDescription)
@@ -751,8 +753,8 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
             
             if userId != nil {
                 self.currentProfileState = .Pieces
-                //self.showEmptyDataSet()
                 activityView?.startAnimating()
+                profileCollectionView.scrollEnabled = false
                 
                 manager.GET(SprubixConfig.URL.api + "/user/\(userId!)/pieces",
                     parameters: nil,
@@ -778,6 +780,8 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
                                 self.showEmptyDataSet()
                             }
                         }
+                        
+                        self.profileCollectionView.scrollEnabled = true
                     },
                     failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                         println("Error: " + error.localizedDescription)
@@ -803,8 +807,8 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
             
             if userId != nil {
                 self.currentProfileState = .Community
-                //self.showEmptyDataSet()
                 activityView?.startAnimating()
+                profileCollectionView.scrollEnabled = false
                 
                 manager.GET(SprubixConfig.URL.api + "/user/\(userId!)/outfits/community",
                     parameters: nil,
@@ -830,6 +834,8 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
                                 self.showEmptyDataSet()
                             }
                         }
+                        
+                        self.profileCollectionView.scrollEnabled = true
                     },
                     failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                         println("Error: " + error.localizedDescription)

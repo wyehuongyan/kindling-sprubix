@@ -34,6 +34,8 @@ class ProfileOutfitCell: UICollectionViewCell, TransitionWaterfallGridViewProtoc
         let imageURL = NSURL(string: imageURLString!)
         
         imageViewContent.frame = CGRectMake(0, 0, frame.size.width, frame.size.height)
+        
+        imageViewContent.image = nil
         imageViewContent.setImageWithURL(imageURL)
         imageViewContent.contentMode = UIViewContentMode.ScaleAspectFill
     }
