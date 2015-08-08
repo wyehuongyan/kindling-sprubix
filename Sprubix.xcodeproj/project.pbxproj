@@ -55,6 +55,9 @@
 		845834CC1B749327007C6F6B /* OrderDetailsRefundCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 845834CB1B749327007C6F6B /* OrderDetailsRefundCell.swift */; };
 		845834CF1B74A2AE007C6F6B /* RefundDetailsItemCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 845834CE1B74A2AE007C6F6B /* RefundDetailsItemCell.swift */; };
 		845834D11B74ABE6007C6F6B /* RefundDetailsFooterCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 845834D01B74ABE6007C6F6B /* RefundDetailsFooterCell.swift */; };
+		845834D31B7661D7007C6F6B /* UserFollowListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 845834D21B7661D7007C6F6B /* UserFollowListViewController.swift */; };
+		845834D51B766B29007C6F6B /* UserFollowListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 845834D41B766B29007C6F6B /* UserFollowListCell.swift */; };
+		845834D71B766CA1007C6F6B /* UserFollowListUNCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 845834D61B766CA1007C6F6B /* UserFollowListUNCell.swift */; };
 		846027A31B18B17B00A28C78 /* CommentsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846027A21B18B17B00A28C78 /* CommentsViewController.swift */; };
 		846027A51B18B71900A28C78 /* CommentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846027A41B18B71900A28C78 /* CommentCell.swift */; };
 		846C97931ABAB11F0050D0BC /* Subclasses.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846C97921ABAB11F0050D0BC /* Subclasses.swift */; };
@@ -178,6 +181,9 @@
 		845834CB1B749327007C6F6B /* OrderDetailsRefundCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OrderDetailsRefundCell.swift; sourceTree = "<group>"; };
 		845834CE1B74A2AE007C6F6B /* RefundDetailsItemCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RefundDetailsItemCell.swift; sourceTree = "<group>"; };
 		845834D01B74ABE6007C6F6B /* RefundDetailsFooterCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RefundDetailsFooterCell.swift; sourceTree = "<group>"; };
+		845834D21B7661D7007C6F6B /* UserFollowListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserFollowListViewController.swift; sourceTree = "<group>"; };
+		845834D41B766B29007C6F6B /* UserFollowListCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserFollowListCell.swift; sourceTree = "<group>"; };
+		845834D61B766CA1007C6F6B /* UserFollowListUNCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserFollowListUNCell.swift; sourceTree = "<group>"; };
 		846027A21B18B17B00A28C78 /* CommentsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommentsViewController.swift; sourceTree = "<group>"; };
 		846027A41B18B71900A28C78 /* CommentCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommentCell.swift; sourceTree = "<group>"; };
 		846C97921ABAB11F0050D0BC /* Subclasses.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Subclasses.swift; sourceTree = "<group>"; };
@@ -527,6 +533,7 @@
 			isa = PBXGroup;
 			children = (
 				84B335271AADE1F600B9707D /* UserProfileViewController.swift */,
+				845834D21B7661D7007C6F6B /* UserFollowListViewController.swift */,
 			);
 			name = Profile;
 			sourceTree = "<group>";
@@ -598,6 +605,8 @@
 				84B335351AB1ADBD00B9707D /* ProfilePieceCell.swift */,
 				84B3352B1AAEE2EB00B9707D /* UserProfileHeader.swift */,
 				84B3352D1AAEEA1000B9707D /* UserProfileFooter.swift */,
+				845834D41B766B29007C6F6B /* UserFollowListCell.swift */,
+				845834D61B766CA1007C6F6B /* UserFollowListUNCell.swift */,
 			);
 			name = Profile;
 			sourceTree = "<group>";
@@ -849,6 +858,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				845834D31B7661D7007C6F6B /* UserFollowListViewController.swift in Sources */,
 				846027A31B18B17B00A28C78 /* CommentsViewController.swift in Sources */,
 				84B335401AB2BB9E00B9707D /* Transition.swift in Sources */,
 				845834CF1B74A2AE007C6F6B /* RefundDetailsItemCell.swift in Sources */,
@@ -886,6 +896,7 @@
 				8405D0571B5B60BC00B42752 /* ShopOrderDetailsViewController.swift in Sources */,
 				8405D0651B5F709000B42752 /* CustomerDetailsRecentOrdersCell.swift in Sources */,
 				843B81A11AFCB71900FA2DD2 /* SnapshotShareController.swift in Sources */,
+				845834D71B766CA1007C6F6B /* UserFollowListUNCell.swift in Sources */,
 				845834C31B6F94CD007C6F6B /* SearchViewController.swift in Sources */,
 				846C97991ABD545A0050D0BC /* SpruceViewController.swift in Sources */,
 				84B335361AB1ADBD00B9707D /* ProfilePieceCell.swift in Sources */,
@@ -894,6 +905,7 @@
 				84B3354E1AB4520C00B9707D /* PieceDetailsCell.swift in Sources */,
 				8486D4161B04774800ED31BA /* SprubixPiece.swift in Sources */,
 				846C979D1ABD68A80050D0BC /* SprucePieceFeedController.swift in Sources */,
+				845834D51B766B29007C6F6B /* UserFollowListCell.swift in Sources */,
 				8482B86B1B490F930017CEEF /* DeliveryAddressesViewController.swift in Sources */,
 				84B335321AAF095900B9707D /* SprubixStretchyHeader.swift in Sources */,
 				843B81A31AFDF22200FA2DD2 /* SnapshotDetailsController.swift in Sources */,

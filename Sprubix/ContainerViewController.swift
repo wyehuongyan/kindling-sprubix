@@ -401,6 +401,10 @@ extension UIStoryboard {
         return menuStoryboard().instantiateViewControllerWithIdentifier("NotificationView") as? NotificationViewController
     }
     
+    class func userFollowListViewController() -> UserFollowListViewController? {
+        return menuStoryboard().instantiateViewControllerWithIdentifier("UserFollowListView") as? UserFollowListViewController
+    }
+    
     // Shop storyboard
     class func inventoryViewController() -> InventoryViewController? {
         return shopStoryboard().instantiateViewControllerWithIdentifier("InventoryView") as? InventoryViewController

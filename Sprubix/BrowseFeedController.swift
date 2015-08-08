@@ -951,6 +951,7 @@ class BrowseFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDat
     }
     
     func sideMenuTapped(sender: UIBarButtonItem) {
+        dismissDropdown(UITapGestureRecognizer())
         delegate?.toggleSidePanel!()
     }
 }

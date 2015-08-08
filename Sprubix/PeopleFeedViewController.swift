@@ -536,6 +536,7 @@ class PeopleFeedViewController: UIViewController, DZNEmptyDataSetSource, DZNEmpt
     }
     
     func sideMenuTapped(sender: UIBarButtonItem) {
+        dismissDropdown(UITapGestureRecognizer())
         delegate?.toggleSidePanel!()
     }
     

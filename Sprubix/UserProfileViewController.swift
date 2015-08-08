@@ -201,6 +201,15 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
         })
         
         view.addSubview(profileCollectionView)
+        
+        // here the spinner is initialized
+        let activityViewWidth: CGFloat = 50
+        
+        activityView = UIActivityIndicatorView(activityIndicatorStyle: UIActivityIndicatorViewStyle.White)
+        activityView?.color = sprubixColor
+        activityView?.frame = CGRect(x: screenWidth / 2 - activityViewWidth / 2, y: 0.6 * screenHeight - activityViewWidth / 2, width: activityViewWidth, height: activityViewWidth)
+        
+        profileCollectionView.addSubview(activityView!)
     }
     
     func initCollectionViewLayouts() {
@@ -232,7 +241,7 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
         
         reloadUserItems()
         
-        self.navigationController?.setNavigationBarHidden(false, animated: true)
+        self.navigationController?.setNavigationBarHidden(false, animated: false)
         
         self.navigationController?.navigationBar.setBackgroundImage(UIImage(), forBarMetrics: UIBarMetrics.Default)
         self.navigationController?.navigationBar.shadowImage = UIImage()
@@ -241,7 +250,7 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
     override func viewWillDisappear(animated: Bool) {
         super.viewWillDisappear(animated)
         
-        self.navigationController?.setNavigationBarHidden(true, animated: true)
+        self.navigationController?.setNavigationBarHidden(true, animated: false)
         self.navigationController?.navigationBar.setBackgroundImage(nil, forBarMetrics: UIBarMetrics.Default)
         self.navigationController?.navigationBar.shadowImage = nil
     }
@@ -383,6 +392,8 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
             outfitDetailsViewController.outfits = outfits
             
             collectionView.setToIndexPath(indexPath)
+            
+            navigationController?.delegate = transitionDelegateHolder
             navigationController!.pushViewController(outfitDetailsViewController, animated: true)
         case .Pieces:
             let pieceDetailsViewController = PieceDetailsViewController(collectionViewLayout: detailsViewControllerLayout(), currentIndexPath:indexPath)
@@ -390,12 +401,16 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
             pieceDetailsViewController.user = user
             
             collectionView.setToIndexPath(indexPath)
+            
+            navigationController?.delegate = transitionDelegateHolder
             navigationController!.pushViewController(pieceDetailsViewController, animated: true)
         case .Community:
             let outfitDetailsViewController = OutfitDetailsViewController(collectionViewLayout: detailsViewControllerLayout(), currentIndexPath:indexPath)
             outfitDetailsViewController.outfits = communityOutfits
             
             collectionView.setToIndexPath(indexPath)
+            
+            navigationController?.delegate = transitionDelegateHolder
             navigationController!.pushViewController(outfitDetailsViewController, animated: true)
         default:
             break
@@ -454,24 +469,14 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
     func showEmptyDataSet() {
         emptyDataTableView?.removeFromSuperview()
         emptyDataView?.removeFromSuperview()
-        activityView?.removeFromSuperview()
         
         emptyDataTableView = UITableView(frame: CGRectMake(0, userProfileHeaderHeight, screenWidth, screenHeight - userProfileHeaderHeight))
         
         emptyDataView = UIView(frame: CGRectMake(0, userProfileHeaderHeight + emptyDataTableView!.frame.height, screenWidth, screenHeight))
         emptyDataView?.backgroundColor = sprubixGray
         
-        profileCollectionView?.addSubview(emptyDataTableView!)
-        profileCollectionView?.addSubview(emptyDataView!)
-
-        // here the spinner is initialized
-        let activityViewWidth: CGFloat = 50
-        
-        activityView = UIActivityIndicatorView(activityIndicatorStyle: UIActivityIndicatorViewStyle.White)
-        activityView?.color = sprubixColor
-        activityView?.frame = CGRect(x: screenWidth / 2 - activityViewWidth / 2, y: emptyDataTableView!.frame.height / 3 - activityViewWidth / 2, width: activityViewWidth, height: activityViewWidth)
-        
-        emptyDataTableView?.addSubview(activityView!)
+        profileCollectionView?.insertSubview(emptyDataTableView!, belowSubview: activityView!)
+        profileCollectionView?.insertSubview(emptyDataView!, belowSubview: activityView!)
         
         emptyDataTableView?.emptyDataSetDelegate = self
         emptyDataTableView?.emptyDataSetSource = self
@@ -670,6 +675,23 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
     }
     
     // UserProfileHeaderDelegate
+    func showFollowers() {
+        showFollowList(false)
+    }
+    
+    func showFollowing() {
+        showFollowList(true)
+    }
+    
+    private func showFollowList(following: Bool) {
+        let userFollowListViewController = UIStoryboard.userFollowListViewController()
+        
+        userFollowListViewController!.following = following
+        
+        self.navigationController?.delegate = nil
+        self.navigationController?.pushViewController(userFollowListViewController!, animated: true)
+    }
+    
     func loadUserOutfits() {
         if outfitsLoaded != true {
             var userId:Int? = user!["id"] as? Int

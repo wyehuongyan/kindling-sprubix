@@ -14,6 +14,9 @@ protocol UserProfileHeaderDelegate {
     func loadUserPieces()
     func loadCommunityOutfits()
     
+    func showFollowers()
+    func showFollowing()
+    
     func showEmptyDataSet()
     func hideEmptyDataSet()
 }
@@ -233,6 +236,13 @@ class UserProfileHeader: UICollectionReusableView, UIScrollViewDelegate {
         numFollowers.layer.shadowColor = UIColor.blackColor().CGColor;
         numFollowers.layer.shadowOffset = CGSizeMake(0.0, 1.0);
         
+        // // gesture recognizer to see followers
+        let followersGestureRecognizer: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: "showFollowers")
+        followersGestureRecognizer.numberOfTapsRequired = 1
+        
+        numFollowers.userInteractionEnabled = true
+        numFollowers.addGestureRecognizer(followersGestureRecognizer)
+        
         let numFollowersText = UILabel(frame: CGRectMake(followInfoViewWidth / 3, 20, followInfoViewWidth / 3, 20))
         numFollowersText.text = "Followers"
         numFollowersText.textColor = UIColor.whiteColor()
@@ -242,6 +252,13 @@ class UserProfileHeader: UICollectionReusableView, UIScrollViewDelegate {
         numFollowersText.layer.shadowRadius = 1.0;
         numFollowersText.layer.shadowColor = UIColor.blackColor().CGColor;
         numFollowersText.layer.shadowOffset = CGSizeMake(0.0, 1.0);
+        
+        // // gesture recognizer to see followers
+        let followersTextGestureRecognizer: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: "showFollowers")
+        followersTextGestureRecognizer.numberOfTapsRequired = 1
+        
+        numFollowersText.userInteractionEnabled = true
+        numFollowersText.addGestureRecognizer(followersTextGestureRecognizer)
         
         followInfoView.addSubview(numFollowers)
         followInfoView.addSubview(numFollowersText)
@@ -257,6 +274,13 @@ class UserProfileHeader: UICollectionReusableView, UIScrollViewDelegate {
         numFollowing.layer.shadowColor = UIColor.blackColor().CGColor;
         numFollowing.layer.shadowOffset = CGSizeMake(0.0, 1.0);
         
+        // // gesture recognizer to see following
+        let followingGestureRecognizer: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: "showFollowing")
+        followingGestureRecognizer.numberOfTapsRequired = 1
+        
+        numFollowing.userInteractionEnabled = true
+        numFollowing.addGestureRecognizer(followingGestureRecognizer)
+        
         let numFollowingText = UILabel(frame: CGRectMake(2 * followInfoViewWidth / 3, 20, followInfoViewWidth / 3, 20))
         numFollowingText.text = "Following"
         numFollowingText.textColor = UIColor.whiteColor()
@@ -266,6 +290,13 @@ class UserProfileHeader: UICollectionReusableView, UIScrollViewDelegate {
         numFollowingText.layer.shadowRadius = 1.0;
         numFollowingText.layer.shadowColor = UIColor.blackColor().CGColor;
         numFollowingText.layer.shadowOffset = CGSizeMake(0.0, 1.0);
+        
+        // // gesture recognizer to see following
+        let followingTextGestureRecognizer: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: "showFollowing")
+        followingTextGestureRecognizer.numberOfTapsRequired = 1
+        
+        numFollowingText.userInteractionEnabled = true
+        numFollowingText.addGestureRecognizer(followingTextGestureRecognizer)
         
         followInfoView.addSubview(numFollowing)
         followInfoView.addSubview(numFollowingText)
@@ -409,6 +440,15 @@ class UserProfileHeader: UICollectionReusableView, UIScrollViewDelegate {
             ])
             // Mixpanel - End
         }
+    }
+    
+    // gesture recognizer callbacks
+    func showFollowers() {
+        delegate?.showFollowers()
+    }
+    
+    func showFollowing() {
+        delegate?.showFollowing()
     }
     
     func deselectAllButtons() {
