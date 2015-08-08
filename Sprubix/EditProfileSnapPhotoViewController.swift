@@ -55,6 +55,20 @@ class EditProfileSnapPhotoViewController: UIViewController, SprubixCameraDelegat
         initNavBar()
     }
     
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        
+//        cameraPscope.show(authChange: { (finished, results) -> Void in
+//            //println("got results \(results)")
+//            self.initializeCamera(self.frontCamera)
+//            self.establishVideoPreviewArea()
+//            }, cancelled: { (results) -> Void in
+//                //println("thing was cancelled")
+//                
+//                self.backTapped(UIBarButtonItem())
+//        })
+    }
+    
     override func viewDidAppear(animated: Bool) {
         super.viewDidAppear(animated)
         

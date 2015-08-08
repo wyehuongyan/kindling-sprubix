@@ -28,14 +28,13 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, SprucePieceF
     var creditsView:UIView!
     let creditsViewHeight:CGFloat = 80
 
-    let outfitHeight: CGFloat = screenHeight - (navigationHeight * 2) - 80//screenWidth / 0.75
+    let outfitHeight: CGFloat = screenHeight - (navigationHeight * 2) - 80 // creditsViewHeight = 80
     
     var childControllers:[SprucePieceFeedController] = [SprucePieceFeedController]()
     
     var addRemovePieceActionSheet: UIActionSheet!
     var actionSheetButtonNames: [String]! = ["HEAD", "TOP", "BOTTOM", "FEET"] // contains the types of pieces NOT in the current outfit
     var defaultPieceTypes: [String]! = ["HEAD", "TOP", "BOTTOM", "FEET"]
-    var defaultPieceHeights: [CGFloat]! = [120.0, 147.0, 135, 98.0]
     
     var toggleRemovePieceFeed: Bool = false
     
@@ -47,6 +46,8 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, SprucePieceF
     var closetButton: UIButton!
     var addPieceBarButton: UIBarButtonItem!
     var addPieceButton: UIButton!
+    
+    var activityView: UIActivityIndicatorView!
     
     func trashPiece(sender: AnyObject) {
         toggleDeletePieceCrosses()
@@ -195,6 +196,14 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, SprucePieceF
         spruceToolbar.setItems([trashPieceBarButton, flexibleSpace, searchBarButton, closetBarButton, addPieceBarButton], animated: true)
         
         view.addSubview(spruceToolbar)
+        
+        // here the spinner is initialized
+        let activityViewWidth: CGFloat = 50
+        activityView = UIActivityIndicatorView(activityIndicatorStyle: UIActivityIndicatorViewStyle.White)
+        activityView.color = sprubixColor
+        activityView.frame = CGRect(x: screenWidth / 2 - activityViewWidth / 2, y: (outfitHeight / 2 - activityViewWidth / 2) + navigationHeight, width: activityViewWidth, height: activityViewWidth)
+        
+        view.addSubview(activityView)
     }
     
     func initSprucePieceFeeds() {
@@ -226,7 +235,7 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, SprucePieceF
                 // calculate height percentages
                 var pieceHeight: CGFloat = piece["height"] as! CGFloat / totalHeight * outfitHeight
                 
-                let sprucePieceFeedController = SprucePieceFeedController(collectionViewLayout: sprucePieceFeedControllerLayout(pieceHeight), pieceType: pieceType, pieceHeight: pieceHeight)
+                let sprucePieceFeedController = SprucePieceFeedController(collectionViewLayout: sprucePieceFeedControllerLayout(itemHeight: pieceHeight), pieceType: pieceType, pieceHeight: pieceHeight)
 
                 if piece["deleted_at"]!.isKindOfClass(NSNull) {
                     sprucePieceFeedController.piece = piece
@@ -253,6 +262,8 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, SprucePieceF
                 prevPieceHeight += pieceHeight
             }
         } else {
+            activityView.startAnimating()
+            
             // outfit == nil
             // // came from create outfit
             for var i = 0; i < defaultPieceTypes.count; i++ {
@@ -266,15 +277,13 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, SprucePieceF
                 currentSprucePieceTypes.append(pieceType) // contains the types of pieces in the current outfit
                 
                 // calculate height percentages
-                var pieceHeight: CGFloat = defaultPieceHeights[i]
-                
-                let sprucePieceFeedController = SprucePieceFeedController(collectionViewLayout: sprucePieceFeedControllerLayout(pieceHeight), pieceType: pieceType, pieceHeight: pieceHeight)
+                let sprucePieceFeedController = SprucePieceFeedController(collectionViewLayout: sprucePieceFeedControllerLayout(), pieceType: pieceType)
                 
                 sprucePieceFeedController.delegate = self
                 
                 sprucePieceFeedController.willMoveToParentViewController(self)
                 self.addChildViewController(sprucePieceFeedController)
-                sprucePieceFeedController.view.frame = CGRect(x: 0, y: navigationHeight + prevPieceHeight, width: screenWidth, height: pieceHeight)
+                sprucePieceFeedController.view.frame = CGRect(x: 0, y: navigationHeight + prevPieceHeight, width: screenWidth, height: 0)
                 sprucePieceFeedController.view.alpha = 0
                 scrollView.addSubview(sprucePieceFeedController.view)
                 
@@ -286,12 +295,6 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, SprucePieceF
                 sprucePieceFeedController.didMoveToParentViewController(self)
                 
                 childControllers.append(sprucePieceFeedController)
-                
-                prevPieceHeight += pieceHeight
-            }
-            
-            Delay.delay(0.6) {
-                self.closetSelection(UIButton()) // show closet selection
             }
         }
         
@@ -301,7 +304,7 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, SprucePieceF
         }
         
         // init 'posted by' and 'from' credits
-        creditsView = UIView(frame: CGRect(x: 0, y: navigationHeight + prevPieceHeight, width: screenWidth, height: creditsViewHeight))
+        creditsView = UIView(frame: CGRect(x: 0, y: navigationHeight + outfitHeight, width: screenWidth, height: creditsViewHeight))
         
         let userData:NSDictionary! = defaults.dictionaryForKey("userData")
         
@@ -485,7 +488,7 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, SprucePieceF
             let newPieceHeight:CGFloat = 100 // tentative
             
             // create another piece feed
-            let sprucePieceFeedController = SprucePieceFeedController(collectionViewLayout: sprucePieceFeedControllerLayout(newPieceHeight), pieceType: pieceType, pieceHeight: newPieceHeight)
+            let sprucePieceFeedController = SprucePieceFeedController(collectionViewLayout: sprucePieceFeedControllerLayout(itemHeight: newPieceHeight), pieceType: pieceType, pieceHeight: newPieceHeight)
             
             sprucePieceFeedController.delegate = self
             
@@ -607,7 +610,7 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, SprucePieceF
                 }, completion:{ finished in
                 
                     if finished {
-                        childController.collectionView?.setCollectionViewLayout(self.sprucePieceFeedControllerLayout(height), animated: false)
+                        childController.collectionView?.setCollectionViewLayout(self.sprucePieceFeedControllerLayout(itemHeight: height), animated: false)
                     }
                 })
         }
@@ -716,11 +719,15 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, SprucePieceF
             // last one cleared
             if i == childControllers.count - 1 {
                 expandOutfit()
+                
+                if outfit == nil {
+                    activityView.stopAnimating()
+                }
             }
         }
     }
     
-    func sprucePieceFeedControllerLayout (itemHeight: CGFloat) -> UICollectionViewFlowLayout {
+    func sprucePieceFeedControllerLayout (itemHeight: CGFloat = 0) -> UICollectionViewFlowLayout {
         let flowLayout = UICollectionViewFlowLayout()
         
         let itemSize = CGSizeMake(screenWidth, itemHeight)

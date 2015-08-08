@@ -138,8 +138,6 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
         self.navigationController?.setNavigationBarHidden(true, animated: true)
         self.navigationController?.navigationBar.setBackgroundImage(nil, forBarMetrics: UIBarMetrics.Default)
         self.navigationController?.navigationBar.shadowImage = nil
-        
-        //self.camera?.stopCamera()
     }
     
     override func viewDidDisappear(animated: Bool) {
