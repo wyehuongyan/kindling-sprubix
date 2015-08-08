@@ -122,6 +122,7 @@ class PeopleFeedViewController: UIViewController, DZNEmptyDataSetSource, DZNEmpt
         searchButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
         searchButton.imageView?.tintColor = UIColor.lightGrayColor()
         searchButton.imageEdgeInsets = UIEdgeInsetsMake(5, 5, 5, 5)
+        searchButton.addTarget(self, action: "searchButtonPressed:", forControlEvents: UIControlEvents.TouchUpInside)
         
         var searchBarButtonItem: UIBarButtonItem = UIBarButtonItem(customView: searchButton)
         self.navigationItem.rightBarButtonItems = [searchBarButtonItem]
@@ -445,6 +446,14 @@ class PeopleFeedViewController: UIViewController, DZNEmptyDataSetSource, DZNEmpt
         flowLayout.scrollDirection = .Horizontal
         
         return flowLayout
+    }
+    
+    func searchButtonPressed(sender: UIButton) {
+        let searchViewController = SearchViewController()
+        
+        UIView.transitionWithView(self.navigationController!.view, duration: 0.3, options: UIViewAnimationOptions.TransitionCrossDissolve, animations: {
+            self.navigationController?.pushViewController(searchViewController, animated: false)
+            }, completion: nil)
     }
     
     func navbarTitlePressed(sender: UIButton) {

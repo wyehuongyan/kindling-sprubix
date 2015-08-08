@@ -8,14 +8,14 @@
 
 import UIKit
 
-class SearchViewController: UIViewController,  UISearchResultsUpdating, UISearchBarDelegate {
+class SearchViewController: UIViewController, UISearchResultsUpdating, UISearchBarDelegate {
     
     var searchController: UISearchController?
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        view.backgroundColor = sprubixGray
+        view.backgroundColor = UIColor.whiteColor()
         
         if searchController == nil {
             searchController = UISearchController()
@@ -24,7 +24,7 @@ class SearchViewController: UIViewController,  UISearchResultsUpdating, UISearch
             searchController!.searchBar.delegate = self
             searchController?.searchBar.barTintColor = sprubixLightGray
             searchController!.searchResultsUpdater = self
-            searchController!.dimsBackgroundDuringPresentation = true
+            searchController!.dimsBackgroundDuringPresentation = false
             searchController!.hidesNavigationBarDuringPresentation = false
         }
     }
@@ -49,7 +49,12 @@ class SearchViewController: UIViewController,  UISearchResultsUpdating, UISearch
         println(searchString)
     }
     
+    // UISearchBarDelegate
     func searchBarCancelButtonClicked(searchBar: UISearchBar) {
+        dismissSearchViewController()
+    }
+    
+    private func dismissSearchViewController() {
         UIView.transitionWithView(self.navigationController!.view, duration: 0.3, options: UIViewAnimationOptions.TransitionCrossDissolve, animations: {
             self.navigationController?.popViewControllerAnimated(false)
             }, completion: nil)

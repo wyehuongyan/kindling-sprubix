@@ -11,7 +11,7 @@ import DZNEmptyDataSet
 import CHTCollectionViewWaterfallLayout
 import AFNetworking
 
-class BrowseFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataSetDelegate, UITextFieldDelegate, UICollectionViewDataSource, OutfitInteractionProtocol, CHTCollectionViewDelegateWaterfallLayout {
+class BrowseFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataSetDelegate, UITextFieldDelegate, UICollectionViewDataSource, OutfitInteractionProtocol, CHTCollectionViewDelegateWaterfallLayout, TransitionProtocol {
     
     var delegate: SidePanelViewControllerDelegate?
     var outfits: [NSDictionary] = [NSDictionary]()
