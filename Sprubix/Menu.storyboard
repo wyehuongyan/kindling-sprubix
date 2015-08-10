@@ -138,6 +138,10 @@
                                         </connections>
                                     </tableViewCell>
                                 </prototypes>
+                                <connections>
+                                    <outlet property="dataSource" destination="v7c-nV-JNK" id="b06-pv-rDf"/>
+                                    <outlet property="delegate" destination="v7c-nV-JNK" id="hnO-cy-dgl"/>
+                                </connections>
                             </tableView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -148,6 +152,9 @@
                             <constraint firstItem="JUm-F9-rLm" firstAttribute="top" secondItem="gLH-SQ-7Y1" secondAttribute="bottom" id="lRa-TA-FM4"/>
                         </constraints>
                     </view>
+                    <connections>
+                        <outlet property="followListTable" destination="gLH-SQ-7Y1" id="Lcp-Jl-dJi"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="tbj-rK-pJp" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>

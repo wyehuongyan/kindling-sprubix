@@ -63,10 +63,6 @@ class OrderDetailsStatusCell: UITableViewCell {
             // Cancelled
             statusImageName = "order-cancelled"
             statusTintColor = UIColor.redColor()
-        case 8:
-            // Request for Refund
-            statusImageName = "order-cancelled"
-            statusTintColor = UIColor.orangeColor()
         default:
             fatalError("Unknown order status in ShopOrderDetailsViewController")
         }

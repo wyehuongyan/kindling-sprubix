@@ -7,25 +7,36 @@
 //
 
 import UIKit
+import AFNetworking
 
-class UserFollowListViewController: UIViewController {
+class UserFollowListViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
 
+    let userFollowListIdentifier: String = "UserFollowListCell"
+    let userFollowListUNIdentifier: String = "UserFollowListUNCell"
+    
     var following: Bool!
+    var followListUsers: [NSDictionary] = [NSDictionary]()
     
     // custom nav bar
     var newNavBar: UINavigationBar!
     var newNavItem: UINavigationItem!
     
+    @IBOutlet weak var followListTable: UITableView!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         view.backgroundColor = UIColor.whiteColor()
+        
+        // get rid of line seperator for empty cells
+        followListTable.tableFooterView = UIView(frame: CGRectZero)
     }
     
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
         
         initNavBar()
+        retrieveFollowList()
     }
     
     func initNavBar() {
@@ -62,6 +73,81 @@ class UserFollowListViewController: UIViewController {
         
         // 5. add the nav bar to the main view
         self.view.addSubview(newNavBar)
+    }
+    
+    func retrieveFollowList() {
+        if following != nil && following == true {
+            // retrieve following
+            retrieveFollowing()
+        } else {
+            // retrieve followers
+            retrieveFollowers()
+        }
+    }
+    
+    private func retrieveFollowing() {
+        // REST call to server to retrieve following
+        manager.POST(SprubixConfig.URL.api + "/user/following",
+            parameters: nil,
+            success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                self.followListUsers = responseObject["data"] as! [NSDictionary]
+                
+                self.followListTable.reloadData()
+            },
+            failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                println("Error: " + error.localizedDescription)
+        })
+    }
+    
+    private func retrieveFollowers() {
+        // REST call to server to retrieve followers
+        manager.GET(SprubixConfig.URL.api + "/user/followers",
+            parameters: nil,
+            success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                self.followListUsers = responseObject["data"] as! [NSDictionary]
+                
+                self.followListTable.reloadData()
+            },
+            failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                println("Error: " + error.localizedDescription)
+        })
+    }
+    
+    // MARK: UITableViewDataSource
+    func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
+        return 61.0
+    }
+    
+    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return followListUsers.count
+    }
+    
+    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+        let user: NSDictionary = followListUsers[indexPath.row]
+        
+        let name = user["name"] as! String
+        let username = user["username"] as! String
+        let userImageURL = NSURL(string: user["image"] as! String)
+        
+        var cell: UITableViewCell!
+        
+        if name != "" {
+            // use UserFollowListCell
+            cell = tableView.dequeueReusableCellWithIdentifier(userFollowListIdentifier, forIndexPath: indexPath) as! UserFollowListCell
+            
+            (cell as! UserFollowListCell).realname.text = name
+            (cell as! UserFollowListCell).username.text = username
+            (cell as! UserFollowListCell).userImageView.setImageWithURL(userImageURL)
+            
+        } else {
+            // use UserFollowListUNCell
+            cell = tableView.dequeueReusableCellWithIdentifier(userFollowListUNIdentifier, forIndexPath: indexPath) as! UserFollowListUNCell
+            
+            (cell as! UserFollowListCell).username.text = username
+            (cell as! UserFollowListCell).userImageView.setImageWithURL(userImageURL)
+        }
+        
+        return cell
     }
     
     // nav bar button callbacks
