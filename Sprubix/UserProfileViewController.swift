@@ -35,8 +35,8 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
     let userProfileHeaderIdentifier = "UserProfileHeader"
     let userProfileFooterIdentifier = "UserProfileFooter"
 
-    var headerReusableView: UserProfileHeader!
-    var footerReusableView: UserProfileFooter!
+    var headerReusableView: UserProfileHeader?
+    var footerReusableView: UserProfileFooter?
     
     var userOutfitsLayout:SprubixStretchyHeader!
     var userPiecesLayout:SprubixStretchyHeader!
@@ -373,22 +373,24 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
     func collectionView(collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, atIndexPath indexPath: NSIndexPath) -> UICollectionReusableView {
         
         if kind == CHTCollectionElementKindSectionHeader {
-            headerReusableView = collectionView.dequeueReusableSupplementaryViewOfKind(kind, withReuseIdentifier: userProfileHeaderIdentifier, forIndexPath: indexPath) as! UserProfileHeader
+            if headerReusableView == nil {
+                headerReusableView = collectionView.dequeueReusableSupplementaryViewOfKind(kind, withReuseIdentifier: userProfileHeaderIdentifier, forIndexPath: indexPath) as? UserProfileHeader
+                
+                if user != nil {
+                    headerReusableView!.user = user
+                }
+                
+                headerReusableView!.setProfileInfo()
+                headerReusableView!.delegate = self
+            }
             
-            if user != nil {
-                headerReusableView.user = user
-            } 
-
-            headerReusableView.setProfileInfo()
-            headerReusableView.delegate = self
-            
-            return headerReusableView
+            return headerReusableView!
             
         } else if kind == CHTCollectionElementKindSectionFooter {
-            footerReusableView = collectionView.dequeueReusableSupplementaryViewOfKind(kind, withReuseIdentifier: userProfileFooterIdentifier, forIndexPath: indexPath) as! UserProfileFooter
+            footerReusableView = collectionView.dequeueReusableSupplementaryViewOfKind(kind, withReuseIdentifier: userProfileFooterIdentifier, forIndexPath: indexPath) as? UserProfileFooter
         }
         
-        return footerReusableView
+        return footerReusableView!
     }
     
     func collectionView(collectionView: UICollectionView, didSelectItemAtIndexPath indexPath: NSIndexPath) {
@@ -459,6 +461,8 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
                         if self.alreadyFollowed == true {
                             // already followed
                             self.followUserButton.setTitle("Unfollow", forState: UIControlState.Normal)
+                        } else {
+                            self.followUserButton.setTitle("Follow", forState: UIControlState.Normal)
                         }
                     }
                 },
@@ -633,6 +637,7 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
             },
             failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                 println("Error: " + error.localizedDescription)
+                self.profileCollectionView.infiniteScrollingView.stopAnimating()
         })
     }
     
@@ -655,6 +660,7 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
             },
             failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                 println("Error: " + error.localizedDescription)
+                self.profileCollectionView.infiniteScrollingView.stopAnimating()
         })
     }
     
@@ -677,6 +683,7 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
             },
             failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                 println("Error: " + error.localizedDescription)
+                self.profileCollectionView.infiniteScrollingView.stopAnimating()
         })
     }
     
@@ -866,10 +873,10 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
     func updateUser(user: NSDictionary) {
         self.user = user
         
-        headerReusableView.user = user
-        headerReusableView.setProfileInfo()
-        headerReusableView.setNeedsDisplay()
-        headerReusableView.setNeedsLayout()
+        headerReusableView!.user = user
+        headerReusableView!.setProfileInfo()
+        headerReusableView!.setNeedsDisplay()
+        headerReusableView!.setNeedsLayout()
     }
     
     private func reloadUserItems() {

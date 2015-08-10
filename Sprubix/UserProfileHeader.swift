@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import AFNetworking
 
 protocol UserProfileHeaderDelegate {
     // methods are called when each button in the toolbar is pressed
@@ -325,43 +326,68 @@ class UserProfileHeader: UICollectionReusableView, UIScrollViewDelegate {
         pageControl.currentPage = 0
         pageControl.clipsToBounds = true
         pageControl.autoresizingMask = UIViewAutoresizing.FlexibleTopMargin
+        pageControl.userInteractionEnabled = false
         
         addSubview(userInfoScrollView)
         addSubview(pageControl) // do not add to scrollview or it will be scrolled away!
     }
     
     func setProfileInfo() {
+        let localUserId: Int? = defaults.objectForKey("userId") as? Int
+        
+        // user outfits, followers and following in defaults is sometimes outdated
         if user != nil {
-            let userThumbnailURL = NSURL(string: user!["image"] as! String)
-            let userCoverURL = NSURL(string: user!["cover"] as! String)
-            let username = user!["username"] as! String!
-            let name = user!["name"] as! String!
+            var userId = user!["id"] as! Int
             
-            profileImage.setImageWithURL(userThumbnailURL)
-            coverImageContent.setImageWithURL(userCoverURL)
-            
-            profileRealName.text = name
-            profileName.text = "@\(username)"
-            
-            var userDescriptionString = user!["description"] as? String
-            
-            if userDescriptionString != nil && userDescriptionString != "" {
-                var userDescriptionData: NSData = userDescriptionString!.dataUsingEncoding(NSUTF8StringEncoding)!
-                
-                var userDescriptionDict: NSDictionary = NSJSONSerialization.JSONObjectWithData(userDescriptionData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSDictionary
-                
-                profileDescription.text = userDescriptionDict["description"] as? String
+            if userId == localUserId {
+                // REST call to server to retrieve latest logged in user details
+                manager.GET(SprubixConfig.URL.api + "/user",
+                    parameters: nil,
+                    success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                        
+                        self.user = responseObject as? NSDictionary
+                        
+                        self.setProfileInfoData()
+                    },
+                    failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                        println("Error: " + error.localizedDescription)
+                })
             }
             
-            // follow info
-            let numOutfitsText = user!["num_outfits"] as! Int
-            let numFollowersText = user!["num_followers"] as! Int
-            let numFollowingText = user!["num_following"] as! Int
-            
-            numOutfits.text = "\(numOutfitsText)"
-            numFollowers.text = "\(numFollowersText)"
-            numFollowing.text = "\(numFollowingText)"
+            setProfileInfoData()
         }
+    }
+    
+    private func setProfileInfoData() {
+        let userThumbnailURL = NSURL(string: user!["image"] as! String)
+        let userCoverURL = NSURL(string: user!["cover"] as! String)
+        let username = user!["username"] as! String!
+        let name = user!["name"] as! String!
+        
+        profileImage.setImageWithURL(userThumbnailURL)
+        coverImageContent.setImageWithURL(userCoverURL)
+        
+        profileRealName.text = name
+        profileName.text = "@\(username)"
+        
+        var userDescriptionString = user!["description"] as? String
+        
+        if userDescriptionString != nil && userDescriptionString != "" {
+        var userDescriptionData: NSData = userDescriptionString!.dataUsingEncoding(NSUTF8StringEncoding)!
+        
+        var userDescriptionDict: NSDictionary = NSJSONSerialization.JSONObjectWithData(userDescriptionData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSDictionary
+        
+        profileDescription.text = userDescriptionDict["description"] as? String
+        }
+        
+        // follow info
+        let numOutfitsText = user!["num_outfits"] as! Int
+        let numFollowersText = user!["num_followers"] as! Int
+        let numFollowingText = user!["num_following"] as! Int
+        
+        numOutfits.text = "\(numOutfitsText)"
+        numFollowers.text = "\(numFollowersText)"
+        numFollowing.text = "\(numFollowingText)"
     }
     
     func scrollViewDidScroll(scrollView: UIScrollView) {
