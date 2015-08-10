@@ -278,8 +278,6 @@ class UserFollowListViewController: UIViewController, UITableViewDataSource, UIT
     }
     
     func showProfile(user: NSDictionary) {
-        println(user)
-        
         containerViewController.showUserProfile(user)
     }
     
