@@ -700,6 +700,7 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
         let userFollowListViewController = UIStoryboard.userFollowListViewController()
         
         userFollowListViewController!.following = following
+        userFollowListViewController!.user = user
         
         self.navigationController?.delegate = nil
         self.navigationController?.pushViewController(userFollowListViewController!, animated: true)

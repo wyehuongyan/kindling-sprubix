@@ -22,6 +22,7 @@ class UserFollowListViewController: UIViewController, UITableViewDataSource, UIT
     
     var following: Bool!
     var followListUsers: [NSDictionary] = [NSDictionary]()
+    var user: NSDictionary!
     
     var currentPage: Int = 0
     var lastPage: Int?
@@ -106,9 +107,10 @@ class UserFollowListViewController: UIViewController, UITableViewDataSource, UIT
     private func retrieveFollowing() {
         // GET page=2, page=3 and so on
         let nextPage = currentPage + 1
+        let userId = user["id"] as! Int
         
         // REST call to server to retrieve following
-        manager.POST(SprubixConfig.URL.api + "/user/following?page=\(nextPage)",
+        manager.GET(SprubixConfig.URL.api + "/user/\(userId)/following?page=\(nextPage)",
             parameters: nil,
             success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
                 var followingUsers = responseObject["data"] as! [NSDictionary]
@@ -138,9 +140,10 @@ class UserFollowListViewController: UIViewController, UITableViewDataSource, UIT
     private func retrieveFollowers() {
         // GET page=2, page=3 and so on
         let nextPage = currentPage + 1
+        let userId = user["id"] as! Int
         
         // REST call to server to retrieve followers
-        manager.GET(SprubixConfig.URL.api + "/user/followers?page=\(nextPage)",
+        manager.GET(SprubixConfig.URL.api + "/user/\(userId)/followers?page=\(nextPage)",
             parameters: nil,
             success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
                 var followers = responseObject["data"] as! [NSDictionary]
@@ -275,6 +278,8 @@ class UserFollowListViewController: UIViewController, UITableViewDataSource, UIT
     }
     
     func showProfile(user: NSDictionary) {
+        println(user)
+        
         containerViewController.showUserProfile(user)
     }
     
