@@ -66,10 +66,6 @@ class BrowseFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDat
         refreshControl.addTarget(self, action: "refresh:", forControlEvents: UIControlEvents.ValueChanged)
         discoverCollectionView.insertSubview(refreshControl, atIndex: 0)
         refreshControl.endRefreshing()
-        
-        // empty dataset
-        discoverCollectionView.emptyDataSetSource = self
-        discoverCollectionView.emptyDataSetDelegate = self
     }
     
     override func viewWillAppear(animated: Bool) {
@@ -89,6 +85,17 @@ class BrowseFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDat
         // Mixpanel - Viewed Main Feed, Discover
         MixpanelService.track("App Launched", propertySet: ["Page": "Discover"])
         // Mixpanel - End
+    }
+    
+    override func viewDidAppear(animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        // infinite scrolling
+        discoverCollectionView.addInfiniteScrollingWithActionHandler({
+            if SprubixReachability.isConnectedToNetwork() {
+                self.insertMoreOutfits()
+            }
+        })
     }
     
     override func viewWillDisappear(animated: Bool) {
@@ -128,12 +135,9 @@ class BrowseFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDat
         discoverCollectionView.dataSource = self;
         discoverCollectionView.delegate = self;
         
-        // infinite scrolling
-        discoverCollectionView.addInfiniteScrollingWithActionHandler({
-            if SprubixReachability.isConnectedToNetwork() {
-                self.insertMoreOutfits()
-            }
-        })
+        // empty dataset
+        discoverCollectionView.emptyDataSetSource = self
+        discoverCollectionView.emptyDataSetDelegate = self
         
         view.addSubview(discoverCollectionView)
         
@@ -184,7 +188,7 @@ class BrowseFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDat
         sideMenuButtonItem.tintColor = UIColor(red: 170/255, green: 170/255, blue: 170/255, alpha: 1.0)
         
         var negativeSpacerItem: UIBarButtonItem = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.FixedSpace, target: nil, action: nil)
-        negativeSpacerItem.width = -16
+        negativeSpacerItem.width = -20
         
         self.navigationItem.leftBarButtonItems = [negativeSpacerItem, sideMenuButtonItem]
         
@@ -196,6 +200,7 @@ class BrowseFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDat
         searchButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
         searchButton.imageView?.tintColor = UIColor.lightGrayColor()
         searchButton.imageEdgeInsets = UIEdgeInsetsMake(5, 5, 5, 5)
+        searchButton.addTarget(self, action: "searchButtonPressed:", forControlEvents: UIControlEvents.TouchUpInside)
         
         var searchBarButtonItem: UIBarButtonItem = UIBarButtonItem(customView: searchButton)
         self.navigationItem.rightBarButtonItems = [searchBarButtonItem]
@@ -862,6 +867,14 @@ class BrowseFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDat
     }
     
     // nav bar button callbacks
+    func searchButtonPressed(sender: UIButton) {
+        let searchViewController = SearchViewController()
+        
+        UIView.transitionWithView(self.navigationController!.view, duration: 0.3, options: UIViewAnimationOptions.TransitionCrossDissolve, animations: {
+            self.navigationController?.pushViewController(searchViewController, animated: false)
+            }, completion: nil)
+    }
+    
     func navbarTitlePressed(sender: UIButton) {
         if dropdownVisible != true {
             sprubixTitle.selected = true
@@ -942,6 +955,7 @@ class BrowseFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDat
     }
     
     func sideMenuTapped(sender: UIBarButtonItem) {
+        dismissDropdown(UITapGestureRecognizer())
         delegate?.toggleSidePanel!()
     }
 }

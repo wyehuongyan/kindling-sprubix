@@ -9,6 +9,7 @@
 import UIKit
 import AFNetworking
 import TSMessages
+import MRProgress
 
 class ProvideFeedbackViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UITextViewDelegate, UITextFieldDelegate {
     
@@ -26,6 +27,8 @@ class ProvideFeedbackViewController: UIViewController, UITableViewDataSource, UI
     // custom nav bar
     var newNavBar: UINavigationBar!
     var newNavItem: UINavigationItem!
+    
+    var overlay: MRProgressOverlayView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -127,7 +130,8 @@ class ProvideFeedbackViewController: UIViewController, UITableViewDataSource, UI
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
 
         contentText = UITextView(frame: CGRectInset(CGRect(x: 0, y: 0, width: screenWidth, height: contentTextHeight), 15, 0))
-        contentText.tintColor = UIColor.blackColor()
+        contentText.textColor = UIColor.darkGrayColor()
+        contentText.tintColor = sprubixColor
         contentText.font = UIFont.systemFontOfSize(16)
         contentText.delegate = self
         contentCell.addSubview(contentText)
@@ -148,9 +152,14 @@ class ProvideFeedbackViewController: UIViewController, UITableViewDataSource, UI
         
         let validateResult = validateInputs()
         let delay: NSTimeInterval = 2
-        let viewDelay: Double = 2.5
+        let viewDelay: Double = 2.0
         
         if validateResult.valid {
+            
+            // init overlay
+            overlay = MRProgressOverlayView.showOverlayAddedTo(self.view, title: "Sending...", mode: MRProgressOverlayViewMode.Indeterminate, animated: true)
+            
+            overlay.tintColor = sprubixColor
             
             let userData: NSDictionary = defaults.dictionaryForKey("userData")!
             
@@ -161,6 +170,8 @@ class ProvideFeedbackViewController: UIViewController, UITableViewDataSource, UI
                 success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
                     var data = responseObject as! NSDictionary
                     var status = data.objectForKey("status") as! String
+                    
+                    self.overlay.dismiss(true)
                     
                     if status == "200" {
                         // email sent
@@ -199,11 +210,13 @@ class ProvideFeedbackViewController: UIViewController, UITableViewDataSource, UI
                     }
                     
                     // Print reply from server
-                    println(data)
+                    //println(data)
                     
                 },
                 failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                     println("Error: " + error.localizedDescription)
+                    
+                    self.overlay.dismiss(true)
                     
                     // error exception
                     TSMessage.showNotificationInViewController(

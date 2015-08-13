@@ -89,12 +89,12 @@ class PeopleFeedCell: UITableViewCell {
         followButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
         followButton.frame = CGRectMake(screenWidth - followButtonWidth - 10.0, 21.5, followButtonWidth, userNameLabelHeight * 2)
 
-        var image: UIImage = UIImage(named: "main-people")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
+        var image: UIImage = UIImage(named: "people-follow-user")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
         followButton.setImage(image, forState: UIControlState.Normal)
         followButton.setImage(UIImage(named: "filter-check"), forState: UIControlState.Selected)
         followButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
         followButton.imageView?.tintColor = sprubixColor
-        followButton.imageEdgeInsets = UIEdgeInsetsMake(10, 0, 10, 0)
+        followButton.imageEdgeInsets = UIEdgeInsetsMake(4, 0, 8, 1)
         followButton.addTarget(self, action: "followTapped:", forControlEvents: UIControlEvents.TouchUpInside)
         followButton.exclusiveTouch = true
         followButton.alpha = 0.0
@@ -186,9 +186,11 @@ class PeopleFeedCell: UITableViewCell {
             if followButton.selected {
                 followButton.backgroundColor = sprubixColor
                 followButton.imageView?.tintColor = UIColor.whiteColor()
+                followButton.imageEdgeInsets = UIEdgeInsetsMake(10, 0, 10, 0)
             } else {
                 followButton.backgroundColor = UIColor.whiteColor()
                 followButton.imageView?.tintColor = sprubixColor
+                followButton.imageEdgeInsets = UIEdgeInsetsMake(4, 0, 8, 1)
             }
             
             followButton.alpha = 1.0
@@ -203,6 +205,7 @@ class PeopleFeedCell: UITableViewCell {
         if sender.selected {
             sender.backgroundColor = sprubixColor
             sender.imageView?.tintColor = UIColor.whiteColor()
+            sender.imageEdgeInsets = UIEdgeInsetsMake(10, 0, 10, 0)
             
             // follow
             delegate?.followUser(user, sender: sender)
@@ -210,6 +213,7 @@ class PeopleFeedCell: UITableViewCell {
         } else {
             sender.backgroundColor = UIColor.whiteColor()
             sender.imageView?.tintColor = sprubixColor
+            sender.imageEdgeInsets = UIEdgeInsetsMake(4, 0, 8, 1)
             
             delegate?.unfollowUser(user, sender: sender)
         }

@@ -138,8 +138,6 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
         self.navigationController?.setNavigationBarHidden(true, animated: true)
         self.navigationController?.navigationBar.setBackgroundImage(nil, forBarMetrics: UIBarMetrics.Default)
         self.navigationController?.navigationBar.shadowImage = nil
-        
-        //self.camera?.stopCamera()
     }
     
     override func viewDidDisappear(animated: Bool) {
@@ -646,6 +644,14 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
                 topButton.backgroundColor = UIColor.lightGrayColor()
                 topButton.selected = false
                 selectedCount -= 1
+            }
+            
+            // if dress is selected and bottom is selected, deselect bottom
+            if bottomButton.selected {
+                bottomButton.backgroundColor = UIColor.lightGrayColor()
+                bottomButton.selected = false
+                selectedCount -= 1
+                selectedPieces["BOTTOM"] = false
             }
             
             UIView.animateWithDuration(0.3, delay: 0, usingSpringWithDamping: 0.9, initialSpringVelocity: 0, options: .CurveEaseInOut, animations: {

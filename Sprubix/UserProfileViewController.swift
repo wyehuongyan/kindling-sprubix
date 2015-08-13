@@ -35,14 +35,15 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
     let userProfileHeaderIdentifier = "UserProfileHeader"
     let userProfileFooterIdentifier = "UserProfileFooter"
 
-    var headerReusableView: UserProfileHeader!
-    var footerReusableView: UserProfileFooter!
+    var headerReusableView: UserProfileHeader?
+    var footerReusableView: UserProfileFooter?
     
     var userOutfitsLayout:SprubixStretchyHeader!
     var userPiecesLayout:SprubixStretchyHeader!
     
     let userProfileHeaderHeight:CGFloat = 300;
     var emptyDataTableView: UITableView?
+    var emptyDataView: UIView?
     
     var outfits:[NSDictionary] = [NSDictionary]()
     var pieces:[NSDictionary] = [NSDictionary]()
@@ -50,7 +51,7 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
     
     var profileCollectionView: UICollectionView!
     var currentProfileState: ProfileState = .Outfits
-    var activityView: UIActivityIndicatorView!
+    var activityView: UIActivityIndicatorView?
     
     @IBOutlet var closeUserProfileButton: UIBarButtonItem!
     @IBAction func closeUserProfile(sender: UIBarButtonItem) {
@@ -143,6 +144,8 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        view.backgroundColor = sprubixGray
+        
         // initialization
         if user != nil {
             initUserProfile()
@@ -194,20 +197,16 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
         profileCollectionView.dataSource = self;
         profileCollectionView.delegate = self;
         
-        // infinite scrolling
-        profileCollectionView.addInfiniteScrollingWithActionHandler({
-            self.insertMoreItems()
-        })
-        
         view.addSubview(profileCollectionView)
         
         // here the spinner is initialized
         let activityViewWidth: CGFloat = 50
-        activityView = UIActivityIndicatorView(activityIndicatorStyle: UIActivityIndicatorViewStyle.White)
-        activityView.color = sprubixColor
-        activityView.frame = CGRect(x: screenWidth / 2 - activityViewWidth / 2, y: ((screenHeight - userProfileHeaderHeight) / 3 - activityViewWidth / 2) + userProfileHeaderHeight, width: activityViewWidth, height: activityViewWidth)
         
-        view.addSubview(activityView)
+        activityView = UIActivityIndicatorView(activityIndicatorStyle: UIActivityIndicatorViewStyle.White)
+        activityView?.color = sprubixColor
+        activityView?.frame = CGRect(x: screenWidth / 2 - activityViewWidth / 2, y: 0.6 * screenHeight - activityViewWidth / 2, width: activityViewWidth, height: activityViewWidth)
+        
+        profileCollectionView.addSubview(activityView!)
     }
     
     func initCollectionViewLayouts() {
@@ -239,16 +238,25 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
         
         reloadUserItems()
         
-        self.navigationController?.setNavigationBarHidden(false, animated: true)
+        self.navigationController?.setNavigationBarHidden(false, animated: false)
         
         self.navigationController?.navigationBar.setBackgroundImage(UIImage(), forBarMetrics: UIBarMetrics.Default)
         self.navigationController?.navigationBar.shadowImage = UIImage()
     }
     
+    override func viewDidAppear(animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        // infinite scrolling
+        profileCollectionView.addInfiniteScrollingWithActionHandler({
+            self.insertMoreItems()
+        })
+    }
+    
     override func viewWillDisappear(animated: Bool) {
         super.viewWillDisappear(animated)
         
-        self.navigationController?.setNavigationBarHidden(true, animated: true)
+        self.navigationController?.setNavigationBarHidden(true, animated: false)
         self.navigationController?.navigationBar.setBackgroundImage(nil, forBarMetrics: UIBarMetrics.Default)
         self.navigationController?.navigationBar.shadowImage = nil
     }
@@ -365,22 +373,24 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
     func collectionView(collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, atIndexPath indexPath: NSIndexPath) -> UICollectionReusableView {
         
         if kind == CHTCollectionElementKindSectionHeader {
-            headerReusableView = collectionView.dequeueReusableSupplementaryViewOfKind(kind, withReuseIdentifier: userProfileHeaderIdentifier, forIndexPath: indexPath) as! UserProfileHeader
+            if headerReusableView == nil {
+                headerReusableView = collectionView.dequeueReusableSupplementaryViewOfKind(kind, withReuseIdentifier: userProfileHeaderIdentifier, forIndexPath: indexPath) as? UserProfileHeader
+                
+                if user != nil {
+                    headerReusableView!.user = user
+                }
+                
+                headerReusableView!.setProfileInfo()
+                headerReusableView!.delegate = self
+            }
             
-            if user != nil {
-                headerReusableView.user = user
-            } 
-
-            headerReusableView.setProfileInfo()
-            headerReusableView.delegate = self
-            
-            return headerReusableView
+            return headerReusableView!
             
         } else if kind == CHTCollectionElementKindSectionFooter {
-            footerReusableView = collectionView.dequeueReusableSupplementaryViewOfKind(kind, withReuseIdentifier: userProfileFooterIdentifier, forIndexPath: indexPath) as! UserProfileFooter
+            footerReusableView = collectionView.dequeueReusableSupplementaryViewOfKind(kind, withReuseIdentifier: userProfileFooterIdentifier, forIndexPath: indexPath) as? UserProfileFooter
         }
         
-        return footerReusableView
+        return footerReusableView!
     }
     
     func collectionView(collectionView: UICollectionView, didSelectItemAtIndexPath indexPath: NSIndexPath) {
@@ -390,6 +400,8 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
             outfitDetailsViewController.outfits = outfits
             
             collectionView.setToIndexPath(indexPath)
+            
+            navigationController?.delegate = transitionDelegateHolder
             navigationController!.pushViewController(outfitDetailsViewController, animated: true)
         case .Pieces:
             let pieceDetailsViewController = PieceDetailsViewController(collectionViewLayout: detailsViewControllerLayout(), currentIndexPath:indexPath)
@@ -397,12 +409,16 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
             pieceDetailsViewController.user = user
             
             collectionView.setToIndexPath(indexPath)
+            
+            navigationController?.delegate = transitionDelegateHolder
             navigationController!.pushViewController(pieceDetailsViewController, animated: true)
         case .Community:
             let outfitDetailsViewController = OutfitDetailsViewController(collectionViewLayout: detailsViewControllerLayout(), currentIndexPath:indexPath)
             outfitDetailsViewController.outfits = communityOutfits
             
             collectionView.setToIndexPath(indexPath)
+            
+            navigationController?.delegate = transitionDelegateHolder
             navigationController!.pushViewController(outfitDetailsViewController, animated: true)
         default:
             break
@@ -445,6 +461,8 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
                         if self.alreadyFollowed == true {
                             // already followed
                             self.followUserButton.setTitle("Unfollow", forState: UIControlState.Normal)
+                        } else {
+                            self.followUserButton.setTitle("Follow", forState: UIControlState.Normal)
                         }
                     }
                 },
@@ -459,14 +477,17 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
     }
     
     func showEmptyDataSet() {
-        if emptyDataTableView != nil {
-            emptyDataTableView?.removeFromSuperview()
-        }
+        emptyDataTableView?.removeFromSuperview()
+        emptyDataView?.removeFromSuperview()
         
         emptyDataTableView = UITableView(frame: CGRectMake(0, userProfileHeaderHeight, screenWidth, screenHeight - userProfileHeaderHeight))
         
-        profileCollectionView.addSubview(emptyDataTableView!)
-
+        emptyDataView = UIView(frame: CGRectMake(0, userProfileHeaderHeight + emptyDataTableView!.frame.height, screenWidth, screenHeight))
+        emptyDataView?.backgroundColor = sprubixGray
+        
+        profileCollectionView?.insertSubview(emptyDataTableView!, belowSubview: activityView!)
+        profileCollectionView?.insertSubview(emptyDataView!, belowSubview: activityView!)
+        
         emptyDataTableView?.emptyDataSetDelegate = self
         emptyDataTableView?.emptyDataSetSource = self
         emptyDataTableView?.tableFooterView = UIView()
@@ -474,6 +495,7 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
     
     func hideEmptyDataSet() {
         emptyDataTableView?.removeFromSuperview()
+        emptyDataView?.removeFromSuperview()
     }
     
     // DZNEmptyDataSetSource
@@ -615,6 +637,7 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
             },
             failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                 println("Error: " + error.localizedDescription)
+                self.profileCollectionView.infiniteScrollingView.stopAnimating()
         })
     }
     
@@ -637,6 +660,7 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
             },
             failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                 println("Error: " + error.localizedDescription)
+                self.profileCollectionView.infiniteScrollingView.stopAnimating()
         })
     }
     
@@ -659,18 +683,37 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
             },
             failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                 println("Error: " + error.localizedDescription)
+                self.profileCollectionView.infiniteScrollingView.stopAnimating()
         })
     }
     
     // UserProfileHeaderDelegate
+    func showFollowers() {
+        showFollowList(false)
+    }
+    
+    func showFollowing() {
+        showFollowList(true)
+    }
+    
+    private func showFollowList(following: Bool) {
+        let userFollowListViewController = UIStoryboard.userFollowListViewController()
+        
+        userFollowListViewController!.following = following
+        userFollowListViewController!.user = user
+        
+        self.navigationController?.delegate = nil
+        self.navigationController?.pushViewController(userFollowListViewController!, animated: true)
+    }
+    
     func loadUserOutfits() {
         if outfitsLoaded != true {
             var userId:Int? = user!["id"] as? Int
             
             if userId != nil {
                 self.currentProfileState = .Outfits
-                self.showEmptyDataSet()
-                activityView.startAnimating()
+                activityView?.startAnimating()
+                profileCollectionView.scrollEnabled = false
                 
                 manager.GET(SprubixConfig.URL.api + "/user/\(userId!)/outfits",
                     parameters: nil,
@@ -681,7 +724,7 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
                         if self.currentProfileState == .Outfits {
                             self.currentPage = responseObject["current_page"] as? Int
                             self.lastPage = responseObject["last_page"] as? Int
-                            self.activityView.stopAnimating()
+                            self.activityView?.stopAnimating()
                             
                             if self.outfits.count > 0 {
                                 //self.outfitsLoaded = true
@@ -696,11 +739,13 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
                                 self.showEmptyDataSet()
                             }
                         }
+                        
+                        self.profileCollectionView.scrollEnabled = true
                     },
                     failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                         println("Error: " + error.localizedDescription)
                         
-                        self.activityView.stopAnimating()
+                        self.activityView?.stopAnimating()
                         SprubixReachability.handleError(error.code)
                 })
             } else {
@@ -722,8 +767,8 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
             
             if userId != nil {
                 self.currentProfileState = .Pieces
-                self.showEmptyDataSet()
-                activityView.startAnimating()
+                activityView?.startAnimating()
+                profileCollectionView.scrollEnabled = false
                 
                 manager.GET(SprubixConfig.URL.api + "/user/\(userId!)/pieces",
                     parameters: nil,
@@ -734,7 +779,7 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
                         if self.currentProfileState == .Pieces {
                             self.currentPage = responseObject["current_page"] as? Int
                             self.lastPage = responseObject["last_page"] as? Int
-                            self.activityView.stopAnimating()
+                            self.activityView?.stopAnimating()
                             
                             if self.pieces.count > 0 {
                                 //self.piecesLoaded = true
@@ -749,11 +794,13 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
                                 self.showEmptyDataSet()
                             }
                         }
+                        
+                        self.profileCollectionView.scrollEnabled = true
                     },
                     failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                         println("Error: " + error.localizedDescription)
                         
-                        self.activityView.stopAnimating()
+                        self.activityView?.stopAnimating()
                         SprubixReachability.handleError(error.code)
                 })
             } else {
@@ -774,8 +821,8 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
             
             if userId != nil {
                 self.currentProfileState = .Community
-                self.showEmptyDataSet()
-                activityView.startAnimating()
+                activityView?.startAnimating()
+                profileCollectionView.scrollEnabled = false
                 
                 manager.GET(SprubixConfig.URL.api + "/user/\(userId!)/outfits/community",
                     parameters: nil,
@@ -786,7 +833,7 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
                         if self.currentProfileState == .Community {
                             self.currentPage = responseObject["current_page"] as? Int
                             self.lastPage = responseObject["last_page"] as? Int
-                            self.activityView.stopAnimating()
+                            self.activityView?.stopAnimating()
                             
                             if self.communityOutfits.count > 0 {
                                 //self.communityLoaded = true
@@ -801,11 +848,13 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
                                 self.showEmptyDataSet()
                             }
                         }
+                        
+                        self.profileCollectionView.scrollEnabled = true
                     },
                     failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                         println("Error: " + error.localizedDescription)
                         
-                        self.activityView.stopAnimating()
+                        self.activityView?.stopAnimating()
                         SprubixReachability.handleError(error.code)
                 })
             } else {
@@ -825,10 +874,10 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
     func updateUser(user: NSDictionary) {
         self.user = user
         
-        headerReusableView.user = user
-        headerReusableView.setProfileInfo()
-        headerReusableView.setNeedsDisplay()
-        headerReusableView.setNeedsLayout()
+        headerReusableView!.user = user
+        headerReusableView!.setProfileInfo()
+        headerReusableView!.setNeedsDisplay()
+        headerReusableView!.setNeedsLayout()
     }
     
     private func reloadUserItems() {

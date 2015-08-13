@@ -110,7 +110,7 @@ class PeopleFeedViewController: UIViewController, DZNEmptyDataSetSource, DZNEmpt
         sideMenuButtonItem.tintColor = UIColor(red: 170/255, green: 170/255, blue: 170/255, alpha: 1.0)
         
         var negativeSpacerItem: UIBarButtonItem = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.FixedSpace, target: nil, action: nil)
-        negativeSpacerItem.width = -16
+        negativeSpacerItem.width = -20
         
         self.navigationItem.leftBarButtonItems = [negativeSpacerItem, sideMenuButtonItem]
         
@@ -122,6 +122,7 @@ class PeopleFeedViewController: UIViewController, DZNEmptyDataSetSource, DZNEmpt
         searchButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
         searchButton.imageView?.tintColor = UIColor.lightGrayColor()
         searchButton.imageEdgeInsets = UIEdgeInsetsMake(5, 5, 5, 5)
+        searchButton.addTarget(self, action: "searchButtonPressed:", forControlEvents: UIControlEvents.TouchUpInside)
         
         var searchBarButtonItem: UIBarButtonItem = UIBarButtonItem(customView: searchButton)
         self.navigationItem.rightBarButtonItems = [searchBarButtonItem]
@@ -447,6 +448,14 @@ class PeopleFeedViewController: UIViewController, DZNEmptyDataSetSource, DZNEmpt
         return flowLayout
     }
     
+    func searchButtonPressed(sender: UIButton) {
+        let searchViewController = SearchViewController()
+        
+        UIView.transitionWithView(self.navigationController!.view, duration: 0.3, options: UIViewAnimationOptions.TransitionCrossDissolve, animations: {
+            self.navigationController?.pushViewController(searchViewController, animated: false)
+            }, completion: nil)
+    }
+    
     func navbarTitlePressed(sender: UIButton) {
         if dropdownVisible != true {
             sprubixTitle.selected = true
@@ -527,6 +536,7 @@ class PeopleFeedViewController: UIViewController, DZNEmptyDataSetSource, DZNEmpt
     }
     
     func sideMenuTapped(sender: UIBarButtonItem) {
+        dismissDropdown(UITapGestureRecognizer())
         delegate?.toggleSidePanel!()
     }
     

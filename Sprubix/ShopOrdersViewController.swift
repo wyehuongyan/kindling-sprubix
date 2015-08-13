@@ -15,6 +15,8 @@ class ShopOrdersViewController: UIViewController, UITableViewDataSource, UITable
     let orderCellIdentifier: String = "OrderCell"
     @IBOutlet var shopOrdersTableView: UITableView!
     
+    var activityView: UIActivityIndicatorView!
+    
     // custom nav bar
     var newNavBar: UINavigationBar!
     var newNavItem: UINavigationItem!
@@ -32,6 +34,14 @@ class ShopOrdersViewController: UIViewController, UITableViewDataSource, UITable
         // get rid of line seperator for empty cells
         shopOrdersTableView.backgroundColor = sprubixGray
         shopOrdersTableView.tableFooterView = UIView(frame: CGRectZero)
+        
+        // here the spinner is initialized
+        let activityViewWidth: CGFloat = 50
+        activityView = UIActivityIndicatorView(activityIndicatorStyle: UIActivityIndicatorViewStyle.White)
+        activityView.color = sprubixColor
+        activityView.frame = CGRect(x: screenWidth / 2 - activityViewWidth / 2, y: screenHeight / 3 - activityViewWidth / 2, width: activityViewWidth, height: activityViewWidth)
+        
+        view.addSubview(activityView)
     }
     
     override func viewWillAppear(animated: Bool) {
@@ -42,6 +52,10 @@ class ShopOrdersViewController: UIViewController, UITableViewDataSource, UITable
     }
     
     func retrieveUserShopOrders() {
+        if shopOrders.count <= 0 {
+            activityView.startAnimating()
+        }
+        
         // REST call to server to retrieve shop orders
         manager.POST(SprubixConfig.URL.api + "/orders/shop",
             parameters: [
@@ -50,11 +64,14 @@ class ShopOrdersViewController: UIViewController, UITableViewDataSource, UITable
             success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
                 
                 self.shopOrders = responseObject["data"] as! [NSDictionary]
-                
                 self.shopOrdersTableView.reloadData()
+                
+                self.activityView.stopAnimating()
             },
             failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                 println("Error: " + error.localizedDescription)
+                
+                self.activityView.stopAnimating()
         })
     }
     

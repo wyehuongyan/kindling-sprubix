@@ -68,7 +68,10 @@ class OutfitDetailsViewController: UICollectionViewController, UICollectionViewD
                     self.outfits.insert(updatedOutfit, atIndex: self.currentVisibleIndexPath!.row)
                     self.outfits.removeAtIndex(self.currentVisibleIndexPath!.row + 1)
                     
-                    self.collectionView!.reloadItemsAtIndexPaths([self.currentVisibleIndexPath!])
+                    let currentOutfitDetailsCell = self.collectionView?.cellForItemAtIndexPath(self.currentVisibleIndexPath!) as! OutfitDetailsCell
+                    
+                    currentOutfitDetailsCell.outfit = self.outfits[self.currentVisibleIndexPath!.row]
+                    currentOutfitDetailsCell.tableView.reloadData()
                 },
                 failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                     println("Error: " + error.localizedDescription)

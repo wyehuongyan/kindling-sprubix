@@ -19,6 +19,9 @@ class OrdersViewController: UIViewController, UITableViewDataSource, UITableView
     var buttonLine: UIView!
     var currentChoice: UIButton!
     
+    var refreshControl: UIRefreshControl!
+    var activityView: UIActivityIndicatorView!
+    
     // table view
     var orders: [NSDictionary] = [NSDictionary]()
     let orderCellIdentifier: String = "OrderCell"
@@ -33,10 +36,11 @@ class OrdersViewController: UIViewController, UITableViewDataSource, UITableView
     var dateOrdersDict: NSMutableDictionary = NSMutableDictionary()
     
     var activeStatuses = [1, 2, 6]
-    var fulfilledStatuses = [3, 4, 7]
-    var cancelledStatuses = [5, 8]
+    var fulfilledStatuses = [3, 4]
+    var cancelledStatuses = [5, 7]
     
     var currentOrderStatus: NSArray!
+    var prevOrderStatus: NSArray!
     
     var dashboardViewController: DashboardViewController?
     
@@ -179,12 +183,28 @@ class OrdersViewController: UIViewController, UITableViewDataSource, UITableView
         // button 1 is initially selected
         button1.addSubview(buttonLine)
         button1.tintColor = sprubixColor
+        
+        // here the spinner is initialized
+        let activityViewWidth: CGFloat = 50
+        activityView = UIActivityIndicatorView(activityIndicatorStyle: UIActivityIndicatorViewStyle.White)
+        activityView.color = sprubixColor
+        activityView.frame = CGRect(x: screenWidth / 2 - activityViewWidth / 2, y: screenHeight / 3 - activityViewWidth / 2, width: activityViewWidth, height: activityViewWidth)
+        
+        view.addSubview(activityView)
+        
+        // refresh control
+        refreshControl = UIRefreshControl()
+        refreshControl.tintColor = sprubixColor
+        refreshControl.addTarget(self, action: "refresh:", forControlEvents: UIControlEvents.ValueChanged)
+        ordersTableView.insertSubview(refreshControl, atIndex: 0)
+        refreshControl.endRefreshing()
+    }
+    
+    func refresh(sender: AnyObject) {
+        retrieveOrders()
     }
     
     func retrieveOrders() {
-        self.orders.removeAll()
-        self.ordersTableView.reloadData()
-        
         let userData: NSDictionary? = defaults.dictionaryForKey("userData")
         let shoppableType: String? = userData!["shoppable_type"] as? String
         
@@ -198,6 +218,10 @@ class OrdersViewController: UIViewController, UITableViewDataSource, UITableView
     }
     
     func retrieveUserOrders() {
+        if orders.count <= 0 {
+            activityView.startAnimating()
+        }
+        
         // REST call to server to retrieve user orders
         manager.POST(SprubixConfig.URL.api + "/orders/user",
             parameters: [
@@ -208,13 +232,23 @@ class OrdersViewController: UIViewController, UITableViewDataSource, UITableView
                 
                 self.formatOrders()
                 self.ordersTableView.reloadData()
+                
+                self.activityView.stopAnimating()
+                self.refreshControl.endRefreshing()
             },
             failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                 println("Error: " + error.localizedDescription)
+                
+                self.activityView.stopAnimating()
+                self.refreshControl.endRefreshing()
         })
     }
     
     func retrieveShopOrders() {
+        if orders.count <= 0 {
+            activityView.startAnimating()
+        }
+        
         // REST call to server to retrieve shop orders
         manager.POST(SprubixConfig.URL.api + "/orders/shop",
             parameters: [
@@ -225,9 +259,15 @@ class OrdersViewController: UIViewController, UITableViewDataSource, UITableView
                 
                 self.formatOrders()
                 self.ordersTableView.reloadData()
+                
+                self.activityView.stopAnimating()
+                self.refreshControl.endRefreshing()
             },
             failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                 println("Error: " + error.localizedDescription)
+                
+                self.activityView.stopAnimating()
+                self.refreshControl.endRefreshing()
         })
     }
     
@@ -382,7 +422,10 @@ class OrdersViewController: UIViewController, UITableViewDataSource, UITableView
             sender.addSubview(buttonLine)
             sender.tintColor = sprubixColor
             
+            prevOrderStatus = currentOrderStatus
             currentOrderStatus = activeStatuses
+            
+            orders.removeAll()
             retrieveOrders()
             
             // Mixpanel - Viewed Orders, Active
@@ -402,7 +445,10 @@ class OrdersViewController: UIViewController, UITableViewDataSource, UITableView
             sender.addSubview(buttonLine)
             sender.tintColor = sprubixColor
             
+            prevOrderStatus = currentOrderStatus
             currentOrderStatus = fulfilledStatuses
+
+            orders.removeAll()
             retrieveOrders()
             
             // Mixpanel - Viewed Orders, Fulfilled
@@ -422,7 +468,10 @@ class OrdersViewController: UIViewController, UITableViewDataSource, UITableView
             sender.addSubview(buttonLine)
             sender.tintColor = sprubixColor
             
+            prevOrderStatus = currentOrderStatus
             currentOrderStatus = cancelledStatuses
+            
+            orders.removeAll()
             retrieveOrders()
             
             // Mixpanel - Viewed Orders, Cancelled

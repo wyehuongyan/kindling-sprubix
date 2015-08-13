@@ -96,10 +96,6 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         initButtons()
         initDropdown()
         
-        // empty dataset
-        mainCollectionView.emptyDataSetSource = self
-        mainCollectionView.emptyDataSetDelegate = self
-        
         // fresh login for initial load
         freshLogin = true
     }
@@ -150,6 +146,17 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         // Mixpanel - End
     }
     
+    override func viewDidAppear(animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        // infinite scrolling
+        mainCollectionView.addInfiniteScrollingWithActionHandler({
+            if SprubixReachability.isConnectedToNetwork() {
+                self.insertMoreOutfits()
+            }
+        })
+    }
+    
     override func viewWillDisappear(animated: Bool) {
         super.viewWillDisappear(animated)
 
@@ -195,7 +202,7 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         sideMenuButtonItem.tintColor = UIColor(red: 170/255, green: 170/255, blue: 170/255, alpha: 1.0)
         
         var negativeSpacerItem: UIBarButtonItem = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.FixedSpace, target: nil, action: nil)
-        negativeSpacerItem.width = -16
+        negativeSpacerItem.width = -20
         
         self.navigationItem.leftBarButtonItems = [negativeSpacerItem, sideMenuButtonItem]
     }
@@ -225,12 +232,9 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         mainCollectionView.dataSource = self;
         mainCollectionView.delegate = self;
         
-        // infinite scrolling
-        mainCollectionView.addInfiniteScrollingWithActionHandler({
-            if SprubixReachability.isConnectedToNetwork() {
-                self.insertMoreOutfits()
-            }
-        })
+        // empty dataset
+        mainCollectionView.emptyDataSetSource = self
+        mainCollectionView.emptyDataSetDelegate = self
         
         view.addSubview(mainCollectionView)
         
@@ -336,6 +340,7 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
     }
     
     func sideMenuTapped(sender: UIBarButtonItem) {
+        dismissDropdown(UITapGestureRecognizer())
         delegate?.toggleSidePanel!()
     }
     

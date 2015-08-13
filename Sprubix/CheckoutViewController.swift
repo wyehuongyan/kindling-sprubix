@@ -451,7 +451,7 @@ class CheckoutViewController: UIViewController, UITableViewDataSource, UITableVi
                         var orderedQuantity = insufficientItem["quantity_ordered"] as! Int
                         var remainingQuantity = insufficientItem["quantity_left"] as! String
                         
-                        var itemMessage = "\n\(i). \(itemName) (Size: \(orderedSize), Ordered: \(orderedQuantity), Left: \(remainingQuantity))"
+                        var itemMessage = "\n\(i). \(itemName)\n(Size: \(orderedSize), Ordered: \(orderedQuantity), Left: \(remainingQuantity))"
                         
                         message += itemMessage
                     }

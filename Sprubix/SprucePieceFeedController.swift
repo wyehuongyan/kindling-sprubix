@@ -284,18 +284,33 @@ class SprucePieceFeedController: UICollectionViewController, UICollectionViewDel
                 success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
                     var pieces = responseObject["data"] as! [NSDictionary]
                     
-                    for piece in pieces {
-                        self.sprucePieces.append(piece)
-                    }
-                    
-                    self.collectionView?.reloadData()
-                    self.collectionView?.layoutIfNeeded()
-
-                    if self.piece == nil {
-                        // does not have a piece initialized (could be removed by owner)
-                        // // resize outfit on the new piece from server
-                        self.delegate?.resizeOutfit()
-                    }
+                    self.collectionView?.performBatchUpdates({
+                        // update data source
+                        for var i = 0; i < pieces.count; i++ {
+                            let piece = pieces[i]
+                            
+                            self.sprucePieces.append(piece)
+                            
+                            if self.piece != nil {
+                                // there's already a piece at position 0
+                                self.collectionView!.insertItemsAtIndexPaths([NSIndexPath(forItem: 1, inSection: 0)])
+                            } else {
+                                self.collectionView!.insertItemsAtIndexPaths([NSIndexPath(forItem: 0, inSection: 0)])
+                            }
+                        }
+                            
+                        }, completion: { finished in
+                            
+                            if finished {
+                                if self.piece == nil {
+                                    // update current visible cell
+                                    self.setCurrentVisibleCell()
+                                    
+                                    // resize
+                                    self.delegate?.resizeOutfit()
+                                }
+                            }
+                    })
                 },
                 failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                     println("Error: " + error.localizedDescription)

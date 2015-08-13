@@ -22,6 +22,7 @@ class ShopOrderDetailsViewController: UIViewController, UITableViewDataSource, U
     let checkoutItemCellIdentifier = "CheckoutItemCell"
     let cartItemSectionFooterIdentifier = "CartItemSectionFooter"
     let orderDetailsStatusCellIdentifier = "OrderDetailsStatusCell"
+    let orderDetailsRefundCellIdentifier = "OrderDetailsRefundCell"
     
     @IBOutlet var shopOrderDetailsTableView: UITableView!
     
@@ -275,53 +276,84 @@ class ShopOrderDetailsViewController: UIViewController, UITableViewDataSource, U
             
             return cell
         case 2:
-            // order status
-            let cell = tableView.dequeueReusableCellWithIdentifier(orderDetailsStatusCellIdentifier, forIndexPath: indexPath) as! OrderDetailsStatusCell
-            
-            let orderStatus = shopOrder["order_status"] as! NSDictionary
-            let orderStatusName = orderStatus["name"] as! String
-            currentOrderStatusId = orderStatus["id"] as! Int
-            
-            var statusImageName = ""
-            var statusTintColor = UIColor.lightGrayColor()
-            
-            cell.orderStatusId = currentOrderStatusId
-            cell.setStatusImage()
-            cell.status.text = orderStatusName
-            
-            cell.changeStatusAction = { Void in
+            switch indexPath.row {
+            case 0:
+                // order status
+                let cell = tableView.dequeueReusableCellWithIdentifier(orderDetailsStatusCellIdentifier, forIndexPath: indexPath) as! OrderDetailsStatusCell
                 
-                if self.orderStatuses.count <= 0 {
-                    // REST call to server to retrieve order statuses
-                    manager.GET(SprubixConfig.URL.api + "/order/statuses",
-                        parameters: nil,
-                        success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
-                            
-                            self.orderStatuses = responseObject as! [NSDictionary]
-                            
-                            self.initOrderStatusActionSheet()
-                        },
-                        failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
-                            println("Error: " + error.localizedDescription)
-                    })
-                } else {
-                    self.initOrderStatusActionSheet()
+                let orderStatus = shopOrder["order_status"] as! NSDictionary
+                let orderStatusName = orderStatus["name"] as! String
+                currentOrderStatusId = orderStatus["id"] as! Int
+                
+                var statusImageName = ""
+                var statusTintColor = UIColor.lightGrayColor()
+                
+                cell.orderStatusId = currentOrderStatusId
+                cell.setStatusImage()
+                cell.status.text = orderStatusName
+                
+                cell.changeStatusAction = { Void in
+                    
+                    if self.orderStatuses.count <= 0 {
+                        // REST call to server to retrieve order statuses
+                        manager.GET(SprubixConfig.URL.api + "/order/statuses",
+                            parameters: nil,
+                            success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                                
+                                self.orderStatuses = responseObject as! [NSDictionary]
+                                
+                                self.initOrderStatusActionSheet()
+                            },
+                            failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                                println("Error: " + error.localizedDescription)
+                        })
+                    } else {
+                        self.initOrderStatusActionSheet()
+                    }
+                    
+                    return
                 }
                 
-                return
+                cell.selectionStyle = UITableViewCellSelectionStyle.None
+                
+                return cell
+            case 1:
+                // refund
+                let cell = tableView.dequeueReusableCellWithIdentifier(orderDetailsRefundCellIdentifier, forIndexPath: indexPath) as! OrderDetailsRefundCell
+                
+                let userData: NSDictionary? = defaults.dictionaryForKey("userData")
+                let shoppableType: String? = userData!["shoppable_type"] as? String
+                
+                if shoppableType?.lowercaseString.rangeOfString("shopper") != nil {
+                    // shopper
+                    
+                } else {
+                    // shop
+                    cell.refundButton.setTitle("Refund", forState: UIControlState.Normal)
+                }
+                
+                // set refund action
+                cell.refundAction = { Void in
+                    self.refundOrder()
+                    
+                    return
+                }
+                
+                cell.selectionStyle = UITableViewCellSelectionStyle.None
+                
+                return cell
+            default:
+                fatalError("Unknown row returned in ShopOrderDetailsViewController")
             }
             
-            cell.selectionStyle = UITableViewCellSelectionStyle.None
-            
-            return cell
         default:
-            fatalError("Unknown section returned in ShopOrderDetailsViewController")
+                fatalError("Unknown section returned in ShopOrderDetailsViewController")
         }
     }
     
     func initOrderStatusActionSheet() {
         let alertViewController = UIAlertController(title: "Change order status to...", message: nil, preferredStyle: UIAlertControllerStyle.ActionSheet)
-        alertViewController.view.tintColor = UIColor.grayColor()
+        alertViewController.view.tintColor = sprubixColor
         
         if currentOrderStatusId != 4 {
             // if order has not been received
@@ -331,16 +363,11 @@ class ShopOrderDetailsViewController: UIViewController, UITableViewDataSource, U
                 
                 var actionStyle = UIAlertActionStyle.Default
                 
-                if orderStatusId == 7 || orderStatusId == 8 {
-                    // cancelled
-                    actionStyle = UIAlertActionStyle.Destructive
-                }
-                
                 let buttonAction = UIAlertAction(title: orderStatusName, style: actionStyle, handler: {
                     action in
                     
                     // handler
-                    self.changeOrderStatus(action.title, orderStatusId: orderStatusId)
+                    self.updateOrderStatus(action.title, orderStatusId: orderStatusId)
                 })
                 
                 switch orderStatusId {
@@ -349,9 +376,9 @@ class ShopOrderDetailsViewController: UIViewController, UITableViewDataSource, U
                     if currentOrderStatusId == 3 {
                         alertViewController.addAction(buttonAction)
                     }
-                case 3, 4, 6, 7, 8:
-                    // do not add "Request to Cancel" and other statuses if order is already "Cancelled"
-                    if currentOrderStatusId != 8 {
+                case 3, 4, 6, 7:
+                    // do not add other statuses if order is already "Cancelled"
+                    if currentOrderStatusId != 7 {
                         alertViewController.addAction(buttonAction)
                     } else {
                         alertViewController.title = "This order is already cancelled."
@@ -480,8 +507,8 @@ class ShopOrderDetailsViewController: UIViewController, UITableViewDataSource, U
             // order items
             return (shopOrder["cart_items"] as! [NSDictionary]).count
         case 2:
-            // order status
-            return 1
+            // order status and request for refund
+            return 2
         default:
             fatalError("Unknown section returned in ShopOrderDetailsViewController")
         }
@@ -491,32 +518,41 @@ class ShopOrderDetailsViewController: UIViewController, UITableViewDataSource, U
         return 3
     }
     
-    func changeOrderStatus(orderStatusTitle: String, orderStatusId: Int) {
-        if orderStatusId == 7 || orderStatusId == 8 {
+    func refundOrder() {
+        let userData: NSDictionary? = defaults.dictionaryForKey("userData")
+        let shoppableType: String? = userData!["shoppable_type"] as? String
+        var popupMessage = ""
+        var titleText = ""
+        
+        if shoppableType?.lowercaseString.rangeOfString("shopper") != nil {
+            // shopper
+            // Request for Refund
+            popupMessage = "You have requested for a refund on item(s) from this order."
             
-            var cancelMessage = "You have requested to cancel this item and ask for a refund."
-            
-            if orderStatusId == 8 {
-                // Cancelled
-                cancelMessage = "Setting this status will create a new refund ticket for this order."
-            }
-            
-            var alert = UIAlertController(title: "Are you sure?", message: cancelMessage, preferredStyle: UIAlertControllerStyle.Alert)
-            alert.view.tintColor = sprubixColor
-            
-            // Yes
-            alert.addAction(UIAlertAction(title: "Yes, I'm sure", style: UIAlertActionStyle.Default, handler: { action in
-                
-                self.updateOrderStatus(orderStatusTitle, orderStatusId: orderStatusId)
-            }))
-            
-            // No
-            alert.addAction(UIAlertAction(title: "No", style: UIAlertActionStyle.Cancel, handler: nil))
-            
-            self.presentViewController(alert, animated: true, completion: nil)
         } else {
-            self.updateOrderStatus(orderStatusTitle, orderStatusId: orderStatusId)
+            // shop
+            // Refund
+            popupMessage = "Setting this status will create a new refund ticket for this order."
         }
+        
+        var alert = UIAlertController(title: "Are you sure?", message: popupMessage, preferredStyle: UIAlertControllerStyle.Alert)
+        alert.view.tintColor = sprubixColor
+        
+        // Yes
+        alert.addAction(UIAlertAction(title: "Yes, I'm sure", style: UIAlertActionStyle.Default, handler: { action in
+            
+            // show RefundRequestViewController and select items to refund
+            let refundDetailsViewController = UIStoryboard.refundDetailsViewController()
+            refundDetailsViewController?.titleText = "Refund #\(self.orderNum)"
+            refundDetailsViewController?.shopOrder = self.shopOrder
+            
+            self.navigationController?.pushViewController(refundDetailsViewController!, animated: true)
+        }))
+        
+        // No
+        alert.addAction(UIAlertAction(title: "No", style: UIAlertActionStyle.Cancel, handler: nil))
+        
+        self.presentViewController(alert, animated: true, completion: nil)
     }
     
     private func updateOrderStatus(orderStatusTitle: String, orderStatusId: Int) {

@@ -59,6 +59,15 @@ class MyClosetViewController: UIViewController, UICollectionViewDataSource,  CHT
         initNavBar()
     }
     
+    override func viewDidAppear(animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        // infinite scrolling
+        resultsCollectionView.addInfiniteScrollingWithActionHandler({
+            self.insertMorePieces()
+        })
+    }
+    
     override func prefersStatusBarHidden() -> Bool {
         return true
     }
@@ -180,11 +189,6 @@ class MyClosetViewController: UIViewController, UICollectionViewDataSource,  CHT
         
         resultsCollectionView.dataSource = self;
         resultsCollectionView.delegate = self;
-        
-        // infinite scrolling
-        resultsCollectionView.addInfiniteScrollingWithActionHandler({
-            self.insertMorePieces()
-        })
         
         view.addSubview(resultsCollectionView)
         
