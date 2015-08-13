@@ -27,6 +27,7 @@ target "Sprubix" do
   pod 'Mixpanel', '~>2.8.1'
   pod 'Fabric'
   pod 'Crashlytics'
+  pod 'Charts', '~>2.1.2'
 end
 
 target "SprubixTests" do

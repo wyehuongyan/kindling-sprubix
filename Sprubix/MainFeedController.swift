@@ -99,10 +99,29 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         // empty dataset
         mainCollectionView.emptyDataSetSource = self
         mainCollectionView.emptyDataSetDelegate = self
+        
+        // fresh login for initial load
+        freshLogin = true
     }
     
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
+        
+        // if shop logs in, show dashboard
+        if freshLogin {
+            if let userData: NSDictionary? = defaults.dictionaryForKey("userData"), shoppableType: String? = userData!["shoppable_type"] as? String {
+                if shoppableType!.lowercaseString.rangeOfString("shopper") == nil {
+                    var dashboardViewController: DashboardViewController? = UIStoryboard.dashboardViewController()
+                    
+                    if dashboardViewController == nil {
+                        dashboardViewController = UIStoryboard.dashboardViewController()
+                    }
+                    
+                    self.navigationController?.pushViewController(dashboardViewController!, animated: false)
+                    freshLogin = false
+                }
+            }
+        }
         
         containerViewController.statusBarHidden = false
         self.setNeedsStatusBarAppearanceUpdate()

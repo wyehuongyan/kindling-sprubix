@@ -38,6 +38,8 @@ class OrdersViewController: UIViewController, UITableViewDataSource, UITableView
     
     var currentOrderStatus: NSArray!
     
+    var dashboardViewController: DashboardViewController?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -97,9 +99,25 @@ class OrdersViewController: UIViewController, UITableViewDataSource, UITableView
         
         newNavItem.leftBarButtonItem = backBarButtonItem
         
+        // 5. create a report buton
+        let userData: NSDictionary? = defaults.dictionaryForKey("userData")
+        let shoppableType: String? = userData!["shoppable_type"] as? String
+        
+        if shoppableType?.lowercaseString.rangeOfString("shopper") == nil {
+            var nextButton:UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+            nextButton.setTitle("dashboard", forState: UIControlState.Normal)
+            nextButton.setTitleColor(sprubixColor, forState: UIControlState.Normal)
+            nextButton.frame = CGRect(x: 0, y: 0, width: 90, height: 20)
+            nextButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+            nextButton.addTarget(self, action: "dashboardTapped:", forControlEvents: UIControlEvents.TouchUpInside)
+            
+            var nextBarButtonItem:UIBarButtonItem = UIBarButtonItem(customView: nextButton)
+            newNavItem.rightBarButtonItem = nextBarButtonItem
+        }
+        
         newNavBar.setItems([newNavItem], animated: false)
         
-        // 5. add the nav bar to the main view
+        // 6. add the nav bar to the main view
         self.view.addSubview(newNavBar)
     }
     
@@ -427,6 +445,14 @@ class OrdersViewController: UIViewController, UITableViewDataSource, UITableView
     // nav bar button callbacks
     func backTapped(sender: UIBarButtonItem) {
         self.navigationController?.popViewControllerAnimated(true)
+    }
+    
+    func dashboardTapped(sender: UIBarButtonItem) {
+        if dashboardViewController == nil {
+           dashboardViewController = UIStoryboard.dashboardViewController()
+        }
+        
+        self.navigationController?.pushViewController(dashboardViewController!, animated: true)
     }
     
     // DZNEmptyDataSetSource

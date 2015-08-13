@@ -161,6 +161,8 @@ class SettingsViewController: UITableViewController {
                 mixpanel.reset()
                 // exposed outfits, reset counter
                 exposedOutfits.removeAll()
+                // make next login a fresh login
+                freshLogin = true
                 
             default:
                 fatalError("Unknown static cell for settings.")

@@ -26,6 +26,17 @@ var timestamp: String {
     }
 }
 
+var localDate: String {
+    get {
+        let calendar: NSCalendar = NSCalendar.currentCalendar()
+        let dateFormatter = NSDateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        let formattedDate = dateFormatter.stringFromDate(NSDate())
+        
+        return formattedDate
+    }
+}
+
 // braintree
 var braintreeRef: Braintree?
 
@@ -42,3 +53,8 @@ var mainBadge: UILabel = UILabel()
 
 // exposed outfits
 var exposedOutfits = [Int]()
+
+// check for account logout/login, this is to detect if it's a fresh login
+// viewDidLoad don't trigger again when a user logout followed by another login
+// there's a need to run functions that are suppose to trigger on every logins, such like dashboard
+var freshLogin: Bool = Bool()
