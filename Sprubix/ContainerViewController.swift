@@ -104,7 +104,7 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
     }
     
     override func preferredStatusBarUpdateAnimation() -> UIStatusBarAnimation {
-        return UIStatusBarAnimation.None
+        return UIStatusBarAnimation.Slide
     }
     
     override func preferredStatusBarStyle() -> UIStatusBarStyle {
@@ -290,8 +290,11 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
             
             animateSideMenuXPosition(targetPosition: -sprubixFeedExpandedOffset)
             
-            statusBarHidden = true
-            sprubixNavigationController.setNavigationBarHidden(true, animated: true)
+            UIView.animateWithDuration(0.3, animations: {
+                self.statusBarHidden = true
+                self.setNeedsStatusBarAppearanceUpdate()
+                })
+            
         } else {
             animateSideMenuXPosition(targetPosition: -screenWidth) { finished in
                 self.currentState = .Collapsed
@@ -313,7 +316,11 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
                 })
             }
             
-            self.statusBarHidden = false
+            UIView.animateWithDuration(0.3, animations: {
+                self.statusBarHidden = false
+                self.setNeedsStatusBarAppearanceUpdate()
+            })
+            
             sprubixNavigationController.setNavigationBarHidden(false, animated: true)
         }
     }
