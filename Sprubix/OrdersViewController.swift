@@ -457,7 +457,10 @@ class OrdersViewController: UIViewController, UITableViewDataSource, UITableView
         } else {
             // shop
             // go straight to shop order details
-            let shopOrder = orders[indexPath.row] as NSDictionary
+            let createdAtDate = createdAtDates[indexPath.section] as String
+            let dateOrders = dateOrdersDict[createdAtDate] as! [NSDictionary]
+            
+            let shopOrder = dateOrders[indexPath.row] as NSDictionary
             
             let shopOrderDetailsViewController = UIStoryboard.shopOrderDetailsViewController()
             shopOrderDetailsViewController!.orderNum = shopOrder["uid"] as! String

@@ -94,8 +94,23 @@ class RefundDetailsViewController: UIViewController, UITableViewDataSource, UITa
         
         refundButton.backgroundColor = sprubixColor
         refundButton.titleLabel?.font = UIFont.boldSystemFontOfSize(18.0)
-        refundButton.setTitle("Refund", forState: UIControlState.Normal)
-        refundButton.addTarget(self, action: "refundButtonPressed:", forControlEvents: UIControlEvents.TouchUpInside)
+        
+        if existingRefund != nil {
+            var refundStatusId = existingRefund!["refund_status_id"] as! Int
+            
+            if refundStatusId == 1 {
+                // 1 = requested for refund
+                refundButton.setTitle("Approve Refund", forState: UIControlState.Normal)
+                refundButton.addTarget(self, action: "approveRefundButtonPressed:", forControlEvents: UIControlEvents.TouchUpInside)
+            } else {
+                refundButton.setTitle("Refund", forState: UIControlState.Normal)
+                refundButton.addTarget(self, action: "refundButtonPressed:", forControlEvents: UIControlEvents.TouchUpInside)
+            }
+        } else {
+            refundButton.setTitle("Refund", forState: UIControlState.Normal)
+            refundButton.addTarget(self, action: "refundButtonPressed:", forControlEvents: UIControlEvents.TouchUpInside)
+        }
+        
         
         view.addSubview(refundButton)
     }
@@ -548,6 +563,10 @@ class RefundDetailsViewController: UIViewController, UITableViewDataSource, UITa
     }
     
     // button callbacks
+    func approveRefundButtonPressed(sender: UIButton) {
+        println("Approved refund")
+    }
+    
     func refundButtonPressed(sender: UIButton) {
         
         let userData: NSDictionary? = defaults.dictionaryForKey("userData")

@@ -20,7 +20,7 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
     var currentState: SlideOutState = .Collapsed {
         didSet {
             let shouldShowShadow = currentState != .Collapsed
-            //showShadowForSprubixFeedController(shouldShowShadow)
+            showShadowForSidePanelController(shouldShowShadow)
         }
     }
     
