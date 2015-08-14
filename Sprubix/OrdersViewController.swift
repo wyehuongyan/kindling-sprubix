@@ -451,6 +451,8 @@ class OrdersViewController: UIViewController, UITableViewDataSource, UITableView
             
             self.navigationController?.pushViewController(shopOrderDetailsViewController!, animated: true)
         }
+        
+        tableView.deselectRowAtIndexPath(indexPath, animated: true)
     }
 
     // tool bar button callbacks
@@ -461,6 +463,9 @@ class OrdersViewController: UIViewController, UITableViewDataSource, UITableView
             currentChoice = sender
             sender.addSubview(buttonLine)
             sender.tintColor = sprubixColor
+
+            currentPage = 0
+            lastPage = nil
             
             prevOrderStatus = currentOrderStatus
             currentOrderStatus = activeStatuses
@@ -485,6 +490,9 @@ class OrdersViewController: UIViewController, UITableViewDataSource, UITableView
             sender.addSubview(buttonLine)
             sender.tintColor = sprubixColor
             
+            currentPage = 0
+            lastPage = nil
+            
             prevOrderStatus = currentOrderStatus
             currentOrderStatus = fulfilledStatuses
 
@@ -507,6 +515,9 @@ class OrdersViewController: UIViewController, UITableViewDataSource, UITableView
             currentChoice = sender
             sender.addSubview(buttonLine)
             sender.tintColor = sprubixColor
+            
+            currentPage = 0
+            lastPage = nil
             
             prevOrderStatus = currentOrderStatus
             currentOrderStatus = cancelledStatuses

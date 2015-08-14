@@ -20,6 +20,7 @@ class RefundDetailsViewController: UIViewController, UITableViewDataSource, UITa
     var delegate: ExistingRefundProtocol?
     var shopOrder: NSMutableDictionary!
     var existingRefund: NSDictionary?
+    var fromRefundView: Bool = false
     
     let refundDetailsItemCellIdentifier = "RefundDetailsItemCell"
     let refundDetailsFooterCellIdentifier = "RefundDetailsFooterCell"
@@ -36,7 +37,6 @@ class RefundDetailsViewController: UIViewController, UITableViewDataSource, UITa
     var newNavBar: UINavigationBar!
     var newNavItem: UINavigationItem!
     
-    var titleText: String!
     var refundReason: String = ""
     
     var orderItems: [NSDictionary] = [NSDictionary]()
@@ -138,7 +138,9 @@ class RefundDetailsViewController: UIViewController, UITableViewDataSource, UITa
         
         // 3. add a new navigation item w/title to the new nav bar
         newNavItem = UINavigationItem()
-        newNavItem.title = titleText
+        
+        var uid = shopOrder["uid"] as! String
+        newNavItem.title = "Refund #\(uid)"
         
         // 4. create a custom back button
         var backButton:UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
@@ -150,13 +152,22 @@ class RefundDetailsViewController: UIViewController, UITableViewDataSource, UITa
         backButton.addTarget(self, action: "backTapped:", forControlEvents: UIControlEvents.TouchUpInside)
         backButton.exclusiveTouch = true
         
-        //var backButtonView:UIView = UIView(frame: CGRect(x: 0, y: 0, width: backButton.frame.width, height: backButton.frame.height))
-        //backButtonView.addSubview(backButton)
-        
         var backBarButtonItem:UIBarButtonItem = UIBarButtonItem(customView: backButton)
         backBarButtonItem.tintColor = UIColor(red: 170/255, green: 170/255, blue: 170/255, alpha: 1.0)
         
         newNavItem.leftBarButtonItem = backBarButtonItem
+        
+        if fromRefundView {
+            var nextButton:UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+            nextButton.setTitle("view order", forState: UIControlState.Normal)
+            nextButton.setTitleColor(sprubixColor, forState: UIControlState.Normal)
+            nextButton.frame = CGRect(x: 0, y: 0, width: 90, height: 20)
+            nextButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+            nextButton.addTarget(self, action: "shopOrderTapped:", forControlEvents: UIControlEvents.TouchUpInside)
+            
+            var nextBarButtonItem:UIBarButtonItem = UIBarButtonItem(customView: nextButton)
+            newNavItem.rightBarButtonItem = nextBarButtonItem
+        }
         
         newNavBar.setItems([newNavItem], animated: false)
         
@@ -605,6 +616,27 @@ class RefundDetailsViewController: UIViewController, UITableViewDataSource, UITa
     }
     
     // nav bar button callbacks
+    func shopOrderTapped(sender: UIBarButtonItem) {
+        // REST call to server to retrieve shop orders
+        manager.POST(SprubixConfig.URL.api + "/orders/shop",
+            parameters: [
+                "shop_order_ids": [shopOrder["id"] as! Int]
+            ],
+            success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                
+                // go to shop order details view
+                let shopOrderDetailsViewController = UIStoryboard.shopOrderDetailsViewController()
+                shopOrderDetailsViewController!.orderNum = self.shopOrder["uid"] as! String
+                shopOrderDetailsViewController!.shopOrder = (responseObject["data"] as! [NSDictionary])[0].mutableCopy() as! NSMutableDictionary
+                
+                self.navigationController?.pushViewController(shopOrderDetailsViewController!, animated: true)
+                
+            },
+            failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                println("Error: " + error.localizedDescription)
+        })
+    }
+    
     func backTapped(sender: UIBarButtonItem) {
         self.navigationController?.popViewControllerAnimated(true)
     }

@@ -128,7 +128,7 @@ class DashboardOverlay: UIView {
         // popular items title
         let popularItemsTitleY = subheaderY + subheaderViewHeight
         popularItemsTitleView = UIView(frame: CGRectMake(0, popularItemsTitleY, screenWidth, popularItemsTextViewHeight))
-        popularItemsTitleView.backgroundColor = sprubixGray
+        popularItemsTitleView.backgroundColor = sprubixLightGray
         addSubview(popularItemsTitleView)
         
         popularItemsTitleText = UILabel(frame: CGRectMake(0, 0, screenWidth, popularItemsTextViewHeight))

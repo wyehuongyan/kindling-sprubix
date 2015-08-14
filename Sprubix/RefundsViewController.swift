@@ -49,6 +49,15 @@ class RefundsViewController: UIViewController, UITableViewDataSource, UITableVie
         })
     }
     
+    override func viewDidDisappear(animated: Bool) {
+        super.viewDidDisappear(animated)
+        
+        refunds.removeAll()
+        refundsTableView.reloadData()
+        currentPage = 0
+        lastPage = nil
+    }
+    
     func initNavBar() {
         // 1. hide existing nav bar
         self.navigationController?.setNavigationBarHidden(true, animated: false)
@@ -124,6 +133,17 @@ class RefundsViewController: UIViewController, UITableViewDataSource, UITableVie
     }
     
     // MARK: UITableViewDataSource
+    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+        let refund: NSDictionary = refunds[indexPath.row] as NSDictionary
+        
+        var refundDetailsViewController = UIStoryboard.refundDetailsViewController()
+        refundDetailsViewController?.shopOrder = refund["shop_order"] as! NSMutableDictionary
+        refundDetailsViewController?.existingRefund = refund
+        refundDetailsViewController?.fromRefundView = true
+        
+        self.navigationController?.pushViewController(refundDetailsViewController!, animated: true)
+    }
+    
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return refunds.count
     }
@@ -147,6 +167,8 @@ class RefundsViewController: UIViewController, UITableViewDataSource, UITableVie
         
         cell.refundStatusId = refundStatusId
         cell.setStatusImage()
+        
+        cell.accessoryType = UITableViewCellAccessoryType.DisclosureIndicator
         
         return cell
     }

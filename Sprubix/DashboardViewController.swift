@@ -262,7 +262,7 @@ class DashboardViewController: UIViewController, UITableViewDataSource, ChartVie
     }
     
     func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath!) -> CGFloat {
-        return 80
+        return 70
     }
     
     func updateNumbers(revenue: Double, orders: Int, customers: Int, activeOrders: Int, fulfilledOrders: Int, refundedOrders: Int) {

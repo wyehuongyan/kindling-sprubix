@@ -28,17 +28,21 @@ class RefundCell: UITableViewCell {
             statusImageName = "order-processing"
             statusTintColor = UIColor.lightGrayColor()
         case 2:
-            // Refunded
+            // Refund Processing
             statusImageName = "order-shipping-requested"
-            statusTintColor = UIColor.cyanColor()
-        case 3:
-            // Refund Cancelled
-            statusImageName = "order-shipping-posted"
             statusTintColor = UIColor.blueColor()
-        case 4:
-            // Refund Failed
+        case 3:
+            // Refunded
             statusImageName = "order-shipping-received"
             statusTintColor = UIColor.greenColor()
+        case 4:
+            // Refund Cancelled
+            statusImageName = "order-cancelled"
+            statusTintColor = UIColor.redColor()
+        case 5:
+            // Refund Failed
+            statusImageName = "shop-info"
+            statusTintColor = UIColor.redColor()
         default:
             fatalError("Unknown refund status in RefundDetailsStatusCell")
         }

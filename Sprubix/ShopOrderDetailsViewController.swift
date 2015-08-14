@@ -547,7 +547,6 @@ class ShopOrderDetailsViewController: UIViewController, UITableViewDataSource, U
     
     func viewExistingRefund(existingRefund: NSDictionary?) {
         let refundDetailsViewController = UIStoryboard.refundDetailsViewController()
-        refundDetailsViewController?.titleText = "Refund #\(self.orderNum)"
         refundDetailsViewController?.shopOrder = self.shopOrder
         
         refundDetailsViewController?.existingRefund = existingRefund
@@ -581,7 +580,6 @@ class ShopOrderDetailsViewController: UIViewController, UITableViewDataSource, U
             
             // show RefundRequestViewController and select items to refund
             let refundDetailsViewController = UIStoryboard.refundDetailsViewController()
-            refundDetailsViewController?.titleText = "Refund #\(self.orderNum)"
             refundDetailsViewController?.shopOrder = self.shopOrder
             refundDetailsViewController?.delegate = self
             
