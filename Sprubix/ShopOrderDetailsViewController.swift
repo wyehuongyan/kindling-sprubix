@@ -10,7 +10,7 @@ import UIKit
 import AFNetworking
 import TSMessages
 
-class ShopOrderDetailsViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
+class ShopOrderDetailsViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, ExistingRefundProtocol {
 
     var shopOrder: NSMutableDictionary!
     var orderNum: String!
@@ -28,6 +28,8 @@ class ShopOrderDetailsViewController: UIViewController, UITableViewDataSource, U
     
     var orderHeaderView: UIView!
     var currentOrderStatusId: Int!
+    
+    var existingRefund: NSDictionary?
     
     // custom nav bar
     var newNavBar: UINavigationBar!
@@ -59,6 +61,8 @@ class ShopOrderDetailsViewController: UIViewController, UITableViewDataSource, U
         super.viewWillAppear(animated)
         
         initNavBar()
+        
+        shopOrderDetailsTableView.reloadData()
     }
     
     func initOrderHeader(orderTotal: String) {
@@ -321,22 +325,40 @@ class ShopOrderDetailsViewController: UIViewController, UITableViewDataSource, U
                 // refund
                 let cell = tableView.dequeueReusableCellWithIdentifier(orderDetailsRefundCellIdentifier, forIndexPath: indexPath) as! OrderDetailsRefundCell
                 
-                let userData: NSDictionary? = defaults.dictionaryForKey("userData")
-                let shoppableType: String? = userData!["shoppable_type"] as? String
-                
-                if shoppableType?.lowercaseString.rangeOfString("shopper") != nil {
-                    // shopper
-                    
-                } else {
-                    // shop
-                    cell.refundButton.setTitle("Refund", forState: UIControlState.Normal)
+                if existingRefund == nil {
+                    existingRefund = shopOrder["shop_order_refund"] as? NSDictionary
                 }
                 
-                // set refund action
-                cell.refundAction = { Void in
-                    self.refundOrder()
+                if existingRefund != nil {
+                    // there's an existing refund
+                    cell.refundButton.setTitle("View Existing Refund", forState: UIControlState.Normal)
                     
-                    return
+                    // set refund action
+                    cell.refundAction = { Void in
+                        self.viewExistingRefund(self.existingRefund)
+                        
+                        return
+                    }
+                } else {
+                    // if there's no existing refund for this shop order
+                    let userData: NSDictionary? = defaults.dictionaryForKey("userData")
+                    let shoppableType: String? = userData!["shoppable_type"] as? String
+                    
+                    if shoppableType?.lowercaseString.rangeOfString("shopper") != nil {
+                        // shopper
+                        cell.refundButton.setTitle("Request for Refund", forState: UIControlState.Normal)
+                        
+                    } else {
+                        // shop
+                        cell.refundButton.setTitle("Refund", forState: UIControlState.Normal)
+                    }
+                    
+                    // set refund action
+                    cell.refundAction = { Void in
+                        self.refundOrder()
+                        
+                        return
+                    }
                 }
                 
                 cell.selectionStyle = UITableViewCellSelectionStyle.None
@@ -518,6 +540,22 @@ class ShopOrderDetailsViewController: UIViewController, UITableViewDataSource, U
         return 3
     }
     
+    // ExistingRefundProtocol
+    func setRefund(existingRefund: NSDictionary?) {
+        self.existingRefund = existingRefund
+    }
+    
+    func viewExistingRefund(existingRefund: NSDictionary?) {
+        let refundDetailsViewController = UIStoryboard.refundDetailsViewController()
+        refundDetailsViewController?.titleText = "Refund #\(self.orderNum)"
+        refundDetailsViewController?.shopOrder = self.shopOrder
+        
+        refundDetailsViewController?.existingRefund = existingRefund
+        refundDetailsViewController?.delegate = self
+        
+        self.navigationController?.pushViewController(refundDetailsViewController!, animated: true)
+    }
+    
     func refundOrder() {
         let userData: NSDictionary? = defaults.dictionaryForKey("userData")
         let shoppableType: String? = userData!["shoppable_type"] as? String
@@ -545,6 +583,7 @@ class ShopOrderDetailsViewController: UIViewController, UITableViewDataSource, U
             let refundDetailsViewController = UIStoryboard.refundDetailsViewController()
             refundDetailsViewController?.titleText = "Refund #\(self.orderNum)"
             refundDetailsViewController?.shopOrder = self.shopOrder
+            refundDetailsViewController?.delegate = self
             
             self.navigationController?.pushViewController(refundDetailsViewController!, animated: true)
         }))

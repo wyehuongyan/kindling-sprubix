@@ -8,13 +8,22 @@
 
 import UIKit
 import ActionSheetPicker_3_0
+import AFNetworking
+import TSMessages
+
+protocol ExistingRefundProtocol {
+    func setRefund(existingRefund: NSDictionary?)
+}
 
 class RefundDetailsViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UITextViewDelegate {
     
+    var delegate: ExistingRefundProtocol?
     var shopOrder: NSMutableDictionary!
+    var existingRefund: NSDictionary?
     
     let refundDetailsItemCellIdentifier = "RefundDetailsItemCell"
     let refundDetailsFooterCellIdentifier = "RefundDetailsFooterCell"
+    let refundDetailsStatusCellIdentifier = "RefundDetailsStatusCell"
     let reasonPlaceholderText = "Reason for refund (optional)"
     
     // keyboard
@@ -28,6 +37,7 @@ class RefundDetailsViewController: UIViewController, UITableViewDataSource, UITa
     var newNavItem: UINavigationItem!
     
     var titleText: String!
+    var refundReason: String = ""
     
     var orderItems: [NSDictionary] = [NSDictionary]()
     var returnDict: NSMutableDictionary = NSMutableDictionary()
@@ -51,6 +61,17 @@ class RefundDetailsViewController: UIViewController, UITableViewDataSource, UITa
         
         // listen to keyboard show/hide events
         NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("keyboardWillChange:"), name:UIKeyboardWillChangeFrameNotification, object: nil)
+        
+        if existingRefund != nil {
+            // set refund amount text field
+            self.finalRefundAmount = existingRefund!["refund_amount"] as! String
+            
+            // set refund status
+            let refundStatus = existingRefund!["refund_status"] as! NSDictionary
+            
+            let refundStatusName = refundStatus["name"] as! String
+            
+        }
         
         initNavBar()
     }
@@ -165,13 +186,13 @@ class RefundDetailsViewController: UIViewController, UITableViewDataSource, UITa
             cell.price.text = String(format: "$%.2f", price.floatValue * Float(quantity))
             cell.size.text = "Size: \(size!)"
             
-            var returnDictAmount = returnDict.objectForKey(cartItemId) as? Int
+            var returnDictAmount = returnDict.objectForKey("\(cartItemId)") as? Int
             
             if returnDictAmount == nil {
                 // key does not exist, add it to dict
-                returnDict.setObject(returnAmount, forKey: cartItemId)
+                returnDict.setObject(returnAmount, forKey: "\(cartItemId)")
                 
-                returnDictAmount = returnDict.objectForKey(cartItemId) as? Int
+                returnDictAmount = returnDict.objectForKey("\(cartItemId)") as? Int
             }
             
             cell.returnInfo.text = "Ordered: \(quantity), Returned: \(returnedAmount), Return: \(returnDictAmount!)"
@@ -188,6 +209,29 @@ class RefundDetailsViewController: UIViewController, UITableViewDataSource, UITa
             cell.itemImageView.setImageWithURL(pieceImageURL)
             cell.selectionStyle = UITableViewCellSelectionStyle.None
             
+            let userData: NSDictionary? = defaults.dictionaryForKey("userData")
+            let shoppableType: String? = userData!["shoppable_type"] as? String
+            
+            if shoppableType?.lowercaseString.rangeOfString("shopper") != nil {
+                
+                if existingRefund != nil {
+                    let refundStatus = existingRefund!["refund_status"] as! NSDictionary
+                    
+                    let refundStatusId = refundStatus["id"] as! Int
+                    
+                    if refundStatusId == 1 {
+                        // already requested
+                        cell.edit.alpha = 0.0
+                        cell.userInteractionEnabled = false
+                    } else {
+                        // either refunded, cancelled or failed
+                        // // shopper may ask for another refund
+                        cell.edit.alpha = 1.0
+                        cell.userInteractionEnabled = true
+                    }
+                }
+            }
+            
             return cell
             
         case 1:
@@ -200,6 +244,14 @@ class RefundDetailsViewController: UIViewController, UITableViewDataSource, UITa
             cell.shippingRate.text = "$\(shippingRate)"
             cell.totalAmountRefundable.text = "$\(totalAmountRefundable)"
             cell.refundReason.delegate = self
+            
+            if existingRefund != nil {
+                let existingRefundReason = existingRefund!["refund_reason"] as! String
+                
+                cell.refundReason.text = existingRefundReason != "" ? existingRefundReason : reasonPlaceholderText
+                cell.refundReason.userInteractionEnabled = false
+            }
+            
             cell.selectionStyle = UITableViewCellSelectionStyle.None
             
             let userData: NSDictionary? = defaults.dictionaryForKey("userData")
@@ -220,7 +272,7 @@ class RefundDetailsViewController: UIViewController, UITableViewDataSource, UITa
                 let cartItemId = cartItem["id"] as! Int
                 let price = piece["price"] as! NSString
                 
-                var returnDictAmount = returnDict.objectForKey(cartItemId) as? Int
+                var returnDictAmount = returnDict.objectForKey("\(cartItemId)") as? Int
                 var returnRefundAmount: Float = 0
                 
                 if returnDictAmount != nil {
@@ -230,10 +282,39 @@ class RefundDetailsViewController: UIViewController, UITableViewDataSource, UITa
                 totalReturnRefundAmount += returnRefundAmount
             }
             
-            if totalReturnRefundAmount > 0 {
+            finalRefundAmount = "\(totalReturnRefundAmount)"
+            
+            // // if shop, can always see the button
+            // // if shopper, and status == request for refund, cant see button
+            if finalRefundAmount.floatValue > 0 {
                 cell.refundAmount.text = String(format: "%.2f", totalReturnRefundAmount)
                 
-                showRefundButton(cell.refundAmount.text)
+                if shoppableType?.lowercaseString.rangeOfString("shopper") != nil {
+                    
+                    if existingRefund != nil {
+                        let refundStatus = existingRefund!["refund_status"] as! NSDictionary
+                        
+                        let refundStatusId = refundStatus["id"] as! Int
+                        
+                        if refundStatusId == 1 {
+                            // already requested
+                            hideRefundButton()
+                        } else {
+                            // either refunded, cancelled or failed
+                            // // shopper may ask for another refund
+                            showRefundButton(cell.refundAmount.text)
+                        }
+                    } else {
+                        // there's no existing refund
+                        // // shopper may ask for refund
+                        showRefundButton(cell.refundAmount.text)
+                    }
+                    
+                } else {
+                    // shops always get to see the button
+                    // // either to initiate a refund, or to approve one
+                    showRefundButton(cell.refundAmount.text)
+                }
             } else {
                 cell.refundAmount.text = ""
                 
@@ -241,7 +322,24 @@ class RefundDetailsViewController: UIViewController, UITableViewDataSource, UITa
             }
             
             return cell
+        case 2:
+            let cell = tableView.dequeueReusableCellWithIdentifier(refundDetailsStatusCellIdentifier, forIndexPath: indexPath) as! RefundDetailsStatusCell
             
+            if existingRefund != nil {
+                let refundStatus = existingRefund!["refund_status"] as! NSDictionary
+                
+                let refundStatusName = refundStatus["name"] as! String
+                let refundStatusId = refundStatus["id"] as! Int
+                
+                cell.status.text = refundStatusName
+                cell.refundStatusId = refundStatusId
+                
+                cell.setStatusImage()
+            }
+            
+            cell.selectionStyle = UITableViewCellSelectionStyle.None
+            
+            return cell
         default:
             fatalError("Unknown section returned at RefundDetailsViewController")
         }
@@ -259,7 +357,7 @@ class RefundDetailsViewController: UIViewController, UITableViewDataSource, UITa
             
             var returnableAmount = quantity - returnedAmount
             var returnableArray = [Int]()
-            var returnDictAmount = returnDict.objectForKey(cartItemId) as? Int
+            var returnDictAmount = returnDict.objectForKey("\(cartItemId)") as? Int
             var initialSelection = 0
             
             if returnableAmount > 0 {
@@ -278,7 +376,7 @@ class RefundDetailsViewController: UIViewController, UITableViewDataSource, UITa
             let picker: ActionSheetStringPicker = ActionSheetStringPicker(title: "Quantity to Return", rows: returnableArray, initialSelection: initialSelection,
                 doneBlock: { actionSheetPicker, selectedIndex, selectedValue in
                     
-                    self.returnDict.setObject(selectedValue as! Int, forKey: cartItemId)
+                    self.returnDict.setObject(selectedValue as! Int, forKey: "\(cartItemId)")
                     
                     self.refundDetailsTableView.reloadData()
                     
@@ -306,6 +404,9 @@ class RefundDetailsViewController: UIViewController, UITableViewDataSource, UITa
         case 1:
             // do nothing
             break
+        case 2:
+            // do nothing
+            break
         default:
             fatalError("Unknown section returned at RefundDetailsViewController")
         }
@@ -317,12 +418,41 @@ class RefundDetailsViewController: UIViewController, UITableViewDataSource, UITa
             return 100.0
         case 1:
             return 200.0
+        case 2:
+            return 52.0
         default:
             fatalError("Unknown section returned at RefundDetailsViewController")
         }
     }
     
+    func tableView(tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        switch section {
+        case 2:
+            var tempHeaderView = UIView(frame: CGRectMake(0, 0, screenWidth, 20.0))
+            
+            tempHeaderView.backgroundColor = sprubixGray
+            
+            return tempHeaderView
+        default:
+            return nil
+        }
+
+    }
+    
+    func tableView(tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        switch section {
+        case 2:
+            return 20.0
+        default:
+            return 0.0
+        }
+    }
+    
     func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+        if existingRefund != nil  {
+            return 3
+        }
+        
         return 2
     }
     
@@ -331,6 +461,8 @@ class RefundDetailsViewController: UIViewController, UITableViewDataSource, UITa
         case 0:
             return orderItems.count
         case 1:
+            return 1
+        case 2:
             return 1
         default:
             fatalError("Unknown section returned at RefundDetailsViewController")
@@ -389,6 +521,7 @@ class RefundDetailsViewController: UIViewController, UITableViewDataSource, UITa
     func textViewShouldBeginEditing(textView: UITextView) -> Bool {
         if textView.text == reasonPlaceholderText {
             textView.text = ""
+            textView.textColor = UIColor.darkGrayColor()
         }
         
         return true
@@ -397,19 +530,72 @@ class RefundDetailsViewController: UIViewController, UITableViewDataSource, UITa
     func textViewDidEndEditing(textView: UITextView) {
         if textView.text == "" {
             textView.text = reasonPlaceholderText
+            textView.textColor = UIColor.lightGrayColor()
         }
+        
+        refundReason = textView.text
     }
     
     // button callbacks
     func refundButtonPressed(sender: UIButton) {
-        var alert = UIAlertController(title: "Are you sure?", message: "This action cannot be undone. \n\nRefund $\(finalRefundAmount)", preferredStyle: UIAlertControllerStyle.Alert)
+        
+        let userData: NSDictionary? = defaults.dictionaryForKey("userData")
+        let shoppableType: String? = userData!["shoppable_type"] as? String
+        var requestForRefund: Bool = false
+        var refundMessage: String = "This action cannot be undone. \n\nRefund $\(finalRefundAmount)"
+        var responseMessage: String = "Items refunded."
+        
+        if shoppableType?.lowercaseString.rangeOfString("shopper") != nil {
+            // shopper
+            requestForRefund = true
+            refundMessage = "This action cannot be undone. \n\nRequest for Refund $\(finalRefundAmount)"
+            
+            responseMessage = "Request for refund has been sent."
+        }
+        
+        var alert = UIAlertController(title: "Are you sure?", message: refundMessage, preferredStyle: UIAlertControllerStyle.Alert)
         alert.view.tintColor = sprubixColor
         
         // Yes
         alert.addAction(UIAlertAction(title: "Yes, I'm sure", style: UIAlertActionStyle.Default, handler: { action in
             
             // refund confirmed
-            println("refund confirmed")
+            let shopOrderId = self.shopOrder["id"] as! Int
+            
+            // REST call to server to create shop order refund
+            manager.requestSerializer = AFJSONRequestSerializer()
+            manager.responseSerializer = AFJSONResponseSerializer()
+            manager.POST(SprubixConfig.URL.api + "/order/shop/\(shopOrderId)/refund/create",
+                parameters: [
+                    "refund_amount": self.finalRefundAmount,
+                    "refund_reason": self.refundReason != self.reasonPlaceholderText ? self.refundReason : "",
+                    "return_cart_items": self.returnDict,
+                    "request_for_refund": requestForRefund
+                ],
+                success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                    
+                    var status = responseObject["status"] as! String
+                    var automatic: NSTimeInterval = 0
+                    
+                    if status == "200" {
+                        // success
+                        TSMessage.showNotificationInViewController(                        TSMessage.defaultViewController(), title: "Success!", subtitle: responseMessage, image: UIImage(named: "filter-check"), type: TSMessageNotificationType.Success, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: true)
+                        
+                        self.existingRefund = responseObject["shop_order_refund"] as? NSDictionary
+                        
+                        self.refundDetailsTableView.reloadData()
+                        self.delegate?.setRefund(self.existingRefund)
+                        
+                    } else if status == "500" {
+                        // error exception
+                        TSMessage.showNotificationInViewController(                        TSMessage.defaultViewController(), title: "Error", subtitle: "Something went wrong.\nPlease try again.", image: UIImage(named: "filter-cross"), type: TSMessageNotificationType.Error, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: true)
+                        
+                        println(responseObject)
+                    }
+                },
+                failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                    println("Error: " + error.localizedDescription)
+            })
         }))
         
         // No
@@ -422,5 +608,10 @@ class RefundDetailsViewController: UIViewController, UITableViewDataSource, UITa
     func backTapped(sender: UIBarButtonItem) {
         self.navigationController?.popViewControllerAnimated(true)
     }
+}
 
+extension String {
+    var floatValue: Float {
+        return (self as NSString).floatValue
+    }
 }

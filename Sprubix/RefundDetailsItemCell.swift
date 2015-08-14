@@ -15,6 +15,7 @@ class RefundDetailsItemCell: UITableViewCell {
     @IBOutlet var size: UILabel!
     @IBOutlet var price: UILabel!
     @IBOutlet var returnInfo: UILabel!
+    @IBOutlet var edit: UILabel!
     
     override func awakeFromNib() {
         super.awakeFromNib()

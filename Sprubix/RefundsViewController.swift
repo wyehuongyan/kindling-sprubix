@@ -7,22 +7,46 @@
 //
 
 import UIKit
+import AFNetworking
 
-class RefundsViewController: UIViewController {
+class RefundsViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
+    
+    let refundCellIdentifier = "RefundCell"
+    
+    var refunds: [NSDictionary] = [NSDictionary]()
+    var currentPage: Int = 0
+    var lastPage: Int?
+    
     // custom nav bar
     var newNavBar: UINavigationBar!
     var newNavItem: UINavigationItem!
+    
+    @IBOutlet var refundsTableView: UITableView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         view.backgroundColor = sprubixGray
+        
+        // get rid of line seperator for empty cells
+        refundsTableView.backgroundColor = sprubixGray
+        refundsTableView.tableFooterView = UIView(frame: CGRectZero)
     }
     
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
         
         initNavBar()
+        retrieveRefunds()
+    }
+    
+    override func viewDidAppear(animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        // infinite scrolling
+        refundsTableView.addInfiniteScrollingWithActionHandler({
+            self.retrieveRefunds()
+        })
     }
     
     func initNavBar() {
@@ -59,6 +83,72 @@ class RefundsViewController: UIViewController {
         
         // 5. add the nav bar to the main view
         self.view.addSubview(newNavBar)
+    }
+    
+    func retrieveRefunds() {
+        // GET page=2, page=3 and so on
+        let nextPage = currentPage + 1
+        
+        if currentPage < lastPage || lastPage == nil {
+            // REST call to server to update order status
+            manager.GET(SprubixConfig.URL.api + "/user/refunds?page=\(nextPage)",
+                parameters: nil,
+                success: { (operation: AFHTTPRequestOperation!, responseObject:
+                    AnyObject!) in
+                    
+                    var refunds = responseObject["data"] as! [NSDictionary]
+                    self.currentPage = responseObject["current_page"] as! Int
+                    self.lastPage = responseObject["last_page"] as? Int
+                    
+                    self.refundsTableView.infiniteScrollingView.stopAnimating()
+                    
+                    for refund in refunds {
+                        self.refunds.append(refund)
+                        
+                        self.refundsTableView.layoutIfNeeded()
+                        self.refundsTableView.beginUpdates()
+                        
+                        var nsPath = NSIndexPath(forRow: self.refunds.count - 1, inSection: 0)
+                        self.refundsTableView.insertRowsAtIndexPaths([nsPath], withRowAnimation: UITableViewRowAnimation.Fade)
+                        
+                        self.refundsTableView.endUpdates()
+                    }
+                },
+                failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                    println("Error: " + error.localizedDescription)
+                    self.refundsTableView.infiniteScrollingView.stopAnimating()
+            })
+        } else {
+            refundsTableView.infiniteScrollingView.stopAnimating()
+        }
+    }
+    
+    // MARK: UITableViewDataSource
+    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return refunds.count
+    }
+    
+    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCellWithIdentifier(refundCellIdentifier, forIndexPath: indexPath) as! RefundCell
+        
+        let refund: NSDictionary = refunds[indexPath.row] as NSDictionary
+        
+        let refundUID = refund["uid"] as! String
+        let refundCreatedAt = refund["created_at"] as! String
+        let refundAmount = refund["refund_amount"] as! String
+        let refundStatusId = refund["refund_status_id"] as! Int
+        let seller = refund["user"] as! NSDictionary
+        let sellerUsername = seller["username"] as! String
+        
+        cell.username.text = sellerUsername
+        cell.orderNumber.text = "#\(refundUID)"
+        cell.dateTime.text = refundCreatedAt
+        cell.price.text = "$\(refundAmount)"
+        
+        cell.refundStatusId = refundStatusId
+        cell.setStatusImage()
+        
+        return cell
     }
     
     func backTapped(sender: UIBarButtonItem) {

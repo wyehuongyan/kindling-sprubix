@@ -19,6 +19,9 @@ class OrdersViewController: UIViewController, UITableViewDataSource, UITableView
     var buttonLine: UIView!
     var currentChoice: UIButton!
     
+    var currentPage: Int = 0
+    var lastPage: Int?
+    
     var refreshControl: UIRefreshControl!
     var activityView: UIActivityIndicatorView!
     
@@ -67,8 +70,16 @@ class OrdersViewController: UIViewController, UITableViewDataSource, UITableView
         super.viewWillAppear(animated)
         
         initNavBar()
-        
         retrieveOrders()
+    }
+    
+    override func viewDidAppear(animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        // infinite scrolling
+        ordersTableView.addInfiniteScrollingWithActionHandler({
+            self.retrieveOrders()
+        })
     }
     
     func initNavBar() {
@@ -183,73 +194,102 @@ class OrdersViewController: UIViewController, UITableViewDataSource, UITableView
     }
     
     func refresh(sender: AnyObject) {
+        orders.removeAll()
+        currentPage = 0
+        
         retrieveOrders()
     }
     
     func retrieveOrders() {
-        let userData: NSDictionary? = defaults.dictionaryForKey("userData")
-        let shoppableType: String? = userData!["shoppable_type"] as? String
-        
-        if shoppableType?.lowercaseString.rangeOfString("shopper") != nil {
-            // shopper
-            retrieveUserOrders()
+        if currentPage < lastPage || lastPage == nil {
+            let userData: NSDictionary? = defaults.dictionaryForKey("userData")
+            let shoppableType: String? = userData!["shoppable_type"] as? String
+            
+            if shoppableType?.lowercaseString.rangeOfString("shopper") != nil {
+                // shopper
+                retrieveUserOrders()
+            } else {
+                // shop
+                retrieveShopOrders()
+            }
         } else {
-            // shop
-            retrieveShopOrders()
+            ordersTableView.infiniteScrollingView.stopAnimating()
         }
     }
     
     func retrieveUserOrders() {
+        // GET page=2, page=3 and so on
+        let nextPage = currentPage + 1
+        
         if orders.count <= 0 {
             activityView.startAnimating()
         }
         
         // REST call to server to retrieve user orders
-        manager.POST(SprubixConfig.URL.api + "/orders/user",
+        manager.POST(SprubixConfig.URL.api + "/orders/user?page=\(nextPage)",
             parameters: [
                 "order_status_ids": currentOrderStatus
             ],
             success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
-                self.orders = responseObject["data"] as! [NSDictionary]
-                
-                self.formatOrders()
-                self.ordersTableView.reloadData()
+                var orders = responseObject["data"] as! [NSDictionary]
+                self.currentPage = responseObject["current_page"] as! Int
+                self.lastPage = responseObject["last_page"] as? Int
                 
                 self.activityView.stopAnimating()
                 self.refreshControl.endRefreshing()
+                self.ordersTableView.infiniteScrollingView.stopAnimating()
+                
+                for order in orders {
+                    self.orders.append(order)
+                }
+                
+                self.formatOrders()
+                self.ordersTableView.reloadData()
             },
             failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                 println("Error: " + error.localizedDescription)
                 
                 self.activityView.stopAnimating()
                 self.refreshControl.endRefreshing()
+                self.ordersTableView.infiniteScrollingView.stopAnimating()
         })
     }
     
     func retrieveShopOrders() {
+        // GET page=2, page=3 and so on
+        let nextPage = currentPage + 1
+        
         if orders.count <= 0 {
             activityView.startAnimating()
         }
         
         // REST call to server to retrieve shop orders
-        manager.POST(SprubixConfig.URL.api + "/orders/shop",
+        manager.POST(SprubixConfig.URL.api + "/orders/shop?page=\(nextPage)",
             parameters: [
                 "order_status_ids": currentOrderStatus
             ],
             success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
-                self.orders = responseObject["data"] as! [NSDictionary]
-                
-                self.formatOrders()
-                self.ordersTableView.reloadData()
+                var orders = responseObject["data"] as! [NSDictionary]
+                self.currentPage = responseObject["current_page"] as! Int
+                self.lastPage = responseObject["last_page"] as? Int
                 
                 self.activityView.stopAnimating()
                 self.refreshControl.endRefreshing()
+                self.ordersTableView.infiniteScrollingView.stopAnimating()
+                
+                for order in orders {
+                    self.orders.append(order)
+                }
+                
+                self.formatOrders()
+                self.ordersTableView.reloadData()
             },
             failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                 println("Error: " + error.localizedDescription)
                 
                 self.activityView.stopAnimating()
                 self.refreshControl.endRefreshing()
+                self.ordersTableView.infiniteScrollingView.stopAnimating()
         })
     }
     

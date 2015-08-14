@@ -64,7 +64,7 @@ class OrderDetailsStatusCell: UITableViewCell {
             statusImageName = "order-cancelled"
             statusTintColor = UIColor.redColor()
         default:
-            fatalError("Unknown order status in ShopOrderDetailsViewController")
+            fatalError("Unknown order status in OrderDetailsStatusCell")
         }
         
         let statusImage: UIImage = UIImage(named: statusImageName)!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
