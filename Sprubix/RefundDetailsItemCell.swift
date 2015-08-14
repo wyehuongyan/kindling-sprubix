@@ -1,5 +1,5 @@
 //
-//  RefundDetailsItemCell.swift
+//  ShopOrderRefundDetailsItemCell.swift
 //  Sprubix
 //
 //  Created by Yan Wye Huong on 7/8/15.
@@ -8,7 +8,7 @@
 
 import UIKit
 
-class RefundDetailsItemCell: UITableViewCell {
+class ShopOrderRefundDetailsItemCell: UITableViewCell {
 
     @IBOutlet var itemImageView: UIImageView!
     @IBOutlet var name: UILabel!

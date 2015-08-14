@@ -1,5 +1,5 @@
 //
-//  RefundCell.swift
+//  ShopOrderRefundCell.swift
 //  Sprubix
 //
 //  Created by Yan Wye Huong on 13/8/15.
@@ -8,7 +8,7 @@
 
 import UIKit
 
-class RefundCell: UITableViewCell {
+class ShopOrderRefundCell: UITableViewCell {
     @IBOutlet var username: UILabel!
     @IBOutlet var orderNumber: UILabel!
     @IBOutlet var price: UILabel!

@@ -606,10 +606,10 @@
             </objects>
             <point key="canvasLocation" x="3458" y="1704"/>
         </scene>
-        <!--Refund Details View Controller-->
+        <!--Shop Order Refund Details View Controller-->
         <scene sceneID="6za-9l-l07">
             <objects>
-                <viewController storyboardIdentifier="RefundDetailsView" id="7AI-h8-XqP" customClass="RefundDetailsViewController" customModule="Sprubix" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="ShopOrderRefundDetailsView" id="7AI-h8-XqP" customClass="ShopOrderRefundDetailsViewController" customModule="Sprubix" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="oWk-kX-vfe"/>
                         <viewControllerLayoutGuide type="bottom" id="L6m-01-K5p"/>
@@ -622,7 +622,7 @@
                                 <rect key="frame" x="0.0" y="64" width="600" height="536"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <prototypes>
-                                    <tableViewCell contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="RefundDetailsItemCell" rowHeight="100" id="TjS-bl-fEP" customClass="RefundDetailsItemCell" customModule="Sprubix" customModuleProvider="target">
+                                    <tableViewCell contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="ShopOrderRefundDetailsItemCell" rowHeight="100" id="TjS-bl-fEP" customClass="ShopOrderRefundDetailsItemCell" customModule="Sprubix" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="264" width="600" height="72"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="TjS-bl-fEP" id="2O0-41-vch">
@@ -692,7 +692,7 @@
                                             <outlet property="size" destination="Scf-v9-S5M" id="wbb-Ab-C29"/>
                                         </connections>
                                     </tableViewCell>
-                                    <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="RefundDetailsFooterCell" rowHeight="200" id="ElI-TU-YU0" customClass="RefundDetailsFooterCell" customModule="Sprubix" customModuleProvider="target">
+                                    <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="ShopOrderRefundDetailsFooterCell" rowHeight="200" id="ElI-TU-YU0" customClass="ShopOrderRefundDetailsFooterCell" customModule="Sprubix" customModuleProvider="target">
                                         <rect key="frame" x="10" y="74" width="600" height="86"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="ElI-TU-YU0" id="aVx-Vt-7qe">
@@ -776,7 +776,7 @@
                                             <outlet property="totalAmountRefundable" destination="ukJ-Yp-loR" id="cZ0-Gu-uPg"/>
                                         </connections>
                                     </tableViewCell>
-                                    <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="RefundDetailsStatusCell" rowHeight="52" id="9Ut-7i-lsg" customClass="RefundDetailsStatusCell" customModule="Sprubix" customModuleProvider="target">
+                                    <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="ShopOrderRefundDetailsStatusCell" rowHeight="52" id="9Ut-7i-lsg" customClass="ShopOrderRefundDetailsStatusCell" customModule="Sprubix" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="274" width="600" height="52"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="9Ut-7i-lsg" id="Zcn-qW-XaV">
@@ -1377,10 +1377,10 @@
             </objects>
             <point key="canvasLocation" x="2663" y="1704"/>
         </scene>
-        <!--Refunds View Controller-->
+        <!--Shop Order Refunds View Controller-->
         <scene sceneID="Q6g-hu-oJh">
             <objects>
-                <viewController storyboardIdentifier="RefundsView" id="Ljh-r2-qHy" customClass="RefundsViewController" customModule="Sprubix" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="ShopOrderRefundsView" id="Ljh-r2-qHy" customClass="ShopOrderRefundsViewController" customModule="Sprubix" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="AYR-RF-VoD"/>
                         <viewControllerLayoutGuide type="bottom" id="J2y-sg-bbX"/>
@@ -1393,7 +1393,7 @@
                                 <rect key="frame" x="0.0" y="64" width="600" height="536"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <prototypes>
-                                    <tableViewCell contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="RefundCell" id="HYa-bb-xWy" customClass="RefundCell" customModule="Sprubix" customModuleProvider="target">
+                                    <tableViewCell contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="ShopOrderRefundCell" id="HYa-bb-xWy" customClass="ShopOrderRefundCell" customModule="Sprubix" customModuleProvider="target">
                                         <rect key="frame" x="10" y="74" width="600" height="72"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="HYa-bb-xWy" id="az2-wT-9yE">

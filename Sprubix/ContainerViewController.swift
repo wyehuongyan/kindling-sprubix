@@ -42,8 +42,8 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
     var deliveryOptionsViewController: DeliveryOptionsViewController?
     var cartViewController: CartViewController?
     var ordersViewController: OrdersViewController?
-    var refundDetailsViewController: RefundDetailsViewController?
-    var refundsViewController: RefundsViewController?
+    var shopOrderRefundDetailsViewController: ShopOrderRefundDetailsViewController?
+    var shopOrderRefundsViewController: ShopOrderRefundsViewController?
     
     var notificationScope = PermissionScope()
     var statusBarHidden = true
@@ -197,12 +197,12 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
     }
     
     func showRefunds() {
-        refundsViewController = UIStoryboard.refundsViewController()
+        shopOrderRefundsViewController = UIStoryboard.shopOrderRefundsViewController()
         
         self.closeSidePanel()
         
         sprubixNavigationController.delegate = nil
-        sprubixNavigationController.pushViewController(refundsViewController!, animated: true)
+        sprubixNavigationController.pushViewController(shopOrderRefundsViewController!, animated: true)
     }
     
     func showCart() {
@@ -430,12 +430,12 @@ extension UIStoryboard {
         return shopStoryboard().instantiateViewControllerWithIdentifier("ShopOrderDetailsView") as? ShopOrderDetailsViewController
     }
     
-    class func refundDetailsViewController() -> RefundDetailsViewController? {
-        return shopStoryboard().instantiateViewControllerWithIdentifier("RefundDetailsView") as? RefundDetailsViewController
+    class func shopOrderRefundDetailsViewController() -> ShopOrderRefundDetailsViewController? {
+        return shopStoryboard().instantiateViewControllerWithIdentifier("ShopOrderRefundDetailsView") as? ShopOrderRefundDetailsViewController
     }
     
-    class func refundsViewController() -> RefundsViewController? {
-        return shopStoryboard().instantiateViewControllerWithIdentifier("RefundsView") as? RefundsViewController
+    class func shopOrderRefundsViewController() -> ShopOrderRefundsViewController? {
+        return shopStoryboard().instantiateViewControllerWithIdentifier("ShopOrderRefundsView") as? ShopOrderRefundsViewController
     }
     
     class func customerDetailsViewController() -> CustomerDetailsViewController? {

@@ -1,5 +1,5 @@
 //
-//  RefundsViewController.swift
+//  ShopOrderRefundsViewController.swift
 //  Sprubix
 //
 //  Created by Yan Wye Huong on 6/8/15.
@@ -10,9 +10,9 @@ import UIKit
 import DZNEmptyDataSet
 import AFNetworking
 
-class RefundsViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, DZNEmptyDataSetSource, DZNEmptyDataSetDelegate {
+class ShopOrderRefundsViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, DZNEmptyDataSetSource, DZNEmptyDataSetDelegate {
     
-    let refundCellIdentifier = "RefundCell"
+    let shopOrderRefundCellIdentifier = "ShopOrderRefundCell"
     
     var refunds: [NSDictionary] = [NSDictionary]()
     var currentPage: Int = 0
@@ -42,7 +42,10 @@ class RefundsViewController: UIViewController, UITableViewDataSource, UITableVie
         super.viewWillAppear(animated)
         
         initNavBar()
-        retrieveRefunds()
+        
+        if refunds.count <= 0 {
+            retrieveRefunds()
+        }
     }
     
     override func viewDidAppear(animated: Bool) {
@@ -148,12 +151,13 @@ class RefundsViewController: UIViewController, UITableViewDataSource, UITableVie
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         let refund: NSDictionary = refunds[indexPath.row] as NSDictionary
         
-        var refundDetailsViewController = UIStoryboard.refundDetailsViewController()
-        refundDetailsViewController?.shopOrder = refund["shop_order"] as! NSMutableDictionary
-        refundDetailsViewController?.existingRefund = refund
-        refundDetailsViewController?.fromRefundView = true
+        var shopOrderRefundDetailsViewController = UIStoryboard.shopOrderRefundDetailsViewController()
         
-        self.navigationController?.pushViewController(refundDetailsViewController!, animated: true)
+        shopOrderRefundDetailsViewController?.shopOrder = refund["shop_order"] as! NSMutableDictionary
+        shopOrderRefundDetailsViewController?.existingRefund = refund
+        shopOrderRefundDetailsViewController?.fromRefundView = true
+        
+        self.navigationController?.pushViewController(shopOrderRefundDetailsViewController!, animated: true)
     }
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -161,7 +165,7 @@ class RefundsViewController: UIViewController, UITableViewDataSource, UITableVie
     }
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier(refundCellIdentifier, forIndexPath: indexPath) as! RefundCell
+        let cell = tableView.dequeueReusableCellWithIdentifier(shopOrderRefundCellIdentifier, forIndexPath: indexPath) as! ShopOrderRefundCell
         
         let refund: NSDictionary = refunds[indexPath.row] as NSDictionary
         
