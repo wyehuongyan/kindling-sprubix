@@ -236,12 +236,8 @@ class SignUpViewController: UIViewController, UITableViewDataSource, UITableView
                                 "Status": "Success"
                             ])
                             // Mixpanel - Register
-                            //MixpanelService.register(data)
+                            MixpanelService.register(data)
                             // Mixpanel - End
-                            
-                            // Mandrill - Add subaccount
-                            MandrillService.register(data)
-                            // Mandrill - End
                         }
                     },
                     failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in

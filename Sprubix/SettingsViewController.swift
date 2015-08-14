@@ -157,8 +157,12 @@ class SettingsViewController: UITableViewController {
                 self.navigationController?.presentViewController(signInVC, animated: true, completion: nil)
                 self.navigationController?.popViewControllerAnimated(true) // pop settings view controller
                 
+                // clear mixpanel cache
+                mixpanel.reset()
                 // exposed outfits, reset counter
                 exposedOutfits.removeAll()
+                // make next login a fresh login
+                freshLogin = true
                 
             default:
                 fatalError("Unknown static cell for settings.")

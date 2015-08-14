@@ -451,6 +451,10 @@ extension UIStoryboard {
         return shopStoryboard().instantiateViewControllerWithIdentifier("CheckoutView") as? CheckoutViewController
     }
     
+    class func dashboardViewController() -> DashboardViewController? {
+        return shopStoryboard().instantiateViewControllerWithIdentifier("DashboardView") as? DashboardViewController
+    }
+    
     // Settings storyboard
     class func settingsViewController() -> SettingsViewController? {
         return settingsStoryboard().instantiateViewControllerWithIdentifier("SettingsView") as? SettingsViewController

@@ -12,11 +12,6 @@ import TSMessages
 import MRProgress
 
 class ProvideFeedbackViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UITextViewDelegate, UITextFieldDelegate {
-
-    // email details
-    let emailSubject: String = "User Feedback"
-    let emailSprubixSupport: String = "support@sprubix.com"
-    let emailTag: String = "feedback"
     
     // table view cells
     var emailTable: UITableView!

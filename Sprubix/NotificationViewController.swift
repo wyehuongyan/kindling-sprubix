@@ -270,7 +270,7 @@ class NotificationViewController: UIViewController, DZNEmptyDataSetSource, DZNEm
     }
     
     func descriptionForEmptyDataSet(scrollView: UIScrollView!) -> NSAttributedString! {
-        let text: String = "When someone comments, likes, or creates an outfit\n from the items you own, you'll see it here."
+        let text: String = "When someone comments, likes, or creates an outfit from the items you own, you'll see it here."
         
         var paragraph: NSMutableParagraphStyle = NSMutableParagraphStyle.new()
         paragraph.lineBreakMode = NSLineBreakMode.ByWordWrapping
