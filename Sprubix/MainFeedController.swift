@@ -273,7 +273,11 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
                     
                     self.activityView.stopAnimating()
                     self.refreshControl.endRefreshing()
-                    self.mainCollectionView.infiniteScrollingView.stopAnimating()
+                    
+                    if self.mainCollectionView.infiniteScrollingView != nil {
+                        self.mainCollectionView.infiniteScrollingView.stopAnimating()
+                    }
+                    
                     self.mainCollectionView.reloadData()
                     
                     if scrollToTop {
@@ -286,7 +290,10 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
                     
                     self.activityView.stopAnimating()
                     self.refreshControl.endRefreshing()
-                    self.mainCollectionView.infiniteScrollingView.stopAnimating()
+                    
+                    if self.mainCollectionView.infiniteScrollingView != nil {
+                        self.mainCollectionView.infiniteScrollingView.stopAnimating()
+                    }
                     
                     SprubixReachability.handleError(error.code)
             })
@@ -318,12 +325,16 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
                             self.mainCollectionView.insertItemsAtIndexPaths([NSIndexPath(forItem: self.outfits.count - 1, inSection: 0)])
                         }
                         
-                        self.mainCollectionView.infiniteScrollingView.stopAnimating()
+                        if self.mainCollectionView.infiniteScrollingView != nil {
+                            self.mainCollectionView.infiniteScrollingView.stopAnimating()
+                        }
                     },
                     failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                         println("Error: " + error.localizedDescription)
                         
-                        self.mainCollectionView.infiniteScrollingView.stopAnimating()
+                        if self.mainCollectionView.infiniteScrollingView != nil {
+                            self.mainCollectionView.infiniteScrollingView.stopAnimating()
+                        }
                         
                         SprubixReachability.handleError(error.code)
                 })
@@ -331,7 +342,9 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
                 println("userId not found, please login or create an account")
             }
         } else {
-            self.mainCollectionView.infiniteScrollingView.stopAnimating()
+            if self.mainCollectionView.infiniteScrollingView != nil {
+                self.mainCollectionView.infiniteScrollingView.stopAnimating()
+            }
         }
     }
     

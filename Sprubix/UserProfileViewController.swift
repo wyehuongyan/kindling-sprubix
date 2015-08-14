@@ -610,7 +610,9 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
                 }
             } else {
                 // currentPage >= lastPage
-                profileCollectionView.infiniteScrollingView.stopAnimating()
+                if self.profileCollectionView.infiniteScrollingView != nil {
+                    self.profileCollectionView.infiniteScrollingView.stopAnimating()
+                }
             }
         } else {
             println("userId not found, please login or create an account")
@@ -633,11 +635,17 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
                 }
                 
                 self.currentPage = nextPage
-                self.profileCollectionView.infiniteScrollingView.stopAnimating()
+                
+                if self.profileCollectionView.infiniteScrollingView != nil {
+                    self.profileCollectionView.infiniteScrollingView.stopAnimating()
+                }
             },
             failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                 println("Error: " + error.localizedDescription)
-                self.profileCollectionView.infiniteScrollingView.stopAnimating()
+                
+                if self.profileCollectionView.infiniteScrollingView != nil {
+                    self.profileCollectionView.infiniteScrollingView.stopAnimating()
+                }
         })
     }
     
@@ -656,11 +664,17 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
                 }
                 
                 self.currentPage = nextPage
-                self.profileCollectionView.infiniteScrollingView.stopAnimating()
+                
+                if self.profileCollectionView.infiniteScrollingView != nil {
+                    self.profileCollectionView.infiniteScrollingView.stopAnimating()
+                }
             },
             failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                 println("Error: " + error.localizedDescription)
-                self.profileCollectionView.infiniteScrollingView.stopAnimating()
+                
+                if self.profileCollectionView.infiniteScrollingView != nil {
+                    self.profileCollectionView.infiniteScrollingView.stopAnimating()
+                }
         })
     }
     
@@ -679,11 +693,17 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
                 }
                 
                 self.currentPage = nextPage
-                self.profileCollectionView.infiniteScrollingView.stopAnimating()
+                
+                if self.profileCollectionView.infiniteScrollingView != nil {
+                    self.profileCollectionView.infiniteScrollingView.stopAnimating()
+                }
             },
             failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                 println("Error: " + error.localizedDescription)
-                self.profileCollectionView.infiniteScrollingView.stopAnimating()
+                
+                if self.profileCollectionView.infiniteScrollingView != nil {
+                    self.profileCollectionView.infiniteScrollingView.stopAnimating()
+                }
         })
     }
     

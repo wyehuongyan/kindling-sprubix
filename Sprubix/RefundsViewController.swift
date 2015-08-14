@@ -114,7 +114,9 @@ class RefundsViewController: UIViewController, UITableViewDataSource, UITableVie
                     self.currentPage = responseObject["current_page"] as! Int
                     self.lastPage = responseObject["last_page"] as? Int
                     
-                    self.refundsTableView.infiniteScrollingView.stopAnimating()
+                    if self.refundsTableView.infiniteScrollingView != nil {
+                        self.refundsTableView.infiniteScrollingView.stopAnimating()
+                    }
                     
                     for refund in refunds {
                         self.refunds.append(refund)
@@ -130,10 +132,15 @@ class RefundsViewController: UIViewController, UITableViewDataSource, UITableVie
                 },
                 failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                     println("Error: " + error.localizedDescription)
-                    self.refundsTableView.infiniteScrollingView.stopAnimating()
+                    
+                    if self.refundsTableView.infiniteScrollingView != nil {
+                        self.refundsTableView.infiniteScrollingView.stopAnimating()
+                    }
             })
         } else {
-            refundsTableView.infiniteScrollingView.stopAnimating()
+            if self.refundsTableView.infiniteScrollingView != nil {
+                self.refundsTableView.infiniteScrollingView.stopAnimating()
+            }
         }
     }
     

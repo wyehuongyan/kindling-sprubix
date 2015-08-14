@@ -231,7 +231,9 @@ class OrdersViewController: UIViewController, UITableViewDataSource, UITableView
                 retrieveShopOrders()
             }
         } else {
-            ordersTableView.infiniteScrollingView.stopAnimating()
+            if self.ordersTableView.infiniteScrollingView != nil {
+                self.ordersTableView.infiniteScrollingView.stopAnimating()
+            }
         }
     }
     
@@ -255,7 +257,10 @@ class OrdersViewController: UIViewController, UITableViewDataSource, UITableView
                 
                 self.activityView.stopAnimating()
                 self.refreshControl.endRefreshing()
-                self.ordersTableView.infiniteScrollingView.stopAnimating()
+                
+                if self.ordersTableView.infiniteScrollingView != nil {
+                    self.ordersTableView.infiniteScrollingView.stopAnimating()
+                }
                 
                 for order in orders {
                     self.orders.append(order)
@@ -269,7 +274,10 @@ class OrdersViewController: UIViewController, UITableViewDataSource, UITableView
                 
                 self.activityView.stopAnimating()
                 self.refreshControl.endRefreshing()
-                self.ordersTableView.infiniteScrollingView.stopAnimating()
+                
+                if self.ordersTableView.infiniteScrollingView != nil {
+                    self.ordersTableView.infiniteScrollingView.stopAnimating()
+                }
         })
     }
     
@@ -293,7 +301,10 @@ class OrdersViewController: UIViewController, UITableViewDataSource, UITableView
                 
                 self.activityView.stopAnimating()
                 self.refreshControl.endRefreshing()
-                self.ordersTableView.infiniteScrollingView.stopAnimating()
+                
+                if self.ordersTableView.infiniteScrollingView != nil {
+                    self.ordersTableView.infiniteScrollingView.stopAnimating()
+                }
                 
                 for order in orders {
                     self.orders.append(order)
@@ -307,7 +318,10 @@ class OrdersViewController: UIViewController, UITableViewDataSource, UITableView
                 
                 self.activityView.stopAnimating()
                 self.refreshControl.endRefreshing()
-                self.ordersTableView.infiniteScrollingView.stopAnimating()
+                
+                if self.ordersTableView.infiniteScrollingView != nil {
+                    self.ordersTableView.infiniteScrollingView.stopAnimating()
+                }
         })
     }
     

@@ -206,13 +206,22 @@ class SpruceSearchResultsViewController: UIViewController, UICollectionViewDataS
                     }
                     
                     self.currentPage = nextPage
-                    self.resultsCollectionView.infiniteScrollingView.stopAnimating()
+                    
+                    if self.resultsCollectionView.infiniteScrollingView != nil {
+                        self.resultsCollectionView.infiniteScrollingView.stopAnimating()
+                    }
                 },
                 failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                     println("Error: " + error.localizedDescription)
+                    
+                    if self.resultsCollectionView.infiniteScrollingView != nil {
+                        self.resultsCollectionView.infiniteScrollingView.stopAnimating()
+                    }
             })
         } else {
-            self.resultsCollectionView.infiniteScrollingView.stopAnimating()
+            if self.resultsCollectionView.infiniteScrollingView != nil {
+                self.resultsCollectionView.infiniteScrollingView.stopAnimating()
+            }
         }
     }
     

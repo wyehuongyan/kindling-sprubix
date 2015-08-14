@@ -371,7 +371,10 @@ class MyClosetViewController: UIViewController, UICollectionViewDataSource,  CHT
                         }
                         
                         self.currentPage = nextPage
-                        self.resultsCollectionView.infiniteScrollingView.stopAnimating()
+                        
+                        if self.resultsCollectionView.infiniteScrollingView != nil {
+                            self.resultsCollectionView.infiniteScrollingView.stopAnimating()
+                        }
                     },
                     failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                         println("Error: " + error.localizedDescription)
@@ -380,7 +383,9 @@ class MyClosetViewController: UIViewController, UICollectionViewDataSource,  CHT
                 println("userId not found, please login or create an account")
             }
         } else {
-            self.resultsCollectionView.infiniteScrollingView.stopAnimating()
+            if self.resultsCollectionView.infiniteScrollingView != nil {
+                self.resultsCollectionView.infiniteScrollingView.stopAnimating()
+            }
         }
     }
     

@@ -686,13 +686,22 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
                     }
                     
                     self.currentPage = nextPage
-                    self.singlePieceCollectionView.infiniteScrollingView.stopAnimating()
+                    
+                    if self.singlePieceCollectionView.infiniteScrollingView != nil {
+                        self.singlePieceCollectionView.infiniteScrollingView.stopAnimating()
+                    }
                 },
                 failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                     println("Error: " + error.localizedDescription)
+                    
+                    if self.singlePieceCollectionView.infiniteScrollingView != nil {
+                        self.singlePieceCollectionView.infiniteScrollingView.stopAnimating()
+                    }
             })
         } else {
-            self.singlePieceCollectionView.infiniteScrollingView.stopAnimating()
+            if self.singlePieceCollectionView.infiniteScrollingView != nil {
+                self.singlePieceCollectionView.infiniteScrollingView.stopAnimating()
+            }
         }
     }
     
