@@ -17,8 +17,8 @@ import Crashlytics
 struct SprubixConfig {
     struct URL {
         // test
-        static let api: String = "http://192.168.1.1/~shion/kindling-core/public/index.php"
-        //static let api: String = "http://sprubix-wh.ngrok.io/~wyehuongyan/kindling-core/public/index.php"
+        //static let api: String = "http://sprubix-ch.ngrok.io/~shion/kindling-core/public/index.php"
+        static let api: String = "http://sprubix-wh.ngrok.io/~wyehuongyan/kindling-core/public/index.php"
         static let firebase: String = "https://sprubixtest.firebaseio.com/"
         
         //static let api: String = "http://api.sprubix.com"
