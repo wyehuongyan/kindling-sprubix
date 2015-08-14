@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import DZNEmptyDataSet
 import AFNetworking
 
 protocol UserFollowInteractionProtocol {
@@ -15,7 +16,7 @@ protocol UserFollowInteractionProtocol {
     func unfollowUser(user: NSDictionary, sender: UIButton)
 }
 
-class UserFollowListViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UserFollowInteractionProtocol {
+class UserFollowListViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UserFollowInteractionProtocol, DZNEmptyDataSetSource, DZNEmptyDataSetDelegate {
 
     let userFollowListIdentifier: String = "UserFollowListCell"
     let userFollowListUNIdentifier: String = "UserFollowListUNCell"
@@ -40,6 +41,10 @@ class UserFollowListViewController: UIViewController, UITableViewDataSource, UIT
         
         // get rid of line seperator for empty cells
         followListTable.tableFooterView = UIView(frame: CGRectZero)
+        
+        // empty dataset
+        followListTable.emptyDataSetSource = self
+        followListTable.emptyDataSetDelegate = self
     }
     
     override func viewWillAppear(animated: Bool) {
@@ -117,7 +122,9 @@ class UserFollowListViewController: UIViewController, UITableViewDataSource, UIT
                 self.currentPage = responseObject["current_page"] as! Int
                 self.lastPage = responseObject["last_page"] as? Int
                 
-                self.followListTable.infiniteScrollingView.stopAnimating()
+                if self.followListTable.infiniteScrollingView != nil {
+                    self.followListTable.infiniteScrollingView.stopAnimating()
+                }
                 
                 for followingUser in followingUsers {
                     self.followListUsers.append(followingUser)
@@ -133,7 +140,9 @@ class UserFollowListViewController: UIViewController, UITableViewDataSource, UIT
             },
             failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                 println("Error: " + error.localizedDescription)
-                self.followListTable.infiniteScrollingView.stopAnimating()
+                if self.followListTable.infiniteScrollingView != nil {
+                    self.followListTable.infiniteScrollingView.stopAnimating()
+                }
         })
     }
     
@@ -150,7 +159,9 @@ class UserFollowListViewController: UIViewController, UITableViewDataSource, UIT
                 self.currentPage = responseObject["current_page"] as! Int
                 self.lastPage = responseObject["last_page"] as? Int
                 
-                self.followListTable.infiniteScrollingView.stopAnimating()
+                if self.followListTable.infiniteScrollingView != nil {
+                    self.followListTable.infiniteScrollingView.stopAnimating()
+                }
                 
                 for follower in followers {
                     self.followListUsers.append(follower)
@@ -166,7 +177,9 @@ class UserFollowListViewController: UIViewController, UITableViewDataSource, UIT
             },
             failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                 println("Error: " + error.localizedDescription)
-                self.followListTable.infiniteScrollingView.stopAnimating()
+                if self.followListTable.infiniteScrollingView != nil {
+                    self.followListTable.infiniteScrollingView.stopAnimating()
+                }
         })
     }
     
@@ -284,5 +297,73 @@ class UserFollowListViewController: UIViewController, UITableViewDataSource, UIT
     // nav bar button callbacks
     func backTapped(sender: UIBarButtonItem) {
         self.navigationController?.popViewControllerAnimated(true)
+    }
+    
+    // DZNEmptyDataSetSource
+    func titleForEmptyDataSet(scrollView: UIScrollView!) -> NSAttributedString! {
+        var text: String!
+        
+        if following != nil && following == true {
+            // following
+            text = "Following list"
+        } else {
+            // follower
+            text = "Follower list"
+        }
+        
+        let attributes: NSDictionary = [
+            NSFontAttributeName: UIFont.boldSystemFontOfSize(18.0),
+            NSForegroundColorAttributeName: UIColor.darkGrayColor()
+        ]
+        
+        let attributedString: NSAttributedString = NSAttributedString(string: text, attributes: attributes as [NSObject : AnyObject])
+        
+        return attributedString
+    }
+    
+    func descriptionForEmptyDataSet(scrollView: UIScrollView!) -> NSAttributedString! {
+        var text: String!
+        
+        if following != nil && following == true {
+            // following
+            text = "When the user follows other people, you'll see them here."
+        } else {
+            // follower
+            text = "When the user is being followed by other people, you'll see them here."
+        }
+        
+        var paragraph: NSMutableParagraphStyle = NSMutableParagraphStyle.new()
+        paragraph.lineBreakMode = NSLineBreakMode.ByWordWrapping
+        paragraph.alignment = NSTextAlignment.Center
+        
+        let attributes: NSDictionary = [
+            NSFontAttributeName: UIFont.boldSystemFontOfSize(14.0),
+            NSForegroundColorAttributeName: UIColor.lightGrayColor(),
+            NSParagraphStyleAttributeName: paragraph
+        ]
+        
+        let attributedString: NSAttributedString = NSAttributedString(string: text, attributes: attributes as [NSObject : AnyObject])
+        
+        return attributedString
+    }
+    
+    /*func buttonTitleForEmptyDataSet(scrollView: UIScrollView!, forState state: UIControlState) -> NSAttributedString! {
+    let text: String = "Button Title"
+    
+    let attributes: NSDictionary = [
+    NSFontAttributeName: UIFont.boldSystemFontOfSize(17.0)
+    ]
+    
+    let attributedString: NSAttributedString = NSAttributedString(string: text, attributes: attributes as [NSObject : AnyObject])
+    
+    return attributedString
+    }*/
+    
+    func imageForEmptyDataSet(scrollView: UIScrollView!) -> UIImage! {
+        return UIImage(named: "emptyset-follow")
+    }
+    
+    func backgroundColorForEmptyDataSet(scrollView: UIScrollView!) -> UIColor! {
+        return UIColor.whiteColor()
     }
 }

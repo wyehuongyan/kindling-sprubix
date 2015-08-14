@@ -542,11 +542,11 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
         // Default descriptions, for other profiles
         switch(currentProfileState) {
         case .Outfits:
-            text = "No outfits yet!"
+            text = "When the user creates or spruces an outfit, you'll see it here."
         case .Pieces:
-            text = "No items yet!"
+            text = "When the user uploads an item, you'll see it here"
         case .Community:
-            text = "No outfits yet!"
+            text = "When the community creates an outfit for the user, you'll see it here"
         }
         
         // Own profile
