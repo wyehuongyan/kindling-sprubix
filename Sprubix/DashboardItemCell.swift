@@ -24,5 +24,6 @@ class DashboardItemCell: UITableViewCell {
         itemImageView.layer.borderColor = UIColor.lightGrayColor().CGColor
         itemImageView.layer.borderWidth = 0.5
         itemImageView.clipsToBounds = true
+        itemImageView.contentMode = UIViewContentMode.ScaleAspectFit
     }
 }
