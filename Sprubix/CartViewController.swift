@@ -370,7 +370,9 @@ class CartViewController: UIViewController, UITableViewDataSource, UITableViewDe
                 
                 self.cartData = responseObject as! NSDictionary
                 
-                self.formatCartItemData()
+                if self.cartData.allKeys.count > 0 {
+                    self.formatCartItemData()
+                }
             },
             failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                 println("Error: " + error.localizedDescription)
