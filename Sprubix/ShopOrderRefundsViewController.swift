@@ -10,7 +10,7 @@ import UIKit
 import DZNEmptyDataSet
 import AFNetworking
 
-class ShopOrderRefundsViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, DZNEmptyDataSetSource, DZNEmptyDataSetDelegate {
+class ShopOrderRefundsViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, DZNEmptyDataSetSource, DZNEmptyDataSetDelegate, ShopOrderRefundProtocol {
     
     let shopOrderRefundCellIdentifier = "ShopOrderRefundCell"
     
@@ -21,6 +21,12 @@ class ShopOrderRefundsViewController: UIViewController, UITableViewDataSource, U
     // custom nav bar
     var newNavBar: UINavigationBar!
     var newNavItem: UINavigationItem!
+    
+    var newRefundRequestable: Bool = false
+    var checkRefundRequestable: Bool = true
+    var fromShopOrderDetails: Bool = false
+    var shopOrderId: Int!
+    var shopOrder: NSMutableDictionary!
     
     @IBOutlet var refundsTableView: UITableView!
     
@@ -42,10 +48,7 @@ class ShopOrderRefundsViewController: UIViewController, UITableViewDataSource, U
         super.viewWillAppear(animated)
         
         initNavBar()
-        
-        if refunds.count <= 0 {
-            retrieveRefunds()
-        }
+        retrieveRefunds()
     }
     
     override func viewDidAppear(animated: Bool) {
@@ -55,15 +58,6 @@ class ShopOrderRefundsViewController: UIViewController, UITableViewDataSource, U
         refundsTableView.addInfiniteScrollingWithActionHandler({
             self.retrieveRefunds()
         })
-    }
-    
-    override func viewDidDisappear(animated: Bool) {
-        super.viewDidDisappear(animated)
-        
-        refunds.removeAll()
-        refundsTableView.reloadData()
-        currentPage = 0
-        lastPage = nil
     }
     
     func initNavBar() {
@@ -103,35 +97,65 @@ class ShopOrderRefundsViewController: UIViewController, UITableViewDataSource, U
     }
     
     func retrieveRefunds() {
-        // GET page=2, page=3 and so on
-        let nextPage = currentPage + 1
-        
-        if currentPage < lastPage || lastPage == nil {
-            // REST call to server to update order status
-            manager.GET(SprubixConfig.URL.api + "/user/refunds?page=\(nextPage)",
-                parameters: nil,
+        if fromShopOrderDetails != true {
+            // GET page=2, page=3 and so on
+            let nextPage = currentPage + 1
+            
+            if currentPage < lastPage || lastPage == nil {
+                // REST call to server to update order status
+                manager.GET(SprubixConfig.URL.api + "/user/refunds?page=\(nextPage)",
+                    parameters: nil,
+                    success: { (operation: AFHTTPRequestOperation!, responseObject:
+                        AnyObject!) in
+                        
+                        var refunds = responseObject["data"] as! [NSDictionary]
+                        self.currentPage = responseObject["current_page"] as! Int
+                        self.lastPage = responseObject["last_page"] as? Int
+                        
+                        if self.refundsTableView.infiniteScrollingView != nil {
+                            self.refundsTableView.infiniteScrollingView.stopAnimating()
+                        }
+                        
+                        for refund in refunds {
+                            self.refunds.append(refund)
+                            
+                            self.refundsTableView.layoutIfNeeded()
+                            self.refundsTableView.beginUpdates()
+                            
+                            var nsPath = NSIndexPath(forRow: self.refunds.count - 1, inSection: 0)
+                            self.refundsTableView.insertRowsAtIndexPaths([nsPath], withRowAnimation: UITableViewRowAnimation.Fade)
+                            
+                            self.refundsTableView.endUpdates()
+                        }
+                    },
+                    failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                        println("Error: " + error.localizedDescription)
+                        
+                        if self.refundsTableView.infiniteScrollingView != nil {
+                            self.refundsTableView.infiniteScrollingView.stopAnimating()
+                        }
+                })
+            } else {
+                if self.refundsTableView.infiniteScrollingView != nil {
+                    self.refundsTableView.infiniteScrollingView.stopAnimating()
+                }
+            }
+        } else {
+            manager.POST(SprubixConfig.URL.api + "/order/shop/refunds",
+                parameters: [
+                    "shop_order_id": shopOrderId
+                ],
                 success: { (operation: AFHTTPRequestOperation!, responseObject:
                     AnyObject!) in
-                    
-                    var refunds = responseObject["data"] as! [NSDictionary]
-                    self.currentPage = responseObject["current_page"] as! Int
-                    self.lastPage = responseObject["last_page"] as? Int
                     
                     if self.refundsTableView.infiniteScrollingView != nil {
                         self.refundsTableView.infiniteScrollingView.stopAnimating()
                     }
                     
-                    for refund in refunds {
-                        self.refunds.append(refund)
-                        
-                        self.refundsTableView.layoutIfNeeded()
-                        self.refundsTableView.beginUpdates()
-                        
-                        var nsPath = NSIndexPath(forRow: self.refunds.count - 1, inSection: 0)
-                        self.refundsTableView.insertRowsAtIndexPaths([nsPath], withRowAnimation: UITableViewRowAnimation.Fade)
-                        
-                        self.refundsTableView.endUpdates()
-                    }
+                    var shopOrderRefunds = responseObject["data"] as! [NSDictionary]
+                    
+                    self.refunds = shopOrderRefunds
+                    self.refundsTableView.reloadData()
                 },
                 failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                     println("Error: " + error.localizedDescription)
@@ -140,10 +164,6 @@ class ShopOrderRefundsViewController: UIViewController, UITableViewDataSource, U
                         self.refundsTableView.infiniteScrollingView.stopAnimating()
                     }
             })
-        } else {
-            if self.refundsTableView.infiniteScrollingView != nil {
-                self.refundsTableView.infiniteScrollingView.stopAnimating()
-            }
         }
     }
     
@@ -158,6 +178,11 @@ class ShopOrderRefundsViewController: UIViewController, UITableViewDataSource, U
         shopOrderRefundDetailsViewController?.fromRefundView = true
         
         self.navigationController?.pushViewController(shopOrderRefundDetailsViewController!, animated: true)
+        
+        currentPage = 0
+        lastPage = nil
+        refunds.removeAll()
+        refundsTableView.reloadData()
     }
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -184,13 +209,112 @@ class ShopOrderRefundsViewController: UIViewController, UITableViewDataSource, U
         cell.refundStatusId = refundStatusId
         cell.setStatusImage()
         
+        if checkRefundRequestable && refundStatusId != 1 {
+            newRefundRequestable = true
+        } else {
+            newRefundRequestable = false
+            checkRefundRequestable = false
+        }
+        
         cell.accessoryType = UITableViewCellAccessoryType.DisclosureIndicator
         
         return cell
     }
     
+    func tableView(tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+        if fromShopOrderDetails && newRefundRequestable {
+            let footerViewContainer = UIView(frame: CGRectMake(0, 0, screenWidth, 72.0))
+            
+            footerViewContainer.backgroundColor = sprubixGray
+            
+            let requestForNewRefundButton = UIButton(frame: CGRectMake(0, 20.0, screenWidth, 52.0))
+            
+            let userData: NSDictionary? = defaults.dictionaryForKey("userData")
+            let shoppableType: String? = userData!["shoppable_type"] as? String
+            var titleText = ""
+            
+            if shoppableType?.lowercaseString.rangeOfString("shopper") != nil {
+                // shopper
+                // Request for Refund
+                titleText = "Request for Refund"
+                
+            } else {
+                // shop
+                // Refund
+                titleText = "Refund"
+            }
+            
+            requestForNewRefundButton.setTitle(titleText, forState: UIControlState.Normal)
+            requestForNewRefundButton.setTitleColor(sprubixColor, forState: UIControlState.Normal)
+            requestForNewRefundButton.backgroundColor = UIColor.whiteColor()
+            requestForNewRefundButton.addTarget(self, action: "requestForNewRefundPressed:", forControlEvents: UIControlEvents.TouchUpInside)
+            
+            footerViewContainer.addSubview(requestForNewRefundButton)
+            
+            return footerViewContainer
+        } else {
+            return nil
+        }
+    }
+    
+    func tableView(tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+        if fromShopOrderDetails && newRefundRequestable {
+            return 72.0
+        } else {
+            return 0.0
+        }
+    }
+    
+    // button callbacks
+    func requestForNewRefundPressed(sender: UIButton) {
+        let userData: NSDictionary? = defaults.dictionaryForKey("userData")
+        let shoppableType: String? = userData!["shoppable_type"] as? String
+        var popupMessage = ""
+        var titleText = ""
+        
+        if shoppableType?.lowercaseString.rangeOfString("shopper") != nil {
+            // shopper
+            // Request for Refund
+            popupMessage = "You have requested for a refund on item(s) from this order."
+            
+        } else {
+            // shop
+            // Refund
+            popupMessage = "Setting this status will create a new refund ticket for this order."
+        }
+        
+        var alert = UIAlertController(title: "Are you sure?", message: popupMessage, preferredStyle: UIAlertControllerStyle.Alert)
+        alert.view.tintColor = sprubixColor
+        
+        // Yes
+        alert.addAction(UIAlertAction(title: "Yes, I'm sure", style: UIAlertActionStyle.Default, handler: { action in
+            
+            // show RefundRequestViewController and select items to refund
+            let shopOrderRefundDetailsViewController = UIStoryboard.shopOrderRefundDetailsViewController()
+            shopOrderRefundDetailsViewController?.shopOrder = self.shopOrder
+            shopOrderRefundDetailsViewController?.delegate = self
+            
+            self.navigationController?.pushViewController(shopOrderRefundDetailsViewController!, animated: true)
+        }))
+        
+        // No
+        alert.addAction(UIAlertAction(title: "No", style: UIAlertActionStyle.Cancel, handler: nil))
+        
+        self.presentViewController(alert, animated: true, completion: nil)
+    }
+    
+    // nav bar button callbacks
     func backTapped(sender: UIBarButtonItem) {
         self.navigationController?.popViewControllerAnimated(true)
+    }
+    
+    // ShopOrderRefundProtocol
+    func setRequestable(newRefundRequestable: Bool) {
+        self.newRefundRequestable = newRefundRequestable
+        
+        if self.newRefundRequestable == false {
+            checkRefundRequestable = false
+        }
     }
     
     // DZNEmptyDataSetSource

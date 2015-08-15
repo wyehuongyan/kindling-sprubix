@@ -26,7 +26,7 @@ class ShopOrderRefundDetailsStatusCell: UITableViewCell {
         case 2:
             // Refund Processing
             statusImageName = "order-shipping-requested"
-            statusTintColor = UIColor.blueColor()
+            statusTintColor = UIColor.cyanColor()
         case 3:
             // Refunded
             statusImageName = "order-shipping-received"

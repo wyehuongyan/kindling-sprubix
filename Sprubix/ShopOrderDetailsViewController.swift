@@ -555,6 +555,9 @@ class ShopOrderDetailsViewController: UIViewController, UITableViewDataSource, U
                 let shopOrderRefundsViewController = UIStoryboard.shopOrderRefundsViewController()
                 
                 shopOrderRefundsViewController?.refunds = shopOrderRefunds
+                shopOrderRefundsViewController?.fromShopOrderDetails = true
+                shopOrderRefundsViewController?.shopOrderId = shopOrderId
+                shopOrderRefundsViewController?.shopOrder = self.shopOrder
                 
                 self.navigationController?.pushViewController(shopOrderRefundsViewController!, animated: true)
             },

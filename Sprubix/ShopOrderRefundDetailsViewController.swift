@@ -10,8 +10,15 @@ import UIKit
 import ActionSheetPicker_3_0
 import AFNetworking
 import TSMessages
+import MRProgress
+
+protocol ShopOrderRefundProtocol {
+    func setRequestable(newRefundRequestable: Bool)
+}
 
 class ShopOrderRefundDetailsViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UITextViewDelegate {
+    
+    var delegate: ShopOrderRefundProtocol?
     
     var shopOrder: NSMutableDictionary!
     var existingRefund: NSDictionary?
@@ -38,6 +45,9 @@ class ShopOrderRefundDetailsViewController: UIViewController, UITableViewDataSou
     var orderItems: [NSDictionary] = [NSDictionary]()
     var returnDict: NSMutableDictionary = NSMutableDictionary()
     var finalRefundAmount: String!
+    
+    // loading overlay
+    var overlay: MRProgressOverlayView!
     
     @IBOutlet var refundDetailsTableView: UITableView!
     
@@ -243,27 +253,9 @@ class ShopOrderRefundDetailsViewController: UIViewController, UITableViewDataSou
             cell.itemImageView.setImageWithURL(pieceImageURL)
             cell.selectionStyle = UITableViewCellSelectionStyle.None
             
-            let userData: NSDictionary? = defaults.dictionaryForKey("userData")
-            let shoppableType: String? = userData!["shoppable_type"] as? String
-            
-            if shoppableType?.lowercaseString.rangeOfString("shopper") != nil {
-                
-                if existingRefund != nil {
-                    let refundStatus = existingRefund!["refund_status"] as! NSDictionary
-                    
-                    let refundStatusId = refundStatus["id"] as! Int
-                    
-                    if refundStatusId == 1 {
-                        // already requested
-                        cell.edit.alpha = 0.0
-                        cell.userInteractionEnabled = false
-                    } else {
-                        // either refunded, cancelled or failed
-                        // // shopper may ask for another refund
-                        cell.edit.alpha = 1.0
-                        cell.userInteractionEnabled = true
-                    }
-                }
+            if existingRefund != nil {
+                cell.edit.alpha = 0.0
+                cell.userInteractionEnabled = false
             }
             
             return cell
@@ -572,16 +564,71 @@ class ShopOrderRefundDetailsViewController: UIViewController, UITableViewDataSou
     // button callbacks
     func approveRefundButtonPressed(sender: UIButton) {
         if existingRefund != nil {
-            let shopOrderRefundId = existingRefund!["id"] as! Int
             
-            // REST call to server to update shopOrderRefund
-            manager.POST(SprubixConfig.URL.api + "/refund/\(shopOrderRefundId)/approve",
-                parameters: nil,
-                success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
-                },
-                failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
-                    println("Error: " + error.localizedDescription)
-            })
+            // alert view confirmation
+            var refundMessage = "This action cannot be undone. \n\nApprove Refund $\(finalRefundAmount)"
+            var alert = UIAlertController(title: "Are you sure?", message: refundMessage, preferredStyle: UIAlertControllerStyle.Alert)
+            
+            alert.view.tintColor = sprubixColor
+            
+            // Yes
+            alert.addAction(UIAlertAction(title: "Yes, I'm sure", style: UIAlertActionStyle.Default, handler: { action in
+                
+                // init overlay
+                self.overlay = MRProgressOverlayView.showOverlayAddedTo(self.view, title: "Processing...", mode: MRProgressOverlayViewMode.Indeterminate, animated: true)
+                
+                self.overlay.tintColor = sprubixColor
+                
+                let shopOrderRefundId = self.existingRefund!["id"] as! Int
+                
+                // REST call to server to update shopOrderRefund
+                manager.POST(SprubixConfig.URL.api + "/refund/\(shopOrderRefundId)/approve",
+                    parameters: [
+                        "refund_amount": self.finalRefundAmount,
+                        "return_cart_items": self.returnDict
+                    ],
+                    success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                        
+                        var status = responseObject["status"] as! String
+                        var automatic: NSTimeInterval = 0
+                        self.overlay.dismiss(true)
+                        
+                        if status == "200" {
+                            // success
+                            TSMessage.showNotificationInViewController(TSMessage.defaultViewController(), title: "Success!", subtitle: "Refund Approved.", image: UIImage(named: "filter-check"), type: TSMessageNotificationType.Success, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: true)
+                            
+                            self.existingRefund = responseObject["shop_order_refund"] as? NSDictionary
+                            self.refundDetailsTableView.reloadData()
+                            
+                            let userData: NSDictionary? = defaults.dictionaryForKey("userData")
+                            let shoppableType: String? = userData!["shoppable_type"] as? String
+                            if shoppableType?.lowercaseString.rangeOfString("shopper") != nil {
+                                // if is a shopper who just made a request
+                                self.delegate?.setRequestable(false)
+                            }
+                            
+                        } else if status == "500" {
+                            // error exception
+                            TSMessage.showNotificationInViewController(TSMessage.defaultViewController(), title: "Error", subtitle: "Something went wrong.\nPlease try again.", image: UIImage(named: "filter-cross"), type: TSMessageNotificationType.Error, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: true)
+                            
+                            println(responseObject)
+                        }
+                    },
+                    failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                        println("Error: " + error.localizedDescription)
+                        
+                        self.overlay.dismiss(true)
+                        var automatic: NSTimeInterval = 0
+                        
+                        // error exception
+                        TSMessage.showNotificationInViewController(TSMessage.defaultViewController(), title: "Error", subtitle: "Something went wrong.\nPlease try again.", image: UIImage(named: "filter-cross"), type: TSMessageNotificationType.Error, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: true)
+                })
+            }))
+            
+            // No
+            alert.addAction(UIAlertAction(title: "No", style: UIAlertActionStyle.Cancel, handler: nil))
+            
+            self.presentViewController(alert, animated: true, completion: nil)
         }
     }
     
@@ -607,6 +654,11 @@ class ShopOrderRefundDetailsViewController: UIViewController, UITableViewDataSou
         // Yes
         alert.addAction(UIAlertAction(title: "Yes, I'm sure", style: UIAlertActionStyle.Default, handler: { action in
             
+            // init overlay
+            self.overlay = MRProgressOverlayView.showOverlayAddedTo(self.view, title: "Processing...", mode: MRProgressOverlayViewMode.Indeterminate, animated: true)
+            
+            self.overlay.tintColor = sprubixColor
+            
             // refund confirmed
             let shopOrderId = self.shopOrder["id"] as! Int
             
@@ -626,23 +678,32 @@ class ShopOrderRefundDetailsViewController: UIViewController, UITableViewDataSou
                     var status = responseObject["status"] as! String
                     var automatic: NSTimeInterval = 0
                     
+                    self.overlay.dismiss(true)
+                    
                     if status == "200" {
                         // success
-                        TSMessage.showNotificationInViewController(                        TSMessage.defaultViewController(), title: "Success!", subtitle: responseMessage, image: UIImage(named: "filter-check"), type: TSMessageNotificationType.Success, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: true)
+                        TSMessage.showNotificationInViewController(TSMessage.defaultViewController(), title: "Success!", subtitle: responseMessage, image: UIImage(named: "filter-check"), type: TSMessageNotificationType.Success, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: true)
                         
                         self.existingRefund = responseObject["shop_order_refund"] as? NSDictionary
                         
                         self.refundDetailsTableView.reloadData()
+                        self.delegate?.setRequestable(false)
                         
                     } else if status == "500" {
                         // error exception
-                        TSMessage.showNotificationInViewController(                        TSMessage.defaultViewController(), title: "Error", subtitle: "Something went wrong.\nPlease try again.", image: UIImage(named: "filter-cross"), type: TSMessageNotificationType.Error, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: true)
+                        TSMessage.showNotificationInViewController(TSMessage.defaultViewController(), title: "Error", subtitle: "Something went wrong.\nPlease try again.", image: UIImage(named: "filter-cross"), type: TSMessageNotificationType.Error, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: true)
                         
                         println(responseObject)
                     }
                 },
                 failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                     println("Error: " + error.localizedDescription)
+                    
+                    self.overlay.dismiss(true)
+                    var automatic: NSTimeInterval = 0
+                    
+                    // error exception
+                    TSMessage.showNotificationInViewController(TSMessage.defaultViewController(), title: "Error", subtitle: "Something went wrong.\nPlease try again.", image: UIImage(named: "filter-cross"), type: TSMessageNotificationType.Error, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: true)
             })
         }))
         
