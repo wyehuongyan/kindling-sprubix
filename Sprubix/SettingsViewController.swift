@@ -8,6 +8,7 @@
 
 import UIKit
 import SSKeychain
+import FBSDKLoginKit
 
 class SettingsViewController: UITableViewController {
     
@@ -163,6 +164,10 @@ class SettingsViewController: UITableViewController {
                 exposedOutfits.removeAll()
                 // make next login a fresh login
                 freshLogin = true
+                // Log out FB if exist
+                if FBSDKAccessToken.currentAccessToken() != nil {
+                    FBSDKLoginManager().logOut()
+                }
                 
             default:
                 fatalError("Unknown static cell for settings.")
