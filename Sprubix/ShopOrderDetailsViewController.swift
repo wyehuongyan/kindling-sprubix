@@ -10,7 +10,7 @@ import UIKit
 import AFNetworking
 import TSMessages
 
-class ShopOrderDetailsViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, ExistingRefundProtocol {
+class ShopOrderDetailsViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
 
     var shopOrder: NSMutableDictionary!
     var orderNum: String!
@@ -29,7 +29,7 @@ class ShopOrderDetailsViewController: UIViewController, UITableViewDataSource, U
     var orderHeaderView: UIView!
     var currentOrderStatusId: Int!
     
-    var existingRefund: NSDictionary?
+    var existingRefunds: [NSDictionary]?
     
     // custom nav bar
     var newNavBar: UINavigationBar!
@@ -325,17 +325,17 @@ class ShopOrderDetailsViewController: UIViewController, UITableViewDataSource, U
                 // refund
                 let cell = tableView.dequeueReusableCellWithIdentifier(orderDetailsRefundCellIdentifier, forIndexPath: indexPath) as! OrderDetailsRefundCell
                 
-                if existingRefund == nil {
-                    existingRefund = shopOrder["shop_order_refund"] as? NSDictionary
+                if existingRefunds == nil {
+                    existingRefunds = shopOrder["shop_order_refunds"] as? [NSDictionary]
                 }
                 
-                if existingRefund != nil {
+                if existingRefunds != nil && existingRefunds!.count > 0 {
                     // there's an existing refund
-                    cell.refundButton.setTitle("View Existing Refund", forState: UIControlState.Normal)
+                    cell.refundButton.setTitle("View Existing Refunds", forState: UIControlState.Normal)
                     
                     // set refund action
                     cell.refundAction = { Void in
-                        self.viewExistingRefund(self.existingRefund)
+                        self.viewExistingRefunds(self.existingRefunds)
                         
                         return
                     }
@@ -540,19 +540,30 @@ class ShopOrderDetailsViewController: UIViewController, UITableViewDataSource, U
         return 3
     }
     
-    // ExistingRefundProtocol
-    func setRefund(existingRefund: NSDictionary?) {
-        self.existingRefund = existingRefund
-    }
-    
-    func viewExistingRefund(existingRefund: NSDictionary?) {
-        let refundDetailsViewController = UIStoryboard.refundDetailsViewController()
-        refundDetailsViewController?.shopOrder = self.shopOrder
+    func viewExistingRefunds(existingRefunds: [NSDictionary]?) {
+        let shopOrderId = shopOrder["id"] as! Int
         
-        refundDetailsViewController?.existingRefund = existingRefund
-        refundDetailsViewController?.delegate = self
-        
-        self.navigationController?.pushViewController(refundDetailsViewController!, animated: true)
+        manager.POST(SprubixConfig.URL.api + "/order/shop/refunds",
+            parameters: [
+                "shop_order_id": shopOrderId
+            ],
+            success: { (operation: AFHTTPRequestOperation!, responseObject:
+                AnyObject!) in
+                
+                var shopOrderRefunds = responseObject["data"] as! [NSDictionary]
+                
+                let shopOrderRefundsViewController = UIStoryboard.shopOrderRefundsViewController()
+                
+                shopOrderRefundsViewController?.refunds = shopOrderRefunds
+                shopOrderRefundsViewController?.fromShopOrderDetails = true
+                shopOrderRefundsViewController?.shopOrderId = shopOrderId
+                shopOrderRefundsViewController?.shopOrder = self.shopOrder
+                
+                self.navigationController?.pushViewController(shopOrderRefundsViewController!, animated: true)
+            },
+            failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                println("Error: " + error.localizedDescription)
+        })
     }
     
     func refundOrder() {
@@ -579,11 +590,10 @@ class ShopOrderDetailsViewController: UIViewController, UITableViewDataSource, U
         alert.addAction(UIAlertAction(title: "Yes, I'm sure", style: UIAlertActionStyle.Default, handler: { action in
             
             // show RefundRequestViewController and select items to refund
-            let refundDetailsViewController = UIStoryboard.refundDetailsViewController()
-            refundDetailsViewController?.shopOrder = self.shopOrder
-            refundDetailsViewController?.delegate = self
+            let shopOrderRefundDetailsViewController = UIStoryboard.shopOrderRefundDetailsViewController()
+            shopOrderRefundDetailsViewController?.shopOrder = self.shopOrder
             
-            self.navigationController?.pushViewController(refundDetailsViewController!, animated: true)
+            self.navigationController?.pushViewController(shopOrderRefundDetailsViewController!, animated: true)
         }))
         
         // No

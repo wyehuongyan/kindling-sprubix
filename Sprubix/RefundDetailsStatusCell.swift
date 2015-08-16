@@ -1,5 +1,5 @@
 //
-//  RefundDetailsStatusCell.swift
+//  ShopOrderRefundDetailsStatusCell.swift
 //  Sprubix
 //
 //  Created by Yan Wye Huong on 12/8/15.
@@ -8,7 +8,7 @@
 
 import UIKit
 
-class RefundDetailsStatusCell: UITableViewCell {
+class ShopOrderRefundDetailsStatusCell: UITableViewCell {
     @IBOutlet var statusImageView: UIImageView!
     @IBOutlet var status: UILabel!
     
@@ -24,17 +24,21 @@ class RefundDetailsStatusCell: UITableViewCell {
             statusImageName = "order-processing"
             statusTintColor = UIColor.lightGrayColor()
         case 2:
-            // Refunded
+            // Refund Processing
             statusImageName = "order-shipping-requested"
             statusTintColor = UIColor.cyanColor()
         case 3:
-            // Refund Cancelled
-            statusImageName = "order-shipping-posted"
-            statusTintColor = UIColor.blueColor()
-        case 4:
-            // Refund Failed
+            // Refunded
             statusImageName = "order-shipping-received"
             statusTintColor = UIColor.greenColor()
+        case 4:
+            // Refund Cancelled
+            statusImageName = "order-cancelled"
+            statusTintColor = UIColor.redColor()
+        case 5:
+            // Refund Failed
+            statusImageName = "shop-info"
+            statusTintColor = UIColor.redColor()
         default:
             fatalError("Unknown refund status in RefundDetailsStatusCell")
         }

@@ -1,5 +1,5 @@
 //
-//  RefundDetailsFooterCell.swift
+//  ShopOrderRefundDetailsFooterCell.swift
 //  Sprubix
 //
 //  Created by Yan Wye Huong on 7/8/15.
@@ -8,7 +8,7 @@
 
 import UIKit
 
-class RefundDetailsFooterCell: UITableViewCell {
+class ShopOrderRefundDetailsFooterCell: UITableViewCell {
 
     @IBOutlet var shippingRate: UILabel!
     @IBOutlet var totalAmountRefundable: UILabel!
