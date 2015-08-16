@@ -1,361 +1,238 @@
 //
-//  SignUpViewController.swift
+//  ViewController.swift
 //  Sprubix
 //
-//  Created by Yan Wye Huong on 27/2/15.
+//  Created by Yan Wye Huong on 26/2/15.
 //  Copyright (c) 2015 Sprubix. All rights reserved.
 //
 
 import UIKit
+import CoreData
 import AFNetworking
 import TSMessages
+import FBSDKLoginKit
 
-protocol SignInDelegate {
-    func signInSprubix(userNameText: String, passwordText: String)
-}
-
-class SignUpViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UITextFieldDelegate, UIGestureRecognizerDelegate {
-    var signUpTable:UITableView!
+class SignUpViewController: UIViewController, FBSDKLoginButtonDelegate {
     
-    var emailCell:UITableViewCell = UITableViewCell()
-    var userNameCell:UITableViewCell = UITableViewCell()
-    var passwordCell:UITableViewCell = UITableViewCell()
+    let signInButtonWidth:CGFloat! = screenWidth * 0.9
+    let signInButtonHeight:CGFloat! = 50
+    let haveAccountButtonHeight:CGFloat = 20
     
-    var emailText:UITextField!
-    var userNameText:UITextField!
-    var passwordText:UITextField!
+    var signInView:UIView!
+    var fbLoginButton: FBSDKLoginButton!
+    var emailButton: UIButton!
+    var haveAccountButton: UIButton!
     
-    var delegate:SignInDelegate?
+    let emailIconWidth:CGFloat! = 40
+    let sprubixLogoWidth:CGFloat! = 150
+    var sprubixLogoView:UIImageView!
+    
+    var oldFrameRect: CGRect!
+    
+    var FBUserData: NSMutableDictionary = NSMutableDictionary()
+    
+    @IBAction func clickTermsOfService(sender: UIButton) {
+        let webURL: NSURL = NSURL(string: "http://www.sprubix.com/terms-of-service")!
+        UIApplication.sharedApplication().openURL(webURL)
+    }
+    
+    @IBAction func clickPrivacyPolicy(sender: UIButton) {
+        let webURL: NSURL = NSURL(string: "http://www.sprubix.com/privacy-policy")!
+        UIApplication.sharedApplication().openURL(webURL)
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         
-        view.backgroundColor = sprubixGray
+        let signInViewHeight = (signInButtonHeight + 10) * 2 + haveAccountButtonHeight
+        signInView = UIView(frame: CGRect(x: screenWidth / 2 - signInButtonWidth / 2, y: screenHeight / 2, width: signInButtonWidth, height: signInViewHeight))
         
-        signUpTable = UITableView(frame: CGRect(x: 0, y: navigationHeight, width: screenWidth, height: screenHeight - navigationHeight), style: UITableViewStyle.Grouped)
+        view.addSubview(signInView)
         
-        signUpTable.separatorStyle = UITableViewCellSeparatorStyle.SingleLine
-        signUpTable.scrollEnabled = false
-        signUpTable.backgroundColor = sprubixGray
-        signUpTable.dataSource = self
-        signUpTable.delegate = self
+        // Facebook login button
+        fbLoginButton = FBSDKLoginButton(frame: CGRect(x: 0, y: 0, width: signInButtonWidth, height: signInButtonHeight))
         
-        view.addSubview(signUpTable)
+        fbLoginButton.setTitle("Facebook", forState: UIControlState.Normal)
+        fbLoginButton.titleLabel?.font = UIFont.systemFontOfSize(17.0)
+        fbLoginButton.readPermissions = ["public_profile", "email", "user_friends"]
+        fbLoginButton.delegate = self
+        signInView.addSubview(fbLoginButton)
+        
+        view.addSubview(signInView)
+        
+        // Email button
+        let emailButtonY = signInButtonHeight + 10
+        emailButton = UIButton(frame: CGRect(x: 0, y: emailButtonY, width: signInButtonWidth, height: signInButtonHeight))
+        
+        emailButton.backgroundColor = sprubixColor
+        emailButton.setTitle("Sign up with Email", forState: UIControlState.Normal)
+        emailButton.addTarget(self, action: "emailButtonPressed:", forControlEvents: UIControlEvents.TouchUpInside)
+        
+        let emailImage = UIImageView(image: UIImage(named: "sidemenu-messages"))
+        emailImage.image = emailImage.image?.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
+        emailImage.tintColor = UIColor.whiteColor()
+        emailImage.frame = CGRect(x: 10, y: 5, width: emailIconWidth, height: emailIconWidth)
+        emailButton.addSubview(emailImage)
+        
+        signInView.addSubview(emailButton)
+        
+        // Have account
+        let haveAccountY = emailButtonY + signInButtonHeight + 5
+        haveAccountButton = UIButton(frame: CGRect(x: 0, y: haveAccountY, width: signInButtonWidth, height: haveAccountButtonHeight))
+        
+        haveAccountButton.setTitle("Already have an account?", forState: UIControlState.Normal)
+        haveAccountButton.setTitleColor(sprubixColor, forState: UIControlState.Normal)
+        haveAccountButton.titleLabel?.font = UIFont.systemFontOfSize(12.0)
+        haveAccountButton.sizeToFit()
+        haveAccountButton.frame.origin.x = signInButtonWidth/2 - haveAccountButton.frame.width/2
+        haveAccountButton.addTarget(self, action: "haveAccountButtonPressed:", forControlEvents: UIControlEvents.TouchUpInside)
+        
+        signInView.addSubview(haveAccountButton)
+        
+        // Logo
+        sprubixLogoView = UIImageView(image: UIImage(named: "logo-final-square.png"))
+        
+        sprubixLogoView.frame = CGRect(x: screenWidth / 2 - sprubixLogoWidth / 2, y: signInView.frame.origin.y - sprubixLogoWidth, width: sprubixLogoWidth, height: sprubixLogoWidth)
+        
+        view.addSubview(sprubixLogoView)
+        
+        oldFrameRect = signInView.frame
     }
     
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
         
-        // 1. hide existing nav bar
-        self.navigationController?.setNavigationBarHidden(true, animated: false)
+        self.navigationController?.navigationBarHidden = true
         
-        // 2. create new nav bar and style it
-        var newNavBar:UINavigationBar = UINavigationBar(frame: CGRectMake(0, 0, self.view.bounds.width, navigationHeight))
-        newNavBar.barTintColor = UIColor.whiteColor()
-        
-        // 3. add a new navigation item w/title to the new nav bar
-        var newNavItem:UINavigationItem = UINavigationItem()
-        newNavItem.title = "Create an Account"
-        
-        // 4. create a custom back button
-        var backButton:UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
-        var image: UIImage = UIImage(named: "spruce-arrow-back")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
-        backButton.setImage(image, forState: UIControlState.Normal)
-        backButton.frame = CGRect(x: -10, y: 0, width: 20, height: 20)
-        backButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
-        backButton.imageView?.tintColor = UIColor.lightGrayColor()
-        backButton.addTarget(self, action: "backTapped:", forControlEvents: UIControlEvents.TouchUpInside)
-        
-        //var backButtonView:UIView = UIView(frame: CGRect(x: 0, y: 0, width: backButton.frame.width, height: backButton.frame.height))
-        //backButtonView.addSubview(backButton)
-        
-        var backBarButtonItem:UIBarButtonItem = UIBarButtonItem(customView: backButton)
-        backBarButtonItem.tintColor = UIColor(red: 170/255, green: 170/255, blue: 170/255, alpha: 1.0)
-
-        
-        newNavItem.leftBarButtonItem = backBarButtonItem
-
-        newNavBar.setItems([newNavItem], animated: false)
-        
-        // 5. add the nav bar to the main view
-        self.view.addSubview(newNavBar)
-        
-        self.navigationController?.interactivePopGestureRecognizer.delegate = self;
-        
-        // Mixpanel - Viewed Signup Page
-        MixpanelService.track("Viewed Signup Page")
-        // Mixpanel - End
+        // keyboard notifications
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("keyboardWillChange:"), name:UIKeyboardWillChangeFrameNotification, object: nil);
     }
     
-    func backTapped(sender: UIBarButtonItem) {
-        self.navigationController?.popViewControllerAnimated(true)
+    override func viewWillDisappear(animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardWillChangeFrameNotification, object: nil)
     }
-    
+
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
-        
-    }
-    
-    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        switch indexPath.row {
-        case 0:
-            emailText = UITextField(frame: CGRectInset(emailCell.contentView.bounds, 15, 0))
-            
-            emailText.returnKeyType = UIReturnKeyType.Next
-            emailText.keyboardType = UIKeyboardType.EmailAddress
-            
-            emailText.placeholder = "Email"
-            emailText.delegate = self
-            emailCell.addSubview(emailText)
-            
-            return emailCell
-        case 1:
-            userNameText = UITextField(frame: CGRectInset(userNameCell.contentView.bounds, 15, 0))
-            
-            userNameText.returnKeyType = UIReturnKeyType.Next
-            userNameText.placeholder = "Username"
-            userNameText.delegate = self
-            userNameCell.addSubview(userNameText)
-            
-            return userNameCell
-        case 2:
-            passwordText = UITextField(frame: CGRectInset(passwordCell.contentView.bounds, 15, 0))
-            
-            passwordText.secureTextEntry = true
-            passwordText.returnKeyType = UIReturnKeyType.Done
-            
-            passwordText.delegate = self
-            passwordText.placeholder = "Password"
-            passwordCell.addSubview(passwordText)
-            
-            return passwordCell
-        default:
-            fatalError("Unknown row returned")
-        }
-    }
-    
-    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 3
-    }
-    
-    /**
-    * Called when the user click on the view (outside the UITextField).
-    */
-    override func touchesBegan(touches: Set<NSObject>, withEvent event: UIEvent) {
-        self.view.endEditing(true)
-    }
-    
-    /**
-    * Called when 'return' key pressed. return NO to ignore.
-    */
-    func textFieldShouldReturn(textField: UITextField) -> Bool {
-        
-        if textField == emailText {
-            userNameText.becomeFirstResponder()
-            
-            if textField.text != "" && !self.isValidEmail(textField.text) {
-                println("Please enter valid email")
-            }
-            
-        } else if textField == userNameText {
-            passwordText.becomeFirstResponder()
-            
-        } else {
-            
-            // Hide keyboard
-            self.view.endEditing(true)
-            
-            let validateResult = self.validateInputs()
-            let delay: NSTimeInterval = 3
-            
-            if validateResult.valid {
-                
-                manager.POST(SprubixConfig.URL.api + "/auth/register",
-                    parameters: [
-                        "username" : userNameText.text.lowercaseString,
-                        "email" : emailText.text.lowercaseString,
-                        "password" : passwordText.text,
-                        "password_confirmation" : passwordText.text
-                    ],
-                    success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
-                        var response = responseObject as! NSDictionary
-                        var statusCode:String = response["status"] as! String
-                        
-                        if statusCode == "400" {
-                            // error
-                            var message = response["message"] as! String
-                            var data = response["data"] as! NSDictionary
-                            
-                            println(message)
-                            println(data)
-                            
-                            var errorMessage:String = ""
-                            
-                            if data.count > 0 {
-                                for (key, value) in data {
-                                    errorMessage += (value as! [String])[0] + "\n"
-                                }
-                                
-                            } else {
-                                errorMessage = "Something went wrong.\nPlease try again."
-                            }
-
-                            // error exception
-                            TSMessage.showNotificationInViewController(
-                                self,
-                                title: "Error",
-                                subtitle: errorMessage,
-                                image: UIImage(named: "filter-cross"),
-                                type: TSMessageNotificationType.Error,
-                                duration: delay,
-                                callback: nil,
-                                buttonTitle: nil,
-                                buttonCallback: nil,
-                                atPosition: TSMessageNotificationPosition.Bottom,
-                                canBeDismissedByUser: true)
-                            
-                        } else if statusCode == "200" {
-                            // success
-                            textField.resignFirstResponder()
-                            var message = response["message"] as! String
-                            var data = response["data"] as! NSDictionary
-                            println(message)
-                            println(data)
-                            
-                            // Change AFNetworking to Html
-                            manager.requestSerializer = AFHTTPRequestSerializer()
-                            
-                            // SignInDelegate, get SignInVC to do the login
-                            self.delegate?.signInSprubix(self.userNameText.text.lowercaseString, passwordText: self.passwordText.text.lowercaseString)
-                            
-                            // Mixpanel - Signed Up, Success
-                            mixpanel.track("User Signed Up", properties: [
-                                "User ID": data.objectForKey("id") as! Int,
-                                "Status": "Success"
-                            ])
-                            // Mixpanel - Register
-                            MixpanelService.register(data)
-                            // Mixpanel - End
-                        }
-                    },
-                    failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
-                        println("Error: " + error.localizedDescription)
-                        
-                        // error exception
-                        TSMessage.showNotificationInViewController(
-                            self,
-                            title: "Error",
-                            subtitle: "Something went wrong.\nPlease try again.",
-                            image: UIImage(named: "filter-cross"),
-                            type: TSMessageNotificationType.Error,
-                            duration: delay,
-                            callback: nil,
-                            buttonTitle: nil,
-                            buttonCallback: nil,
-                            atPosition: TSMessageNotificationPosition.Bottom,
-                            canBeDismissedByUser: true)
-                        
-                        // Mixpanel - Signed Up, Fail
-                        MixpanelService.track("User Signed Up", propertySet: ["Status" : "Fail"])
-                        // Mixpanel - End
-                })
-                
-            } else {
-                // Validation failed
-                TSMessage.showNotificationInViewController(
-                    self,
-                    title: "Error",
-                    subtitle: validateResult.message,
-                    image: UIImage(named: "filter-cross"),
-                    type: TSMessageNotificationType.Error,
-                    duration: delay,
-                    callback: nil,
-                    buttonTitle: nil,
-                    buttonCallback: nil,
-                    atPosition: TSMessageNotificationPosition.Bottom,
-                    canBeDismissedByUser: true)
-            }
-        }
-        
-        return true
-    }
-    
-    /**
-    * Returns true if all user inputs are correctly entered
-    */
-    func validateInputs() -> (valid: Bool, message: String) {
-        var valid: Bool = true
-        var message: String = ""
-        
-        if emailText.text == "" {
-            message += "Please enter an email\n"
-            valid = false
-        }
-        else if !self.isValidEmail(emailText.text) {
-            message += "Please enter a valid email\n"
-            valid = false
-        }
-        
-        if userNameText.text == "" {
-            message += "Please enter a username\n"
-            valid = false
-        }
-        else if !self.isValidUsername(userNameText.text) {
-            message += "Only alphabets, numbers, underscores and periods are allowed (max 30 characters)\n"
-            valid = false
-        }
-        
-        if passwordText.text == "" {
-            message += "Please enter a password\n"
-            valid = false
-        }
-        else if count(passwordText.text) < 6 {
-            message += "The password must be at least 6 characters\n"
-            valid = false
-        }
-        else if count(passwordText.text) > 30 {
-            message += "The password must be under 30 characters\n"
-            valid = false
-        }
-        
-        if valid {
-            println("Validation OK")
-        }
-        
-        return (valid, message)
     }
     
     override func prefersStatusBarHidden() -> Bool {
         return true
     }
     
-    /**
-    * To see if an email is valid
-    */
-    func isValidEmail(testStr:String) -> Bool {
-        let emailRegEx = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,4}"
-        
-        let emailTest = NSPredicate(format:"SELF MATCHES %@", emailRegEx)
-        
-        if emailTest.evaluateWithObject(testStr) {
-            return true
-        }
-        
-        return false
+    func facebookButtonPressed(sender: UIButton) {
+        performSegueWithIdentifier("EmailSegue", sender: sender)
     }
     
-    func isValidUsername(testStr:String) -> Bool {
-        let usernameRegEx = "^[A-Z0-9a-z._]{1,30}$"
-        
-        let usernameTest = NSPredicate(format:"SELF MATCHES %@", usernameRegEx)
-        
-        if usernameTest.evaluateWithObject(testStr) {
-            return true
-        }
-        
-        return false
+    func emailButtonPressed(sender: UIButton) {
+        performSegueWithIdentifier("EmailSegue", sender: sender)
     }
     
+    func haveAccountButtonPressed(sender: UIButton) {
+        performSegueWithIdentifier("EmailSegue", sender: sender)
+    }
+    
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        let vc = segue.destinationViewController as! SignInViewController
+        
+        if let senderButton = sender as? FBSDKLoginButton {
+            // send to signup from FB, prefill info
+            vc.currentCreateAccountState = .Signup
+            
+            if let email = self.FBUserData.valueForKey("email") as? String {
+                vc.userSignupData.setValue(email, forKey: "email")
+            }
+            
+            if let firstName = self.FBUserData.valueForKey("first_name") as? String {
+                vc.userSignupData.setValue(firstName, forKey: "first_name")
+            }
+            
+            if let lastName = self.FBUserData.valueForKey("last_name") as? String {
+                vc.userSignupData.setValue(lastName, forKey: "last_name")
+            }
+            
+            if let gender = self.FBUserData.valueForKey("gender") as? String {
+                vc.userSignupData.setValue(gender, forKey: "gender")
+            }
+            
+            if let birthday = self.FBUserData.valueForKey("birthday") as? String {
+                vc.userSignupData.setValue(birthday, forKey: "birthday")
+            }
+        }
+        else if let senderButton = sender as? UIButton {
+            // send to signup
+            if (sender as! UIButton) == emailButton {
+                vc.currentCreateAccountState = .Signup
+            }
+                // send to login
+            else {
+                vc.currentCreateAccountState = .Login
+            }
+        }
+    }
+    
+    func getFBUserData(sender: FBSDKLoginButton) {
+        let params = [ "fields" : "email, first_name, last_name, gender, birthday"]
+        let graphRequest : FBSDKGraphRequest = FBSDKGraphRequest(graphPath: "me", parameters: params)
+        
+        graphRequest.startWithCompletionHandler({ (connection, result, error) -> Void in
+            
+            if (error != nil) {
+                // Process error
+                println("FBSDKGraphRequest Error: \(error)")
+            } else {
+                println("FBSDKGraphRequest fetched user: \(result)")
+                
+                if let email = result.valueForKey("email") as? String {
+                    self.FBUserData.setValue(email, forKey: "email")
+                }
+                
+                if let firstName = result.valueForKey("first_name") as? String {
+                    self.FBUserData.setValue(firstName, forKey: "first_name")
+                }
+                
+                if let lastName = result.valueForKey("last_name") as? String {
+                    self.FBUserData.setValue(lastName, forKey: "last_name")
+                }
+                
+                if let gender = result.valueForKey("gender") as? String {
+                    self.FBUserData.setValue(gender, forKey: "gender")
+                }
+                
+                if let birthday = result.valueForKey("birthday") as? String {
+                    self.FBUserData.setValue(birthday, forKey: "birthday")
+                }
+                
+                // go Segue
+                self.performSegueWithIdentifier("EmailSegue", sender: sender)
+            }
+        })
+    }
+    
+    // MARK: Facebook Login Delegate
+    func loginButton(loginButton: FBSDKLoginButton!, didCompleteWithResult result: FBSDKLoginManagerLoginResult!, error: NSError!) {
+        println("User logged in")
+        
+        if (error != nil) {
+            // Process error
+            println(error)
+        } else if result.isCancelled {
+            // Handle cancellations
+            println(result)
+        } else {
+            // If you ask for multiple permissions at once, you should check if specific permissions missing
+            println("Permission granted for: \(result.grantedPermissions)")
+            
+            getFBUserData(loginButton)
+        }
+    }
+    
+    func loginButtonDidLogOut(loginButton: FBSDKLoginButton!) {
+        println("User Logged Out")
+    }
 }
+

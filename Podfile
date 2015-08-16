@@ -28,6 +28,9 @@ target "Sprubix" do
   pod 'Fabric'
   pod 'Crashlytics'
   pod 'Charts', '~>2.1.2'
+  pod 'FBSDKCoreKit', '~> 4.5.1'
+  pod 'FBSDKLoginKit', '~> 4.5.1'
+  pod 'FBSDKShareKit', '~> 4.5.1'
 end
 
 target "SprubixTests" do

@@ -13,12 +13,13 @@ import AFNetworkActivityLogger
 import Mixpanel
 import Fabric
 import Crashlytics
+import FBSDKCoreKit
 
 struct SprubixConfig {
     struct URL {
-
+        static let api: String = "http://192.168.1.1/~shion/kindling-core/public/index.php"
         //static let api: String = "http://sprubix-ch.ngrok.io/~shion/kindling-core/public/index.php"
-        static let api: String = "http://sprubix-wh.ngrok.io/~wyehuongyan/kindling-core/public/index.php"
+        //static let api: String = "http://sprubix-wh.ngrok.io/~wyehuongyan/kindling-core/public/index.php"
         static let firebase: String = "https://sprubixtest.firebaseio.com/"
         
         //static let api: String = "http://api.sprubix.com"
@@ -69,7 +70,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         Fabric.with([Crashlytics()])
         
-        return true
+        return FBSDKApplicationDelegate.sharedInstance().application(application, didFinishLaunchingWithOptions: launchOptions)
     }
 
     func applicationWillResignActive(application: UIApplication) {
@@ -85,7 +86,23 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationWillEnterForeground(application: UIApplication) {
         // Called as part of the transition from the background to the inactive state; here you can undo many of the changes made on entering the background.
         
-        checkLoggedIn();
+        // don't run check if user is at signup page (and for FB's out-of-app's sign-in)
+        var atSignupScreen: Bool = false
+
+        if let viewControllers = self.window?.rootViewController {
+            for viewController in viewControllers.childViewControllers {
+                if viewController.isKindOfClass(UINavigationController) {
+                    let vcClassName = NSStringFromClass((viewController as! UINavigationController).visibleViewController.classForCoder)
+                    if vcClassName.rangeOfString("SignUpViewController") != nil || vcClassName.rangeOfString("SignInViewController") != nil {
+                        atSignupScreen = true
+                    }
+                }
+            }
+        }
+        
+        if atSignupScreen == false {
+            checkLoggedIn();
+        }
     }
     
     func checkLoggedIn() {
@@ -117,7 +134,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 } else {
                     println("No, I am not logged in.")
                     self.defaults.removeObjectForKey("userId")
-
+                    
                     if activeController.presentedViewController != nil {
                         println("dismiss \(activeController.presentedViewController) first")
                         
@@ -149,6 +166,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func applicationDidBecomeActive(application: UIApplication) {
         // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
+        FBSDKAppEvents.activateApp()
     }
 
     func applicationWillTerminate(application: UIApplication) {
@@ -261,6 +279,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             println("APNS received. Application entering from bg to fg.")
             containerViewController.showMainFeed()
         }
+    }
+    
+    // MARK: Facebook
+    func application(application: UIApplication, openURL url: NSURL, sourceApplication: String?, annotation: AnyObject?) -> Bool {
+        return FBSDKApplicationDelegate.sharedInstance().application(application, openURL: url, sourceApplication: sourceApplication, annotation: annotation)
     }
 }
 

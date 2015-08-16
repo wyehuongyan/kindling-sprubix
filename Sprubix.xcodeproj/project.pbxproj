@@ -45,7 +45,7 @@
 		84470D8C1AED1847007E9A93 /* MainFeedCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84470D8B1AED1847007E9A93 /* MainFeedCell.swift */; };
 		845048B41A9ECC81008BDBAA /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 845048B31A9ECC81008BDBAA /* AppDelegate.swift */; };
 		845048B71A9ECC81008BDBAA /* Sprubix.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 845048B51A9ECC81008BDBAA /* Sprubix.xcdatamodeld */; };
-		845048B91A9ECC81008BDBAA /* SignInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 845048B81A9ECC81008BDBAA /* SignInViewController.swift */; };
+		845048B91A9ECC81008BDBAA /* SignUpViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 845048B81A9ECC81008BDBAA /* SignUpViewController.swift */; };
 		845048BC1A9ECC81008BDBAA /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 845048BA1A9ECC81008BDBAA /* Main.storyboard */; };
 		845048BE1A9ECC81008BDBAA /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 845048BD1A9ECC81008BDBAA /* Images.xcassets */; };
 		845048C11A9ECC81008BDBAA /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 845048BF1A9ECC81008BDBAA /* LaunchScreen.xib */; };
@@ -111,7 +111,7 @@
 		84C664941B40F74500E18FF7 /* SnapshotDetailsSizeController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84C664931B40F74500E18FF7 /* SnapshotDetailsSizeController.swift */; };
 		84C664961B4290AC00E18FF7 /* CartViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84C664951B4290AC00E18FF7 /* CartViewController.swift */; };
 		84C664981B4290D400E18FF7 /* CartItemCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84C664971B4290D400E18FF7 /* CartItemCell.swift */; };
-		84C9AC3E1AA06041009ADF5C /* SignUpViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84C9AC3D1AA06041009ADF5C /* SignUpViewController.swift */; };
+		84C9AC3E1AA06041009ADF5C /* SignInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84C9AC3D1AA06041009ADF5C /* SignInViewController.swift */; };
 		84D697271AC7E05800C676FD /* SpruceShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D697261AC7E05800C676FD /* SpruceShareViewController.swift */; };
 		84D697291AC922DA00C676FD /* logo-final-square.png in Resources */ = {isa = PBXBuildFile; fileRef = 84D697281AC922DA00C676FD /* logo-final-square.png */; };
 		84EAB5281B4568520064F888 /* CreateOutfitViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84EAB5271B4568520064F888 /* CreateOutfitViewController.swift */; };
@@ -173,7 +173,7 @@
 		845048B21A9ECC81008BDBAA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		845048B31A9ECC81008BDBAA /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		845048B61A9ECC81008BDBAA /* Sprubix.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Sprubix.xcdatamodel; sourceTree = "<group>"; };
-		845048B81A9ECC81008BDBAA /* SignInViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInViewController.swift; sourceTree = "<group>"; };
+		845048B81A9ECC81008BDBAA /* SignUpViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpViewController.swift; sourceTree = "<group>"; };
 		845048BB1A9ECC81008BDBAA /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		845048BD1A9ECC81008BDBAA /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		845048C01A9ECC81008BDBAA /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
@@ -242,7 +242,7 @@
 		84C664931B40F74500E18FF7 /* SnapshotDetailsSizeController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SnapshotDetailsSizeController.swift; sourceTree = "<group>"; };
 		84C664951B4290AC00E18FF7 /* CartViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CartViewController.swift; sourceTree = "<group>"; };
 		84C664971B4290D400E18FF7 /* CartItemCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CartItemCell.swift; sourceTree = "<group>"; };
-		84C9AC3D1AA06041009ADF5C /* SignUpViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignUpViewController.swift; sourceTree = "<group>"; };
+		84C9AC3D1AA06041009ADF5C /* SignInViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignInViewController.swift; sourceTree = "<group>"; };
 		84D697261AC7E05800C676FD /* SpruceShareViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpruceShareViewController.swift; sourceTree = "<group>"; };
 		84D697281AC922DA00C676FD /* logo-final-square.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "logo-final-square.png"; sourceTree = "<group>"; };
 		84EAB5271B4568520064F888 /* CreateOutfitViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CreateOutfitViewController.swift; sourceTree = "<group>"; };
@@ -629,8 +629,8 @@
 		84FCCAC11AB56466009C10B2 /* Auth */ = {
 			isa = PBXGroup;
 			children = (
-				845048B81A9ECC81008BDBAA /* SignInViewController.swift */,
-				84C9AC3D1AA06041009ADF5C /* SignUpViewController.swift */,
+				845048B81A9ECC81008BDBAA /* SignUpViewController.swift */,
+				84C9AC3D1AA06041009ADF5C /* SignInViewController.swift */,
 			);
 			name = Auth;
 			sourceTree = "<group>";
@@ -883,7 +883,7 @@
 				84B3352C1AAEE2EB00B9707D /* UserProfileHeader.swift in Sources */,
 				84C6648E1B3AB80600E18FF7 /* DeliveryOptionsViewController.swift in Sources */,
 				8475ECFB1B24055D0000111A /* FavoritesViewController.swift in Sources */,
-				845048B91A9ECC81008BDBAA /* SignInViewController.swift in Sources */,
+				845048B91A9ECC81008BDBAA /* SignUpViewController.swift in Sources */,
 				84C664921B3AEA5400E18FF7 /* DeliveryOptionsDetailsViewController.swift in Sources */,
 				845834BB1B6B2EB0007C6F6B /* EditProfileCropPhotoViewController.swift in Sources */,
 				84B334EC1AAB1F9B00B9707D /* ContainerViewController.swift in Sources */,
@@ -905,7 +905,7 @@
 				84470D8A1AECC41B007E9A93 /* MainFeedController.swift in Sources */,
 				845834BF1B6CC834007C6F6B /* EditProfileSnapPhotoViewController.swift in Sources */,
 				8405D0531B5A615D00B42752 /* OrderCell.swift in Sources */,
-				84C9AC3E1AA06041009ADF5C /* SignUpViewController.swift in Sources */,
+				84C9AC3E1AA06041009ADF5C /* SignInViewController.swift in Sources */,
 				84B334E51AAB00DD00B9707D /* SidePanelViewController.swift in Sources */,
 				8482B8741B4E62A60017CEEF /* PaymentMethodsViewController.swift in Sources */,
 				8405D0571B5B60BC00B42752 /* ShopOrderDetailsViewController.swift in Sources */,
