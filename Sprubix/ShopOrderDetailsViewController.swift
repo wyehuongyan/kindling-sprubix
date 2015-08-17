@@ -182,7 +182,7 @@ class ShopOrderDetailsViewController: UIViewController, UITableViewDataSource, U
                     let buyerName = "\(buyerFirstName) \(buyerLastName)"
                     let buyerUsername = buyer["username"] as! String
                     
-                    cell.username.text = "\(buyerName) (@\(buyerUsername))"
+                    cell.username.text = "\(buyerName)"
                     
                     let address1 = deliveryAddress["address_1"] as! String
                     var address2: String? = deliveryAddress["address_2"] as? String
