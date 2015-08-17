@@ -55,7 +55,8 @@ class SignUpViewController: UIViewController, FBSDKLoginButtonDelegate {
         
         fbLoginButton.setTitle("Facebook", forState: UIControlState.Normal)
         fbLoginButton.titleLabel?.font = UIFont.systemFontOfSize(17.0)
-        fbLoginButton.readPermissions = ["public_profile", "email", "user_friends"]
+        //fbLoginButton.readPermissions = ["public_profile", "email", "user_friends"]
+        fbLoginButton.readPermissions = ["public_profile", "email"]
         fbLoginButton.delegate = self
         signInView.addSubview(fbLoginButton)
         
@@ -143,6 +144,10 @@ class SignUpViewController: UIViewController, FBSDKLoginButtonDelegate {
             // send to signup from FB, prefill info
             vc.currentCreateAccountState = .Signup
             
+            if let facebook_id = self.FBUserData.valueForKey("facebook_id") as? String {
+                vc.userSignupData.setValue(facebook_id, forKey: "facebook_id")
+            }
+            
             if let email = self.FBUserData.valueForKey("email") as? String {
                 vc.userSignupData.setValue(email, forKey: "email")
             }
@@ -158,10 +163,6 @@ class SignUpViewController: UIViewController, FBSDKLoginButtonDelegate {
             if let gender = self.FBUserData.valueForKey("gender") as? String {
                 vc.userSignupData.setValue(gender, forKey: "gender")
             }
-            
-            if let birthday = self.FBUserData.valueForKey("birthday") as? String {
-                vc.userSignupData.setValue(birthday, forKey: "birthday")
-            }
         }
         else if let senderButton = sender as? UIButton {
             // send to signup
@@ -176,7 +177,7 @@ class SignUpViewController: UIViewController, FBSDKLoginButtonDelegate {
     }
     
     func getFBUserData(sender: FBSDKLoginButton) {
-        let params = [ "fields" : "email, first_name, last_name, gender, birthday"]
+        let params = [ "fields" : "email, first_name, last_name, gender"]
         let graphRequest : FBSDKGraphRequest = FBSDKGraphRequest(graphPath: "me", parameters: params)
         
         graphRequest.startWithCompletionHandler({ (connection, result, error) -> Void in
@@ -186,6 +187,9 @@ class SignUpViewController: UIViewController, FBSDKLoginButtonDelegate {
                 println("FBSDKGraphRequest Error: \(error)")
             } else {
                 println("FBSDKGraphRequest fetched user: \(result)")
+                
+                let facebook_id = result.valueForKey("id") as! String
+                self.FBUserData.setValue(facebook_id, forKey: "facebook_id")
                 
                 if let email = result.valueForKey("email") as? String {
                     self.FBUserData.setValue(email, forKey: "email")
@@ -203,12 +207,82 @@ class SignUpViewController: UIViewController, FBSDKLoginButtonDelegate {
                     self.FBUserData.setValue(gender, forKey: "gender")
                 }
                 
-                if let birthday = result.valueForKey("birthday") as? String {
-                    self.FBUserData.setValue(birthday, forKey: "birthday")
-                }
+                // authenticate with server with facebook
+                let delay: NSTimeInterval = 3
                 
-                // go Segue
-                self.performSegueWithIdentifier("EmailSegue", sender: sender)
+                manager.POST(SprubixConfig.URL.api + "/auth/login/facebook",
+                    parameters: [
+                        "facebook_id" : facebook_id
+                    ],
+                    success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                        var response = responseObject as! NSDictionary
+                        var statusCode:String = response["status"] as! String
+                        
+                        if statusCode == "400" {
+                            // error
+                            var message = response["message"] as! String
+                            var data = response["data"] as! String
+                            
+                            println(message)
+                            println(data)
+                            
+                            var errorMessage:String = "Something went wrong.\nPlease try again."
+                            
+                            // error exception
+                            TSMessage.showNotificationInViewController(
+                                self,
+                                title: "Error",
+                                subtitle: errorMessage,
+                                image: UIImage(named: "filter-cross"),
+                                type: TSMessageNotificationType.Error,
+                                duration: delay,
+                                callback: nil,
+                                buttonTitle: nil,
+                                buttonCallback: nil,
+                                atPosition: TSMessageNotificationPosition.Bottom,
+                                canBeDismissedByUser: true)
+                            
+                        } else if statusCode == "200" {
+                            // success
+                            var message = response["message"] as! String
+                            
+                            println(message)
+                            
+                            // user exist
+                            if message == "success" {
+                                // return is user object
+                                var data = response["data"] as! NSDictionary
+                                println(data)
+                                
+                                var cleanData = self.cleanDictionary(data as! NSMutableDictionary)
+                                
+                                defaults.setObject(cleanData["id"], forKey: "userId")
+                                defaults.setObject(cleanData, forKey: "userData")
+                                defaults.synchronize()
+                                
+                                //self.saveCookies(userId);
+                                FirebaseAuth.retrieveFirebaseToken()
+                                
+                                // Mixpanel - Setup
+                                MixpanelService.setup()
+                                
+                                // redirect to containerViewController (not sprubixFeedController)
+                                self.dismissViewControllerAnimated(true, completion: nil)
+                            }
+                            // user don't exist, go create
+                            else {
+                                // return is string
+                                var data = response["data"] as! String
+                                println(data)
+                                
+                                // FB account dont exist, go Segue
+                                self.performSegueWithIdentifier("EmailSegue", sender: sender)
+                            }
+                        }
+                    },
+                    failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                        println("Error: " + error.localizedDescription)
+                })
             }
         })
     }
@@ -233,6 +307,18 @@ class SignUpViewController: UIViewController, FBSDKLoginButtonDelegate {
     
     func loginButtonDidLogOut(loginButton: FBSDKLoginButton!) {
         println("User Logged Out")
+    }
+    
+    func cleanDictionary(dict: NSMutableDictionary)->NSMutableDictionary {
+        var mutableDict: NSMutableDictionary = dict.mutableCopy() as! NSMutableDictionary
+        mutableDict.enumerateKeysAndObjectsUsingBlock { (key, obj, stop) -> Void in
+            if (obj.isKindOfClass(NSNull.classForCoder())) {
+                mutableDict.setObject("", forKey: (key as! NSString))
+            } else if (obj.isKindOfClass(NSDictionary.classForCoder())) {
+                mutableDict.setObject(self.cleanDictionary(obj as! NSMutableDictionary), forKey: (key as! NSString))
+            }
+        }
+        return mutableDict
     }
 }
 
