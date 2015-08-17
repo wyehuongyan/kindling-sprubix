@@ -413,10 +413,26 @@ class SignInViewController: UIViewController, UITableViewDataSource, UITableView
                 passwordString = passwordText.text
             }
             
+            // If register from Facebook, we may have these
             var facebook_id: String = ""
+            var first_name: String = ""
+            var last_name: String = ""
+            var gender: String = ""
             
             if let fid = userSignupData.valueForKey("facebook_id") as? String {
                 facebook_id = fid
+            }
+            
+            if let firstName = userSignupData.valueForKey("first_name") as? String {
+                first_name = firstName
+            }
+            
+            if let lastName = userSignupData.valueForKey("last_name") as? String {
+                last_name = lastName
+            }
+            
+            if let genderTemp = userSignupData.valueForKey("gender") as? String {
+                gender = genderTemp
             }
             
             manager.POST(SprubixConfig.URL.api + "/auth/register",
@@ -425,7 +441,10 @@ class SignInViewController: UIViewController, UITableViewDataSource, UITableView
                     "email" : emailText.text.lowercaseString,
                     "password" : passwordString,
                     "password_confirmation" : passwordString,
-                    "facebook_id" : facebook_id
+                    "facebook_id" : facebook_id,
+                    "first_name" : first_name,
+                    "last_name" : last_name,
+                    "gender" : gender,
                 ],
                 success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
                     var response = responseObject as! NSDictionary
