@@ -413,12 +413,19 @@ class SignInViewController: UIViewController, UITableViewDataSource, UITableView
                 passwordString = passwordText.text
             }
             
+            var facebook_id: String = ""
+            
+            if let fid = userSignupData.valueForKey("facebook_id") as? String {
+                facebook_id = fid
+            }
+            
             manager.POST(SprubixConfig.URL.api + "/auth/register",
                 parameters: [
                     "username" : userNameText.text.lowercaseString,
                     "email" : emailText.text.lowercaseString,
                     "password" : passwordString,
-                    "password_confirmation" : passwordString
+                    "password_confirmation" : passwordString,
+                    "facebook_id" : facebook_id
                 ],
                 success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
                     var response = responseObject as! NSDictionary
