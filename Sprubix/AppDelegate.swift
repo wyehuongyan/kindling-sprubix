@@ -13,6 +13,7 @@ import AFNetworkActivityLogger
 import Mixpanel
 import Fabric
 import Crashlytics
+import JLRoutes
 import FBSDKCoreKit
 
 struct SprubixConfig {
@@ -62,6 +63,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         if apnsBody != nil {
             // Do your code with apnsBody
             containerViewController.showMainFeed()
+        }
+        
+        registerURLSchemes()
+        
+        // handle url schemes when app is not running
+        var url: NSURL? = (launchOptions?[UIApplicationLaunchOptionsURLKey] as? NSURL)
+        
+        if url != nil {
+            JLRoutes.routeURL(url)
         }
         
         // Mixpanel - App Launched
@@ -235,7 +245,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             }
         }
     }
-
+    
     // MARK: Push Notifications
     func application(application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: NSData) {
         
@@ -281,9 +291,44 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
     }
     
-    // MARK: Facebook
+    // MARK: URL Schemes
     func application(application: UIApplication, openURL url: NSURL, sourceApplication: String?, annotation: AnyObject?) -> Bool {
-        return FBSDKApplicationDelegate.sharedInstance().application(application, openURL: url, sourceApplication: sourceApplication, annotation: annotation)
+        
+        if url.scheme == "sprubixapp" {
+            
+            return JLRoutes.routeURL(url)
+            
+        } else {
+            return FBSDKApplicationDelegate.sharedInstance().application(application, openURL: url, sourceApplication: sourceApplication, annotation: annotation)
+        }
+    }
+    
+    func registerURLSchemes() {
+        // route to shop order details
+        JLRoutes.addRoute("/order/shop/:shopOrderId", handler: {
+            parameters in
+            
+            // find shop order id for shop order details
+            let shopOrderId = parameters["shopOrderId"] as! String
+            
+            // REST call to server to retrieve shop orders
+            manager.POST(SprubixConfig.URL.api + "/orders/shop",
+                parameters: [
+                    "shop_order_ids": [shopOrderId.toInt()!]
+                ],
+                success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                    
+                    var shopOrder = (responseObject["data"] as! [NSDictionary])[0].mutableCopy() as! NSMutableDictionary
+                    
+                    // go to shop order details view
+                    containerViewController.showShopOrderDetails(shopOrder)
+                },
+                failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                    println("Error: " + error.localizedDescription)
+            })
+            
+            return true
+        })
     }
 }
 

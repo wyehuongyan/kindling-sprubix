@@ -18,6 +18,7 @@
 #import "ActionSheetPicker_3_0/ActionSheetPicker.h"
 #import "MLPAutoCompleteTextField/MLPAutoCompleteTextField.h"
 #import "KLCPopup/KLCPopup.h"
+#import "JLRoutes/JLRoutes.h"
 #import "TSMessages/TSMessage.h"
 #import "Braintree/Braintree.h"
 #import "Mixpanel/Mixpanel.h"

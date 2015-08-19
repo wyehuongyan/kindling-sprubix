@@ -196,6 +196,15 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
         sprubixNavigationController.pushViewController(ordersViewController!, animated: true)
     }
     
+    func showShopOrderDetails(shopOrder: NSDictionary) {
+        let shopOrderDetailsViewController = UIStoryboard.shopOrderDetailsViewController()
+        
+        shopOrderDetailsViewController!.orderNum = shopOrder["uid"] as! String
+        shopOrderDetailsViewController!.shopOrder = shopOrder.mutableCopy() as! NSMutableDictionary
+        
+        sprubixNavigationController.pushViewController(shopOrderDetailsViewController!, animated: true)
+    }
+    
     func showRefunds() {
         shopOrderRefundsViewController = UIStoryboard.shopOrderRefundsViewController()
         

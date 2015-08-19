@@ -84,6 +84,7 @@ PODS:
   - Firebase (2.3.3)
   - GPUImage (0.1.7)
   - HexColors (2.3.0)
+  - JLRoutes (1.5.2)
   - KLCPopup (1.0)
   - Mixpanel (2.8.2):
     - Mixpanel/Mixpanel (= 2.8.2)
@@ -159,6 +160,7 @@ DEPENDENCIES:
   - FBSDKShareKit (~> 4.5.1)
   - Firebase (>= 2.3.3)
   - GPUImage (~> 0.1.7)
+  - JLRoutes (~> 1.5.2)
   - KLCPopup (~> 1.0)
   - Mixpanel (~> 2.8.2)
   - MLPAutoCompleteTextField (~> 1.5)
@@ -197,6 +199,7 @@ SPEC CHECKSUMS:
   Firebase: 2db60272f68ce40c7d47e5ae6eddc16977c65d4c
   GPUImage: 733a5f0fab92df9de1c37ba9df520a833ccb406d
   HexColors: 6ad3947c3447a055a3aa8efa859def096351fe5f
+  JLRoutes: fc36fd38ab476d5ac3a6a84b05be60e4b1a2bc81
   KLCPopup: 76c5a19227977f1e53d85236f9ef42257c168d98
   Mixpanel: f4d71ac2a306e7cda6ad03d4a2be249a0fd7a967
   MLPAutoCompleteTextField: ba4d507bbff2bd4f139d4197814fc8dd39caf77e
