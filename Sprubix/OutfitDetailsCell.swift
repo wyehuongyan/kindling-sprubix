@@ -11,6 +11,7 @@ import AFNetworking
 import KLCPopup
 import ActionSheetPicker_3_0
 import TSMessages
+import FBSDKShareKit
 
 protocol DetailsCellActions {
     func showMoreOptions(ownerId: Int, targetId: Int)
@@ -69,6 +70,7 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
     var creditsCell: UITableViewCell!
     var descriptionCell: UITableViewCell!
     var specificationCell: UITableViewCell!
+    var socialCell: UITableViewCell!
     var commentsCell: UITableViewCell!
     
     // buy
@@ -97,6 +99,9 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
     // firebase
     var childAddedHandle: UInt?
     var poutfitCommentsRef: Firebase!
+    
+    // social button
+    var socialButtonFacebook: UIButton!
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -150,17 +155,19 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
         creditsCell = UITableViewCell()
         descriptionCell = UITableViewCell()
         specificationCell = UITableViewCell()
+        socialCell = UITableViewCell()
         commentsCell = UITableViewCell()
         
         outfitImageCell.backgroundColor = UIColor.whiteColor()
         creditsCell.backgroundColor = UIColor.whiteColor()
         descriptionCell.backgroundColor = UIColor.whiteColor()
         specificationCell.backgroundColor = UIColor.whiteColor()
+        socialCell.backgroundColor = UIColor.whiteColor()
         commentsCell.backgroundColor = UIColor.whiteColor()
     }
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 5
+        return 6
     }
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
@@ -513,7 +520,45 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
             descriptionCell.addSubview(itemDescriptionLineTop)
             
             return descriptionCell
+            
         case 4:
+            // Social Label
+            let socialLabelY: CGFloat = 10
+            let socialLabelHeight: CGFloat = 20
+            let socialLabel: UILabel = UILabel(frame: CGRect(x: 20, y: socialLabelY, width: screenWidth, height: socialLabelHeight))
+            socialLabel.text = "Share this outfit"
+            socialLabel.textColor = UIColor.lightGrayColor()
+            
+            socialCell.addSubview(socialLabel)
+            
+            // Facebook
+            let socialButtonRow1Y: CGFloat = socialLabelY + socialLabelHeight - 3
+            var socialButtonRow1: UIView = UIView(frame: CGRect(x: 0, y: socialButtonRow1Y, width: screenWidth, height: 44))
+            
+            var socialImageFacebook = UIImage(named: "spruce-share-fb")
+            
+            socialButtonFacebook = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+            socialButtonFacebook.setImage(socialImageFacebook, forState: UIControlState.Normal)
+            socialButtonFacebook.setTitle("Facebook", forState: UIControlState.Normal)
+            socialButtonFacebook.setTitleColor(UIColor.darkGrayColor(), forState: UIControlState.Normal)
+            socialButtonFacebook.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+            socialButtonFacebook.frame = CGRect(x: 0, y: 10, width: screenWidth/2, height: 44)
+            socialButtonFacebook.contentHorizontalAlignment = UIControlContentHorizontalAlignment.Left
+            socialButtonFacebook.imageEdgeInsets = UIEdgeInsetsMake(5, 20, 5, 0)
+            socialButtonFacebook.titleEdgeInsets = UIEdgeInsetsMake(10, 30, 10, 0)
+            socialButtonFacebook.addTarget(self, action: "facebookTapped:", forControlEvents: UIControlEvents.TouchUpInside)
+            
+            socialButtonRow1.addSubview(socialButtonFacebook)
+            socialCell.selectionStyle = UITableViewCellSelectionStyle.None
+            socialCell.addSubview(socialButtonRow1)
+            
+            var socialButtonsLineTop = UIView(frame: CGRect(x: 0, y: 0, width: screenWidth, height: 2))
+            socialButtonsLineTop.backgroundColor = UIColor(red: 244/255, green: 244/255, blue: 244/255, alpha: 1)
+            
+            socialCell.addSubview(socialButtonsLineTop)
+            
+            return socialCell
+        case 5:
             // init comments
             
             // view all comments button
@@ -1030,6 +1075,8 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
         case 3:
             cellHeight = heightForTextLabel(outfit["description"] as! String, width: screenWidth - 20, padding: 20) // description height
         case 4:
+            cellHeight = 90 // share height (40 = top-padding, 44 = per icon row, rest = bottom-padding)
+        case 5:
             cellHeight = purchasable ? 270 + navigationHeight : 270 // comments height
         default:
             cellHeight = 300
@@ -1752,6 +1799,24 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
                 self.tableView.reloadRowsAtIndexPaths([nsPath], withRowAnimation: UITableViewRowAnimation.None)
             }
         })
+    }
+    
+    func facebookTapped(sender: UIButton) {
+        let outfitImagesString = outfit["images"] as! String
+        let outfitImagesData:NSData = outfitImagesString.dataUsingEncoding(NSUTF8StringEncoding)!
+        var outfitImagesDict: NSDictionary = NSJSONSerialization.JSONObjectWithData(outfitImagesData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSDictionary
+        let outfitImageDict: NSDictionary = outfitImagesDict["images"] as! NSDictionary
+        let outfitThumbnailUrl = outfitImageDict["thumbnail"] as! String
+        
+        let content : FBSDKShareLinkContent = FBSDKShareLinkContent()
+        content.contentURL = NSURL(string: "http://www.sprubix.com/")
+        content.contentTitle = outfit["description"] as! String
+        content.contentDescription = "Check out the outfit I've created! Download the Sprubix app now."
+        content.imageURL = NSURL(string: outfitThumbnailUrl)
+        
+        let button : FBSDKShareButton = FBSDKShareButton()
+        button.shareContent = content
+        button.sendActionsForControlEvents(UIControlEvents.TouchUpInside)
     }
 
 }

@@ -42,6 +42,10 @@
 	<string>1620380954907212</string>
 	<key>FacebookDisplayName</key>
 	<string>Sprubix - Test</string>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>fbauth2</string>
+	</array>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>

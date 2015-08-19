@@ -274,8 +274,9 @@ class SignInViewController: UIViewController, UITableViewDataSource, UITableView
                 userNameText = UITextField(frame: CGRectInset(userNameCell.contentView.bounds, 15, 0))
                 
                 userNameText.returnKeyType = UIReturnKeyType.Next
-                userNameText.placeholder = "Username"
+                userNameText.placeholder = "Username or Email"
                 userNameText.delegate = self
+                userNameText.text = "cameron"
                 userNameCell.addSubview(userNameText)
                 
                 return userNameCell
@@ -287,6 +288,7 @@ class SignInViewController: UIViewController, UITableViewDataSource, UITableView
                 
                 passwordText.delegate = self
                 passwordText.placeholder = "Password"
+                passwordText.text = "password"
                 passwordCell.addSubview(passwordText)
                 
                 return passwordCell
