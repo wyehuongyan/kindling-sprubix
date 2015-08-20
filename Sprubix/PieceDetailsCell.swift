@@ -12,6 +12,7 @@ import AFNetworking
 import KLCPopup
 import ActionSheetPicker_3_0
 import TSMessages
+import FBSDKShareKit
 
 protocol PieceDetailsOutfitProtocol {
     func relevantOutfitSelected(collectionView: UICollectionView, index: NSIndexPath)
@@ -517,8 +518,50 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         pieceDetailInfoView.addSubview(itemDescription)
         pieceDetailInfoView.addSubview(itemDescriptionLineTop)
         
+        // init social buttons
+        var socialButtonsRow: UIView = UIView()
+        
+        // Social Label
+        let socialLabelY: CGFloat = 10
+        let socialLabelHeight: CGFloat = 20
+        let socialLabel: UILabel = UILabel(frame: CGRect(x: 20, y: socialLabelY, width: screenWidth, height: socialLabelHeight))
+        socialLabel.text = "Share this item"
+        socialLabel.textColor = UIColor.lightGrayColor()
+        
+        socialButtonsRow.addSubview(socialLabel)
+        
+        // Facebook
+        let socialButtonRow1Y: CGFloat = socialLabelY + socialLabelHeight - 3
+        var socialButtonRow1: UIView = UIView(frame: CGRect(x: 0, y: socialButtonRow1Y, width: screenWidth, height: 44))
+        
+        var socialImageFacebook = UIImage(named: "spruce-share-fb")
+        var socialButtonFacebook: UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+        socialButtonFacebook.setImage(socialImageFacebook, forState: UIControlState.Normal)
+        socialButtonFacebook.setTitle("Facebook", forState: UIControlState.Normal)
+        socialButtonFacebook.setTitleColor(UIColor.darkGrayColor(), forState: UIControlState.Normal)
+        socialButtonFacebook.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+        socialButtonFacebook.frame = CGRect(x: 0, y: 10, width: screenWidth/2, height: 44)
+        socialButtonFacebook.contentHorizontalAlignment = UIControlContentHorizontalAlignment.Left
+        socialButtonFacebook.imageEdgeInsets = UIEdgeInsetsMake(5, 20, 5, 0)
+        socialButtonFacebook.titleEdgeInsets = UIEdgeInsetsMake(10, 30, 10, 0)
+        socialButtonFacebook.addTarget(self, action: "facebookTapped:", forControlEvents: UIControlEvents.TouchUpInside)
+        
+        var socialButtonsLineTop = UIView(frame: CGRect(x: 0, y: 0, width: screenWidth, height: 2))
+        socialButtonsLineTop.backgroundColor = UIColor(red: 244/255, green: 244/255, blue: 244/255, alpha: 1)
+        
+        socialButtonRow1.addSubview(socialButtonFacebook)
+        socialButtonsRow.addSubview(socialButtonRow1)
+        socialButtonsRow.addSubview(socialButtonsLineTop)
+        
+        let socialButtonsRowY: CGFloat = screenWidth + creditsViewHeight + itemSpecHeightTotal + itemDescriptionHeight
+        let socialButtonsRowHeight: CGFloat = socialLabelY + socialLabelHeight + 44 + 15
+        socialButtonsRow.frame = CGRect(x: 0, y: socialButtonsRowY, width: screenWidth, height: socialButtonsRowHeight)
+        socialButtonsRow.backgroundColor = UIColor.whiteColor()
+        
+        pieceDetailInfoView.addSubview(socialButtonsRow)
+        
         // init comments
-        let commentYPos:CGFloat = screenWidth + creditsViewHeight + itemSpecHeightTotal + itemDescriptionHeight + viewAllCommentsHeight
+        let commentYPos:CGFloat = screenWidth + creditsViewHeight + itemSpecHeightTotal + itemDescriptionHeight + viewAllCommentsHeight + socialButtonsRowHeight
         
         // view all comments button
         var viewAllComments:UIButton = UIButton(frame: CGRect(x: 0, y: 0, width: 0.8 * screenWidth, height: viewAllCommentsHeight))
@@ -541,7 +584,7 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         viewMore.backgroundColor = UIColor.clearColor()
         viewMore.addTarget(self, action: "showMoreOptions:", forControlEvents: UIControlEvents.TouchUpInside)
         
-        var viewAllCommentsBG:UIView = UIView(frame: CGRect(x: 0, y: screenWidth + creditsViewHeight + itemSpecHeightTotal + itemDescriptionHeight, width: screenWidth, height: viewAllCommentsHeight))
+        var viewAllCommentsBG:UIView = UIView(frame: CGRect(x: 0, y: screenWidth + creditsViewHeight + itemSpecHeightTotal + itemDescriptionHeight + socialButtonsRowHeight, width: screenWidth, height: viewAllCommentsHeight))
         viewAllCommentsBG.backgroundColor = UIColor.whiteColor()
         
         var viewAllCommentsLineTop = UIView(frame: CGRect(x: 0, y: 0, width: screenWidth, height: 2))
@@ -1321,4 +1364,23 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
             }
         })
     }
+    
+    func facebookTapped(sender: UIButton) {
+        let pieceImagesString = piece["images"] as! String
+        let pieceImagesData:NSData = pieceImagesString.dataUsingEncoding(NSUTF8StringEncoding)!
+        var pieceImagesDict: NSDictionary = NSJSONSerialization.JSONObjectWithData(pieceImagesData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSDictionary
+        let pieceImageDict: NSDictionary = (pieceImagesDict["images"] as! NSArray)[0] as! NSDictionary // position 0 is the cover
+        let pieceThumbnailUrl = pieceImageDict["thumbnail"] as! String
+        
+        let content : FBSDKShareLinkContent = FBSDKShareLinkContent()
+        content.contentURL = NSURL(string: "http://www.sprubix.com/")
+        content.contentTitle = piece["name"] as! String
+        content.contentDescription = "Check this item out! Download the Sprubix app now."
+        content.imageURL = NSURL(string: pieceThumbnailUrl)
+        
+        let button : FBSDKShareButton = FBSDKShareButton()
+        button.shareContent = content
+        button.sendActionsForControlEvents(UIControlEvents.TouchUpInside)
+    }
+    
 }

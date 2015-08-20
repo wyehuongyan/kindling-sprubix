@@ -289,7 +289,7 @@ class SignUpViewController: UIViewController, FBSDKLoginButtonDelegate {
     
     // MARK: Facebook Login Delegate
     func loginButton(loginButton: FBSDKLoginButton!, didCompleteWithResult result: FBSDKLoginManagerLoginResult!, error: NSError!) {
-        println("User logged in")
+        println("FBSDK: User logged in")
         
         if (error != nil) {
             // Process error
@@ -299,14 +299,14 @@ class SignUpViewController: UIViewController, FBSDKLoginButtonDelegate {
             println(result)
         } else {
             // If you ask for multiple permissions at once, you should check if specific permissions missing
-            println("Permission granted for: \(result.grantedPermissions)")
+            println("FBSDK: Permission granted for: \(result.grantedPermissions)")
             
             getFBUserData(loginButton)
         }
     }
     
     func loginButtonDidLogOut(loginButton: FBSDKLoginButton!) {
-        println("User Logged Out")
+        println("FBSDK: User logged out")
     }
     
     func cleanDictionary(dict: NSMutableDictionary)->NSMutableDictionary {

@@ -9,8 +9,10 @@
 import UIKit
 import AFNetworking
 import MRProgress
+import FBSDKShareKit
+import FBSDKLoginKit
 
-class SpruceShareViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UITextViewDelegate {
+class SpruceShareViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UITextViewDelegate, FBSDKSharingDelegate {
     
     var pieces: [NSDictionary]!
     var numPieces: Int!
@@ -43,6 +45,11 @@ class SpruceShareViewController: UIViewController, UITableViewDelegate, UITableV
     var placeholderText: String = "Tell us more about this outfit!"
     var makeKeyboardVisible = true
     var oldFrameRect: CGRect!
+    
+    // social button
+    var socialButtonFacebook: UIButton!
+    let facebookBlue: UIColor = UIColor(red: 65/255, green: 93/255, blue: 174/255, alpha: 1)
+    var shareToFacebook: Bool = Bool(false)
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -206,21 +213,45 @@ class SpruceShareViewController: UIViewController, UITableViewDelegate, UITableV
             
             return descriptionCell
         case 3:
-            // Facebook
-            var socialButtonRow1:UIView = UIView(frame: CGRect(x: 0, y: 10, width: screenWidth, height: 44))
+            // Social Label
+            let socialLabelY: CGFloat = 10
+            let socialLabelHeight: CGFloat = 20
+            let socialLabel: UILabel = UILabel(frame: CGRect(x: 20, y: socialLabelY, width: screenWidth, height: socialLabelHeight))
+            socialLabel.text = "Share this outfit"
+            socialLabel.textColor = UIColor.darkGrayColor()
             
-            var socialButtonFacebook = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
-            socialButtonFacebook.setImage(UIImage(named: "spruce-share-fb"), forState: UIControlState.Normal)
+            socialCell.addSubview(socialLabel)
+            
+            // Facebook
+            let socialButtonRow1Y: CGFloat = socialLabelY + socialLabelHeight
+            var socialButtonRow1: UIView = UIView(frame: CGRect(x: 0, y: socialButtonRow1Y, width: screenWidth, height: 44))
+            
+            var socialImageFacebook = UIImage(named: "spruce-share-fb")
+            socialImageFacebook = socialImageFacebook!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
+            
+            socialButtonFacebook = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+            socialButtonFacebook.setImage(socialImageFacebook, forState: UIControlState.Normal)
             socialButtonFacebook.setTitle("Facebook", forState: UIControlState.Normal)
-            socialButtonFacebook.setTitleColor(UIColor.blackColor(), forState: UIControlState.Normal)
+            socialButtonFacebook.setTitleColor(UIColor.lightGrayColor(), forState: UIControlState.Normal)
             socialButtonFacebook.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
-            socialButtonFacebook.frame = CGRect(x: 0, y: 0, width: screenWidth / 2, height: 44)
+            socialButtonFacebook.imageView!.tintColor = UIColor.lightGrayColor()
+            socialButtonFacebook.frame = CGRect(x: 0, y: 10, width: screenWidth/2, height: 44)
             socialButtonFacebook.contentHorizontalAlignment = UIControlContentHorizontalAlignment.Left
             socialButtonFacebook.imageEdgeInsets = UIEdgeInsetsMake(5, 20, 5, 0)
             socialButtonFacebook.titleEdgeInsets = UIEdgeInsetsMake(10, 30, 10, 0)
+            socialButtonFacebook.addTarget(self, action: "facebookTapped:", forControlEvents: UIControlEvents.TouchUpInside)
         
             socialButtonRow1.addSubview(socialButtonFacebook)
             
+            socialCell.selectionStyle = UITableViewCellSelectionStyle.None
+            socialCell.addSubview(socialButtonRow1)
+            
+            var socialButtonsLineTop = UIView(frame: CGRect(x: 0, y: 0, width: screenWidth, height: 2))
+            socialButtonsLineTop.backgroundColor = UIColor(red: 244/255, green: 244/255, blue: 244/255, alpha: 1)
+            
+            socialCell.addSubview(socialButtonsLineTop)
+            
+            /*
             // Twitter
             var socialButtonTwitter = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
             socialButtonTwitter.setImage(UIImage(named: "spruce-share-twitter"), forState: UIControlState.Normal)
@@ -233,8 +264,6 @@ class SpruceShareViewController: UIViewController, UITableViewDelegate, UITableV
             socialButtonTwitter.titleEdgeInsets = UIEdgeInsetsMake(10, 30, 10, 0)
         
             socialButtonRow1.addSubview(socialButtonTwitter)
-            
-            socialCell.addSubview(socialButtonRow1)
             
             // Tumblr
             var socialButtonRow2:UIView = UIView(frame: CGRect(x: 0, y: 54, width: screenWidth, height: 44))
@@ -266,11 +295,8 @@ class SpruceShareViewController: UIViewController, UITableViewDelegate, UITableV
             
             socialCell.addSubview(socialButtonRow2)
         
-            var socialButtonsLineTop = UIView(frame: CGRect(x: 0, y: 0, width: screenWidth, height: 2))
-            socialButtonsLineTop.backgroundColor = UIColor(red: 244/255, green: 244/255, blue: 244/255, alpha: 1)
-            
-            socialCell.addSubview(socialButtonsLineTop)
-            
+            */
+
             return socialCell
         default: fatalError("Unknown row in section")
         }
@@ -456,6 +482,11 @@ class SpruceShareViewController: UIViewController, UITableViewDelegate, UITableV
         overlayView.setModeAndProgressWithStateOfOperation(requestOperation)
         
         overlayView.tintColor = sprubixColor
+        
+        // Share to Facebook
+        if shareToFacebook {
+            sharePhotoToFacebook(outfitImageView.image!)
+        }
     }
 
     func delay(delay:Double, closure:()->()) {
@@ -470,5 +501,80 @@ class SpruceShareViewController: UIViewController, UITableViewDelegate, UITableV
     func backTapped(sender: UIBarButtonItem) {
         self.navigationController?.popViewControllerAnimated(true)
         //delegate?.dismissSpruceView()
+    }
+    
+    func facebookTapped(sender: UIButton) {
+        // toggle button to share
+        if !shareToFacebook {
+            let action = "publish_actions"
+            // no token or has token but no permission, request publish permission
+            if FBSDKAccessToken.currentAccessToken() == nil || !FBSDKAccessToken.currentAccessToken().hasGranted(action) {
+                let loginManager = FBSDKLoginManager()
+                loginManager.logInWithPublishPermissions([action], handler: { (response:FBSDKLoginManagerLoginResult!, error: NSError!) in
+                    if(error != nil){
+                        // Handle error
+                        println("FBSDKLogin Error: \(error)")
+                    }
+                    else if(response.isCancelled){
+                        // Authorization has been cancelled by user
+                        println("FBSDKLogin Cancelled, permission not granted for: \(action)")
+                    }
+                    else {
+                        // Authorization successful
+                        println("FBSDKLogin Successsful, permission granted for: \(response.grantedPermissions)")
+                        
+                        self.shareToFacebook = true
+                        self.setSocialButtons()
+                    }
+                })
+            }
+            // has token, has permission, proceed to share
+            else {
+                println("FBSDKLogin has permission for: \(action)")
+                
+                self.shareToFacebook = true
+                self.setSocialButtons()
+            }
+        }
+        // toggle button to not-share
+        else {
+            self.shareToFacebook = false
+            self.setSocialButtons()
+        }
+    }
+    
+    func setSocialButtons() {
+        if shareToFacebook {
+            socialButtonFacebook.imageView!.tintColor = facebookBlue
+            socialButtonFacebook.setTitleColor(UIColor.darkGrayColor(), forState: UIControlState.Normal)
+        } else {
+            socialButtonFacebook.imageView!.tintColor = UIColor.lightGrayColor()
+            socialButtonFacebook.setTitleColor(UIColor.lightGrayColor(), forState: UIControlState.Normal)
+        }
+    }
+    
+    func sharePhotoToFacebook(image: UIImage) {
+        let photo: FBSDKSharePhoto = FBSDKSharePhoto()
+        photo.image = image
+        photo.userGenerated = true
+        photo.caption = descriptionText.text
+        let content: FBSDKSharePhotoContent = FBSDKSharePhotoContent()
+        content.photos = [photo]
+        
+        FBSDKShareAPI.shareWithContent(content, delegate: self)
+    }
+    
+    func sharer(sharer: FBSDKSharing!, didCompleteWithResults results: [NSObject: AnyObject]) {
+        println("FBSDKSharing Photo Sharing Completed:")
+        println(results)
+    }
+    
+    func sharer(sharer: FBSDKSharing!, didFailWithError error: NSError!) {
+        println("FBSDKSharing Photo Sharing Error:")
+        println(error)
+    }
+    
+    func sharerDidCancel(sharer: FBSDKSharing!) {
+        println("FBSDKSharing Photo Sharing Cancelled")
     }
 }
