@@ -202,6 +202,9 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
         shopOrderDetailsViewController!.orderNum = shopOrder["uid"] as! String
         shopOrderDetailsViewController!.shopOrder = shopOrder.mutableCopy() as! NSMutableDictionary
         
+        self.closeSidePanel()
+        
+        sprubixNavigationController.delegate = nil
         sprubixNavigationController.pushViewController(shopOrderDetailsViewController!, animated: true)
     }
     
@@ -212,6 +215,19 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
         
         sprubixNavigationController.delegate = nil
         sprubixNavigationController.pushViewController(shopOrderRefundsViewController!, animated: true)
+    }
+    
+    func showRefundDetails(shopOrderRefund: NSDictionary) {
+        var shopOrderRefundDetailsViewController = UIStoryboard.shopOrderRefundDetailsViewController()
+        
+        shopOrderRefundDetailsViewController?.shopOrder = shopOrderRefund["shop_order"] as! NSMutableDictionary
+        shopOrderRefundDetailsViewController?.existingRefund = shopOrderRefund
+        shopOrderRefundDetailsViewController?.fromRefundView = true
+        
+        self.closeSidePanel()
+        
+        sprubixNavigationController.delegate = nil
+        sprubixNavigationController.pushViewController(shopOrderRefundDetailsViewController!, animated: true)
     }
     
     func showCart() {

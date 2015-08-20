@@ -329,6 +329,30 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             
             return true
         })
+        
+        // route to shop order refund details
+        JLRoutes.addRoute("/refund/:shopOrderRefundId", handler: {
+            parameters in
+            
+            // find shop order id for shop order details
+            let shopOrderRefundId = parameters["shopOrderRefundId"] as! String
+            
+            // REST call to server to retrieve shop orders
+            manager.GET(SprubixConfig.URL.api + "/refund/\(shopOrderRefundId)",
+                parameters: nil,
+                success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                    
+                    let shopOrderRefund = responseObject as! NSDictionary
+                    
+                    // go to shop order refund details view
+                    containerViewController.showRefundDetails(shopOrderRefund)
+                },
+                failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                    println("Error: " + error.localizedDescription)
+            })
+            
+            return true
+        })
     }
 }
 

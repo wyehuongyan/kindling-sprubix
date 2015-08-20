@@ -629,8 +629,9 @@
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="DLn-7E-jND">
-                                                    <rect key="frame" x="10" y="10" width="52" height="53"/>
+                                                    <rect key="frame" x="10" y="10" width="52" height="52"/>
                                                     <constraints>
+                                                        <constraint firstAttribute="height" constant="52" id="tje-cb-FEh"/>
                                                         <constraint firstAttribute="width" constant="52" id="ywH-s0-jDN"/>
                                                     </constraints>
                                                 </imageView>
@@ -679,7 +680,6 @@
                                                 <constraint firstAttribute="trailing" secondItem="OJ2-JF-Ocm" secondAttribute="trailing" constant="10" id="aMX-dg-itE"/>
                                                 <constraint firstItem="Scf-v9-S5M" firstAttribute="top" secondItem="ecJ-16-33E" secondAttribute="bottom" constant="8" id="ePb-YW-wU7"/>
                                                 <constraint firstAttribute="bottom" secondItem="hoY-fd-aMA" secondAttribute="bottom" constant="10" id="eep-5b-Ysu"/>
-                                                <constraint firstItem="hoY-fd-aMA" firstAttribute="top" secondItem="DLn-7E-jND" secondAttribute="bottom" constant="8" id="h9n-aF-0yN"/>
                                                 <constraint firstItem="OJ2-JF-Ocm" firstAttribute="leading" secondItem="Scf-v9-S5M" secondAttribute="trailing" constant="10" id="p3D-4P-l8L"/>
                                             </constraints>
                                         </tableViewCellContentView>
