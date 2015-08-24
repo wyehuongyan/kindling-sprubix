@@ -552,11 +552,14 @@ class MixpanelService {
         
         let email: String = data["email"] as! String
         let id: Int = data["id"] as! Int
+        let idString: String = String(id)
+        let idHex: String = String(id, radix: 16)
         let username: String = data["username"] as! String
-        let distinctId: String = mixpanel.distinctId
+        let distinctId: String = NSUUID().UUIDString + "-\(idHex)"
         
-        mixpanel.createAlias(email, forDistinctID: distinctId)
-        mixpanel.identify(email)
+        mixpanel.reset()
+        mixpanel.createAlias(idString, forDistinctID: distinctId)
+        mixpanel.identify(idString)
         
         mixpanel.people.set([
             "$email": email,
@@ -565,6 +568,7 @@ class MixpanelService {
             "$first_name": username,
             "$last_name": "",
             "$created": NSDate(),
+            "Distinct ID" : distinctId,
             "Points" : 0,
             "Exposed Outfits": 0,
             "Liked Outfits": 0,
@@ -580,18 +584,18 @@ class MixpanelService {
         
         mixpanel.flush()
         
-        println("Mixpanel People created for \(username) with id \(id) & alias \(email) for distinctId \(distinctId)")
+        println("Mixpanel People created for \(username) with id \(id) & alias \(id) for distinctId \(distinctId)")
     }
     
     // Identify user, set Super Properties
     class func setup() {
         // User logged in
         if let userData = defaults.dictionaryForKey("userData") {
-            let email: String = userData["email"] as! String
             let id: Int = userData["id"] as! Int
+            let idString: String = String(id)
             let username: String = userData["username"] as! String
             
-            mixpanel.identify(email)
+            mixpanel.identify(idString)
             mixpanel.registerSuperProperties([
                 "User ID": id,
                 "Timestamp": NSDate()
@@ -599,7 +603,7 @@ class MixpanelService {
             
             mixpanel.flush()
             
-            println("MixpanelService.setup: \(username) identified with \(email)")
+            println("MixpanelService.setup: \(username) identified with \(id)")
         } else {
             println("MixpanelService.setup: userData not found, please login or create an account")
         }
@@ -615,6 +619,12 @@ class MixpanelService {
             currentUserId = id
         }
         return currentUserId
+    }
+    
+    // Clear cache
+    class func reset() {
+        // clear cache
+        mixpanel.reset()
     }
     
     // Track Event
@@ -701,5 +711,20 @@ class MandrillService {
                 println("Error: " + error.localizedDescription)
                 
         })
+    }
+}
+
+// Random String Generator
+class RandomString {
+    class func generate(length: Int) -> String {
+        let letters: NSString = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+        var randomString : NSMutableString = NSMutableString(capacity: length)
+        
+        for (var i = 0 ; i < length ; i++) {
+            let r: UInt32 = arc4random() % UInt32(letters.length)
+            randomString.appendFormat("%C", letters.characterAtIndex(Int(r)))
+        }
+        
+        return randomString as String
     }
 }

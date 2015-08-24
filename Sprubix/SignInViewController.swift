@@ -409,7 +409,7 @@ class SignInViewController: UIViewController, UITableViewDataSource, UITableView
         if validateResult.valid {
             // if enter from FB login, generate random string
             if userSignupData.count > 0 {
-                passwordString = generateRandomString(10)
+                passwordString = RandomString.generate(10)
             }
             else {
                 passwordString = passwordText.text
@@ -560,10 +560,7 @@ class SignInViewController: UIViewController, UITableViewDataSource, UITableView
             var emailString = ""
             
             let userNameText = self.userNameText.text
-            
-            if passwordString == "" {
-                passwordString = self.passwordText.text
-            }
+            passwordString = self.passwordText.text
             
             // check if username or email was entered
             if userNameText.rangeOfString("@") != nil{
@@ -746,17 +743,5 @@ class SignInViewController: UIViewController, UITableViewDataSource, UITableView
         }
         
         return false
-    }
-    
-    func generateRandomString(length: Int) -> String {
-        let letters: NSString = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-        var randomString : NSMutableString = NSMutableString(capacity: length)
-        
-        for (var i = 0 ; i < length ; i++) {
-            let r: UInt32 = arc4random() % UInt32(letters.length)
-            randomString.appendFormat("%C", letters.characterAtIndex(Int(r)))
-        }
-        
-        return randomString as String
     }
 }

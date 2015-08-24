@@ -976,9 +976,9 @@ class CartViewController: UIViewController, UITableViewDataSource, UITableViewDe
     }
     
     func checkout(sender: UIBarButtonItem) {
-        let cartItemData = cartData["cart_items"] as! [NSDictionary]
+        let cartItemData = cartData["cart_items"] as? [NSDictionary]
         
-        if cartItemData.count > 0 {
+        if cartItemData != nil && cartItemData!.count > 0 {
             if checkoutPointsViewController == nil {
                 checkoutPointsViewController = UIStoryboard.checkoutPointsViewController()
             }
@@ -994,13 +994,18 @@ class CartViewController: UIViewController, UITableViewDataSource, UITableViewDe
             // Mixpanel - End
             
         } else {
-            let alert = UIAlertController(title: "Oops!", message: "Your cart is empty! Unable to check out.", preferredStyle: UIAlertControllerStyle.Alert)
-            alert.view.tintColor = sprubixColor
-            
-            // Ok
-            alert.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Cancel, handler: nil))
-            
-            self.presentViewController(alert, animated: true, completion: nil)
+            TSMessage.showNotificationInViewController(
+                TSMessage.defaultViewController(),
+                title: "Oops!",
+                subtitle: "Your cart is empty. Add something to the cart!",
+                image: nil,
+                type: TSMessageNotificationType.Warning,
+                duration: 3,
+                callback: nil,
+                buttonTitle: nil,
+                buttonCallback: nil,
+                atPosition: TSMessageNotificationPosition.Bottom,
+                canBeDismissedByUser: true)
         }
     }
 }
