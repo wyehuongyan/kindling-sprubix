@@ -83,7 +83,7 @@ class BrowseFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDat
         }
         
         // Mixpanel - Viewed Main Feed, Discover
-        MixpanelService.track("App Launched", propertySet: ["Page": "Discover"])
+        MixpanelService.track("Viewed Main Feed", propertySet: ["Page": "Discover"])
         // Mixpanel - End
     }
     
@@ -188,7 +188,7 @@ class BrowseFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDat
         sideMenuButtonItem.tintColor = UIColor(red: 170/255, green: 170/255, blue: 170/255, alpha: 1.0)
         
         var negativeSpacerItem: UIBarButtonItem = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.FixedSpace, target: nil, action: nil)
-        negativeSpacerItem.width = -20
+        negativeSpacerItem.width = -10
         
         self.navigationItem.leftBarButtonItems = [negativeSpacerItem, sideMenuButtonItem]
         
@@ -967,5 +967,32 @@ class BrowseFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDat
     func sideMenuTapped(sender: UIBarButtonItem) {
         dismissDropdown(UITapGestureRecognizer())
         delegate?.toggleSidePanel!()
+    }
+    
+    func scrollViewDidScroll(scrollView: UIScrollView) {
+        // Count exposed outfits
+        countExposedOutfits()
+    }
+    
+    func countExposedOutfits() {
+        let cells = discoverCollectionView.visibleCells() as! [MainFeedCell]
+        
+        // For every visible cell
+        for cell in cells {
+            // Outfits that don't exist in array
+            if !contains(exposedOutfits,cell.outfitId) {
+                let cellAbsolutePos: CGRect = view.convertRect(cell.frame, fromView: discoverCollectionView)
+                let posMoved: CGFloat = view.frame.height - cellAbsolutePos.origin.y
+                
+                // Outfit considered seen if half-of-cell is on-screen
+                if posMoved > cell.frame.height/2 {
+                    exposedOutfits.append(cell.outfitId)
+                    
+                    // Mixpanel - Exposed Outfits
+                    mixpanel.people.increment("Exposed Outfits", by: 1)
+                    // Mixpanel - End
+                }
+            }
+        }
     }
 }

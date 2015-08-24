@@ -105,15 +105,10 @@ class SignUpViewController: UIViewController, FBSDKLoginButtonDelegate {
         super.viewWillAppear(animated)
         
         self.navigationController?.navigationBarHidden = true
-        
-        // keyboard notifications
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("keyboardWillChange:"), name:UIKeyboardWillChangeFrameNotification, object: nil);
     }
     
     override func viewWillDisappear(animated: Bool) {
         super.viewWillDisappear(animated)
-        
-        NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardWillChangeFrameNotification, object: nil)
     }
 
     override func didReceiveMemoryWarning() {
