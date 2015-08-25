@@ -188,6 +188,8 @@ class ShopOrderDetailsViewController: UIViewController, UITableViewDataSource, U
                     var address2: String? = deliveryAddress["address_2"] as? String
                     let postalCode = deliveryAddress["postal_code"] as! String
                     let country = deliveryAddress["country"] as! String
+                    let city = deliveryAddress["city"] as! String
+                    let state = deliveryAddress["state"] as! String
                     
                     var deliveryAddressText = address1
                     
@@ -195,7 +197,7 @@ class ShopOrderDetailsViewController: UIViewController, UITableViewDataSource, U
                         deliveryAddressText += "\n\(address2!)"
                     }
                     
-                    deliveryAddressText += "\n\(postalCode)\n\(country)"
+                    deliveryAddressText += "\n\(postalCode)\n\(city), \(state)\n\(country)"
                     
                     cell.address.text = deliveryAddressText
                     

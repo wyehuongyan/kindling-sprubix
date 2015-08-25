@@ -82,6 +82,12 @@ class ShopOrderRefundDetailsViewController: UIViewController, UITableViewDataSou
         initNavBar()
     }
     
+    override func viewWillDisappear(animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardWillChangeFrameNotification, object: nil)
+    }
+    
     func initTableView() {
         // register method when tapped to hide keyboard
         tableTapGestureRecognizer = UITapGestureRecognizer(target: self, action: "tableTapped:")

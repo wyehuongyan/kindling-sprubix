@@ -194,6 +194,17 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
         
         sprubixNavigationController.delegate = nil
         sprubixNavigationController.pushViewController(ordersViewController!, animated: true)
+
+        /*
+        let checkoutOrderViewController = CheckoutOrderViewController()
+        
+        checkoutOrderViewController.userOrderId = 8
+        
+        self.closeSidePanel()
+        
+        sprubixNavigationController.delegate = nil
+        sprubixNavigationController.pushViewController(checkoutOrderViewController, animated: true)
+        */
     }
     
     func showShopOrderDetails(shopOrder: NSDictionary) {

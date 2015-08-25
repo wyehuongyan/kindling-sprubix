@@ -13,7 +13,7 @@ import TSMessages
 import SSKeychain
 import MRProgress
 
-class CheckoutViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
+class CheckoutViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UITextFieldDelegate {
 
     var delegate: SidePanelViewControllerDelegate?
     
@@ -34,9 +34,16 @@ class CheckoutViewController: UIViewController, UITableViewDataSource, UITableVi
     var newNavItem: UINavigationItem!
     
     var orderHeaderView: UIView!
+    var itemTotal: Float?
     var orderTotal: Float!
     var pointsTotal: Float!
     var placeOrderButton: UIButton!
+
+    var usePointsTextField: UITextField!
+    var discountAmount: UILabel!
+    var grandTotalAmount: UILabel!
+    var discount: Float = 0
+    var pointsEntered: Float = 0
     
     // default delivery address and payment method
     var defaultDeliveryAddress: NSDictionary = NSDictionary()
@@ -84,20 +91,36 @@ class CheckoutViewController: UIViewController, UITableViewDataSource, UITableVi
         
         orderHeaderView.backgroundColor = sprubixGray
         
-        let labelContainer = UIView(frame: CGRectMake(0, 0, screenWidth, navigationHeight))
+        let labelContainer = UIView(frame: CGRectMake(0, 0, screenWidth, navigationHeight + 38.0))
         labelContainer.backgroundColor = UIColor.whiteColor()
         
-        let grandTotal = UILabel(frame: CGRectMake(10, 10, screenWidth / 2 - 10, 24))
+        usePointsTextField = UITextField(frame: CGRectMake(10, 10, screenWidth / 2 - 10, 30.0))
+        
+        usePointsTextField.placeholder = "Use Points: 141"
+        usePointsTextField.delegate = self
+        usePointsTextField.textColor = UIColor.darkGrayColor()
+        usePointsTextField.borderStyle = UITextBorderStyle.RoundedRect
+        
+        discountAmount = UILabel(frame: CGRectMake(screenWidth / 2, 10, screenWidth / 2 - 10, 24))
+        discountAmount.textAlignment = NSTextAlignment.Right
+        discountAmount.textColor = UIColor.blackColor()
+        discountAmount.font = UIFont.boldSystemFontOfSize(20.0)
+        discountAmount.text = String(format: "$%.2f", discount)
+        
+        labelContainer.addSubview(usePointsTextField)
+        labelContainer.addSubview(discountAmount)
+        
+        let grandTotal = UILabel(frame: CGRectMake(10, 48, screenWidth / 2 - 10, 24))
         
         grandTotal.font = UIFont.boldSystemFontOfSize(20.0)
         grandTotal.textColor = sprubixColor
         grandTotal.text = "Order Total"
         
-        var grandTotalAmount: UILabel = UILabel(frame: CGRectMake(screenWidth / 2, 10, screenWidth / 2 - 10, 24))
+        grandTotalAmount = UILabel(frame: CGRectMake(screenWidth / 2, 48, screenWidth / 2 - 10, 24))
         grandTotalAmount.textAlignment = NSTextAlignment.Right
         grandTotalAmount.textColor = sprubixColor
         grandTotalAmount.font = UIFont.boldSystemFontOfSize(20.0)
-        grandTotalAmount.text = String(format: "$%.2f", orderTotal)
+        grandTotalAmount.text = String(format: "$%.2f", orderTotal - discount)
         
         labelContainer.addSubview(grandTotal)
         labelContainer.addSubview(grandTotalAmount)
@@ -344,7 +367,8 @@ class CheckoutViewController: UIViewController, UITableViewDataSource, UITableVi
             let sellerDeliveryMethod = sellerDeliveryMethods[section] as String
             
             cell.deliveryMethod.setTitle(sellerDeliveryMethod, forState: UIControlState.Normal)
-            cell.subtotal.text = String(format: "$%.2f", sellerSubtotal[section])
+            
+            cell.subtotal.text = String(format: "$%.2f", (sellerSubtotal[section]))
             cell.shippingRate.text = String(format: "$%.2f", sellerShippingRate[section])
             
             return cell
@@ -361,7 +385,7 @@ class CheckoutViewController: UIViewController, UITableViewDataSource, UITableVi
     
     func tableView(tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         if section == sellers.count {
-            return navigationHeaderAndStatusbarHeight
+            return navigationHeaderAndStatusbarHeight + 38.0
         } else {
             return navigationHeight
         }
@@ -416,6 +440,64 @@ class CheckoutViewController: UIViewController, UITableViewDataSource, UITableVi
             failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                 println("Error: " + error.localizedDescription)
         })
+    }
+    
+    // UITextFieldDelegate
+    func textFieldShouldBeginEditing(textField: UITextField) -> Bool {
+        // show alert view
+        var alert = UIAlertController(title: "Current Points: 141", message: "(up to 30% of the order amount within 1,000 points)", preferredStyle: UIAlertControllerStyle.Alert)
+        
+        alert.addTextFieldWithConfigurationHandler { (textField) -> Void in
+            textField.placeholder = "No. of points to use"
+            textField.keyboardType = UIKeyboardType.NumberPad
+            
+            // listen to textfield events
+            NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("discountWillChange:"), name: UITextFieldTextDidChangeNotification, object: nil)
+        }
+        
+        alert.addAction(UIAlertAction(title: "Done", style: UIAlertActionStyle.Default, handler: { action in
+            
+            if self.discount > 0 {
+                self.discountAmount.text = String(format: "-$%.2f", self.discount)
+                self.grandTotalAmount.text = String(format: "$%.2f", self.orderTotal - self.discount)
+                self.usePointsTextField.text = String(format: "%.0f points", self.pointsEntered)
+            }
+            
+            self.checkoutTableView.reloadData()
+            
+            NSNotificationCenter.defaultCenter().removeObserver(self, name: UITextFieldTextDidChangeNotification, object: nil)
+        }))
+        
+        // No
+        alert.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Cancel, handler: { action in
+            
+            NSNotificationCenter.defaultCenter().removeObserver(self, name: UITextFieldTextDidChangeNotification, object: nil)
+            
+        }))
+        
+        self.presentViewController(alert, animated: true, completion: nil)
+        
+        return false
+    }
+    
+    func discountWillChange(notification: NSNotification) {
+        let discountTextField = notification.object as! UITextField
+        
+        discount = discountTextField.text.floatValue / 100
+        
+        if itemTotal == nil {
+            itemTotal = 0.0
+            
+            for subtotal in sellerSubtotal {
+                itemTotal = itemTotal! + subtotal
+            }
+        }
+        
+        if discount > min((0.3 * itemTotal!), 10.0) {
+            discount = min((0.3 * itemTotal!), 10.0)
+        }
+        
+        pointsEntered = discount * 100
     }
     
     // nav bar button callbacks
@@ -534,7 +616,9 @@ class CheckoutViewController: UIViewController, UITableViewDataSource, UITableVi
     private func createTransaction(completionHandler: ((responseObject: NSDictionary) -> Void)) {
         manager.POST(SprubixConfig.URL.api + "/billing/transaction/create",
             parameters: [
-                "amount": orderTotal
+                "discount": discount,
+                "amount": orderTotal - discount,
+                "total": orderTotal
             ],
             success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
                 
@@ -582,6 +666,9 @@ class CheckoutViewController: UIViewController, UITableViewDataSource, UITableVi
         
         orderInfo.setObject(transactionId, forKey: "braintree_transaction_id")
         orderInfo.setObject(totalItemPrice, forKey: "total_items_price")
+        orderInfo.setObject(orderTotal - discount, forKey: "total_payable_price")
+        orderInfo.setObject(discount, forKey: "total_discount")
+        orderInfo.setObject(pointsEntered, forKey: "points_applied")
         orderInfo.setObject(totalShippingRate, forKey: "total_shipping_rate")
         orderInfo.setObject(orderTotal, forKey: "total_price")
         orderInfo.setObject(pointsTotal, forKey: "total_points")

@@ -175,12 +175,14 @@ class CustomerDetailsViewController: UIViewController, UITableViewDataSource, UI
                     let buyerName = "\(buyerFirstName) \(buyerLastName)"
                     let buyerUsername = buyer["username"] as! String
                     
-                    cell.username.text = "\(buyerName) (@\(buyerUsername))"
+                    cell.username.text = "\(buyerName)"
                     
                     let address1 = deliveryAddress["address_1"] as! String
                     var address2: String? = deliveryAddress["address_2"] as? String
                     let postalCode = deliveryAddress["postal_code"] as! String
                     let country = deliveryAddress["country"] as! String
+                    let city = deliveryAddress["city"] as! String
+                    let state = deliveryAddress["state"] as! String
                     
                     var deliveryAddressText = address1
                     
@@ -188,7 +190,7 @@ class CustomerDetailsViewController: UIViewController, UITableViewDataSource, UI
                         deliveryAddressText += "\n\(address2!)"
                     }
                     
-                    deliveryAddressText += "\n\(postalCode)\n\(country)"
+                    deliveryAddressText += "\n\(postalCode)\n\(city), \(state)\n\(country)"
                     
                     cell.address.text = deliveryAddressText
                     

@@ -43,16 +43,16 @@ class OrderDetailsUserCell: UITableViewCell {
         
         contentView.addSubview(userImageView)
         
-        username = UILabel(frame: CGRectMake(userImageViewWidth + 20, 8, screenWidth - (userImageViewWidth + 20) - 10, 20))
+        username = UILabel(frame: CGRectMake(userImageViewWidth + 20, 5, screenWidth - (userImageViewWidth + 20) - 10, 20))
         username.lineBreakMode = NSLineBreakMode.ByWordWrapping
         username.numberOfLines = 0
-        username.font = UIFont.systemFontOfSize(17.0)
+        username.font = UIFont.systemFontOfSize(16.0)
         username.textColor = UIColor.darkGrayColor()
         
         address = UILabel()
         address.lineBreakMode = NSLineBreakMode.ByWordWrapping
         address.numberOfLines = 0
-        address.font = UIFont.systemFontOfSize(14.0)
+        address.font = UIFont.systemFontOfSize(12.0)
         address.textColor = UIColor.darkGrayColor()
         
         contentView.addSubview(username)
