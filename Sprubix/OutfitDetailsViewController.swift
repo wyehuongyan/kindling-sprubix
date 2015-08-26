@@ -18,6 +18,8 @@ class OutfitDetailsViewController: UICollectionViewController, UICollectionViewD
     var currentVisibleOutfit: NSDictionary?
     var currentVisibleIndexPath: NSIndexPath?
     
+    var delegate: OutfitInteractionProtocol?
+    
     init(collectionViewLayout layout: UICollectionViewLayout!, currentIndexPath indexPath: NSIndexPath){
         super.init(collectionViewLayout:layout)
         
@@ -270,5 +272,17 @@ class OutfitDetailsViewController: UICollectionViewController, UICollectionViewD
         alertViewController.addAction(cancelAction)
         
         self.presentViewController(alertViewController, animated: true, completion: nil)
+    }
+    
+    func setOutfitsLiked(outfitId: Int, liked: Bool) {
+        delegate?.setOutfitsLiked(outfitId, liked: liked)
+    }
+    
+    func likedOutfit(outfitId: Int, thumbnailURLString: String, itemIdentifier: String, receiver: NSDictionary) {
+        delegate?.likedOutfit(outfitId, thumbnailURLString: thumbnailURLString, itemIdentifier: itemIdentifier, receiver: receiver)
+    }
+    
+    func unlikedOutfit(outfitId: Int, itemIdentifier: String, receiver: NSDictionary) {
+        delegate?.unlikedOutfit(outfitId, itemIdentifier: itemIdentifier, receiver: receiver)
     }
 }

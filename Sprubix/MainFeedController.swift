@@ -954,6 +954,7 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         
         let outfitDetailsViewController = OutfitDetailsViewController(collectionViewLayout: detailsViewControllerLayout(), currentIndexPath:indexPath)
         outfitDetailsViewController.outfits = outfits
+        outfitDetailsViewController.delegate = self
         
         mainCollectionView.setToIndexPath(indexPath)
         
