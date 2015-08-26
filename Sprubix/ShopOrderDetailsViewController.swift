@@ -9,6 +9,7 @@
 import UIKit
 import AFNetworking
 import TSMessages
+import MRProgress
 
 class ShopOrderDetailsViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
 
@@ -30,6 +31,9 @@ class ShopOrderDetailsViewController: UIViewController, UITableViewDataSource, U
     var currentOrderStatusId: Int!
     
     var existingRefunds: [NSDictionary]?
+    
+    // loading overlay
+    var overlay: MRProgressOverlayView!
     
     // custom nav bar
     var newNavBar: UINavigationBar!
@@ -607,6 +611,11 @@ class ShopOrderDetailsViewController: UIViewController, UITableViewDataSource, U
     private func updateOrderStatus(orderStatusTitle: String, orderStatusId: Int) {
         let shopOrderId = shopOrder["id"] as! Int
         
+        // init overlay
+        self.overlay = MRProgressOverlayView.showOverlayAddedTo(self.view, title: "Processing...", mode: MRProgressOverlayViewMode.Indeterminate, animated: true)
+        
+        self.overlay.tintColor = sprubixColor
+        
         // REST call to server to update order status
         manager.POST(SprubixConfig.URL.api + "/order/shop/\(shopOrderId)",
             parameters: [
@@ -617,6 +626,8 @@ class ShopOrderDetailsViewController: UIViewController, UITableViewDataSource, U
                 
                 var status = responseObject["status"] as! String
                 var automatic: NSTimeInterval = 0
+                
+                self.overlay.dismiss(true)
                 
                 if status == "200" {
                     // success
@@ -640,6 +651,8 @@ class ShopOrderDetailsViewController: UIViewController, UITableViewDataSource, U
                 println("Error: " + error.localizedDescription)
                 
                 var automatic: NSTimeInterval = 0
+                
+                self.overlay.dismiss(true)
                 
                 // error exception
                 TSMessage.showNotificationInViewController(                        TSMessage.defaultViewController(), title: "Error", subtitle: "Something went wrong.\nPlease try again.", image: UIImage(named: "filter-cross"), type: TSMessageNotificationType.Error, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: true)

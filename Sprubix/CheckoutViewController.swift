@@ -44,6 +44,7 @@ class CheckoutViewController: UIViewController, UITableViewDataSource, UITableVi
     var grandTotalAmount: UILabel!
     var discount: Float = 0
     var pointsEntered: Float = 0
+    var userPoints: NSDictionary?
     
     // default delivery address and payment method
     var defaultDeliveryAddress: NSDictionary = NSDictionary()
@@ -79,6 +80,7 @@ class CheckoutViewController: UIViewController, UITableViewDataSource, UITableVi
         
         initNavBar()
         initOrderHeader()
+        retrieveUserPoints()
         retrieveUserDeliveryAddress()
         retrieveUserPaymentMethod()
         
@@ -96,7 +98,7 @@ class CheckoutViewController: UIViewController, UITableViewDataSource, UITableVi
         
         usePointsTextField = UITextField(frame: CGRectMake(10, 10, screenWidth / 2 - 10, 30.0))
         
-        usePointsTextField.placeholder = "Use Points: 141"
+        usePointsTextField.placeholder = "Loading Points..."
         usePointsTextField.delegate = self
         usePointsTextField.textColor = UIColor.darkGrayColor()
         usePointsTextField.borderStyle = UITextBorderStyle.RoundedRect
@@ -162,6 +164,24 @@ class CheckoutViewController: UIViewController, UITableViewDataSource, UITableVi
         
         // 5. add the nav bar to the main view
         self.view.addSubview(newNavBar)
+    }
+    
+    func retrieveUserPoints() {
+        // REST call to retrieve latest points
+        manager.GET(SprubixConfig.URL.api + "/user/points",
+            parameters: nil,
+            success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                
+                self.userPoints = responseObject as? NSDictionary
+                
+                let points = self.userPoints!["amount"] as! Int
+
+                self.usePointsTextField.placeholder = "Use Points: \(points)"
+                self.usePointsTextField.setNeedsDisplay()
+            },
+            failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                println("Error: " + error.localizedDescription)
+        })
     }
     
     func retrieveBTClientToken() {
@@ -444,60 +464,67 @@ class CheckoutViewController: UIViewController, UITableViewDataSource, UITableVi
     
     // UITextFieldDelegate
     func textFieldShouldBeginEditing(textField: UITextField) -> Bool {
-        // show alert view
-        var alert = UIAlertController(title: "Current Points: 141", message: "(up to 30% of the order amount within 1,000 points)", preferredStyle: UIAlertControllerStyle.Alert)
-        
-        alert.addTextFieldWithConfigurationHandler { (textField) -> Void in
-            textField.placeholder = "No. of points to use"
-            textField.keyboardType = UIKeyboardType.NumberPad
+        if userPoints != nil {
+            let points = self.userPoints!["amount"] as! Int
             
-            // listen to textfield events
-            NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("discountWillChange:"), name: UITextFieldTextDidChangeNotification, object: nil)
-        }
-        
-        alert.addAction(UIAlertAction(title: "Done", style: UIAlertActionStyle.Default, handler: { action in
+            // show alert view
+            var alert = UIAlertController(title: "Current Points: \(points)", message: "(up to 30% of the order amount within 1,000 points)", preferredStyle: UIAlertControllerStyle.Alert)
             
-            if self.discount > 0 {
-                self.discountAmount.text = String(format: "-$%.2f", self.discount)
-                self.grandTotalAmount.text = String(format: "$%.2f", self.orderTotal - self.discount)
-                self.usePointsTextField.text = String(format: "%.0f points", self.pointsEntered)
+            alert.addTextFieldWithConfigurationHandler { (textField) -> Void in
+                textField.placeholder = "No. of points to use"
+                textField.keyboardType = UIKeyboardType.NumberPad
+                
+                // listen to textfield events
+                NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("discountWillChange:"), name: UITextFieldTextDidChangeNotification, object: nil)
             }
             
-            self.checkoutTableView.reloadData()
+            alert.addAction(UIAlertAction(title: "Done", style: UIAlertActionStyle.Default, handler: { action in
+                
+                if self.discount > 0 {
+                    self.discountAmount.text = String(format: "-$%.2f", self.discount)
+                    self.grandTotalAmount.text = String(format: "$%.2f", self.orderTotal - self.discount)
+                    self.usePointsTextField.text = String(format: "%.0f points", self.pointsEntered)
+                }
+                
+                self.checkoutTableView.reloadData()
+                
+                NSNotificationCenter.defaultCenter().removeObserver(self, name: UITextFieldTextDidChangeNotification, object: nil)
+            }))
             
-            NSNotificationCenter.defaultCenter().removeObserver(self, name: UITextFieldTextDidChangeNotification, object: nil)
-        }))
-        
-        // No
-        alert.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Cancel, handler: { action in
+            // No
+            alert.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Cancel, handler: { action in
+                
+                NSNotificationCenter.defaultCenter().removeObserver(self, name: UITextFieldTextDidChangeNotification, object: nil)
+                
+            }))
             
-            NSNotificationCenter.defaultCenter().removeObserver(self, name: UITextFieldTextDidChangeNotification, object: nil)
-            
-        }))
-        
-        self.presentViewController(alert, animated: true, completion: nil)
+            self.presentViewController(alert, animated: true, completion: nil)
+        }
         
         return false
     }
     
     func discountWillChange(notification: NSNotification) {
-        let discountTextField = notification.object as! UITextField
-        
-        discount = discountTextField.text.floatValue / 100
-        
-        if itemTotal == nil {
-            itemTotal = 0.0
+        if userPoints != nil {
+            let points = self.userPoints!["amount"] as! Int
+            let discountTextField = notification.object as! UITextField
             
-            for subtotal in sellerSubtotal {
-                itemTotal = itemTotal! + subtotal
+            discount = discountTextField.text.floatValue / 100
+            
+            if itemTotal == nil {
+                itemTotal = 0.0
+                
+                for subtotal in sellerSubtotal {
+                    itemTotal = itemTotal! + subtotal
+                }
             }
+            
+            if discount > min((min((0.3 * itemTotal!), 10.0)), Float(points) / 100) {
+                discount = min((min((0.3 * itemTotal!), 10.0)), Float(points) / 100)
+            }
+            
+            pointsEntered = discount * 100
         }
-        
-        if discount > min((0.3 * itemTotal!), 10.0) {
-            discount = min((0.3 * itemTotal!), 10.0)
-        }
-        
-        pointsEntered = discount * 100
     }
     
     // nav bar button callbacks

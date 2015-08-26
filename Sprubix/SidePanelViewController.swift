@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import AFNetworking
 
 @objc
 protocol SidePanelViewControllerDelegate {
@@ -34,6 +35,9 @@ class SidePanelViewController: UIViewController, UITableViewDataSource, UITableV
     var sidePanelOptions:[SidePanelOption]!
     var delegate: SidePanelViewControllerDelegate?
     
+    var userPoints: NSDictionary!
+    var pointsTextView: UITextView!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -42,6 +46,12 @@ class SidePanelViewController: UIViewController, UITableViewDataSource, UITableV
         sidePanelTableView.separatorColor = UIColor.clearColor()
         sidePanelTableView.scrollEnabled = true
         sidePanelTopView.backgroundColor = sprubixLightGray
+    }
+    
+    override func viewWillAppear(animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        retrieveUserPoints()
     }
     
     func initUserInfo() {
@@ -93,7 +103,40 @@ class SidePanelViewController: UIViewController, UITableViewDataSource, UITableV
             var profileNameTap = UITapGestureRecognizer(target: self, action: Selector("wasSingleTapped:"))
             profileNameTap.numberOfTapsRequired = 1
             profileName.addGestureRecognizer(profileNameTap)
+            
+            // points text view
+            let pointsTextViewHeight: CGFloat = 30.0
+            pointsTextView = UITextView(frame: CGRectMake(0, 10, screenWidth / 2.75, pointsTextViewHeight))
+            
+            pointsTextView.backgroundColor = sprubixColor
+            pointsTextView.textAlignment = NSTextAlignment.Right
+            pointsTextView.text = "loading..."
+            pointsTextView.textColor = UIColor.whiteColor()
+            pointsTextView.font = UIFont.systemFontOfSize(14.0)
+            pointsTextView.layer.cornerRadius = pointsTextViewHeight / 2
+            pointsTextView.textContainerInset = UIEdgeInsetsMake(6, 0, 6, 6);
+            pointsTextView.clipsToBounds = true
+            
+            sidePanelTopView.addSubview(pointsTextView)
         }
+    }
+    
+    func retrieveUserPoints() {
+        // REST call to retrieve latest points
+        manager.GET(SprubixConfig.URL.api + "/user/points",
+            parameters: nil,
+            success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                
+                self.userPoints = responseObject as! NSDictionary
+                
+                let points = self.userPoints["amount"] as! Int
+                self.pointsTextView.text = "\(points) pts"
+                self.pointsTextView.setNeedsDisplay()
+                
+            },
+            failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                println("Error: " + error.localizedDescription)
+        })
     }
     
     func wasSingleTapped(gesture: UITapGestureRecognizer) {

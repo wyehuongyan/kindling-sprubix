@@ -10,6 +10,7 @@ import UIKit
 import AFNetworking
 import TSMessages
 import FBSDKLoginKit
+import MRProgress
 
 enum CreateAccountState {
     case Signup
@@ -19,6 +20,9 @@ enum CreateAccountState {
 class SignInViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UITextFieldDelegate, UIGestureRecognizerDelegate {
     
     var makeKeyboardVisible = true
+    
+    // loading overlay
+    var overlay: MRProgressOverlayView!
     
     var newNavBar:UINavigationBar!
     var newNavItem:UINavigationItem!
@@ -437,6 +441,11 @@ class SignInViewController: UIViewController, UITableViewDataSource, UITableView
                 gender = genderTemp
             }
             
+            // init overlay
+            self.overlay = MRProgressOverlayView.showOverlayAddedTo(self.view, title: "Signing up...", mode: MRProgressOverlayViewMode.Indeterminate, animated: true)
+            
+            self.overlay.tintColor = sprubixColor
+            
             manager.POST(SprubixConfig.URL.api + "/auth/register",
                 parameters: [
                     "username" : userNameText.text.lowercaseString,
@@ -451,6 +460,8 @@ class SignInViewController: UIViewController, UITableViewDataSource, UITableView
                 success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
                     var response = responseObject as! NSDictionary
                     var statusCode:String = response["status"] as! String
+                    
+                    self.overlay.dismiss(true)
                     
                     if statusCode == "400" {
                         // error
@@ -511,6 +522,8 @@ class SignInViewController: UIViewController, UITableViewDataSource, UITableView
                 failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                     println("Error: " + error.localizedDescription)
                     
+                    self.overlay.dismiss(true)
+                    
                     // error exception
                     TSMessage.showNotificationInViewController(
                         self,
@@ -569,6 +582,11 @@ class SignInViewController: UIViewController, UITableViewDataSource, UITableView
                 usernameString = userNameText
             }
             
+            // init overlay
+            self.overlay = MRProgressOverlayView.showOverlayAddedTo(self.view, title: "Logging in...", mode: MRProgressOverlayViewMode.Indeterminate, animated: true)
+            
+            self.overlay.tintColor = sprubixColor
+            
             // authenticate with server
             manager.POST(SprubixConfig.URL.api + "/auth/login",
                 parameters: [
@@ -579,6 +597,8 @@ class SignInViewController: UIViewController, UITableViewDataSource, UITableView
                 success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
                     var response = responseObject as! NSDictionary
                     var statusCode:String = response["status"] as! String
+                    
+                    self.overlay.dismiss(true)
                     
                     if statusCode == "400" {
                         // error
@@ -629,6 +649,8 @@ class SignInViewController: UIViewController, UITableViewDataSource, UITableView
                 },
                 failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                     println("Error: " + error.localizedDescription)
+
+                    self.overlay.dismiss(true)
             })
         
         } else {
