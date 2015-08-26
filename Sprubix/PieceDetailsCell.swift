@@ -1172,13 +1172,15 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         let picker: ActionSheetStringPicker = ActionSheetStringPicker(title: "Delivery method", rows: deliveryArray, initialSelection: 0,
             doneBlock: { actionSheetPicker, selectedIndex, selectedValue in
                 
-                let selectedDeliveryId = deliveryIdsArray[selectedIndex]
-
-                // add info to buyPieceInfo
-                self.buyPieceInfo?.setObject(selectedDeliveryId, forKey: "delivery_option_id")
-                
-                self.itemBuyDeliveryLabel.text = "\(selectedValue)"
-                self.itemBuyDeliveryLabel.textColor = UIColor.blackColor()
+                if deliveryIdsArray.count > 0 {
+                    let selectedDeliveryId = deliveryIdsArray[selectedIndex]
+                    
+                    // add info to buyPieceInfo
+                    self.buyPieceInfo?.setObject(selectedDeliveryId, forKey: "delivery_option_id")
+                    
+                    self.itemBuyDeliveryLabel.text = "\(selectedValue)"
+                    self.itemBuyDeliveryLabel.textColor = UIColor.blackColor()
+                }
                 
             }, cancelBlock: nil, origin: sender)
         
