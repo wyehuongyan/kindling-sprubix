@@ -155,7 +155,7 @@ class BrowseFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDat
         self.navigationController?.navigationBar.barTintColor = UIColor.whiteColor()
         
         // 1. add a new title to the nav bar
-        self.navigationItem.title = "Browse"
+        self.navigationItem.title = "Discover"
         
         // 2. create a custom button
         var sideMenuButton:UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
@@ -219,7 +219,7 @@ class BrowseFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDat
         var dropupImage = UIImage(named: "others-dropdown-up")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
         sprubixTitle.setImage(dropupImage, forState: UIControlState.Selected)
         
-        sprubixTitle.setTitle("Browse", forState: UIControlState.Normal)
+        sprubixTitle.setTitle("Discover", forState: UIControlState.Normal)
         sprubixTitle.setTitleColor(UIColor.blackColor(), forState: UIControlState.Normal)
         sprubixTitle.titleLabel?.font = UIFont.boldSystemFontOfSize(sprubixTitle.titleLabel!.font.pointSize)
         sprubixTitle.imageEdgeInsets = UIEdgeInsetsMake(7, 2, 7, 0)

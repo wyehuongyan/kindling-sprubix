@@ -1551,13 +1551,15 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
         let picker: ActionSheetStringPicker = ActionSheetStringPicker(title: "Delivery method", rows: deliveryArray, initialSelection: 0,
             doneBlock: { actionSheetPicker, selectedIndex, selectedValue in
                 
-                let selectedDeliveryId = deliveryIdsArray[selectedIndex]
-                
-                // add info to buyPieceInfo
-                buyPieceInfo?.setObject(selectedDeliveryId, forKey: "delivery_option_id")
-                
-                (self.itemBuyDeliveryLabels[pos!] as UILabel).text = "\(selectedValue)"
-                (self.itemBuyDeliveryLabels[pos!] as UILabel).textColor = UIColor.blackColor()
+                if deliveryIdsArray.count > 0 {
+                    let selectedDeliveryId = deliveryIdsArray[selectedIndex]
+                    
+                    // add info to buyPieceInfo
+                    buyPieceInfo?.setObject(selectedDeliveryId, forKey: "delivery_option_id")
+                    
+                    (self.itemBuyDeliveryLabels[pos!] as UILabel).text = "\(selectedValue)"
+                    (self.itemBuyDeliveryLabels[pos!] as UILabel).textColor = UIColor.blackColor()
+                }
                 
             }, cancelBlock: nil, origin: sender)
         

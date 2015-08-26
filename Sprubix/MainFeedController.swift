@@ -430,7 +430,7 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         browseButton.frame = CGRectMake(0, dropdownButtonHeight, screenWidth, dropdownButtonHeight)
         image = UIImage(named: "main-discover")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
         browseButton.setImage(image, forState: UIControlState.Normal)
-        browseButton.setTitle("Browse", forState: UIControlState.Normal)
+        browseButton.setTitle("Discover", forState: UIControlState.Normal)
         browseButton.setTitleColor(UIColor.darkGrayColor(), forState: UIControlState.Normal)
         browseButton.titleLabel?.font = UIFont.systemFontOfSize(16.0)
         browseButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
