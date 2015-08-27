@@ -18,6 +18,8 @@ class SettingsViewController: UITableViewController {
     @IBOutlet var deliveryAddressesCell: UITableViewCell!
     @IBOutlet var helpCenterCell: UITableViewCell!
     @IBOutlet var provideFeedbackCell: UITableViewCell!
+    @IBOutlet var termsOfServiceCell: UITableViewCell!
+    @IBOutlet var privacyPolicyCell: UITableViewCell!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -30,6 +32,8 @@ class SettingsViewController: UITableViewController {
         paymentMethodsCell.accessoryType = UITableViewCellAccessoryType.DisclosureIndicator
         helpCenterCell.accessoryType = UITableViewCellAccessoryType.DisclosureIndicator
         provideFeedbackCell.accessoryType = UITableViewCellAccessoryType.DisclosureIndicator
+        termsOfServiceCell.accessoryType = UITableViewCellAccessoryType.DisclosureIndicator
+        privacyPolicyCell.accessoryType = UITableViewCellAccessoryType.DisclosureIndicator
     }
     
     override func viewWillAppear(animated: Bool) {
@@ -131,6 +135,32 @@ class SettingsViewController: UITableViewController {
                 fatalError("Unknown static cell for settings.")
             }
         case 3:
+            // about
+            switch indexPath.row {
+            case 0:
+                //println("Terms of Service")
+                
+                let termsOfServiceViewController = TermsOfServiceViewController()
+                
+                self.navigationController?.pushViewController(termsOfServiceViewController, animated: true)
+                
+                // Mixpanel - Viewed Terms of Service
+                mixpanel.track("Viewed Terms of Service")
+                // Mixpanel - End
+            case 1:
+                //println("Privacy Policy")
+                
+                let privacyPolicyViewController = PrivacyPolicyViewController()
+                
+                self.navigationController?.pushViewController(privacyPolicyViewController, animated: true)
+                
+                // Mixpanel - Viewed Privacy Policy
+                mixpanel.track("Privacy Policy")
+                // Mixpanel - End
+            default:
+                fatalError("Unknown static cell for settings.")
+            }
+        case 4:
             // logout
             switch indexPath.row {
             case 0:

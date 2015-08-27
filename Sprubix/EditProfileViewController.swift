@@ -11,6 +11,7 @@ import AFNetworking
 import TSMessages
 import PermissionScope
 import MRProgress
+import ActionSheetPicker_3_0
 
 enum SelectedPhotoType {
     case Profile
@@ -21,7 +22,7 @@ protocol EditProfileProtocol {
     func updateUser(user: NSDictionary)
 }
 
-class EditProfileViewController: UITableViewController, UITextViewDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate, CroppedImageProtocol {
+class EditProfileViewController: UITableViewController, UITextViewDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate, CroppedImageProtocol, UITextFieldDelegate {
     
     var delegate: EditProfileProtocol?
     
@@ -34,6 +35,11 @@ class EditProfileViewController: UITableViewController, UITextViewDelegate, UIIm
     @IBOutlet var profileCoverImage: UIImageView! = UIImageView()
     @IBOutlet var profileName: UITextField!
     @IBOutlet var profileDescription: UITextView!
+    @IBOutlet var firstName: UITextField!
+    @IBOutlet var lastName: UITextField!
+    @IBOutlet var contactNumber: UITextField!
+    @IBOutlet var birthdate: UITextField!
+    @IBOutlet var gender: UITextField!
     let profileDescriptionDefault = "Tell us more about yourself!"
 
     // photo
@@ -47,7 +53,11 @@ class EditProfileViewController: UITableViewController, UITextViewDelegate, UIIm
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        var tap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: "DismissKeyboard")
+        view.addGestureRecognizer(tap)
+        
         initUserInfo()
+        initPrivateInfo()
         initPhotoLibrary()
         
         view.backgroundColor = sprubixGray
@@ -73,7 +83,11 @@ class EditProfileViewController: UITableViewController, UITextViewDelegate, UIIm
             let userThumbnailURL = NSURL(string: userData!["image"] as! String)
             let userCoverURL = NSURL(string: userData!["cover"] as! String)
             let userName = userData!["name"] as! String
-            let userDescription = userData!["description"] as? String
+            
+            let userDescriptionJson = userData!["description"] as! String
+            var userDescriptionData: NSData = userDescriptionJson.dataUsingEncoding(NSUTF8StringEncoding)!
+            var userDescriptionDict: NSDictionary = NSJSONSerialization.JSONObjectWithData(userDescriptionData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSDictionary
+            let userDescription = userDescriptionDict["description"] as? String
             
             // Set profile image
             profileImage.setImageWithURL(userThumbnailURL)
@@ -106,16 +120,43 @@ class EditProfileViewController: UITableViewController, UITextViewDelegate, UIIm
             profileDescription.delegate = self
             profileDescription.textContainer.maximumNumberOfLines = 3
             
-            if (userDescription != "") {
-                var userDescriptionData: NSData = userDescription!.dataUsingEncoding(NSUTF8StringEncoding)!
-                
-                var userDescriptionDict: NSDictionary = NSJSONSerialization.JSONObjectWithData(userDescriptionData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSDictionary
-                
-                profileDescription.text = userDescriptionDict["description"] as? String
-            } else {
+            if (userDescription == nil || userDescription == "" ) {
                 profileDescription.text = profileDescriptionDefault
+            } else {
+                profileDescription.text = userDescription
             }
+            
+            // Private Information
+            firstName.textColor = sprubixColor
+            lastName.textColor = sprubixColor
+            contactNumber.textColor = sprubixColor
+            birthdate.textColor = sprubixColor
+            gender.textColor = sprubixColor
+            
+            birthdate.delegate = self
+            gender.delegate = self
         }
+    }
+    
+    func initPrivateInfo() {
+        // REST call to server to retrieve people
+        manager.GET(SprubixConfig.URL.api + "/user/privateinformation",
+            parameters: nil,
+            success: { (operation: AFHTTPRequestOperation!, responseObject:
+                AnyObject!) in
+                
+                var response = responseObject as! NSDictionary
+                
+                self.firstName.text = response["first_name"] as! String
+                self.lastName.text = response["last_name"] as! String
+                self.contactNumber.text = response["contact_number"] as! String
+                self.birthdate.text = response["date_of_birth"] as! String
+                self.gender.text = response["gender"] as! String
+                
+            },
+            failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                println("Error: " + error.localizedDescription)
+        })
     }
     
     func initNavBar() {
@@ -211,6 +252,26 @@ class EditProfileViewController: UITableViewController, UITextViewDelegate, UIIm
                 profileInfo.setObject(profileDescription.text, forKey: "description")
             }
             
+            if firstName.text != "" {
+                profileInfo.setObject(firstName.text, forKey: "first_name")
+            }
+            
+            if lastName.text != "" {
+                profileInfo.setObject(lastName.text, forKey: "last_name")
+            }
+            
+            if contactNumber.text != "" {
+                profileInfo.setObject(contactNumber.text, forKey: "contact_number")
+            }
+            
+            if birthdate.text != "" {
+                profileInfo.setObject(birthdate.text, forKey: "date_of_birth")
+            }
+            
+            if gender.text != "" {
+                profileInfo.setObject(gender.text, forKey: "gender")
+            }
+            
             // convert image into data for upload
             var profileImageData: NSData? = profileImageDirty ?  UIImageJPEGRepresentation(profileImage.image, 0.5) : nil
             
@@ -242,6 +303,7 @@ class EditProfileViewController: UITableViewController, UITextViewDelegate, UIIm
                     
                     if status == "200" {
                         var data = response["user"] as! NSDictionary
+                        var userInfo = response["user_info"] as! NSDictionary
                         
                         // success
                         TSMessage.showNotificationInViewController(
@@ -270,6 +332,7 @@ class EditProfileViewController: UITableViewController, UITextViewDelegate, UIIm
                         }
                         
                         println(data)
+                        println(userInfo)
                         
                     } else if status == "500" {
                         var exception = response["exception"] as! String
@@ -402,6 +465,22 @@ class EditProfileViewController: UITableViewController, UITextViewDelegate, UIIm
             valid = false
         }
         
+        // Private information
+        if count(firstName.text) > 255 {
+            message += "The first name is too long\n"
+            valid = false
+        }
+        
+        if count(lastName.text) > 255 {
+            message += "The last name is too long\n"
+            valid = false
+        }
+        
+        if count(contactNumber.text) > 255 {
+            message += "The contact number is too long\n"
+            valid = false
+        }
+        
         return (valid, message)
     }
     
@@ -482,5 +561,88 @@ class EditProfileViewController: UITableViewController, UITextViewDelegate, UIIm
     func coverPhotoCropped(croppedImage: UIImage) {
         profileCoverImage.image = croppedImage
         coverImageDirty = true
+    }
+    
+    // UITextFieldDelegate
+    func textFieldShouldBeginEditing(textField: UITextField) -> Bool {
+        if textField == gender {
+            showGenderPicker()
+            
+            return false
+        }
+        
+        if textField == birthdate {
+            showDatePicker()
+            
+            return false
+        }
+        
+       return true
+    }
+    
+    private func showGenderPicker() {
+        let genderList: [String] = ["Male", "Female", "Other"]
+        let picker: ActionSheetStringPicker = ActionSheetStringPicker(title: "Gender", rows: genderList, initialSelection: 1,
+            doneBlock: { actionSheetPicker, selectedIndex, selectedValue in
+                
+                self.gender.text = selectedValue as! String
+                println(actionSheetPicker)
+                println(selectedIndex)
+                println(selectedValue)
+                
+            }, cancelBlock: nil, origin: view)
+        
+        // custom done button
+        let doneButton = UIBarButtonItem(title: "done", style: UIBarButtonItemStyle.Plain, target: nil, action: nil)
+        
+        doneButton.setTitleTextAttributes([NSForegroundColorAttributeName: sprubixColor], forState: UIControlState.Normal)
+        
+        picker.setDoneButton(doneButton)
+        
+        // custom cancel button
+        var cancelButton:UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+        
+        cancelButton.setTitle("X", forState: UIControlState.Normal)
+        cancelButton.setTitleColor(sprubixColor, forState: UIControlState.Normal)
+        cancelButton.frame = CGRect(x: 0, y: 0, width: 20, height: 20)
+        
+        picker.setCancelButton(UIBarButtonItem(customView: cancelButton))
+        
+        picker.showActionSheetPicker()
+    }
+    
+    private func showDatePicker() {
+        let datePicker: ActionSheetDatePicker = ActionSheetDatePicker(title: "Birthday", datePickerMode: UIDatePickerMode.Date, selectedDate: NSDate(),
+            doneBlock: { picker, value, index in
+            
+                var valueArray = ("\(value)".componentsSeparatedByString(" "))[0].componentsSeparatedByString("-")
+                var dateSelected: String = "\(valueArray[2])-\(valueArray[1])-\(valueArray[0])"
+                self.birthdate.text = dateSelected
+                
+            }, cancelBlock: nil, origin: view)
+        
+        datePicker.maximumDate = NSDate()
+
+        // custom done button
+        let doneButton = UIBarButtonItem(title: "done", style: UIBarButtonItemStyle.Plain, target: nil, action: nil)
+        
+        doneButton.setTitleTextAttributes([NSForegroundColorAttributeName: sprubixColor], forState: UIControlState.Normal)
+        
+        datePicker.setDoneButton(doneButton)
+        
+        // custom cancel button
+        var cancelButton:UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+        
+        cancelButton.setTitle("X", forState: UIControlState.Normal)
+        cancelButton.setTitleColor(sprubixColor, forState: UIControlState.Normal)
+        cancelButton.frame = CGRect(x: 0, y: 0, width: 20, height: 20)
+        
+        datePicker.setCancelButton(UIBarButtonItem(customView: cancelButton))
+        
+        datePicker.showActionSheetPicker()
+    }
+    
+    func DismissKeyboard(){
+        view.endEditing(true)
     }
 }

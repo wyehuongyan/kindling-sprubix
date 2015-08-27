@@ -1,23 +1,23 @@
 //
-//  HelpViewController.swift
+//  TermsOfServiceViewController.swift
 //  Sprubix
 //
-//  Created by Shion Wah on 17/7/15.
+//  Created by Shion Wah on 26/8/15.
 //  Copyright (c) 2015 Sprubix. All rights reserved.
 //
 
 import UIKit
 
-class HelpCenterViewController: UIViewController, UIWebViewDelegate {
+class TermsOfServiceViewController: UIViewController, UIWebViewDelegate {
     
     var webView: UIWebView!
-    let webURL: NSURL = NSURL(string: "http://www.sprubix.com/faq")!
+    let webURL: NSURL = NSURL(string: "http://www.sprubix.com/terms-of-service")!
     var activityView: UIActivityIndicatorView!
     
     // custom nav bar
     var newNavBar: UINavigationBar!
     var newNavItem: UINavigationItem!
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -64,7 +64,7 @@ class HelpCenterViewController: UIViewController, UIWebViewDelegate {
         
         // 3. add a new navigation item w/title to the new nav bar
         newNavItem = UINavigationItem()
-        newNavItem.title = "Help Center"
+        newNavItem.title = "Terms of Service"
         
         // 4. create a custom back button
         var backButton:UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
@@ -104,5 +104,5 @@ class HelpCenterViewController: UIViewController, UIWebViewDelegate {
         activityView.stopAnimating()
         println(error)
     }
-
+    
 }
