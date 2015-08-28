@@ -53,7 +53,7 @@ class EditProfileViewController: UITableViewController, UITextViewDelegate, UIIm
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        var tap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: "DismissKeyboard")
+        var tap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: "dismissKeyboard")
         view.addGestureRecognizer(tap)
         
         initUserInfo()
@@ -83,12 +83,7 @@ class EditProfileViewController: UITableViewController, UITextViewDelegate, UIIm
             let userThumbnailURL = NSURL(string: userData!["image"] as! String)
             let userCoverURL = NSURL(string: userData!["cover"] as! String)
             let userName = userData!["name"] as! String
-            
-            let userDescriptionJson = userData!["description"] as! String
-            var userDescriptionData: NSData = userDescriptionJson.dataUsingEncoding(NSUTF8StringEncoding)!
-            var userDescriptionDict: NSDictionary = NSJSONSerialization.JSONObjectWithData(userDescriptionData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSDictionary
-            let userDescription = userDescriptionDict["description"] as? String
-            
+                
             // Set profile image
             profileImage.setImageWithURL(userThumbnailURL)
             profileImage.backgroundColor = sprubixGray
@@ -116,15 +111,25 @@ class EditProfileViewController: UITableViewController, UITextViewDelegate, UIIm
             }
             
             // Set description
+            let userDescriptionJson = userData!["description"] as! String
+            
+            if userDescriptionJson != "" {
+                var userDescriptionData: NSData = userDescriptionJson.dataUsingEncoding(NSUTF8StringEncoding)!
+                var userDescriptionDict: NSDictionary = NSJSONSerialization.JSONObjectWithData(userDescriptionData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSDictionary
+                let userDescription = userDescriptionDict["description"] as? String
+                
+                if (userDescription == nil || userDescription == "" ) {
+                    profileDescription.text = profileDescriptionDefault
+                } else {
+                    profileDescription.text = userDescription
+                }
+            } else {
+                profileDescription.text = profileDescriptionDefault
+            }
+            
             profileDescription.textColor = sprubixColor
             profileDescription.delegate = self
             profileDescription.textContainer.maximumNumberOfLines = 3
-            
-            if (userDescription == nil || userDescription == "" ) {
-                profileDescription.text = profileDescriptionDefault
-            } else {
-                profileDescription.text = userDescription
-            }
             
             // Private Information
             firstName.textColor = sprubixColor
@@ -642,7 +647,7 @@ class EditProfileViewController: UITableViewController, UITextViewDelegate, UIIm
         datePicker.showActionSheetPicker()
     }
     
-    func DismissKeyboard(){
+    func dismissKeyboard(){
         view.endEditing(true)
     }
 }
