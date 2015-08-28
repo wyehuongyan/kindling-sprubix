@@ -45,6 +45,7 @@ class ShopOrderRefundDetailsViewController: UIViewController, UITableViewDataSou
     var orderItems: [NSDictionary] = [NSDictionary]()
     var returnDict: NSMutableDictionary = NSMutableDictionary()
     var finalRefundAmount: String!
+    var finalRefundPoints: Float!
     
     // loading overlay
     var overlay: MRProgressOverlayView!
@@ -145,11 +146,11 @@ class ShopOrderRefundDetailsViewController: UIViewController, UITableViewDataSou
         })
     }
     
-    func showRefundButton(refundAmount: String) {
+    func showRefundButton(refundAmount: String, refundPoints: String) {
         UIView.animateWithDuration(0.3, delay: 0.0, usingSpringWithDamping: 0.9 , initialSpringVelocity: 0, options: .CurveEaseInOut, animations: {
             
                 self.finalRefundAmount = refundAmount
-                self.refundButton.setTitle("\(self.refundTitle) $\(refundAmount)", forState: UIControlState.Normal)
+                self.refundButton.setTitle("\(self.refundTitle) $\(refundAmount) + \(refundPoints)", forState: UIControlState.Normal)
                 self.refundButton.enabled = true
                 self.refundButton.frame.origin.y = screenHeight - navigationHeight
             
@@ -219,14 +220,14 @@ class ShopOrderRefundDetailsViewController: UIViewController, UITableViewDataSou
             
             let piece = cartItem["piece"] as! NSDictionary
             let cartItemId = cartItem["id"] as! Int
-            let price = piece["price"] as! NSString
+            let payablePrice = cartItem["total_payable_price"] as! NSString
             let quantity = cartItem["quantity"] as! Int
             let returnedAmount = cartItem["returned"] as! Int
             let returnAmount = cartItem["return"] as! Int
             let size = cartItem["size"] as? String
             
             cell.name.text = piece["name"] as? String
-            cell.price.text = String(format: "$%.2f", price.floatValue * Float(quantity))
+            cell.price.text = String(format: "$%.2f", payablePrice.floatValue * Float(quantity))
             cell.size.text = "Size: \(size!)"
             
             var returnDictAmount = returnDict.objectForKey("\(cartItemId)") as? Int
@@ -286,6 +287,7 @@ class ShopOrderRefundDetailsViewController: UIViewController, UITableViewDataSou
                 cell.refundReason.userInteractionEnabled = false
             }
             
+            cell.refundPoints.enabled = false
             cell.selectionStyle = UITableViewCellSelectionStyle.None
             
             let userData: NSDictionary? = defaults.dictionaryForKey("userData")
@@ -298,30 +300,41 @@ class ShopOrderRefundDetailsViewController: UIViewController, UITableViewDataSou
             
             let cartItems = shopOrder["cart_items"] as! [NSDictionary]
             var totalReturnRefundAmount: Float = 0
+            var totalReturnRefundPoints: Float = 0
             
             for cartItem in cartItems {
                 // loop through each cartItem 
                 // // retrieve price of piece
-                let piece = cartItem["piece"] as! NSDictionary
                 let cartItemId = cartItem["id"] as! Int
-                let price = piece["price"] as! NSString
+                let payablePrice = cartItem["total_payable_price"] as! NSString
+                let quantity = cartItem["quantity"] as! Int
+                let pointsApplied = cartItem["points_applied"] as! String
+                let returnedAmount = cartItem["returned"] as! Int
+                let returnableAmount = quantity - returnedAmount
+                let pointsPerItem = ceil(pointsApplied.floatValue / Float(returnableAmount))
                 
                 var returnDictAmount = returnDict.objectForKey("\(cartItemId)") as? Int
                 var returnRefundAmount: Float = 0
+                var returnRefundPoints: Float = 0
                 
                 if returnDictAmount != nil {
-                    returnRefundAmount = Float(returnDictAmount!) * price.floatValue
+                    returnRefundAmount = Float(returnDictAmount!) * payablePrice.floatValue
+                    
+                    returnRefundPoints = Float(returnDictAmount!) * pointsPerItem
                 }
                 
                 totalReturnRefundAmount += returnRefundAmount
+                totalReturnRefundPoints += returnRefundPoints
             }
             
             finalRefundAmount = "\(totalReturnRefundAmount)"
+            finalRefundPoints = totalReturnRefundPoints
             
             // // if shop, can always see the button
             // // if shopper, and status == request for refund, cant see button
             if finalRefundAmount.floatValue > 0 {
                 cell.refundAmount.text = String(format: "%.2f", totalReturnRefundAmount)
+                cell.refundPoints.text = String(format: "%.0f pts", totalReturnRefundPoints)
                     
                 if existingRefund != nil {
                     let refundStatus = existingRefund!["refund_status"] as! NSDictionary
@@ -335,7 +348,7 @@ class ShopOrderRefundDetailsViewController: UIViewController, UITableViewDataSou
                         // shops only get to see the button
                         // if there's a request
                         if refundStatusId == 1 {
-                            showRefundButton(cell.refundAmount.text)
+                            showRefundButton(cell.refundAmount.text, refundPoints: cell.refundPoints.text)
                         } else {
                             hideRefundButton()
                         }
@@ -343,11 +356,12 @@ class ShopOrderRefundDetailsViewController: UIViewController, UITableViewDataSou
                 } else {
                     // there's no existing refund
                     // // shopper may ask for refund and shop may refund
-                    showRefundButton(cell.refundAmount.text)
+                    showRefundButton(cell.refundAmount.text, refundPoints: cell.refundPoints.text)
                 }
                 
             } else {
                 cell.refundAmount.text = ""
+                cell.refundPoints.text = ""
                 
                 hideRefundButton()
             }
@@ -572,7 +586,8 @@ class ShopOrderRefundDetailsViewController: UIViewController, UITableViewDataSou
         if existingRefund != nil {
             
             // alert view confirmation
-            var refundMessage = "This action cannot be undone. \n\nApprove Refund $\(finalRefundAmount)"
+            var formattedFinalRefundPoints = String(format: "%.0f", finalRefundPoints)
+            var refundMessage = "This action cannot be undone. \n\nApprove Refund $\(finalRefundAmount) + \(formattedFinalRefundPoints) pts"
             var alert = UIAlertController(title: "Are you sure?", message: refundMessage, preferredStyle: UIAlertControllerStyle.Alert)
             
             alert.view.tintColor = sprubixColor
@@ -591,6 +606,7 @@ class ShopOrderRefundDetailsViewController: UIViewController, UITableViewDataSou
                 manager.POST(SprubixConfig.URL.api + "/refund/\(shopOrderRefundId)/approve",
                     parameters: [
                         "refund_amount": self.finalRefundAmount,
+                        "refund_points": self.finalRefundPoints,
                         "return_cart_items": self.returnDict
                     ],
                     success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
@@ -642,14 +658,15 @@ class ShopOrderRefundDetailsViewController: UIViewController, UITableViewDataSou
         let userData: NSDictionary? = defaults.dictionaryForKey("userData")
         let shoppableType: String? = userData!["shoppable_type"] as? String
 
+        var formattedFinalRefundPoints = String(format: "%.0f", finalRefundPoints)
         var requestForRefund: Bool = false
-        var refundMessage: String = "This action cannot be undone. \n\nRefund $\(finalRefundAmount)"
+        var refundMessage: String = "This action cannot be undone. \n\nRefund $\(finalRefundAmount) + \(formattedFinalRefundPoints) pts"
         var responseMessage: String = "Items refunded."
         
         if shoppableType?.lowercaseString.rangeOfString("shopper") != nil {
             // shopper
             requestForRefund = true
-            refundMessage = "This action cannot be undone. \n\nRequest for Refund $\(finalRefundAmount)"
+            refundMessage = "This action cannot be undone. \n\nRequest for Refund $\(finalRefundAmount) + \(formattedFinalRefundPoints) pts"
             
             responseMessage = "Request for refund has been sent."
         }
@@ -676,6 +693,7 @@ class ShopOrderRefundDetailsViewController: UIViewController, UITableViewDataSou
                     "shop_order_id": shopOrderId,
                     "refund_amount": self.finalRefundAmount,
                     "refund_reason": self.refundReason != self.reasonPlaceholderText ? self.refundReason : "",
+                    "refund_points": self.finalRefundPoints,
                     "return_cart_items": self.returnDict,
                     "request_for_refund": requestForRefund
                 ],

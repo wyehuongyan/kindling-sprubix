@@ -121,10 +121,11 @@ class ShopOrdersViewController: UIViewController, UITableViewDataSource, UITable
         let orderNumber = shopOrder["uid"] as! String
         let createdAt = shopOrder["created_at"] as! String
         let totalPrice = shopOrder["total_price"] as! String
+        let totalPayablePrice = shopOrder["total_payable_price"] as! String
         let orderStatusId = shopOrder["order_status_id"] as! Int
         
         cell.username.text = shopUsername
-        cell.price.text = "$\(totalPrice)"
+        cell.price.text = "$\(totalPayablePrice)"
         cell.orderNumber.text = "#\(orderNumber)"
         cell.dateTime.text = createdAt
         cell.orderStatusId = orderStatusId

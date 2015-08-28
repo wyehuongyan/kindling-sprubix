@@ -24,7 +24,7 @@ class CheckoutViewController: UIViewController, UITableViewDataSource, UITableVi
     var sellerSubtotal: [Float] = [Float]()
     var sellerShippingRate: [Float] = [Float]()
     
-    let checkoutItemCellIdentifier = "CheckoutItemCell"
+    let checkoutItemPointsCellIdentifier = "CheckoutItemPointsCell"
     let checkoutDeliveryPaymentCellIdentifier = "CheckoutDeliveryPaymentCell"
     let cartItemSectionHeaderIdentifier = "CartItemSectionHeader"
     let cartItemSectionFooterIdentifier = "CartItemSectionFooter"
@@ -39,12 +39,23 @@ class CheckoutViewController: UIViewController, UITableViewDataSource, UITableVi
     var pointsTotal: Float!
     var placeOrderButton: UIButton!
 
-    var usePointsTextField: UITextField!
-    var discountAmount: UILabel!
     var grandTotalAmount: UILabel!
+    var discountAmount: UILabel!
+    var payAmount: UILabel!
+
     var discount: Float = 0
-    var pointsEntered: Float = 0
+    var totalDiscount: Float = 0
+    var totalPointsEntered: Float = 0
+    var pointsRemaining: Float?
     var userPoints: NSDictionary?
+    
+    var itemPayablePrices: NSMutableDictionary = NSMutableDictionary()
+    var itemDiscounts: NSMutableDictionary = NSMutableDictionary()
+    var itemPointsApplied: NSMutableDictionary = NSMutableDictionary()
+    
+    var sellerOrderTotalDiscounts: NSMutableDictionary = NSMutableDictionary()
+    
+    var itemCells: [CheckoutItemPointsCell] = [CheckoutItemPointsCell]()
     
     // default delivery address and payment method
     var defaultDeliveryAddress: NSDictionary = NSDictionary()
@@ -87,45 +98,71 @@ class CheckoutViewController: UIViewController, UITableViewDataSource, UITableVi
         self.checkoutTableView.reloadData()
     }
     
+    override func viewWillDisappear(animated: Bool) {
+        for itemCell in itemCells {
+            itemCell.usePointsTextField.text = ""
+            itemCell.discount.text = "-$0.00"
+            
+            itemCell.usePointsTextField.setNeedsDisplay()
+            itemCell.discount.setNeedsDisplay()
+        }
+    }
+    
     func initOrderHeader() {
         // set up order total view
         orderHeaderView = UIView(frame: CGRectMake(0, 0, screenWidth, navigationHeaderAndStatusbarHeight))
         
         orderHeaderView.backgroundColor = sprubixGray
         
-        let labelContainer = UIView(frame: CGRectMake(0, 0, screenWidth, navigationHeight + 38.0))
+        let labelContainer = UIView(frame: CGRectMake(0, 0, screenWidth, navigationHeight + 64))
         labelContainer.backgroundColor = UIColor.whiteColor()
         
-        usePointsTextField = UITextField(frame: CGRectMake(10, 10, screenWidth / 2 - 10, 30.0))
-        
-        usePointsTextField.placeholder = "Loading Points..."
-        usePointsTextField.delegate = self
-        usePointsTextField.textColor = UIColor.darkGrayColor()
-        usePointsTextField.borderStyle = UITextBorderStyle.RoundedRect
-        
-        discountAmount = UILabel(frame: CGRectMake(screenWidth / 2, 10, screenWidth / 2 - 10, 24))
-        discountAmount.textAlignment = NSTextAlignment.Right
-        discountAmount.textColor = UIColor.blackColor()
-        discountAmount.font = UIFont.boldSystemFontOfSize(20.0)
-        discountAmount.text = String(format: "$%.2f", discount)
-        
-        labelContainer.addSubview(usePointsTextField)
-        labelContainer.addSubview(discountAmount)
-        
-        let grandTotal = UILabel(frame: CGRectMake(10, 48, screenWidth / 2 - 10, 24))
+        let grandTotal = UILabel(frame: CGRectMake(10, 10, screenWidth / 2 - 10, 24))
         
         grandTotal.font = UIFont.boldSystemFontOfSize(20.0)
-        grandTotal.textColor = sprubixColor
+        grandTotal.textColor = UIColor.blackColor()
         grandTotal.text = "Order Total"
         
-        grandTotalAmount = UILabel(frame: CGRectMake(screenWidth / 2, 48, screenWidth / 2 - 10, 24))
+        grandTotalAmount = UILabel(frame: CGRectMake(screenWidth / 2, 10, screenWidth / 2 - 10, 24))
         grandTotalAmount.textAlignment = NSTextAlignment.Right
-        grandTotalAmount.textColor = sprubixColor
+        grandTotalAmount.textColor = UIColor.blackColor()
         grandTotalAmount.font = UIFont.boldSystemFontOfSize(20.0)
-        grandTotalAmount.text = String(format: "$%.2f", orderTotal - discount)
+        grandTotalAmount.text = String(format: "$%.2f", orderTotal)
         
         labelContainer.addSubview(grandTotal)
         labelContainer.addSubview(grandTotalAmount)
+        
+        let usePointsLabel = UILabel(frame: CGRectMake(10, 42, screenWidth / 2 - 10, 24.0))
+        
+        usePointsLabel.textColor = UIColor.blackColor()
+        usePointsLabel.text = "Discount"
+        usePointsLabel.font = UIFont.boldSystemFontOfSize(20.0)
+        
+        discountAmount = UILabel(frame: CGRectMake(screenWidth / 2, 42, screenWidth / 2 - 10, 24))
+        discountAmount.textAlignment = NSTextAlignment.Right
+        discountAmount.textColor = UIColor.blackColor()
+        discountAmount.font = UIFont.boldSystemFontOfSize(20.0)
+        discountAmount.text = "-$0.00"
+        
+        labelContainer.addSubview(usePointsLabel)
+        labelContainer.addSubview(discountAmount)
+        
+        let payLabel = UILabel(frame: CGRectMake(10, 74, screenWidth / 2 - 10, 24.0))
+        
+        payLabel.textColor = sprubixColor
+        payLabel.text = "Pay"
+        payLabel.font = UIFont.boldSystemFontOfSize(20.0)
+        
+        payAmount = UILabel(frame: CGRectMake(screenWidth / 2, 74, screenWidth / 2 - 10, 24))
+        
+        payAmount = UILabel(frame: CGRectMake(screenWidth / 2, 74, screenWidth / 2 - 10, 24))
+        payAmount.textAlignment = NSTextAlignment.Right
+        payAmount.textColor = sprubixColor
+        payAmount.font = UIFont.boldSystemFontOfSize(20.0)
+        payAmount.text = String(format: "$%.2f", orderTotal - totalDiscount)
+        
+        labelContainer.addSubview(payLabel)
+        labelContainer.addSubview(payAmount)
         
         orderHeaderView.addSubview(labelContainer)
     }
@@ -173,11 +210,12 @@ class CheckoutViewController: UIViewController, UITableViewDataSource, UITableVi
             success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
                 
                 self.userPoints = responseObject as? NSDictionary
-                
-                let points = self.userPoints!["amount"] as! Int
 
-                self.usePointsTextField.placeholder = "Use Points: \(points)"
-                self.usePointsTextField.setNeedsDisplay()
+                let points = self.userPoints!["amount"] as! Int
+                self.pointsRemaining = Float(points)
+                
+                self.itemCells.removeAll()
+                self.checkoutTableView.reloadData()
             },
             failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                 println("Error: " + error.localizedDescription)
@@ -322,7 +360,7 @@ class CheckoutViewController: UIViewController, UITableViewDataSource, UITableVi
             }
             
         default:
-            let cell = tableView.dequeueReusableCellWithIdentifier(checkoutItemCellIdentifier, forIndexPath: indexPath) as! CheckoutItemCell
+            let cell = tableView.dequeueReusableCellWithIdentifier(checkoutItemPointsCellIdentifier, forIndexPath: indexPath) as! CheckoutItemPointsCell
             
             let seller = sellers[indexPath.section] as NSDictionary
             let cartItems = sellerCartItemDictionary[seller] as! [NSDictionary]
@@ -335,6 +373,9 @@ class CheckoutViewController: UIViewController, UITableViewDataSource, UITableVi
             
             cell.checkoutItemName.text = piece["name"] as? String
             cell.checkoutItemPrice.text = String(format: "$%.2f", price.floatValue * Float(quantity))
+            cell.itemPrice = price.floatValue * Float(quantity)
+            cell.itemId = cartItem["id"] as! Int
+            cell.seller = seller
             cell.checkoutItemQuantity.text = "Quantity: \(quantity)"
             cell.checkoutItemSize.text = "Size: \(size!)"
             
@@ -350,7 +391,15 @@ class CheckoutViewController: UIViewController, UITableViewDataSource, UITableVi
             
             cell.checkoutItemImageView.setImageWithURL(pieceImageURL)
             
+            // points
+            if pointsRemaining != nil {
+                cell.usePointsTextField.placeholder = String(format: "Use Points: %.0f", pointsRemaining!)
+                cell.usePointsTextField.delegate = self
+            }
+            
             cell.selectionStyle = UITableViewCellSelectionStyle.None
+            
+            itemCells.append(cell)
             
             return cell
         }
@@ -405,7 +454,7 @@ class CheckoutViewController: UIViewController, UITableViewDataSource, UITableVi
     
     func tableView(tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         if section == sellers.count {
-            return navigationHeaderAndStatusbarHeight + 38.0
+            return navigationHeaderAndStatusbarHeight + 64
         } else {
             return navigationHeight
         }
@@ -424,7 +473,7 @@ class CheckoutViewController: UIViewController, UITableViewDataSource, UITableVi
                 fatalError("Unknown row returned for heightForRowAtIndexPath in CheckOutViewController")
             }
         } else {
-            return 100.0
+            return 140.0
         }
     }
     
@@ -466,9 +515,11 @@ class CheckoutViewController: UIViewController, UITableViewDataSource, UITableVi
     func textFieldShouldBeginEditing(textField: UITextField) -> Bool {
         if userPoints != nil {
             let points = self.userPoints!["amount"] as! Int
+            discount = 0
             
             // show alert view
-            var alert = UIAlertController(title: "Current Points: \(points)", message: "(up to 30% of the order amount within 1,000 points)", preferredStyle: UIAlertControllerStyle.Alert)
+            let formattedPointsRemaining = String(format: "%.0f", pointsRemaining!)
+            var alert = UIAlertController(title: "Current Points: \(formattedPointsRemaining)", message: "(up to 30% of the cost of this item type)", preferredStyle: UIAlertControllerStyle.Alert)
             
             alert.addTextFieldWithConfigurationHandler { (textField) -> Void in
                 textField.placeholder = "No. of points to use"
@@ -480,13 +531,72 @@ class CheckoutViewController: UIViewController, UITableViewDataSource, UITableVi
             
             alert.addAction(UIAlertAction(title: "Done", style: UIAlertActionStyle.Default, handler: { action in
                 
-                if self.discount > 0 {
-                    self.discountAmount.text = String(format: "-$%.2f", self.discount)
-                    self.grandTotalAmount.text = String(format: "$%.2f", self.orderTotal - self.discount)
-                    self.usePointsTextField.text = String(format: "%.0f points", self.pointsEntered)
+                let checkoutItemPointsCell = (textField.superview)?.superview as! CheckoutItemPointsCell
+                
+                let itemPrice = checkoutItemPointsCell.itemPrice
+                
+                self.pointsRemaining! += (textField.text).floatValue
+                
+                // calculate discount
+                // // limit within 30% of item price or 1000 points, or num of remaining points
+                if self.discount > min((0.3 * itemPrice), self.pointsRemaining! / 100) {
+                    self.discount = min((0.3 * itemPrice), self.pointsRemaining! / 100)
                 }
                 
-                self.checkoutTableView.reloadData()
+                let pointsEntered = self.discount * 100
+                
+                // set points applied
+                if self.discount > 0 {
+                    textField.text = String(format: "%.0f", pointsEntered)
+                    
+                    self.pointsRemaining! -= pointsEntered
+                    
+                } else {
+                    if pointsEntered > 0 {
+                        textField.text = String(format: "%.0f", pointsEntered)
+                    } else {
+                        textField.text = ""
+                    }
+                }
+                
+                checkoutItemPointsCell.discount.text = String(format: "-$%.2f", self.discount)
+                
+                checkoutItemPointsCell.discount.setNeedsDisplay()
+                
+                // dictionary setting
+                //// set item cash payable price, key is cart item id
+                let itemPayablePrice: Float = checkoutItemPointsCell.itemPrice - self.discount
+                
+                self.itemPayablePrices.setObject(itemPayablePrice, forKey: "\(checkoutItemPointsCell.itemId)")
+                self.itemDiscounts.setObject(self.discount, forKey: "\(checkoutItemPointsCell.itemId)")
+                self.itemPointsApplied.setObject(self.discount * 100, forKey: "\(checkoutItemPointsCell.itemId)")
+                
+                //// set sellerOrderDiscounts
+                var sellerOrderTotalDiscount: NSMutableDictionary? = self.sellerOrderTotalDiscounts.objectForKey(checkoutItemPointsCell.seller) as? NSMutableDictionary
+                
+                if sellerOrderTotalDiscount == nil {
+                    sellerOrderTotalDiscount = NSMutableDictionary()
+                }
+                
+                sellerOrderTotalDiscount?.setObject(self.discount, forKey: "\(checkoutItemPointsCell.itemId)")
+                
+                ////// set value into the dict
+                self.sellerOrderTotalDiscounts.setObject(sellerOrderTotalDiscount!, forKey: checkoutItemPointsCell.seller)
+                
+                ////// refresh the other cells
+                for itemCell in self.itemCells {
+                    if itemCell != checkoutItemPointsCell {
+                        itemCell.usePointsTextField.placeholder = String(format: "Use Points: %.0f", self.pointsRemaining!)
+                        itemCell.usePointsTextField.setNeedsDisplay()
+                        itemCell.discount.setNeedsDisplay()
+                    }
+                }
+                
+                // final cost
+                self.totalPointsEntered = (Float(points) - self.pointsRemaining!)
+                self.totalDiscount =  self.totalPointsEntered / 100
+                self.discountAmount.text = String(format: "-$%.2f", self.totalDiscount)
+                self.payAmount.text = String(format: "$%.2f", self.orderTotal - self.totalDiscount)
                 
                 NSNotificationCenter.defaultCenter().removeObserver(self, name: UITextFieldTextDidChangeNotification, object: nil)
             }))
@@ -506,24 +616,11 @@ class CheckoutViewController: UIViewController, UITableViewDataSource, UITableVi
     
     func discountWillChange(notification: NSNotification) {
         if userPoints != nil {
-            let points = self.userPoints!["amount"] as! Int
+            let points = userPoints!["amount"] as! Int
             let discountTextField = notification.object as! UITextField
+            let pointsApplied = discountTextField.text.floatValue
             
-            discount = discountTextField.text.floatValue / 100
-            
-            if itemTotal == nil {
-                itemTotal = 0.0
-                
-                for subtotal in sellerSubtotal {
-                    itemTotal = itemTotal! + subtotal
-                }
-            }
-            
-            if discount > min((min((0.3 * itemTotal!), 10.0)), Float(points) / 100) {
-                discount = min((min((0.3 * itemTotal!), 10.0)), Float(points) / 100)
-            }
-            
-            pointsEntered = discount * 100
+            discount = pointsApplied / 100
         }
     }
     
@@ -643,8 +740,8 @@ class CheckoutViewController: UIViewController, UITableViewDataSource, UITableVi
     private func createTransaction(completionHandler: ((responseObject: NSDictionary) -> Void)) {
         manager.POST(SprubixConfig.URL.api + "/billing/transaction/create",
             parameters: [
-                "discount": discount,
-                "amount": orderTotal - discount,
+                "discount": totalDiscount,
+                "amount": orderTotal - totalDiscount,
                 "total": orderTotal
             ],
             success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
@@ -686,16 +783,40 @@ class CheckoutViewController: UIViewController, UITableViewDataSource, UITableVi
             sellerOrderInfo.setObject(totalPrice, forKey: "total_price")
             sellerOrderInfo.setObject(deliveryOptionId, forKey: "delivery_option_id")
             
+            // calculate discounts, points and payable price
+            var itemDiscounts: NSMutableDictionary? = sellerOrderTotalDiscounts.objectForKey(seller) as? NSMutableDictionary
+            var sellerOrderTotalDiscount: Float = 0
+            
+            if itemDiscounts != nil {
+                // loop through each (key) item and add up the values
+                var discountsArray = itemDiscounts?.allValues as! [Float]
+                
+                for discount in discountsArray {
+                    sellerOrderTotalDiscount += discount
+                }
+            }
+            
+            let totalPayablePrice = totalPrice - sellerOrderTotalDiscount
+            let sellerOrderPointsApplied = sellerOrderTotalDiscount * 100
+            
+            sellerOrderInfo.setObject(totalPayablePrice, forKey: "total_payable_price")
+            sellerOrderInfo.setObject(sellerOrderTotalDiscount, forKey: "total_discount")
+            sellerOrderInfo.setObject(sellerOrderPointsApplied, forKey: "points_applied")
+            
             sellersOrderInfo.append(sellerOrderInfo)
         }
         
         orderInfo.setObject(sellersOrderInfo, forKey: "sellers")
         
+        orderInfo.setObject(itemPayablePrices, forKey: "item_payable_prices")
+        orderInfo.setObject(itemDiscounts, forKey: "item_discounts")
+        orderInfo.setObject(itemPointsApplied, forKey: "item_points_applied")
+        
         orderInfo.setObject(transactionId, forKey: "braintree_transaction_id")
         orderInfo.setObject(totalItemPrice, forKey: "total_items_price")
-        orderInfo.setObject(orderTotal - discount, forKey: "total_payable_price")
-        orderInfo.setObject(discount, forKey: "total_discount")
-        orderInfo.setObject(pointsEntered, forKey: "points_applied")
+        orderInfo.setObject(orderTotal - totalDiscount, forKey: "total_payable_price")
+        orderInfo.setObject(totalDiscount, forKey: "total_discount")
+        orderInfo.setObject(totalPointsEntered, forKey: "points_applied")
         orderInfo.setObject(totalShippingRate, forKey: "total_shipping_rate")
         orderInfo.setObject(orderTotal, forKey: "total_price")
         orderInfo.setObject(pointsTotal, forKey: "total_points")

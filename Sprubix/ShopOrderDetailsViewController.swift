@@ -20,7 +20,7 @@ class ShopOrderDetailsViewController: UIViewController, UITableViewDataSource, U
     
     let orderDetailsUserCellIdentifier = "OrderDetailsUserCell"
     let orderDetailsContactCellIdentifier = "OrderDetailsContactCell"
-    let checkoutItemCellIdentifier = "CheckoutItemCell"
+    let checkoutItemPointsCellIdentifier = "CheckoutItemPointsCell"
     let cartItemSectionFooterIdentifier = "CartItemSectionFooter"
     let orderDetailsStatusCellIdentifier = "OrderDetailsStatusCell"
     let orderDetailsRefundCellIdentifier = "OrderDetailsRefundCell"
@@ -57,8 +57,10 @@ class ShopOrderDetailsViewController: UIViewController, UITableViewDataSource, U
         shopOrderDetailsTableView.registerClass(OrderDetailsUserCell.self, forCellReuseIdentifier: orderDetailsUserCellIdentifier)
         
         let totalPrice = shopOrder["total_price"] as! String
+        let totalDiscount = shopOrder["total_discount"] as! String
+        let totalPayablePrice = shopOrder["total_payable_price"] as! String
         
-        initOrderHeader(totalPrice)
+        initOrderHeader(totalPrice, totalDiscount: totalDiscount, totalPayablePrice: totalPayablePrice)
     }
     
     override func viewWillAppear(animated: Bool) {
@@ -69,29 +71,73 @@ class ShopOrderDetailsViewController: UIViewController, UITableViewDataSource, U
         shopOrderDetailsTableView.reloadData()
     }
     
-    func initOrderHeader(orderTotal: String) {
+    func initOrderHeader(orderTotal: String, totalDiscount: String, totalPayablePrice: String) {
         // set up order total view
         orderHeaderView = UIView(frame: CGRectMake(0, 0, screenWidth, navigationHeaderAndStatusbarHeight))
         
         orderHeaderView.backgroundColor = sprubixGray
         
-        let labelContainer = UIView(frame: CGRectMake(0, 0, screenWidth, navigationHeight))
+        let labelContainer = UIView(frame: CGRectMake(0, 0, screenWidth, navigationHeight + 64))
         labelContainer.backgroundColor = UIColor.whiteColor()
         
         let grandTotal = UILabel(frame: CGRectMake(10, 10, screenWidth / 2 - 10, 24))
         
         grandTotal.font = UIFont.boldSystemFontOfSize(20.0)
-        grandTotal.textColor = sprubixColor
+        grandTotal.textColor = UIColor.blackColor()
         grandTotal.text = "Order Total"
         
         var grandTotalAmount: UILabel = UILabel(frame: CGRectMake(screenWidth / 2, 10, screenWidth / 2 - 10, 24))
         grandTotalAmount.textAlignment = NSTextAlignment.Right
-        grandTotalAmount.textColor = sprubixColor
+        grandTotalAmount.textColor = UIColor.blackColor()
         grandTotalAmount.font = UIFont.boldSystemFontOfSize(20.0)
         grandTotalAmount.text = "$\(orderTotal)"
         
         labelContainer.addSubview(grandTotal)
         labelContainer.addSubview(grandTotalAmount)
+        
+        let usePointsLabel = UILabel(frame: CGRectMake(10, 42, screenWidth / 2 - 10, 24.0))
+        
+        usePointsLabel.textColor = UIColor.blackColor()
+        usePointsLabel.text = "Discount"
+        usePointsLabel.font = UIFont.boldSystemFontOfSize(20.0)
+        
+        var discountAmount = UILabel(frame: CGRectMake(screenWidth / 2, 42, screenWidth / 2 - 10, 24))
+        discountAmount.textAlignment = NSTextAlignment.Right
+        discountAmount.textColor = UIColor.blackColor()
+        discountAmount.font = UIFont.boldSystemFontOfSize(20.0)
+        discountAmount.text = "-$\(totalDiscount)"
+        
+        labelContainer.addSubview(usePointsLabel)
+        labelContainer.addSubview(discountAmount)
+        
+        let payLabel = UILabel(frame: CGRectMake(10, 74, screenWidth / 2 - 10, 24.0))
+        
+        payLabel.textColor = sprubixColor
+        payLabel.text = "Paid"
+        payLabel.font = UIFont.boldSystemFontOfSize(20.0)
+        
+        var payAmount = UILabel(frame: CGRectMake(screenWidth / 2, 74, screenWidth / 2 - 10, 24))
+        
+        payAmount = UILabel(frame: CGRectMake(screenWidth / 2, 74, screenWidth / 2 - 10, 24))
+        payAmount.textAlignment = NSTextAlignment.Right
+        payAmount.textColor = sprubixColor
+        payAmount.font = UIFont.boldSystemFontOfSize(20.0)
+        payAmount.text = "$\(totalPayablePrice)"
+        
+        labelContainer.addSubview(payLabel)
+        labelContainer.addSubview(payAmount)
+        
+        let userData: NSDictionary? = defaults.dictionaryForKey("userData")
+        let shoppableType: String? = userData!["shoppable_type"] as? String
+        
+        if shoppableType?.lowercaseString.rangeOfString("shopper") == nil {
+            // shop
+            grandTotal.textColor = sprubixColor
+            grandTotalAmount.textColor = sprubixColor
+            
+            payAmount.textColor = UIColor.blackColor()
+            payLabel.textColor = UIColor.blackColor()
+        }
         
         orderHeaderView.addSubview(labelContainer)
     }
@@ -255,7 +301,7 @@ class ShopOrderDetailsViewController: UIViewController, UITableViewDataSource, U
             }
         case 1:
             // order items
-            let cell = tableView.dequeueReusableCellWithIdentifier(checkoutItemCellIdentifier, forIndexPath: indexPath) as! CheckoutItemCell
+            let cell = tableView.dequeueReusableCellWithIdentifier(checkoutItemPointsCellIdentifier, forIndexPath: indexPath) as! CheckoutItemPointsCell
             
             let cartItems = shopOrder["cart_items"] as! [NSDictionary]
             let cartItem = cartItems[indexPath.row] as NSDictionary
@@ -264,11 +310,16 @@ class ShopOrderDetailsViewController: UIViewController, UITableViewDataSource, U
             let price = piece["price"] as! NSString
             let quantity = cartItem["quantity"] as! Int
             let size = cartItem["size"] as? String
+            let discount = cartItem["total_discount"] as! String
+            let pointsApplied = cartItem["points_applied"] as! String
             
             cell.checkoutItemName.text = piece["name"] as? String
             cell.checkoutItemPrice.text = String(format: "$%.2f", price.floatValue * Float(quantity))
             cell.checkoutItemQuantity.text = "Quantity: \(quantity)"
             cell.checkoutItemSize.text = "Size: \(size!)"
+            cell.discount.text = "-$\(discount)"
+            cell.usePointsTextField.text = String(format: "%.0f pts", pointsApplied.floatValue)
+            cell.usePointsTextField.enabled = false
             
             let pieceId = piece["id"] as! Int
             let pieceImagesString = piece["images"] as! NSString
@@ -466,7 +517,7 @@ class ShopOrderDetailsViewController: UIViewController, UITableViewDataSource, U
     func tableView(tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         switch section {
         case 2:
-            return navigationHeaderAndStatusbarHeight
+            return navigationHeaderAndStatusbarHeight + 64
         default:
             return 0
         }
@@ -517,7 +568,7 @@ class ShopOrderDetailsViewController: UIViewController, UITableViewDataSource, U
             }
         case 1:
             // order items
-            return 100.0
+            return 140.0
         case 2:
             // order status
             return 52.0

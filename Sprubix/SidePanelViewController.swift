@@ -129,8 +129,14 @@ class SidePanelViewController: UIViewController, UITableViewDataSource, UITableV
                 
                 self.userPoints = responseObject as! NSDictionary
                 
-                let points = self.userPoints["amount"] as! Int
-                self.pointsTextView.text = "\(points) pts"
+                var points: Int? = self.userPoints["amount"] as? Int
+                
+                if points != nil {
+                    self.pointsTextView.text = "\(points!) pts"
+                } else {
+                    self.pointsTextView.text = "0 pts"
+                }
+                
                 self.pointsTextView.setNeedsDisplay()
                 
             },
