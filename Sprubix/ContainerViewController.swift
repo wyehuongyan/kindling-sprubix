@@ -382,7 +382,7 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
     func handlePanGesture(recognizer: UIPanGestureRecognizer) {
         var currentViewController = sprubixNavigationController.childViewControllers[sprubixNavigationController.childViewControllers.count - 1] as! UIViewController
         
-        if currentViewController.isKindOfClass(MainFeedController) || currentViewController.isKindOfClass(BrowseFeedController) {
+        if currentViewController.isKindOfClass(MainFeedController) || currentViewController.isKindOfClass(DiscoverFeedController) {
         
             let gestureIsDraggingFromLeftToRight = (recognizer.velocityInView(view).x > 0)
             

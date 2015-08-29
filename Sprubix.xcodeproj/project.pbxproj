@@ -82,7 +82,7 @@
 		8482B8761B4E65870017CEEF /* PaymentMethodsDetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8482B8751B4E65870017CEEF /* PaymentMethodsDetailsViewController.swift */; };
 		8486D4161B04774800ED31BA /* SprubixPiece.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8486D4151B04774800ED31BA /* SprubixPiece.swift */; };
 		8488717A1B32996E001D60A1 /* SpruceSearchResultsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 848871791B32996E001D60A1 /* SpruceSearchResultsViewController.swift */; };
-		8488717C1B32D163001D60A1 /* BrowseFeedController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8488717B1B32D163001D60A1 /* BrowseFeedController.swift */; };
+		8488717C1B32D163001D60A1 /* DiscoverFeedController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8488717B1B32D163001D60A1 /* DiscoverFeedController.swift */; };
 		8488717F1B369CBA001D60A1 /* InventoryCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8488717E1B369CBA001D60A1 /* InventoryCell.swift */; };
 		848871821B36A140001D60A1 /* InventoryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 848871811B36A140001D60A1 /* InventoryViewController.swift */; };
 		849CECA11B8EBEE8005D8EA4 /* CheckoutItemPointsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849CECA01B8EBEE8005D8EA4 /* CheckoutItemPointsCell.swift */; };
@@ -216,7 +216,7 @@
 		8482B8751B4E65870017CEEF /* PaymentMethodsDetailsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PaymentMethodsDetailsViewController.swift; sourceTree = "<group>"; };
 		8486D4151B04774800ED31BA /* SprubixPiece.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SprubixPiece.swift; sourceTree = "<group>"; };
 		848871791B32996E001D60A1 /* SpruceSearchResultsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpruceSearchResultsViewController.swift; sourceTree = "<group>"; };
-		8488717B1B32D163001D60A1 /* BrowseFeedController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BrowseFeedController.swift; sourceTree = "<group>"; };
+		8488717B1B32D163001D60A1 /* DiscoverFeedController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DiscoverFeedController.swift; sourceTree = "<group>"; };
 		8488717E1B369CBA001D60A1 /* InventoryCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InventoryCell.swift; sourceTree = "<group>"; };
 		848871811B36A140001D60A1 /* InventoryViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InventoryViewController.swift; sourceTree = "<group>"; };
 		849CECA01B8EBEE8005D8EA4 /* CheckoutItemPointsCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CheckoutItemPointsCell.swift; sourceTree = "<group>"; };
@@ -447,7 +447,7 @@
 			children = (
 				84470D891AECC41B007E9A93 /* MainFeedController.swift */,
 				846027A21B18B17B00A28C78 /* CommentsViewController.swift */,
-				8488717B1B32D163001D60A1 /* BrowseFeedController.swift */,
+				8488717B1B32D163001D60A1 /* DiscoverFeedController.swift */,
 				8405D0661B5F8B6000B42752 /* PeopleFeedViewController.swift */,
 				845834C21B6F94CD007C6F6B /* SearchViewController.swift */,
 			);
@@ -886,7 +886,7 @@
 				846027A31B18B17B00A28C78 /* CommentsViewController.swift in Sources */,
 				84B335401AB2BB9E00B9707D /* Transition.swift in Sources */,
 				845834CF1B74A2AE007C6F6B /* ShopOrderRefundDetailsItemCell.swift in Sources */,
-				8488717C1B32D163001D60A1 /* BrowseFeedController.swift in Sources */,
+				8488717C1B32D163001D60A1 /* DiscoverFeedController.swift in Sources */,
 				8405D0631B5E607500B42752 /* CustomerDetailsViewController.swift in Sources */,
 				84B3353E1AB2BA2000B9707D /* TransitionProtocol.swift in Sources */,
 				84B3352C1AAEE2EB00B9707D /* UserProfileHeader.swift in Sources */,

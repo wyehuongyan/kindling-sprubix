@@ -1,5 +1,5 @@
 //
-//  BrowseFeedController.swift
+//  DiscoverFeedController.swift
 //  Sprubix
 //
 //  Created by Yan Wye Huong on 18/6/15.
@@ -11,7 +11,7 @@ import DZNEmptyDataSet
 import CHTCollectionViewWaterfallLayout
 import AFNetworking
 
-class BrowseFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataSetDelegate, UITextFieldDelegate, UICollectionViewDataSource, OutfitInteractionProtocol, CHTCollectionViewDelegateWaterfallLayout, TransitionProtocol {
+class DiscoverFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataSetDelegate, UITextFieldDelegate, UICollectionViewDataSource, OutfitInteractionProtocol, CHTCollectionViewDelegateWaterfallLayout, TransitionProtocol {
     
     var delegate: SidePanelViewControllerDelegate?
     var outfits: [NSDictionary] = [NSDictionary]()
@@ -641,6 +641,7 @@ class BrowseFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDat
         
         let outfitDetailsViewController = OutfitDetailsViewController(collectionViewLayout: detailsViewControllerLayout(), currentIndexPath:indexPath)
         outfitDetailsViewController.outfits = outfits
+        outfitDetailsViewController.delegate = self
         
         discoverCollectionView.setToIndexPath(indexPath)
         
@@ -707,19 +708,19 @@ class BrowseFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDat
         followingButton.addTarget(self, action: "mainFeedTapped:", forControlEvents: UIControlEvents.TouchUpInside)
         
         // // browse
-        let browseButton: UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
-        browseButton.frame = CGRectMake(0, dropdownButtonHeight, screenWidth, dropdownButtonHeight)
+        let discoverButton: UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+        discoverButton.frame = CGRectMake(0, dropdownButtonHeight, screenWidth, dropdownButtonHeight)
         image = UIImage(named: "main-discover")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
-        browseButton.setImage(image, forState: UIControlState.Normal)
-        browseButton.setTitle("Browse", forState: UIControlState.Normal)
-        browseButton.setTitleColor(sprubixColor, forState: UIControlState.Normal)
-        browseButton.titleLabel?.font = UIFont.systemFontOfSize(16.0)
-        browseButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
-        browseButton.imageView?.tintColor = sprubixColor
-        browseButton.backgroundColor = sprubixLightGray
-        browseButton.contentHorizontalAlignment = UIControlContentHorizontalAlignment.Left
-        browseButton.imageEdgeInsets = UIEdgeInsetsMake(10, 10, 10, 10)
-        browseButton.titleEdgeInsets = UIEdgeInsetsMake(0, 20, 0, 0)
+        discoverButton.setImage(image, forState: UIControlState.Normal)
+        discoverButton.setTitle("Discover", forState: UIControlState.Normal)
+        discoverButton.setTitleColor(sprubixColor, forState: UIControlState.Normal)
+        discoverButton.titleLabel?.font = UIFont.systemFontOfSize(16.0)
+        discoverButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+        discoverButton.imageView?.tintColor = sprubixColor
+        discoverButton.backgroundColor = sprubixLightGray
+        discoverButton.contentHorizontalAlignment = UIControlContentHorizontalAlignment.Left
+        discoverButton.imageEdgeInsets = UIEdgeInsetsMake(10, 10, 10, 10)
+        discoverButton.titleEdgeInsets = UIEdgeInsetsMake(0, 20, 0, 0)
         
         // // people
         let peopleButton: UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
@@ -738,7 +739,7 @@ class BrowseFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDat
         peopleButton.addTarget(self, action: "peopleFeedTapped:", forControlEvents: UIControlEvents.TouchUpInside)
         
         dropdownView!.addSubview(followingButton)
-        dropdownView!.addSubview(browseButton)
+        dropdownView!.addSubview(discoverButton)
         dropdownView!.addSubview(peopleButton)
         
         view.addSubview(dropdownView!)

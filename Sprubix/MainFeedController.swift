@@ -35,7 +35,7 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
     var commentsViewController: CommentsViewController?
     
     // feed
-    var browseFeedController: BrowseFeedController?
+    var discoverFeedController: DiscoverFeedController?
     var peopleFeedController: PeopleFeedViewController?
     
     // drop down
@@ -426,20 +426,20 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         followingButton.titleEdgeInsets = UIEdgeInsetsMake(0, 20, 0, 0)
         
         // // browse
-        let browseButton: UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
-        browseButton.frame = CGRectMake(0, dropdownButtonHeight, screenWidth, dropdownButtonHeight)
+        let discoverButton: UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+        discoverButton.frame = CGRectMake(0, dropdownButtonHeight, screenWidth, dropdownButtonHeight)
         image = UIImage(named: "main-discover")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
-        browseButton.setImage(image, forState: UIControlState.Normal)
-        browseButton.setTitle("Discover", forState: UIControlState.Normal)
-        browseButton.setTitleColor(UIColor.darkGrayColor(), forState: UIControlState.Normal)
-        browseButton.titleLabel?.font = UIFont.systemFontOfSize(16.0)
-        browseButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
-        browseButton.imageView?.tintColor = UIColor.lightGrayColor()
-        browseButton.backgroundColor = sprubixLightGray
-        browseButton.contentHorizontalAlignment = UIControlContentHorizontalAlignment.Left
-        browseButton.imageEdgeInsets = UIEdgeInsetsMake(10, 10, 10, 10)
-        browseButton.titleEdgeInsets = UIEdgeInsetsMake(0, 20, 0, 0)
-        browseButton.addTarget(self, action: "browseFeedTapped:", forControlEvents: UIControlEvents.TouchUpInside)
+        discoverButton.setImage(image, forState: UIControlState.Normal)
+        discoverButton.setTitle("Discover", forState: UIControlState.Normal)
+        discoverButton.setTitleColor(UIColor.darkGrayColor(), forState: UIControlState.Normal)
+        discoverButton.titleLabel?.font = UIFont.systemFontOfSize(16.0)
+        discoverButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+        discoverButton.imageView?.tintColor = UIColor.lightGrayColor()
+        discoverButton.backgroundColor = sprubixLightGray
+        discoverButton.contentHorizontalAlignment = UIControlContentHorizontalAlignment.Left
+        discoverButton.imageEdgeInsets = UIEdgeInsetsMake(10, 10, 10, 10)
+        discoverButton.titleEdgeInsets = UIEdgeInsetsMake(0, 20, 0, 0)
+        discoverButton.addTarget(self, action: "discoverFeedTapped:", forControlEvents: UIControlEvents.TouchUpInside)
         
         // // people
         let peopleButton: UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
@@ -458,7 +458,7 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         peopleButton.addTarget(self, action: "peopleFeedTapped:", forControlEvents: UIControlEvents.TouchUpInside)
         
         dropdownView!.addSubview(followingButton)
-        dropdownView!.addSubview(browseButton)
+        dropdownView!.addSubview(discoverButton)
         dropdownView!.addSubview(peopleButton)
         
         view.addSubview(dropdownView!)
@@ -1018,15 +1018,15 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         sprubixTitle.selected = false
     }
     
-    func browseFeedTapped(sender: UIButton) {
+    func discoverFeedTapped(sender: UIButton) {
         
-        if browseFeedController == nil {
-            browseFeedController = BrowseFeedController()
-            browseFeedController!.delegate = containerViewController
+        if discoverFeedController == nil {
+            discoverFeedController = DiscoverFeedController()
+            discoverFeedController!.delegate = containerViewController
         }
         
         UIView.transitionWithView(self.navigationController!.view, duration: 0.3, options: UIViewAnimationOptions.TransitionCrossDissolve, animations: {
-            self.navigationController?.pushViewController(browseFeedController!, animated: false)
+            self.navigationController?.pushViewController(discoverFeedController!, animated: false)
         }, completion: nil)
         
         dismissDropdown(UITapGestureRecognizer())
