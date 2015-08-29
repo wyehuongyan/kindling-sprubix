@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		05044E301B91803E00A50F3F /* SearchUserCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05044E2F1B91803E00A50F3F /* SearchUserCell.swift */; };
 		052925CF1B578CE400B939F8 /* EditPasswordViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 052925CE1B578CE400B939F8 /* EditPasswordViewController.swift */; };
 		0544BAAB1B8F147D00B058A8 /* TermsOfServiceViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0544BAAA1B8F147D00B058A8 /* TermsOfServiceViewController.swift */; };
 		0544BAAD1B8F148F00B058A8 /* PrivacyPolicyViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0544BAAC1B8F148F00B058A8 /* PrivacyPolicyViewController.swift */; };
@@ -134,6 +135,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		05044E2F1B91803E00A50F3F /* SearchUserCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchUserCell.swift; sourceTree = "<group>"; };
 		052925CE1B578CE400B939F8 /* EditPasswordViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EditPasswordViewController.swift; sourceTree = "<group>"; };
 		0544BAAA1B8F147D00B058A8 /* TermsOfServiceViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TermsOfServiceViewController.swift; sourceTree = "<group>"; };
 		0544BAAC1B8F148F00B058A8 /* PrivacyPolicyViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PrivacyPolicyViewController.swift; sourceTree = "<group>"; };
@@ -628,6 +630,7 @@
 				84B3352D1AAEEA1000B9707D /* UserProfileFooter.swift */,
 				845834D41B766B29007C6F6B /* UserFollowListCell.swift */,
 				845834D61B766CA1007C6F6B /* UserFollowListUNCell.swift */,
+				05044E2F1B91803E00A50F3F /* SearchUserCell.swift */,
 			);
 			name = Profile;
 			sourceTree = "<group>";
@@ -883,6 +886,7 @@
 				846027A31B18B17B00A28C78 /* CommentsViewController.swift in Sources */,
 				84B335401AB2BB9E00B9707D /* Transition.swift in Sources */,
 				845834CF1B74A2AE007C6F6B /* RefundDetailsItemCell.swift in Sources */,
+				05044E301B91803E00A50F3F /* SearchUserCell.swift in Sources */,
 				8488717C1B32D163001D60A1 /* BrowseFeedController.swift in Sources */,
 				8405D0631B5E607500B42752 /* CustomerDetailsViewController.swift in Sources */,
 				84B3353E1AB2BA2000B9707D /* TransitionProtocol.swift in Sources */,

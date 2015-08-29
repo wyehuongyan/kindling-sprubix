@@ -53,7 +53,7 @@ class EditProfileViewController: UITableViewController, UITextViewDelegate, UIIm
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        var tap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: "DismissKeyboard")
+        var tap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: "dismissKeyboard")
         view.addGestureRecognizer(tap)
         
         initUserInfo()
@@ -642,7 +642,7 @@ class EditProfileViewController: UITableViewController, UITextViewDelegate, UIIm
         datePicker.showActionSheetPicker()
     }
     
-    func DismissKeyboard(){
+    func dismissKeyboard(){
         view.endEditing(true)
     }
 }
