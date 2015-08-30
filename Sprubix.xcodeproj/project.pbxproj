@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		05044E301B91803E00A50F3F /* SearchUserCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05044E2F1B91803E00A50F3F /* SearchUserCell.swift */; };
+		05044E321B92E56700A50F3F /* ShopOrderRefundDetailsItemCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05044E311B92E56700A50F3F /* ShopOrderRefundDetailsItemCell.swift */; };
+		05044E341B92E5C600A50F3F /* DiscoverFeedController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05044E331B92E5C600A50F3F /* DiscoverFeedController.swift */; };
 		052925CF1B578CE400B939F8 /* EditPasswordViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 052925CE1B578CE400B939F8 /* EditPasswordViewController.swift */; };
 		0544BAAB1B8F147D00B058A8 /* TermsOfServiceViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0544BAAA1B8F147D00B058A8 /* TermsOfServiceViewController.swift */; };
 		0544BAAD1B8F148F00B058A8 /* PrivacyPolicyViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0544BAAC1B8F148F00B058A8 /* PrivacyPolicyViewController.swift */; };
@@ -60,7 +62,6 @@
 		845834C71B73B8A5007C6F6B /* ShopOrderRefundsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 845834C61B73B8A5007C6F6B /* ShopOrderRefundsViewController.swift */; };
 		845834C91B7486E4007C6F6B /* ShopOrderRefundDetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 845834C81B7486E4007C6F6B /* ShopOrderRefundDetailsViewController.swift */; };
 		845834CC1B749327007C6F6B /* OrderDetailsRefundCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 845834CB1B749327007C6F6B /* OrderDetailsRefundCell.swift */; };
-		845834CF1B74A2AE007C6F6B /* ShopOrderRefundDetailsItemCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 845834CE1B74A2AE007C6F6B /* ShopOrderRefundDetailsItemCell.swift */; };
 		845834D11B74ABE6007C6F6B /* ShopOrderRefundDetailsFooterCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 845834D01B74ABE6007C6F6B /* ShopOrderRefundDetailsFooterCell.swift */; };
 		845834D31B7661D7007C6F6B /* UserFollowListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 845834D21B7661D7007C6F6B /* UserFollowListViewController.swift */; };
 		845834D51B766B29007C6F6B /* UserFollowListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 845834D41B766B29007C6F6B /* UserFollowListCell.swift */; };
@@ -83,7 +84,6 @@
 		8482B8761B4E65870017CEEF /* PaymentMethodsDetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8482B8751B4E65870017CEEF /* PaymentMethodsDetailsViewController.swift */; };
 		8486D4161B04774800ED31BA /* SprubixPiece.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8486D4151B04774800ED31BA /* SprubixPiece.swift */; };
 		8488717A1B32996E001D60A1 /* SpruceSearchResultsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 848871791B32996E001D60A1 /* SpruceSearchResultsViewController.swift */; };
-		8488717C1B32D163001D60A1 /* DiscoverFeedController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8488717B1B32D163001D60A1 /* DiscoverFeedController.swift */; };
 		8488717F1B369CBA001D60A1 /* InventoryCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8488717E1B369CBA001D60A1 /* InventoryCell.swift */; };
 		848871821B36A140001D60A1 /* InventoryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 848871811B36A140001D60A1 /* InventoryViewController.swift */; };
 		849CECA11B8EBEE8005D8EA4 /* CheckoutItemPointsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849CECA01B8EBEE8005D8EA4 /* CheckoutItemPointsCell.swift */; };
@@ -137,6 +137,8 @@
 
 /* Begin PBXFileReference section */
 		05044E2F1B91803E00A50F3F /* SearchUserCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchUserCell.swift; sourceTree = "<group>"; };
+		05044E311B92E56700A50F3F /* ShopOrderRefundDetailsItemCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShopOrderRefundDetailsItemCell.swift; sourceTree = "<group>"; };
+		05044E331B92E5C600A50F3F /* DiscoverFeedController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DiscoverFeedController.swift; sourceTree = "<group>"; };
 		052925CE1B578CE400B939F8 /* EditPasswordViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EditPasswordViewController.swift; sourceTree = "<group>"; };
 		0544BAAA1B8F147D00B058A8 /* TermsOfServiceViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TermsOfServiceViewController.swift; sourceTree = "<group>"; };
 		0544BAAC1B8F148F00B058A8 /* PrivacyPolicyViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PrivacyPolicyViewController.swift; sourceTree = "<group>"; };
@@ -195,7 +197,6 @@
 		845834C61B73B8A5007C6F6B /* ShopOrderRefundsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShopOrderRefundsViewController.swift; sourceTree = "<group>"; };
 		845834C81B7486E4007C6F6B /* ShopOrderRefundDetailsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShopOrderRefundDetailsViewController.swift; sourceTree = "<group>"; };
 		845834CB1B749327007C6F6B /* OrderDetailsRefundCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OrderDetailsRefundCell.swift; sourceTree = "<group>"; };
-		845834CE1B74A2AE007C6F6B /* ShopOrderRefundDetailsItemCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShopOrderRefundDetailsItemCell.swift; sourceTree = "<group>"; };
 		845834D01B74ABE6007C6F6B /* ShopOrderRefundDetailsFooterCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShopOrderRefundDetailsFooterCell.swift; sourceTree = "<group>"; };
 		845834D21B7661D7007C6F6B /* UserFollowListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserFollowListViewController.swift; sourceTree = "<group>"; };
 		845834D41B766B29007C6F6B /* UserFollowListCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserFollowListCell.swift; sourceTree = "<group>"; };
@@ -218,7 +219,6 @@
 		8482B8751B4E65870017CEEF /* PaymentMethodsDetailsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PaymentMethodsDetailsViewController.swift; sourceTree = "<group>"; };
 		8486D4151B04774800ED31BA /* SprubixPiece.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SprubixPiece.swift; sourceTree = "<group>"; };
 		848871791B32996E001D60A1 /* SpruceSearchResultsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpruceSearchResultsViewController.swift; sourceTree = "<group>"; };
-		8488717B1B32D163001D60A1 /* DiscoverFeedController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DiscoverFeedController.swift; sourceTree = "<group>"; };
 		8488717E1B369CBA001D60A1 /* InventoryCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InventoryCell.swift; sourceTree = "<group>"; };
 		848871811B36A140001D60A1 /* InventoryViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InventoryViewController.swift; sourceTree = "<group>"; };
 		849CECA01B8EBEE8005D8EA4 /* CheckoutItemPointsCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CheckoutItemPointsCell.swift; sourceTree = "<group>"; };
@@ -426,7 +426,7 @@
 			isa = PBXGroup;
 			children = (
 				840950DE1B7C9BD70094BE76 /* ShopOrderRefundCell.swift */,
-				845834CE1B74A2AE007C6F6B /* ShopOrderRefundDetailsItemCell.swift */,
+				05044E311B92E56700A50F3F /* ShopOrderRefundDetailsItemCell.swift */,
 				845834D01B74ABE6007C6F6B /* ShopOrderRefundDetailsFooterCell.swift */,
 				845834D81B7B42F1007C6F6B /* ShopOrderRefundDetailsStatusCell.swift */,
 			);
@@ -449,7 +449,7 @@
 			children = (
 				84470D891AECC41B007E9A93 /* MainFeedController.swift */,
 				846027A21B18B17B00A28C78 /* CommentsViewController.swift */,
-				8488717B1B32D163001D60A1 /* DiscoverFeedController.swift */,
+				05044E331B92E5C600A50F3F /* DiscoverFeedController.swift */,
 				8405D0661B5F8B6000B42752 /* PeopleFeedViewController.swift */,
 				845834C21B6F94CD007C6F6B /* SearchViewController.swift */,
 			);
@@ -888,11 +888,8 @@
 				845834D31B7661D7007C6F6B /* UserFollowListViewController.swift in Sources */,
 				846027A31B18B17B00A28C78 /* CommentsViewController.swift in Sources */,
 				84B335401AB2BB9E00B9707D /* Transition.swift in Sources */,
-				845834CF1B74A2AE007C6F6B /* RefundDetailsItemCell.swift in Sources */,
 				05044E301B91803E00A50F3F /* SearchUserCell.swift in Sources */,
-				8488717C1B32D163001D60A1 /* BrowseFeedController.swift in Sources */,
-				845834CF1B74A2AE007C6F6B /* ShopOrderRefundDetailsItemCell.swift in Sources */,
-				8488717C1B32D163001D60A1 /* DiscoverFeedController.swift in Sources */,
+				05044E321B92E56700A50F3F /* ShopOrderRefundDetailsItemCell.swift in Sources */,
 				8405D0631B5E607500B42752 /* CustomerDetailsViewController.swift in Sources */,
 				84B3353E1AB2BA2000B9707D /* TransitionProtocol.swift in Sources */,
 				84B3352C1AAEE2EB00B9707D /* UserProfileHeader.swift in Sources */,
@@ -956,6 +953,7 @@
 				8405D04D1B552CAB00B42752 /* CheckoutPointsSectionHeader.swift in Sources */,
 				84EBF05E1B30619B008D2306 /* MyClosetViewController.swift in Sources */,
 				845048B71A9ECC81008BDBAA /* Sprubix.xcdatamodeld in Sources */,
+				05044E341B92E5C600A50F3F /* DiscoverFeedController.swift in Sources */,
 				845834D91B7B42F1007C6F6B /* ShopOrderRefundDetailsStatusCell.swift in Sources */,
 				84470D8C1AED1847007E9A93 /* MainFeedCell.swift in Sources */,
 				059E98931B563B85007A5A42 /* EditProfileViewController.swift in Sources */,
