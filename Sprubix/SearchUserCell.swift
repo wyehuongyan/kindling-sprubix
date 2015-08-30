@@ -9,9 +9,7 @@
 import UIKit
 
 class SearchUserCell: UITableViewCell {
-    var delegate: UserFollowInteractionProtocol?
     var user: NSDictionary!
-    
     var userImageView: UIImageView!
     var username: UILabel!
     var realname: UILabel!
@@ -39,24 +37,19 @@ class SearchUserCell: UITableViewCell {
         contentView.addSubview(userImageView)
         
         let usernameX: CGFloat = userImageViewHeight + 10 * 2
-        username = UILabel(frame: CGRect(x: usernameX, y: 10, width: screenWidth - usernameX - 10, height: nameHeight))
-        username.textColor = sprubixColor
-        username.font = UIFont.boldSystemFontOfSize(15)
+        realname = UILabel(frame: CGRect(x: usernameX, y: 10, width: screenWidth - usernameX - 10, height: nameHeight))
+        realname.textColor = sprubixColor
+        realname.font = UIFont.boldSystemFontOfSize(15)
         
-        realname = UILabel(frame: CGRect(x: usernameX, y: 30, width: screenWidth - usernameX - 10, height: nameHeight))
-        realname.tintColor = UIColor.darkGrayColor()
-        realname.font = UIFont.systemFontOfSize(14)
+        username = UILabel(frame: CGRect(x: usernameX, y: 30, width: screenWidth - usernameX - 10, height: nameHeight))
+        username.textColor = UIColor.lightGrayColor()
+        username.font = UIFont.systemFontOfSize(14)
         
-        contentView.addSubview(username)
         contentView.addSubview(realname)
+        contentView.addSubview(username)
     }
     
     override func awakeFromNib() {
         super.awakeFromNib()
     }
-    
-    func showProfile() {
-        delegate?.showProfile(user)
-    }
-
 }

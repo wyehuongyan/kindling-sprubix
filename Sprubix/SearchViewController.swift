@@ -16,7 +16,7 @@ enum SearchBarState {
     case People
 }
 
-class SearchViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate, CHTCollectionViewDelegateWaterfallLayout, UISearchBarDelegate, UITableViewDataSource, UITableViewDelegate {
+class SearchViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate, CHTCollectionViewDelegateWaterfallLayout, UISearchBarDelegate, UITableViewDataSource, UITableViewDelegate, TransitionProtocol {
     
     // custom nav bar
     var newNavBar:UINavigationBar!
@@ -55,9 +55,6 @@ class SearchViewController: UIViewController, UICollectionViewDataSource, UIColl
     var fullTextSearchString: String = ""
     var types: [String] = ["HEAD", "TOP", "BOTTOM", "FEET"]
     
-    var selectedPieces: [NSDictionary] = [NSDictionary]()
-    var selectedPieceIds: NSMutableArray = NSMutableArray()
-    
     var activityView: UIActivityIndicatorView!
     
     var currentSearchBarState: SearchBarState = SearchBarState.Outfits
@@ -80,6 +77,19 @@ class SearchViewController: UIViewController, UICollectionViewDataSource, UIColl
         super.viewWillAppear(animated)
         
         initNavBar()
+        
+        // infinite scrolling
+        outfitsPiecesCollectionView.addInfiniteScrollingWithActionHandler({
+            if SprubixReachability.isConnectedToNetwork() {
+                self.insertMoreItems()
+            }
+        })
+        
+        peopleTableView.addInfiniteScrollingWithActionHandler({
+            if SprubixReachability.isConnectedToNetwork() {
+                self.insertMoreItems()
+            }
+        })
     }
     
     override func viewDidAppear(animated: Bool) {
@@ -359,28 +369,6 @@ class SearchViewController: UIViewController, UICollectionViewDataSource, UIColl
         peopleTableView.addSubview(activityView)
     }
     
-    func retrieveSearchPieces() {
-        
-        activityView.startAnimating()
-        
-        // REST call to server to retrieve search pieces
-        manager.POST(SprubixConfig.URL.api + "/pieces/search",
-            parameters: [
-                "full_text": fullTextSearchString
-            ],
-            success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
-                self.pieces = responseObject["data"] as! [NSDictionary]
-                self.currentPage = responseObject["current_page"] as? Int
-                self.lastPage = responseObject["last_page"] as? Int
-                
-                self.outfitsPiecesCollectionView.reloadData()
-                self.activityView.stopAnimating()
-            },
-            failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
-                println("Error: " + error.localizedDescription)
-        })
-    }
-    
     func retrieveSearchOutfits() {
         
         activityView.startAnimating()
@@ -403,13 +391,31 @@ class SearchViewController: UIViewController, UICollectionViewDataSource, UIColl
         })
     }
     
-    func retrieveSearchPeople() {
+    func retrieveSearchPieces() {
         
         activityView.startAnimating()
         
-        // GET page=2, page=3 and so on
-        //let nextPage = currentPage + 1
-        let nextPage = currentPage + 1
+        // REST call to server to retrieve search pieces
+        manager.POST(SprubixConfig.URL.api + "/pieces/search",
+            parameters: [
+                "full_text": fullTextSearchString
+            ],
+            success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                self.pieces = responseObject["data"] as! [NSDictionary]
+                self.currentPage = responseObject["current_page"] as? Int
+                self.lastPage = responseObject["last_page"] as? Int
+                
+                self.outfitsPiecesCollectionView.reloadData()
+                self.activityView.stopAnimating()
+            },
+            failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                println("Error: " + error.localizedDescription)
+        })
+    }
+    
+    func retrieveSearchPeople() {
+        
+        activityView.startAnimating()
         
         // REST call to server to retrieve users
         manager.POST(SprubixConfig.URL.api + "/users/search",
@@ -434,6 +440,159 @@ class SearchViewController: UIViewController, UICollectionViewDataSource, UIColl
                     self.peopleTableView.infiniteScrollingView.stopAnimating()
                 }
         })
+    }
+    
+    // infinite scrolling
+    func insertMoreItems() {
+        if currentPage < lastPage {
+            switch (currentSearchBarState) {
+            case .Outfits:
+                insertMoreOutfits()
+            case .Pieces:
+                insertMorePieces()
+            case .People:
+                insertMorePeople()
+            default:
+                break
+            }
+        } else {
+            if self.outfitsPiecesCollectionView.infiniteScrollingView != nil {
+                self.outfitsPiecesCollectionView.infiniteScrollingView.stopAnimating()
+            }
+            
+            if self.peopleTableView.infiniteScrollingView != nil {
+                self.peopleTableView.infiniteScrollingView.stopAnimating()
+            }
+        }
+    }
+
+    func insertMoreOutfits() {
+        if outfits.count > 0 {
+            let nextPage = currentPage! + 1
+            
+            // retrieve more outfits
+            manager.POST(SprubixConfig.URL.api + "/outfits/search?page=\(nextPage)",
+                parameters: [
+                    "full_text": fullTextSearchString
+                ],
+                success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                    let moreOutfits = responseObject["data"] as! [NSDictionary]
+                    self.currentPage = responseObject["current_page"] as? Int
+                    
+                    for moreOutfit in moreOutfits {
+                        // add only new pieces
+                        if !contains(self.outfits, moreOutfit) {
+                            self.outfits.append(moreOutfit)
+                            
+                            self.outfitsPiecesCollectionView.insertItemsAtIndexPaths([NSIndexPath(forItem: self.outfits.count - 1, inSection: 0)])
+                        }
+                    }
+                    
+                    if self.outfitsPiecesCollectionView.infiniteScrollingView != nil {
+                        self.outfitsPiecesCollectionView.infiniteScrollingView.stopAnimating()
+                    }
+                },
+                failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                    println("Error: " + error.localizedDescription)
+                    
+                    if self.outfitsPiecesCollectionView.infiniteScrollingView != nil {
+                        self.outfitsPiecesCollectionView.infiniteScrollingView.stopAnimating()
+                    }
+                    
+                    SprubixReachability.handleError(error.code)
+            })
+            
+        } else {
+            if self.outfitsPiecesCollectionView.infiniteScrollingView != nil {
+                self.outfitsPiecesCollectionView.infiniteScrollingView.stopAnimating()
+            }
+        }
+    }
+    
+    func insertMorePieces() {
+        if pieces.count > 0 {
+            let nextPage = currentPage! + 1
+            
+            // retrieve more pieces
+            manager.POST(SprubixConfig.URL.api + "/pieces/search?page=\(nextPage)",
+                parameters: [
+                    "full_text": fullTextSearchString
+                ],
+                success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                    let morePieces = responseObject["data"] as! [NSDictionary]
+                    self.currentPage = responseObject["current_page"] as? Int
+                    
+                    for morePiece in morePieces {
+                        // add only new pieces
+                        if !contains(self.pieces, morePiece) {
+                            self.pieces.append(morePiece)
+                            
+                            self.outfitsPiecesCollectionView.insertItemsAtIndexPaths([NSIndexPath(forItem: self.pieces.count - 1, inSection: 0)])
+                        }
+                    }
+                    
+                    if self.outfitsPiecesCollectionView.infiniteScrollingView != nil {
+                        self.outfitsPiecesCollectionView.infiniteScrollingView.stopAnimating()
+                    }
+                },
+                failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                    println("Error: " + error.localizedDescription)
+                    
+                    if self.outfitsPiecesCollectionView.infiniteScrollingView != nil {
+                        self.outfitsPiecesCollectionView.infiniteScrollingView.stopAnimating()
+                    }
+                    
+                    SprubixReachability.handleError(error.code)
+            })
+            
+        } else {
+            if self.outfitsPiecesCollectionView.infiniteScrollingView != nil {
+                self.outfitsPiecesCollectionView.infiniteScrollingView.stopAnimating()
+            }
+        }
+    }
+    
+    func insertMorePeople() {
+        if people.count > 0 {
+            let nextPage = currentPage! + 1
+            
+            // retrieve more users
+            manager.POST(SprubixConfig.URL.api + "/users/search?page=\(nextPage)",
+                parameters: [
+                    "full_text": fullTextSearchString
+                ],
+                success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                    let moreUsers = responseObject["data"] as! [NSDictionary]
+                    self.currentPage = responseObject["current_page"] as? Int
+                    
+                    for moreUser in moreUsers {
+                        // add only new pieces
+                        if !contains(self.people, moreUser) {
+                            self.people.append(moreUser)
+                            
+                            self.peopleTableView.insertRowsAtIndexPaths([NSIndexPath(forRow: self.people.count - 1, inSection: 0)], withRowAnimation: UITableViewRowAnimation.Fade)
+                        }
+                    }
+                    
+                    if self.peopleTableView.infiniteScrollingView != nil {
+                        self.peopleTableView.infiniteScrollingView.stopAnimating()
+                    }
+                },
+                failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                    println("Error: " + error.localizedDescription)
+                    
+                    if self.peopleTableView.infiniteScrollingView != nil {
+                        self.peopleTableView.infiniteScrollingView.stopAnimating()
+                    }
+                    
+                    SprubixReachability.handleError(error.code)
+            })
+            
+        } else {
+            if self.peopleTableView.infiniteScrollingView != nil {
+                self.peopleTableView.infiniteScrollingView.stopAnimating()
+            }
+        }
     }
     
     // UICollectionViewDataSource
@@ -500,18 +659,52 @@ class SearchViewController: UIViewController, UICollectionViewDataSource, UIColl
     func collectionView(collectionView: UICollectionView, didSelectItemAtIndexPath indexPath: NSIndexPath) {
         switch(currentSearchBarState) {
         case .Outfits:
-            println("outfits selected")
+            let outfitDetailsViewController = OutfitDetailsViewController(collectionViewLayout: detailsViewControllerLayout(), currentIndexPath:indexPath)
+            outfitDetailsViewController.outfits = outfits
+            
+            collectionView.setToIndexPath(indexPath)
+            
+            navigationController?.delegate = transitionDelegateHolder
+            navigationController!.pushViewController(outfitDetailsViewController, animated: true)
+            
         case .Pieces:
-            println("pieces selected")
+            let piece = pieces[indexPath.row] as NSDictionary
+            let pieceId = piece["id"] as! Int
+            
+            // retrieve outfits using this piece
+            manager.GET(SprubixConfig.URL.api + "/piece/\(pieceId)/user",
+                parameters: nil,
+                success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                    let pieceOwner = responseObject as! NSDictionary
+                    
+                    let pieceDetailsViewController = PieceDetailsViewController(collectionViewLayout: self.detailsViewControllerLayout(), currentIndexPath:indexPath)
+                    pieceDetailsViewController.pieces = self.pieces
+                    pieceDetailsViewController.user = pieceOwner
+                    
+                    collectionView.setToIndexPath(indexPath)
+                    
+                    self.navigationController?.delegate = transitionDelegateHolder
+                    self.navigationController!.pushViewController(pieceDetailsViewController, animated: true)
+                },
+                failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                    println("Error: " + error.localizedDescription)
+            })
+
         default:
             break
         }
-        /*
-        let cell: UICollectionViewCell = collectionView.cellForItemAtIndexPath(indexPath) as! ProfilePieceCell
-        let selectedPiece = pieces[indexPath.row]
-        let selectedPieceId = selectedPiece["id"] as! Int
-        */
-        println("row selected \(indexPath.row)")
+    }
+
+    func detailsViewControllerLayout () -> UICollectionViewFlowLayout {
+        let flowLayout = UICollectionViewFlowLayout()
+        let itemSize = CGSizeMake(screenWidth, screenHeight)
+        
+        flowLayout.itemSize = itemSize
+        flowLayout.minimumLineSpacing = 0
+        flowLayout.minimumInteritemSpacing = 0
+        flowLayout.scrollDirection = .Horizontal
+        
+        return flowLayout
     }
     
     // CHTCollectionViewDelegateWaterfallLayout
@@ -569,10 +762,8 @@ class SearchViewController: UIViewController, UICollectionViewDataSource, UIColl
             
             (cell as! SearchUserCell).user = user
             (cell as! SearchUserCell).realname.text = name
-            (cell as! SearchUserCell).username.text = username
+            (cell as! SearchUserCell).username.text = "@\(username)"
             (cell as! SearchUserCell).userImageView.setImageWithURL(userImageURL)
-            
-            //(cell as! SearchUserCell).delegate = self
             
             cell.selectionStyle = UITableViewCellSelectionStyle.None
             
@@ -586,28 +777,17 @@ class SearchViewController: UIViewController, UICollectionViewDataSource, UIColl
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         switch(currentSearchBarState) {
         case .People:
-            println("people selected")
+            showProfile(people[indexPath.row])
         default:
             break
         }
-        /*
-        let cell: UICollectionViewCell = collectionView.cellForItemAtIndexPath(indexPath) as! ProfilePieceCell
-        let selectedPiece = pieces[indexPath.row]
-        let selectedPieceId = selectedPiece["id"] as! Int
-        */
-        println("row selected \(indexPath.row)")
-    }
-    
-    func showProfile(user: NSDictionary) {
-        containerViewController.showUserProfile(user)
-    }
-    
-    func dismissKeyboard(){
-        searchBar.endEditing(true)
     }
     
     func search() {
         fullTextSearchString = searchBar.text
+
+        dismissKeyboard()
+        
         println("Search String: \(fullTextSearchString)")
         
         if fullTextSearchString != "" {
@@ -622,11 +802,16 @@ class SearchViewController: UIViewController, UICollectionViewDataSource, UIColl
                 break
             }
         }
-        
-        dismissKeyboard()
+    }
+    
+    func showProfile(user: NSDictionary) {
+        containerViewController.showUserProfile(user)
     }
     
     func resetView() {
+        // reset page counter
+        currentPage = 0
+        
         if outfitsPiecesCollectionView != nil {
             outfits.removeAll()
             pieces.removeAll()
@@ -637,5 +822,14 @@ class SearchViewController: UIViewController, UICollectionViewDataSource, UIColl
             people.removeAll()
             peopleTableView.reloadData()
         }
+    }
+    
+    func dismissKeyboard(){
+        searchBar.endEditing(true)
+    }
+    
+    // TransitionProtocol
+    func transitionCollectionView() -> UICollectionView!{
+        return outfitsPiecesCollectionView
     }
 }

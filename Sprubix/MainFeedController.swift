@@ -205,6 +205,19 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         negativeSpacerItem.width = -10
         
         self.navigationItem.leftBarButtonItems = [negativeSpacerItem, sideMenuButtonItem]
+        
+        // 5. search button
+        var searchButton: UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+        var image: UIImage = UIImage(named: "spruce-search")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
+        searchButton.setImage(image, forState: UIControlState.Normal)
+        searchButton.frame = CGRect(x: 0, y: 0, width: 30, height: 30)
+        searchButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+        searchButton.imageView?.tintColor = UIColor.lightGrayColor()
+        searchButton.imageEdgeInsets = UIEdgeInsetsMake(5, 5, 5, 5)
+        searchButton.addTarget(self, action: "searchButtonPressed:", forControlEvents: UIControlEvents.TouchUpInside)
+        
+        var searchBarButtonItem: UIBarButtonItem = UIBarButtonItem(customView: searchButton)
+        self.navigationItem.rightBarButtonItems = [searchBarButtonItem]
     }
     
     func initCollectionViewLayout() {
@@ -1043,6 +1056,15 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
             }, completion: nil)
         
         dismissDropdown(UITapGestureRecognizer())
+    }
+    
+    // nav bar button callbacks
+    func searchButtonPressed(sender: UIButton) {
+        let searchViewController = SearchViewController()
+        
+        UIView.transitionWithView(self.navigationController!.view, duration: 0.3, options: UIViewAnimationOptions.TransitionCrossDissolve, animations: {
+            self.navigationController?.pushViewController(searchViewController, animated: false)
+            }, completion: nil)
     }
     
     func countExposedOutfits() {
