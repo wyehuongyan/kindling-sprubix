@@ -13,8 +13,12 @@ import ActionSheetPicker_3_0
 import TSMessages
 import FBSDKShareKit
 
+@objc
 protocol DetailsCellActions {
     func showMoreOptions(ownerId: Int, targetId: Int)
+    optional func setOutfitsLiked(outfitId: Int, liked: Bool)
+    optional func likedOutfit(outfitId: Int, thumbnailURLString: String, itemIdentifier: String, receiver: NSDictionary)
+    optional func unlikedOutfit(outfitId: Int, itemIdentifier: String, receiver: NSDictionary)
 }
 
 class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewDataSource, UIGestureRecognizerDelegate, PieceInteractionProtocol {
@@ -99,6 +103,7 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
     // firebase
     var childAddedHandle: UInt?
     var poutfitCommentsRef: Firebase!
+    var liked: Bool?
     
     // social button
     var socialButtonFacebook: UIButton!
@@ -486,9 +491,11 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
             itemLikesImage?.removeFromSuperview()
             itemLikesImage = UIButton.buttonWithType(UIButtonType.Custom) as? UIButton
             itemLikesImage!.setImage(UIImage(named: "main-like"), forState: UIControlState.Normal)
+            itemLikesImage!.setImage(UIImage(named: "main-like-filled"), forState: UIControlState.Selected)
             itemLikesImage!.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
             itemLikesImage!.frame = CGRect(x: 0, y: 0, width: itemImageViewWidth, height: itemSpecHeight)
             itemLikesImage!.imageEdgeInsets = UIEdgeInsetsMake(10, 10, 10, 0)
+            itemLikesImage!.addTarget(self, action: "toggleOutfitLike:", forControlEvents: UIControlEvents.TouchUpInside)
             
             Glow.addGlow(itemLikesImage!)
             
@@ -496,8 +503,37 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
             itemLikesLabel = UILabel(frame: CGRect(x: itemImageViewWidth, y: 0, width: screenWidth - itemImageViewWidth, height: itemSpecHeight))
             if numTotalLikes != 0 {
                 itemLikesLabel!.text = numTotalLikes > 1 ? "\(numTotalLikes) people like this" : "\(numTotalLikes) person likes this"
+
             } else {
                 itemLikesLabel!.text = "Be the first to like!"
+            }
+            
+            // check if user has liked this outfit yet
+            let userData: NSDictionary? = defaults.dictionaryForKey("userData")
+            let username = userData!["username"] as! String
+            let outfitId = outfit["id"] as! Int
+            let itemIdentifier = "outfit_\(outfitId)"
+            
+            let poutfitLikesUserRef = firebaseRef.childByAppendingPath("poutfits/\(itemIdentifier)/likes/\(username)")
+            
+            if liked != nil {
+                itemLikesImage!.selected = self.liked!
+            } else {
+                // check if user has already liked this outfit
+                poutfitLikesUserRef.observeSingleEventOfType(.Value, withBlock: {
+                    snapshot in
+                    
+                    if (snapshot.value as? NSNull) != nil {
+                        // not yet liked
+                        self.liked = false
+                    } else {
+                        self.liked = true
+                    }
+                    
+                    self.itemLikesImage!.selected = self.liked!
+                    
+                    self.delegate?.setOutfitsLiked!(outfitId, liked: self.liked!)
+                })
             }
             
             specificationCell.selectionStyle = UITableViewCellSelectionStyle.None
@@ -1184,6 +1220,41 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
         return true
     }
     
+    // like button callback
+    func toggleOutfitLike(sender: UIButton) {
+        let outfitId = outfit["id"] as! Int
+        let itemIdentifier = "outfit_\(outfitId)"
+        
+        var outfitImagesString = outfit["images"] as! NSString
+        var outfitImagesData:NSData = outfitImagesString.dataUsingEncoding(NSUTF8StringEncoding)!
+        
+        var outfitImagesDict: NSDictionary = NSJSONSerialization.JSONObjectWithData(outfitImagesData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSDictionary
+        var outfitImageDict: NSDictionary = outfitImagesDict["images"] as! NSDictionary
+        
+        let thumbnailURLString = outfitImageDict["thumbnail"] as! String
+        
+        if sender.selected != true {
+            sender.selected = true
+            liked = true
+            
+            delegate?.likedOutfit!(outfitId, thumbnailURLString: thumbnailURLString, itemIdentifier: itemIdentifier, receiver: user)
+            
+            numTotalLikes += 1
+        } else {
+            sender.selected = false
+            liked = false
+            
+            delegate?.unlikedOutfit!(outfitId, itemIdentifier: itemIdentifier, receiver: user)
+            
+            if numTotalLikes > 0 {
+                numTotalLikes -= 1
+            }
+        }
+        
+        var nsPath = NSIndexPath(forRow: 2, inSection: 0)
+        self.tableView.reloadRowsAtIndexPaths([nsPath], withRowAnimation: UITableViewRowAnimation.None)
+    }
+    
     // piece button callbacks
     func addToBagButtonPressed(sender: UIButton) {
         
@@ -1785,7 +1856,11 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
             }
         })
         
-        // retrieve total number of comments
+        retrieveRecentLikes(poutfitIdentifier)
+    }
+    
+    func retrieveRecentLikes(poutfitIdentifier: String) {
+        // retrieve total number of likes
         let poutfitLikesCountRef = firebaseRef.childByAppendingPath("poutfits/\(poutfitIdentifier)/num_likes")
         
         numTotalLikes = 0

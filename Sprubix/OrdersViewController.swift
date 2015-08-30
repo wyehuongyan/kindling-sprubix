@@ -362,6 +362,8 @@ class OrdersViewController: UIViewController, UITableViewDataSource, UITableView
         let dateOrders = dateOrdersDict[createdAtDate] as! [NSDictionary]
         
         let order = dateOrders[indexPath.row] as NSDictionary
+        let totalPrice = order["total_price"] as! String
+        let totalPayablePrice = order["total_payable_price"] as! String
         
         let userData: NSDictionary? = defaults.dictionaryForKey("userData")
         let shoppableType: String? = userData!["shoppable_type"] as? String
@@ -371,20 +373,20 @@ class OrdersViewController: UIViewController, UITableViewDataSource, UITableView
             let shopOrders = order["shop_orders"] as! [NSDictionary]
             
             cell.username.text = shopOrders.count > 1 ? "\(shopOrders.count) shops" : "\(shopOrders.count) shop"
+            cell.price.text = "$\(totalPayablePrice)"
         } else {
             // shop
             let user = order["buyer"] as! NSDictionary
             let username = user["username"] as! String
-                
+            
             cell.username.text = username
+            cell.price.text = "$\(totalPrice)"
         }
         
-        let totalPrice = order["total_price"] as! String
         let orderNumber = order["uid"] as! String
         let createdAt = order["created_at"] as! String
         let orderStatusId = order["order_status_id"] as! Int
         
-        cell.price.text = "$\(totalPrice)"
         cell.orderNumber.text = "#\(orderNumber)"
         cell.dateTime.text = createdAt
         cell.orderStatusId = orderStatusId

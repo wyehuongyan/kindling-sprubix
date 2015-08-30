@@ -13,6 +13,7 @@ class ShopOrderRefundDetailsFooterCell: UITableViewCell {
     @IBOutlet var shippingRate: UILabel!
     @IBOutlet var totalAmountRefundable: UILabel!
     @IBOutlet var refundAmount: UITextField!
+    @IBOutlet var refundPoints: UITextField!
     @IBOutlet var refundReason: UITextView!
     
     override func awakeFromNib() {

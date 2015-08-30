@@ -209,7 +209,7 @@ class ShopOrderRefundsViewController: UIViewController, UITableViewDataSource, U
         cell.refundStatusId = refundStatusId
         cell.setStatusImage()
         
-        if checkRefundRequestable && refundStatusId != 1 {
+        if checkRefundRequestable && refundStatusId != 1 && refundStatusId != 2 {
             newRefundRequestable = true
         } else {
             newRefundRequestable = false
