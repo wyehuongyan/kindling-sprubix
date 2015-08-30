@@ -26,7 +26,7 @@
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="WhD-Wq-l9V" id="b5o-Rz-9Zh">
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="xqv-Hb-kaz">
+                                                <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="xqv-Hb-kaz">
                                                     <rect key="frame" x="552" y="21" width="38" height="38"/>
                                                     <constraints>
                                                         <constraint firstAttribute="width" constant="38" id="06g-tL-X2p"/>
@@ -38,7 +38,7 @@
                                                         <action selector="deleteDeliveryAddress:" destination="WhD-Wq-l9V" eventType="touchUpInside" id="Lt8-FO-N2T"/>
                                                     </connections>
                                                 </button>
-                                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ohi-EA-xMi">
+                                                <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ohi-EA-xMi">
                                                     <rect key="frame" x="508" y="21" width="38" height="38"/>
                                                     <constraints>
                                                         <constraint firstAttribute="width" constant="38" id="Xja-WK-BpZ"/>
@@ -50,7 +50,7 @@
                                                         <action selector="editDeliveryAddress:" destination="WhD-Wq-l9V" eventType="touchUpInside" id="Su9-3I-ycZ"/>
                                                     </connections>
                                                 </button>
-                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Delivery Address" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="uY7-AT-dqT">
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="Delivery Address" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="uY7-AT-dqT">
                                                     <rect key="frame" x="10" y="10" width="488" height="60"/>
                                                     <fontDescription key="fontDescription" type="system" weight="medium" pointSize="16"/>
                                                     <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
@@ -285,7 +285,7 @@
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="s7E-VS-lKH" id="PvL-oD-Dug">
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="Contact Number (for delivery purposes)" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="Dvz-j0-UUX">
+                                                <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="Contact Number" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="Dvz-j0-UUX">
                                                     <rect key="frame" x="10" y="12" width="580" height="20"/>
                                                     <color key="textColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="16"/>
@@ -383,7 +383,7 @@
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="tNH-AH-9Ib" id="CyE-i6-pCx">
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="tbn-do-dGs">
+                                                <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="tbn-do-dGs">
                                                     <rect key="frame" x="552" y="15" width="38" height="38"/>
                                                     <constraints>
                                                         <constraint firstAttribute="width" constant="38" id="yuz-is-ip2"/>
@@ -401,7 +401,7 @@
                                                     <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
-                                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ioY-TS-bNN">
+                                                <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ioY-TS-bNN">
                                                     <rect key="frame" x="58" y="38" width="484" height="20"/>
                                                     <constraints>
                                                         <constraint firstAttribute="height" constant="20" id="ahn-u9-kLv"/>
@@ -415,7 +415,7 @@
                                                         <action selector="makeDefault:" destination="tNH-AH-9Ib" eventType="touchUpInside" id="xzU-24-nQX"/>
                                                     </connections>
                                                 </button>
-                                                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="fcn-h0-3pK">
+                                                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="fcn-h0-3pK">
                                                     <rect key="frame" x="10" y="15" width="38" height="38"/>
                                                     <constraints>
                                                         <constraint firstAttribute="width" constant="38" id="H7k-nN-T5H"/>

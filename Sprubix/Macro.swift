@@ -28,7 +28,6 @@ var timestamp: String {
 
 var localDate: String {
     get {
-        let calendar: NSCalendar = NSCalendar.currentCalendar()
         let dateFormatter = NSDateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
         let formattedDate = dateFormatter.stringFromDate(NSDate())
