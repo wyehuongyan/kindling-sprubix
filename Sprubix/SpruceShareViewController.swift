@@ -445,7 +445,18 @@ class SpruceShareViewController: UIViewController, UITableViewDelegate, UITableV
                 transition.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
                 
                 self.navigationController!.view.layer.addAnimation(transition, forKey: kCATransition)
-                self.navigationController?.popToViewController(self.navigationController?.viewControllers.first! as! UIViewController, animated: false)
+                
+                // Goto where the spruceButton is pressed: currentVC - 2 (SpruceShare, SpruceView)
+                let vcDesinationIndex = self.navigationController!.viewControllers.count - 3
+                
+                // Make sure furthest is MainFeed (index 0), but this case shouldn't happen (just checking to make sure)
+                if vcDesinationIndex >= 0 {
+                    self.navigationController!.popToViewController(self.navigationController!.viewControllers[vcDesinationIndex] as! UIViewController, animated: false)
+                }
+                // Go to MainFeed (furthest)
+                else {
+                    self.navigationController!.popToViewController(self.navigationController!.viewControllers.first as! UIViewController, animated: false)
+                }
             }
             
             // Mixpanel - Create Outfit Image Upload, Success
