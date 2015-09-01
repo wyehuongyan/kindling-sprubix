@@ -108,6 +108,10 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
     // social button
     var socialButtonFacebook: UIButton!
     
+    // spruce button
+    var spruceButton: UIButton!
+    var spruceButtonLine: UIView!
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
     }
@@ -433,7 +437,7 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
                 let userType = userData!["shoppable_type"] as! String
                 
                 if userType.lowercaseString.rangeOfString("shopper") != nil {
-                    addToBagButton = UIButton(frame: CGRect(x: 0, y: screenHeight - navigationHeight, width: screenWidth, height: navigationHeight))
+                    addToBagButton = UIButton(frame: CGRect(x: screenWidth / 2, y: screenHeight - navigationHeight, width: screenWidth / 2, height: navigationHeight))
                     addToBagButton.backgroundColor = sprubixColor
                     addToBagButton.titleLabel?.font = UIFont.boldSystemFontOfSize(18.0)
                     addToBagButton.setTitle("Buy Outfit Now", forState: UIControlState.Normal)
@@ -447,7 +451,35 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
                     darkenedOverlay?.alpha = 0
                     
                     contentView.addSubview(darkenedOverlay!)
+                    
+                    // spruce button
+                    spruceButton = UIButton(frame: CGRect(x: 0, y: screenHeight - navigationHeight, width: screenWidth / 2, height: navigationHeight))
+                    spruceButton.backgroundColor = sprubixLightGray
+                    spruceButton.titleLabel?.font = UIFont.boldSystemFontOfSize(18.0)
+                    spruceButton.setTitleColor(sprubixColor, forState: UIControlState.Normal)
+                    spruceButton.setTitle("Spruce Outfit", forState: UIControlState.Normal)
+                    spruceButton.addTarget(self, action: "spruceButtonPressed:", forControlEvents: UIControlEvents.TouchUpInside)
+                    
+                    spruceButtonLine = UIView(frame: CGRect(x: 0, y: 0, width: spruceButton.frame.width, height: 1))
+                    spruceButtonLine.backgroundColor = sprubixColor
+                    spruceButton.addSubview(spruceButtonLine)
+                    
+                    contentView.addSubview(spruceButton)
                 }
+            } else {
+                // spruce button
+                spruceButton = UIButton(frame: CGRect(x: 0, y: screenHeight - navigationHeight, width: screenWidth, height: navigationHeight))
+                spruceButton.backgroundColor = sprubixLightGray
+                spruceButton.titleLabel?.font = UIFont.boldSystemFontOfSize(18.0)
+                spruceButton.setTitleColor(sprubixColor, forState: UIControlState.Normal)
+                spruceButton.setTitle("Spruce Outfit Now", forState: UIControlState.Normal)
+                spruceButton.addTarget(self, action: "spruceButtonPressed:", forControlEvents: UIControlEvents.TouchUpInside)
+                
+                spruceButtonLine = UIView(frame: CGRect(x: 0, y: 0, width: spruceButton.frame.width, height: 1))
+                spruceButtonLine.backgroundColor = sprubixColor
+                spruceButton.addSubview(spruceButtonLine)
+                
+                contentView.addSubview(spruceButton)
             }
             
             return outfitImageCell
@@ -1894,6 +1926,17 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
         let button : FBSDKShareButton = FBSDKShareButton()
         button.shareContent = content
         button.sendActionsForControlEvents(UIControlEvents.TouchUpInside)
+    }
+    
+    func spruceButtonPressed(sender: UIButton) {
+        let spruceViewController = SpruceViewController()
+        spruceViewController.outfit = outfit
+        spruceViewController.userIdFrom = user["id"] as! Int
+        spruceViewController.usernameFrom = user["username"] as! String
+        spruceViewController.userThumbnailFrom = user["image"] as! String
+        
+        navController?.delegate = nil
+        navController?.pushViewController(spruceViewController, animated: true)
     }
 
 }

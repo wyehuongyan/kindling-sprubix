@@ -617,11 +617,28 @@ class EditProfileViewController: UITableViewController, UITextViewDelegate, UIIm
     }
     
     private func showDatePicker() {
-        let datePicker: ActionSheetDatePicker = ActionSheetDatePicker(title: "Birthday", datePickerMode: UIDatePickerMode.Date, selectedDate: NSDate(),
-            doneBlock: { picker, value, index in
+        var currentBirthdate: NSDate
+        
+        if birthdate.text != "" {
+            var dateFormatterCurrentBd: NSDateFormatter = NSDateFormatter()
+            dateFormatterCurrentBd.dateFormat = "dd-MM-yyyy"
             
-                var valueArray = ("\(value)".componentsSeparatedByString(" "))[0].componentsSeparatedByString("-")
+            currentBirthdate = dateFormatterCurrentBd.dateFromString("\(birthdate.text)")!
+        } else {
+            currentBirthdate = NSDate()
+        }
+        
+        let datePicker: ActionSheetDatePicker = ActionSheetDatePicker(title: "Birthday", datePickerMode: UIDatePickerMode.Date, selectedDate: currentBirthdate,
+            doneBlock: { picker, value, index in
+                var dateFormatter: NSDateFormatter = NSDateFormatter()
+                dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss Z"
+                
+                let dateLocal: NSDate = dateFormatter.dateFromString("\(value)")!
+                let dateString: String = dateFormatter.stringFromDate(dateLocal)
+                
+                var valueArray = ("\(dateString)".componentsSeparatedByString(" "))[0].componentsSeparatedByString("-")
                 var dateSelected: String = "\(valueArray[2])-\(valueArray[1])-\(valueArray[0])"
+
                 self.birthdate.text = dateSelected
                 
             }, cancelBlock: nil, origin: view)

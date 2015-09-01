@@ -144,7 +144,7 @@ class CheckoutOrderViewController: UIViewController, UITableViewDataSource, UITa
                 let vanImageHeight = (0.7 * screenWidth) - 20.0 - (2 * thankMessageHeight)
                 let vanImageView = UIImageView(frame: CGRectMake(0, thankMessageLabel2.frame.origin.y + thankMessageHeight, screenWidth, vanImageHeight))
                 
-                vanImageView.image = UIImage(named: "sidemenu-fulfilment")
+                vanImageView.image = UIImage(named: "order-placed")
                 vanImageView.contentMode = UIViewContentMode.ScaleAspectFit
                 
                 thankView.addSubview(thankMessageLabel1)
