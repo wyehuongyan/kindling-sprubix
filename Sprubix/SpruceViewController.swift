@@ -235,7 +235,7 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, SprucePieceF
                 // calculate height percentages
                 var pieceHeight: CGFloat = piece["height"] as! CGFloat / totalHeight * outfitHeight
                 
-                let sprucePieceFeedController = SprucePieceFeedController(collectionViewLayout: sprucePieceFeedControllerLayout(itemHeight: pieceHeight), pieceType: pieceType, pieceHeight: pieceHeight)
+                let sprucePieceFeedController = SprucePieceFeedController(collectionViewLayout: sprucePieceFeedControllerLayout(itemHeight: pieceHeight), pieceType: pieceType, pieceHeight: pieceHeight, outfit: outfit)
 
                 if piece["deleted_at"]!.isKindOfClass(NSNull) {
                     sprucePieceFeedController.piece = piece

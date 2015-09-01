@@ -18,6 +18,7 @@ class SprucePieceFeedController: UICollectionViewController, UICollectionViewDel
     var delegate: SprucePieceFeedProtocol?
     
     var piece: NSDictionary?
+    var outfit: NSDictionary?
     
     let sprucePieceFeedCellIdentifier = "sprucePieceFeedCell"
     
@@ -39,11 +40,12 @@ class SprucePieceFeedController: UICollectionViewController, UICollectionViewDel
     
     var startingPieceHeight: CGFloat!
     
-    init(collectionViewLayout layout: UICollectionViewLayout!, pieceType: String, pieceHeight: CGFloat = 0) {
+    init(collectionViewLayout layout: UICollectionViewLayout!, pieceType: String, pieceHeight: CGFloat = 0, outfit: NSDictionary? = nil) {
         super.init(collectionViewLayout:layout)
         
         self.pieceType = pieceType
         self.pieceHeight = pieceHeight
+        self.outfit = outfit
         
         // store original starting heights
         self.startingPieceHeight = pieceHeight
@@ -276,45 +278,104 @@ class SprucePieceFeedController: UICollectionViewController, UICollectionViewDel
         let userId:Int? = defaults.objectForKey("userId") as? Int
         
         if userId != nil {
-            // retrieve 3 example pieces
-            manager.POST(SprubixConfig.URL.api + "/pieces",
-                parameters: [
-                    "type" : pieceType
-                ],
-                success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
-                    var pieces = responseObject["data"] as! [NSDictionary]
+            
+            if outfit != nil {
+                // get owner ids of each individual piece in the outfit
+                let pieces = outfit!["pieces"] as! [NSDictionary]
+                var ownerIds = [Int]()
+                
+                for piece in pieces {
+                    var pieceType = piece["type"] as! String
                     
-                    self.collectionView?.performBatchUpdates({
-                        // update data source
-                        for var i = 0; i < pieces.count; i++ {
-                            let piece = pieces[i]
-                            
-                            self.sprucePieces.append(piece)
-                            
-                            if self.piece != nil {
-                                // there's already a piece at position 0
-                                self.collectionView!.insertItemsAtIndexPaths([NSIndexPath(forItem: 1, inSection: 0)])
-                            } else {
-                                self.collectionView!.insertItemsAtIndexPaths([NSIndexPath(forItem: 0, inSection: 0)])
-                            }
-                        }
-                            
-                        }, completion: { finished in
-                            
-                            if finished {
-                                if self.piece == nil {
-                                    // update current visible cell
-                                    self.setCurrentVisibleCell()
-                                    
-                                    // resize
-                                    self.delegate?.resizeOutfit()
+                    // except self
+                    if pieceType != self.pieceType {
+                        var owner = piece["user"] as! NSDictionary
+                        var ownerId: Int = owner["id"] as! Int
+                        
+                        ownerIds.append(ownerId)
+                    }
+                }
+                
+                manager.POST(SprubixConfig.URL.api + "/spruce/pieces",
+                    parameters: [
+                        "type" : pieceType,
+                        "user_ids": ownerIds
+                    ],
+                    success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                        var pieces = responseObject["data"] as! [NSDictionary]
+                        
+                        self.collectionView?.performBatchUpdates({
+                            // update data source
+                            for var i = 0; i < pieces.count; i++ {
+                                let piece = pieces[i]
+                                
+                                self.sprucePieces.append(piece)
+                                
+                                if self.piece != nil {
+                                    // there's already a piece at position 0
+                                    self.collectionView!.insertItemsAtIndexPaths([NSIndexPath(forItem: 1, inSection: 0)])
+                                } else {
+                                    self.collectionView!.insertItemsAtIndexPaths([NSIndexPath(forItem: 0, inSection: 0)])
                                 }
                             }
-                    })
-                },
-                failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
-                    println("Error: " + error.localizedDescription)
-            })
+                            
+                            }, completion: { finished in
+                                
+                                if finished {
+                                    if self.piece == nil {
+                                        // update current visible cell
+                                        self.setCurrentVisibleCell()
+                                        
+                                        // resize
+                                        self.delegate?.resizeOutfit()
+                                    }
+                                }
+                        })
+                    },
+                    failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                        println("Error: " + error.localizedDescription)
+                })
+                
+            } else {
+                manager.POST(SprubixConfig.URL.api + "/pieces",
+                    parameters: [
+                        "type" : pieceType
+                    ],
+                    success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                        var pieces = responseObject["data"] as! [NSDictionary]
+                        
+                        self.collectionView?.performBatchUpdates({
+                            // update data source
+                            for var i = 0; i < pieces.count; i++ {
+                                let piece = pieces[i]
+                                
+                                self.sprucePieces.append(piece)
+                                
+                                if self.piece != nil {
+                                    // there's already a piece at position 0
+                                    self.collectionView!.insertItemsAtIndexPaths([NSIndexPath(forItem: 1, inSection: 0)])
+                                } else {
+                                    self.collectionView!.insertItemsAtIndexPaths([NSIndexPath(forItem: 0, inSection: 0)])
+                                }
+                            }
+                                
+                            }, completion: { finished in
+                                
+                                if finished {
+                                    if self.piece == nil {
+                                        // update current visible cell
+                                        self.setCurrentVisibleCell()
+                                        
+                                        // resize
+                                        self.delegate?.resizeOutfit()
+                                    }
+                                }
+                        })
+                    },
+                    failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                        println("Error: " + error.localizedDescription)
+                })
+            }
         } else {
             println("userId not found, please login or create an account")
         }
