@@ -445,13 +445,6 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
                     
                     contentView.addSubview(addToBagButton)
                     
-                    // manual dim background because of TSMessage being blocked
-                    darkenedOverlay = UIView(frame: CGRectMake(0, 0, screenWidth, screenHeight))
-                    darkenedOverlay?.backgroundColor = UIColor.blackColor()
-                    darkenedOverlay?.alpha = 0
-                    
-                    contentView.addSubview(darkenedOverlay!)
-                    
                     // spruce button
                     spruceButton = UIButton(frame: CGRect(x: 0, y: screenHeight - navigationHeight, width: screenWidth / 2, height: navigationHeight))
                     spruceButton.backgroundColor = sprubixLightGray
@@ -465,6 +458,13 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
                     spruceButton.addSubview(spruceButtonLine)
                     
                     contentView.addSubview(spruceButton)
+                    
+                    // manual dim background because of TSMessage being blocked
+                    darkenedOverlay = UIView(frame: CGRectMake(0, 0, screenWidth, screenHeight))
+                    darkenedOverlay?.backgroundColor = UIColor.blackColor()
+                    darkenedOverlay?.alpha = 0
+                    
+                    contentView.addSubview(darkenedOverlay!)
                 }
             } else {
                 // spruce button
