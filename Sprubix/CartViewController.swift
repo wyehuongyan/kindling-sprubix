@@ -975,6 +975,20 @@ class CartViewController: UIViewController, UITableViewDataSource, UITableViewDe
         self.navigationController?.popViewControllerAnimated(true)
     }
     
+    private func verifyStock(completionHandler: ((insufficient : [NSDictionary]?) -> Void)) {
+        manager.GET(SprubixConfig.URL.api + "/cart/verify",
+            parameters: nil,
+            success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                
+                var insufficientStocks = responseObject["insufficient_stocks"] as? [NSDictionary]
+                
+                completionHandler(insufficient: insufficientStocks)
+            },
+            failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                println("Error: " + error.localizedDescription)
+        })
+    }
+    
     func checkout(sender: UIBarButtonItem) {
         let cartItemData = cartData["cart_items"] as? [NSDictionary]
         
