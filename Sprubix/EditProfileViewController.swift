@@ -591,9 +591,6 @@ class EditProfileViewController: UITableViewController, UITextViewDelegate, UIIm
             doneBlock: { actionSheetPicker, selectedIndex, selectedValue in
                 
                 self.gender.text = selectedValue as! String
-                println(actionSheetPicker)
-                println(selectedIndex)
-                println(selectedValue)
                 
             }, cancelBlock: nil, origin: view)
         
