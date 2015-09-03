@@ -7,9 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		05044E301B91803E00A50F3F /* SearchUserCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05044E2F1B91803E00A50F3F /* SearchUserCell.swift */; };
 		05044E321B92E56700A50F3F /* ShopOrderRefundDetailsItemCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05044E311B92E56700A50F3F /* ShopOrderRefundDetailsItemCell.swift */; };
 		05044E341B92E5C600A50F3F /* DiscoverFeedController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05044E331B92E5C600A50F3F /* DiscoverFeedController.swift */; };
+		05044E361B95DE3400A50F3F /* SearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05044E351B95DE3400A50F3F /* SearchViewController.swift */; };
+		05044E381B9601A000A50F3F /* SearchResultsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05044E371B9601A000A50F3F /* SearchResultsViewController.swift */; };
 		052925CF1B578CE400B939F8 /* EditPasswordViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 052925CE1B578CE400B939F8 /* EditPasswordViewController.swift */; };
 		0544BAAB1B8F147D00B058A8 /* TermsOfServiceViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0544BAAA1B8F147D00B058A8 /* TermsOfServiceViewController.swift */; };
 		0544BAAD1B8F148F00B058A8 /* PrivacyPolicyViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0544BAAC1B8F148F00B058A8 /* PrivacyPolicyViewController.swift */; };
@@ -58,7 +59,6 @@
 		845834BB1B6B2EB0007C6F6B /* EditProfileCropPhotoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 845834BA1B6B2EB0007C6F6B /* EditProfileCropPhotoViewController.swift */; };
 		845834BF1B6CC834007C6F6B /* EditProfileSnapPhotoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 845834BE1B6CC834007C6F6B /* EditProfileSnapPhotoViewController.swift */; };
 		845834C11B6F5994007C6F6B /* PeopleFeedCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 845834C01B6F5994007C6F6B /* PeopleFeedCell.swift */; };
-		845834C31B6F94CD007C6F6B /* SearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 845834C21B6F94CD007C6F6B /* SearchViewController.swift */; };
 		845834C71B73B8A5007C6F6B /* ShopOrderRefundsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 845834C61B73B8A5007C6F6B /* ShopOrderRefundsViewController.swift */; };
 		845834C91B7486E4007C6F6B /* ShopOrderRefundDetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 845834C81B7486E4007C6F6B /* ShopOrderRefundDetailsViewController.swift */; };
 		845834CC1B749327007C6F6B /* OrderDetailsRefundCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 845834CB1B749327007C6F6B /* OrderDetailsRefundCell.swift */; };
@@ -136,9 +136,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		05044E2F1B91803E00A50F3F /* SearchUserCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchUserCell.swift; sourceTree = "<group>"; };
 		05044E311B92E56700A50F3F /* ShopOrderRefundDetailsItemCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShopOrderRefundDetailsItemCell.swift; sourceTree = "<group>"; };
 		05044E331B92E5C600A50F3F /* DiscoverFeedController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DiscoverFeedController.swift; sourceTree = "<group>"; };
+		05044E351B95DE3400A50F3F /* SearchViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchViewController.swift; sourceTree = "<group>"; };
+		05044E371B9601A000A50F3F /* SearchResultsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchResultsViewController.swift; sourceTree = "<group>"; };
 		052925CE1B578CE400B939F8 /* EditPasswordViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EditPasswordViewController.swift; sourceTree = "<group>"; };
 		0544BAAA1B8F147D00B058A8 /* TermsOfServiceViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TermsOfServiceViewController.swift; sourceTree = "<group>"; };
 		0544BAAC1B8F148F00B058A8 /* PrivacyPolicyViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PrivacyPolicyViewController.swift; sourceTree = "<group>"; };
@@ -193,7 +194,6 @@
 		845834BA1B6B2EB0007C6F6B /* EditProfileCropPhotoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EditProfileCropPhotoViewController.swift; sourceTree = "<group>"; };
 		845834BE1B6CC834007C6F6B /* EditProfileSnapPhotoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EditProfileSnapPhotoViewController.swift; sourceTree = "<group>"; };
 		845834C01B6F5994007C6F6B /* PeopleFeedCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PeopleFeedCell.swift; sourceTree = "<group>"; };
-		845834C21B6F94CD007C6F6B /* SearchViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchViewController.swift; sourceTree = "<group>"; };
 		845834C61B73B8A5007C6F6B /* ShopOrderRefundsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShopOrderRefundsViewController.swift; sourceTree = "<group>"; };
 		845834C81B7486E4007C6F6B /* ShopOrderRefundDetailsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShopOrderRefundDetailsViewController.swift; sourceTree = "<group>"; };
 		845834CB1B749327007C6F6B /* OrderDetailsRefundCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OrderDetailsRefundCell.swift; sourceTree = "<group>"; };
@@ -451,7 +451,8 @@
 				846027A21B18B17B00A28C78 /* CommentsViewController.swift */,
 				05044E331B92E5C600A50F3F /* DiscoverFeedController.swift */,
 				8405D0661B5F8B6000B42752 /* PeopleFeedViewController.swift */,
-				845834C21B6F94CD007C6F6B /* SearchViewController.swift */,
+				05044E351B95DE3400A50F3F /* SearchViewController.swift */,
+				05044E371B9601A000A50F3F /* SearchResultsViewController.swift */,
 			);
 			name = Feed;
 			sourceTree = "<group>";
@@ -633,7 +634,6 @@
 				84B3352D1AAEEA1000B9707D /* UserProfileFooter.swift */,
 				845834D41B766B29007C6F6B /* UserFollowListCell.swift */,
 				845834D61B766CA1007C6F6B /* UserFollowListUNCell.swift */,
-				05044E2F1B91803E00A50F3F /* SearchUserCell.swift */,
 			);
 			name = Profile;
 			sourceTree = "<group>";
@@ -888,7 +888,6 @@
 				845834D31B7661D7007C6F6B /* UserFollowListViewController.swift in Sources */,
 				846027A31B18B17B00A28C78 /* CommentsViewController.swift in Sources */,
 				84B335401AB2BB9E00B9707D /* Transition.swift in Sources */,
-				05044E301B91803E00A50F3F /* SearchUserCell.swift in Sources */,
 				05044E321B92E56700A50F3F /* ShopOrderRefundDetailsItemCell.swift in Sources */,
 				8405D0631B5E607500B42752 /* CustomerDetailsViewController.swift in Sources */,
 				84B3353E1AB2BA2000B9707D /* TransitionProtocol.swift in Sources */,
@@ -900,6 +899,7 @@
 				845834BB1B6B2EB0007C6F6B /* EditProfileCropPhotoViewController.swift in Sources */,
 				84B334EC1AAB1F9B00B9707D /* ContainerViewController.swift in Sources */,
 				8475ECFD1B25D4F80000111A /* SettingsViewController.swift in Sources */,
+				05044E361B95DE3400A50F3F /* SearchViewController.swift in Sources */,
 				845834CC1B749327007C6F6B /* OrderDetailsRefundCell.swift in Sources */,
 				8482B8761B4E65870017CEEF /* PaymentMethodsDetailsViewController.swift in Sources */,
 				845834D11B74ABE6007C6F6B /* ShopOrderRefundDetailsFooterCell.swift in Sources */,
@@ -925,7 +925,6 @@
 				8405D0651B5F709000B42752 /* CustomerDetailsRecentOrdersCell.swift in Sources */,
 				843B81A11AFCB71900FA2DD2 /* SnapshotShareController.swift in Sources */,
 				845834D71B766CA1007C6F6B /* UserFollowListUNCell.swift in Sources */,
-				845834C31B6F94CD007C6F6B /* SearchViewController.swift in Sources */,
 				846C97991ABD545A0050D0BC /* SpruceViewController.swift in Sources */,
 				84B335361AB1ADBD00B9707D /* ProfilePieceCell.swift in Sources */,
 				8405D05F1B5CB83500B42752 /* OrderDetailsContactCell.swift in Sources */,
@@ -944,6 +943,7 @@
 				8405D0671B5F8B6100B42752 /* PeopleFeedViewController.swift in Sources */,
 				845834C71B73B8A5007C6F6B /* ShopOrderRefundsViewController.swift in Sources */,
 				846C97A01ABDA6F00050D0BC /* SprucePieceFeedCell.swift in Sources */,
+				05044E381B9601A000A50F3F /* SearchResultsViewController.swift in Sources */,
 				84C664961B4290AC00E18FF7 /* CartViewController.swift in Sources */,
 				0544BAAD1B8F148F00B058A8 /* PrivacyPolicyViewController.swift in Sources */,
 				846C97931ABAB11F0050D0BC /* Subclasses.swift in Sources */,
