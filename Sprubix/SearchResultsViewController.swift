@@ -1,5 +1,5 @@
 //
-//  SearchViewController.swift
+//  SearchResultsViewController.swift
 //  Sprubix
 //
 //  Created by Shion Wah on 1/9/15.
@@ -8,7 +8,7 @@
 
 import UIKit
 
-class SearchViewController: UIViewController {
+class SearchResultsViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
