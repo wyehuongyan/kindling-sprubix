@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import AFNetworking
 
 class SearchResultsUsersViewController: UIViewController, UISearchBarDelegate, UITableViewDataSource, UITableViewDelegate {
 
@@ -19,6 +20,9 @@ class SearchResultsUsersViewController: UIViewController, UISearchBarDelegate, U
     var newNavBar: UINavigationBar!
     var newNavItem: UINavigationItem!
     var searchBar: UISearchBar?
+    
+    var currentPage: Int?
+    var lastPage: Int?
     
     var searchString: String!
     var searchURL: String!
@@ -48,6 +52,58 @@ class SearchResultsUsersViewController: UIViewController, UISearchBarDelegate, U
         
         containerViewController.statusBarHidden = true
         self.setNeedsStatusBarAppearanceUpdate()
+    }
+    
+    override func viewDidAppear(animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        // infinite scrolling
+        resultsTableView.addInfiniteScrollingWithActionHandler({
+            self.insertMoreResults()
+        })
+    }
+    
+    func insertMoreResults() {
+        if lastPage == nil || currentPage < lastPage {
+            var params = NSMutableDictionary()
+            
+            params.setObject(searchString, forKey: "full_text")
+            
+            let nextPage = currentPage! + 1
+            
+            // REST call to server to refresh the results
+            manager.POST(SprubixConfig.URL.api + searchURL + "?page=\(nextPage)",
+                parameters: params,
+                success: { (operation: AFHTTPRequestOperation!, responseObject:
+                    AnyObject!) in
+                    
+                    var results = responseObject["data"] as! [NSDictionary]
+                    
+                    self.currentPage = nextPage
+                    
+                    for result in results {
+                        self.results.append(result)
+                        
+                        self.resultsTableView.insertRowsAtIndexPaths([NSIndexPath(forRow: self.results.count - 1, inSection: 0)], withRowAnimation: UITableViewRowAnimation.None)
+                        
+                        if self.resultsTableView.infiniteScrollingView != nil {
+                            self.resultsTableView.infiniteScrollingView.stopAnimating()
+                        }
+                    }
+                    
+                },
+                failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                    println("Error: " + error.localizedDescription)
+                    
+                    if self.resultsTableView.infiniteScrollingView != nil {
+                        self.resultsTableView.infiniteScrollingView.stopAnimating()
+                    }
+            })
+        } else {
+            if self.resultsTableView.infiniteScrollingView != nil {
+                self.resultsTableView.infiniteScrollingView.stopAnimating()
+            }
+        }
     }
     
     func initNavBar() {

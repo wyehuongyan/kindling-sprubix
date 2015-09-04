@@ -8,8 +8,9 @@
 
 import UIKit
 import CHTCollectionViewWaterfallLayout
+import AFNetworking
 
-class SearchResultsViewController: UIViewController, UISearchBarDelegate, UICollectionViewDataSource, UICollectionViewDelegate, CHTCollectionViewDelegateWaterfallLayout, TransitionProtocol {
+class SearchResultsViewController: UIViewController, UISearchBarDelegate, UICollectionViewDataSource, UICollectionViewDelegate, CHTCollectionViewDelegateWaterfallLayout, TransitionProtocol, CategoryFilterProtocol {
     
     var results: [NSDictionary] = [NSDictionary]()
     let resultsPieceCellIdentifier = "ProfilePieceCell"
@@ -24,6 +25,9 @@ class SearchResultsViewController: UIViewController, UISearchBarDelegate, UIColl
     var searchURL: String!
     var currentScope: Int = 0
     
+    var currentPage: Int?
+    var lastPage: Int?
+    
     // collection view
     var resultsLayout: SprubixStretchyHeader!
     var resultsCollectionView: UICollectionView!
@@ -32,6 +36,10 @@ class SearchResultsViewController: UIViewController, UISearchBarDelegate, UIColl
     // filter buttons
     var filterButtonHeight: CGFloat = 50
     var filterButtonCategory: UIButton!
+    
+    // categories
+    var itemCategories: [NSDictionary] = [NSDictionary]()
+    var selectedCategory: NSDictionary?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -56,6 +64,7 @@ class SearchResultsViewController: UIViewController, UISearchBarDelegate, UIColl
         self.setNeedsStatusBarAppearanceUpdate()
         
         initNavBar()
+        retrieveItemCategories()
     }
     
     override func viewWillDisappear(animated: Bool) {
@@ -63,6 +72,31 @@ class SearchResultsViewController: UIViewController, UISearchBarDelegate, UIColl
         
         containerViewController.statusBarHidden = true
         self.setNeedsStatusBarAppearanceUpdate()
+    }
+    
+    override func viewDidAppear(animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        // infinite scrolling
+        resultsCollectionView.addInfiniteScrollingWithActionHandler({
+            self.insertMoreResults()
+        })
+    }
+    
+    private func retrieveItemCategories() {
+        if itemCategories.count <= 0 {
+            // REST call to retrieve piece categories
+            manager.GET(SprubixConfig.URL.api + "/piece/categories",
+                parameters: nil,
+                success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                    
+                    self.itemCategories = responseObject as! [NSDictionary]
+                    
+                },
+                failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                    println("Error: " + error.localizedDescription)
+            })
+        }
     }
     
     func initNavBar() {
@@ -286,6 +320,100 @@ class SearchResultsViewController: UIViewController, UISearchBarDelegate, UIColl
         return resultsCollectionView
     }
     
+    // CategoryFilterProtocol
+    func categorySelected(category: NSDictionary?) {
+        selectedCategory = category
+        
+        let categoryName = selectedCategory!["name"] as! String
+        
+        currentPage = 0
+        lastPage = nil
+        
+        // set category button title
+        filterButtonCategory.setTitle("Category : \(categoryName)", forState: UIControlState.Normal)
+        
+        retrieveFilteredResults()
+    }
+    
+    func retrieveFilteredResults() {
+        var params = NSMutableDictionary()
+        
+        params.setObject(searchString, forKey: "full_text")
+        
+        if selectedCategory != nil {
+            let selectedCategoryId = selectedCategory!["id"] as! Int
+            
+            params.setObject(selectedCategoryId, forKey: "category_id")
+        }
+        
+        // REST call to server to refresh the results
+        manager.POST(SprubixConfig.URL.api + searchURL,
+            parameters: params,
+            success: { (operation: AFHTTPRequestOperation!, responseObject:
+                AnyObject!) in
+                
+                self.results = responseObject["data"] as! [NSDictionary]
+                self.currentPage = responseObject["current_page"] as? Int
+                self.lastPage = responseObject["last_page"] as? Int
+                
+                self.resultsCollectionView.reloadData()
+                
+            },
+            failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                println("Error: " + error.localizedDescription)
+                
+        })
+    }
+    
+    func insertMoreResults() {
+        if lastPage == nil || currentPage < lastPage {
+            var params = NSMutableDictionary()
+            
+            params.setObject(searchString, forKey: "full_text")
+            
+            if selectedCategory != nil {
+                let selectedCategoryId = selectedCategory!["id"] as! Int
+                
+                params.setObject(selectedCategoryId, forKey: "category_id")
+            }
+            
+            let nextPage = currentPage! + 1
+            
+            // REST call to server to refresh the results
+            manager.POST(SprubixConfig.URL.api + searchURL + "?page=\(nextPage)",
+                parameters: params,
+                success: { (operation: AFHTTPRequestOperation!, responseObject:
+                    AnyObject!) in
+                    
+                    var results = responseObject["data"] as! [NSDictionary]
+                    
+                    self.currentPage = nextPage
+                    
+                    for result in results {
+                        self.results.append(result)
+                        
+                        self.resultsCollectionView.insertItemsAtIndexPaths([NSIndexPath(forItem: self.results.count - 1, inSection: 0)])
+                        
+                        if self.resultsCollectionView.infiniteScrollingView != nil {
+                            self.resultsCollectionView.infiniteScrollingView.stopAnimating()
+                        }
+                    }
+                    
+                },
+                failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                    println("Error: " + error.localizedDescription)
+                    
+                    if self.resultsCollectionView.infiniteScrollingView != nil {
+                        self.resultsCollectionView.infiniteScrollingView.stopAnimating()
+                    }
+            })
+        } else {
+            if self.resultsCollectionView.infiniteScrollingView != nil {
+                self.resultsCollectionView.infiniteScrollingView.stopAnimating()
+            }
+        }
+    }
+    
     // UISearchBarDelegate
     func searchBarShouldBeginEditing(searchBar: UISearchBar) -> Bool {
         self.navigationController?.popViewControllerAnimated(false)
@@ -295,7 +423,15 @@ class SearchResultsViewController: UIViewController, UISearchBarDelegate, UIColl
     
     // nav bar callback
     func categoryPressed(sender: UIButton) {
-        
+        if itemCategories.count > 0 {
+            // display category filter
+            let searchResultsFilterViewController = SearchResultsFilterViewController()
+            
+            searchResultsFilterViewController.categories = itemCategories
+            searchResultsFilterViewController.delegate = self
+            
+            self.navigationController?.presentViewController(searchResultsFilterViewController, animated: true, completion: nil)
+        }
     }
     
     func backTapped(sender: UIBarButtonItem) {

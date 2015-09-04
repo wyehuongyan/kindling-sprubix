@@ -111,10 +111,6 @@ class SearchViewController: UIViewController, UISearchBarDelegate {
     }
 
     // UISearchBarDelegate
-    func searchBar(searchBar: UISearchBar, textDidChange searchText: String) {
-        println("update: \(searchText)")
-    }
-    
     func searchBar(searchBar: UISearchBar, selectedScopeButtonIndexDidChange selectedScope: Int) {
 
         currentScope = selectedScope
@@ -126,8 +122,6 @@ class SearchViewController: UIViewController, UISearchBarDelegate {
     
     func searchBarSearchButtonClicked(searchBar: UISearchBar) {
         var searchString = searchBar.text
-        
-        println("search clicked: \(searchString)")
         
         var searchURL: String!
         var params: NSMutableDictionary = NSMutableDictionary()
@@ -166,15 +160,20 @@ class SearchViewController: UIViewController, UISearchBarDelegate {
                     searchResultsViewController.searchURL = searchURL
                     searchResultsViewController.currentScope = self.currentScope
                     searchResultsViewController.results = responseObject["data"] as! [NSDictionary]
+                    searchResultsViewController.currentPage = responseObject["current_page"] as? Int
+                    searchResultsViewController.lastPage = responseObject["last_page"] as? Int
                     
                     self.navigationController!.delegate = nil
                     self.navigationController?.pushViewController(searchResultsViewController, animated: true)
                 } else {
+                    // instantiate users results view controller
                     let searchResultsUsersViewController = UIStoryboard.searchResultsUsersViewController()
                     
                     searchResultsUsersViewController!.searchString = searchString
                     searchResultsUsersViewController!.searchURL = searchURL
                     searchResultsUsersViewController!.results = responseObject["data"] as! [NSDictionary]
+                    searchResultsUsersViewController!.currentPage = responseObject["current_page"] as? Int
+                    searchResultsUsersViewController!.lastPage = responseObject["last_page"] as? Int
                     
                     self.navigationController!.delegate = nil
                     self.navigationController?.pushViewController(searchResultsUsersViewController!, animated: true)

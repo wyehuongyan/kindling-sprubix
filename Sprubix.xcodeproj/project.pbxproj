@@ -120,6 +120,7 @@
 		84D697291AC922DA00C676FD /* logo-final-square.png in Resources */ = {isa = PBXBuildFile; fileRef = 84D697281AC922DA00C676FD /* logo-final-square.png */; };
 		84EAB5281B4568520064F888 /* CreateOutfitViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84EAB5271B4568520064F888 /* CreateOutfitViewController.swift */; };
 		84EB844B1B988AE900F042F1 /* SearchResultsUsersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84EB844A1B988AE900F042F1 /* SearchResultsUsersViewController.swift */; };
+		84EB844D1B995EA000F042F1 /* SearchResultsFilterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84EB844C1B995EA000F042F1 /* SearchResultsFilterViewController.swift */; };
 		84EBF05C1B306176008D2306 /* SpruceSearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84EBF05B1B306176008D2306 /* SpruceSearchViewController.swift */; };
 		84EBF05E1B30619B008D2306 /* MyClosetViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84EBF05D1B30619B008D2306 /* MyClosetViewController.swift */; };
 		84FDB9601B1595FA00E8D720 /* NotificationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FDB95F1B1595FA00E8D720 /* NotificationCell.swift */; };
@@ -256,6 +257,7 @@
 		84D697281AC922DA00C676FD /* logo-final-square.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "logo-final-square.png"; sourceTree = "<group>"; };
 		84EAB5271B4568520064F888 /* CreateOutfitViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CreateOutfitViewController.swift; sourceTree = "<group>"; };
 		84EB844A1B988AE900F042F1 /* SearchResultsUsersViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchResultsUsersViewController.swift; sourceTree = "<group>"; };
+		84EB844C1B995EA000F042F1 /* SearchResultsFilterViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchResultsFilterViewController.swift; sourceTree = "<group>"; };
 		84EBF05B1B306176008D2306 /* SpruceSearchViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpruceSearchViewController.swift; sourceTree = "<group>"; };
 		84EBF05D1B30619B008D2306 /* MyClosetViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MyClosetViewController.swift; sourceTree = "<group>"; };
 		84FDB95F1B1595FA00E8D720 /* NotificationCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotificationCell.swift; sourceTree = "<group>"; };
@@ -453,9 +455,7 @@
 				846027A21B18B17B00A28C78 /* CommentsViewController.swift */,
 				05044E331B92E5C600A50F3F /* DiscoverFeedController.swift */,
 				8405D0661B5F8B6000B42752 /* PeopleFeedViewController.swift */,
-				05044E351B95DE3400A50F3F /* SearchViewController.swift */,
-				05044E371B9601A000A50F3F /* SearchResultsViewController.swift */,
-				84EB844A1B988AE900F042F1 /* SearchResultsUsersViewController.swift */,
+				84EB844E1B995EAA00F042F1 /* Search */,
 			);
 			name = Feed;
 			sourceTree = "<group>";
@@ -616,6 +616,17 @@
 				84B3353D1AB2BA2000B9707D /* TransitionProtocol.swift */,
 			);
 			name = Protocol;
+			sourceTree = "<group>";
+		};
+		84EB844E1B995EAA00F042F1 /* Search */ = {
+			isa = PBXGroup;
+			children = (
+				05044E351B95DE3400A50F3F /* SearchViewController.swift */,
+				05044E371B9601A000A50F3F /* SearchResultsViewController.swift */,
+				84EB844A1B988AE900F042F1 /* SearchResultsUsersViewController.swift */,
+				84EB844C1B995EA000F042F1 /* SearchResultsFilterViewController.swift */,
+			);
+			name = Search;
 			sourceTree = "<group>";
 		};
 		84EBF05A1B306137008D2306 /* Search */ = {
@@ -991,6 +1002,7 @@
 				84D697271AC7E05800C676FD /* SpruceShareViewController.swift in Sources */,
 				84C664941B40F74500E18FF7 /* SnapshotDetailsSizeController.swift in Sources */,
 				84B335461AB2DA6F00B9707D /* OutfitDetailsViewController.swift in Sources */,
+				84EB844D1B995EA000F042F1 /* SearchResultsFilterViewController.swift in Sources */,
 				84ACA1231AE7B5C80084D4CF /* EditSnapshotViewController.swift in Sources */,
 				8405D0351B512B7400B42752 /* CheckoutDeliveryPaymentCell.swift in Sources */,
 				84B335421AB2BC1400B9707D /* Macro.swift in Sources */,
