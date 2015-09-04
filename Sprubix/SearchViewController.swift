@@ -2,191 +2,200 @@
 //  SearchViewController.swift
 //  Sprubix
 //
-//  Created by Shion Wah on 1/9/15.
+//  Created by Yan Wye Huong on 3/9/15.
 //  Copyright (c) 2015 Sprubix. All rights reserved.
 //
 
 import UIKit
+import AFNetworking
 
-class SearchViewController: UIViewController, UISearchResultsUpdating, UISearchBarDelegate, UITableViewDataSource, UITableViewDelegate {
+class SearchViewController: UIViewController, UISearchBarDelegate {
 
-    var searchController: UISearchController!
-    var filterTableView: UITableView!
-    let searchCellIdentifier: String = "searchCell"
+    // custom nav bar
+    var newNavBar: UINavigationBar!
+    var newNavItem: UINavigationItem!
+    var searchBar: UISearchBar?
     
-    let scopeTitles: [String] = ["Outfits", "Items", "People"]
-    var filteredData: [String]!
+    var activityView: UIActivityIndicatorView!
     
-    var outfitData: [String] = ["Red", "Blue", "Denim", "Summer", "Party"]
-    var pieceData: [String] = ["Hats", "Top", "Crop Top", "Skirts", "Shorts", "Shoes", "Black"]
-    var peopleData: [String] = ["sprubixshop", "cameron", "tingzhi", "cecilia"]
-    
-    var selectedScopeIndex: Int!
-    
+    var scopeButtonTitles = ["Outfits", "Pieces", "Users"]
+    var currentScope = 0
+
     override func viewDidLoad() {
         super.viewDidLoad()
         
         view.backgroundColor = UIColor.whiteColor()
-        
-        filteredData = outfitData
+	}
 
-        if searchController == nil {
-            searchController = UISearchController(searchResultsController: nil)
-            searchController.searchResultsUpdater = self
-            searchController.dimsBackgroundDuringPresentation = false
-            searchController.hidesNavigationBarDuringPresentation = false
-            
-            searchController.searchBar.delegate = self
-            searchController.searchBar.barTintColor = sprubixLightGray
-            
-            // adjust searchbar
-            searchController.searchBar.scopeButtonTitles = scopeTitles
-            searchController.searchBar.selectedScopeButtonIndex = 0
-            searchController.searchBar.sizeToFit()
-        }
-        
-        let filterTableViewY: CGFloat = 44
-        filterTableView = UITableView(frame: CGRect(x: 0, y: filterTableViewY, width: screenWidth, height: screenHeight))
-        filterTableView.dataSource = self
-        filterTableView.delegate = self
-        filterTableView.backgroundColor = UIColor.whiteColor()
-        filterTableView.tableFooterView = UIView(frame: CGRectZero)
-        filterTableView.registerClass(UITableViewCell.self, forCellReuseIdentifier: searchCellIdentifier)
-        
-        view.addSubview(filterTableView)
-        
-        self.definesPresentationContext = true
-    }
-    
     override func viewWillAppear(animated: Bool) {
-        super.viewWillAppear(animated)
+	    super.viewWillAppear(animated)
         
-        searchController.searchBar.becomeFirstResponder()
         containerViewController.statusBarHidden = false
         self.setNeedsStatusBarAppearanceUpdate()
-        println(self.navigationController?.viewControllers)
-    }
+        
+        initNavBar()
+	}
+
+	override func viewDidAppear(animated: Bool) {
+		super.viewDidAppear(animated)
+        
+        println(self.navigationController?.childViewControllers)
+	}
     
-    override func viewDidAppear(animated: Bool) {
-        super.viewDidAppear(animated)
+    func initNavBar() {
+        // 1. hide existing nav bar
+        self.navigationController?.setNavigationBarHidden(true, animated: true)
         
-        // adjust searchbar
-        searchController.searchBar.scopeButtonTitles = scopeTitles
-        searchController.searchBar.selectedScopeButtonIndex = 0
-        searchController.searchBar.sizeToFit()
+        // 2. create new nav bar and style it
+        newNavBar = UINavigationBar(frame: CGRectMake(0, 0, self.view.bounds.width, navigationHeaderAndStatusbarHeight + navigationHeight))
+        newNavBar.barTintColor = UIColor.whiteColor()
+        newNavBar.backgroundColor = UIColor.whiteColor()
+        newNavBar.translucent = false
         
-        if !searchController.active {
-            self.presentViewController(searchController!, animated: true, completion: nil)
-        }
+        // 3. add a new navigation item w/title to the new nav bar
+        let searchBarContainer = UIView(frame: CGRectMake(0, 0, screenWidth, navigationHeight * 2))
+        searchBarContainer.backgroundColor = UIColor.whiteColor()
+        searchBarContainer.userInteractionEnabled = true
+        
+        searchBar = UISearchBar(frame: CGRectMake(0, 0, screenWidth - 10, navigationHeight))
+        searchBar?.barTintColor = UIColor.whiteColor()
+        searchBar?.backgroundColor = UIColor.whiteColor()
+        searchBar?.setBackgroundImage(UIImage(), forBarPosition: UIBarPosition.Any, barMetrics: UIBarMetrics.Default)
+        searchBar?.delegate = self
+
+        searchBar?.scopeButtonTitles = scopeButtonTitles
+        searchBar?.showsScopeBar = true
+        searchBar?.selectedScopeButtonIndex = currentScope
+        searchBar?.showsCancelButton = true
+
+        searchBar?.becomeFirstResponder()
+        searchBar?.sizeToFit()
+        
+        searchBarContainer.addSubview(searchBar!)
+        
+        newNavItem = UINavigationItem()
+        newNavItem.titleView = searchBarContainer
+        newNavItem.titleView?.userInteractionEnabled = true
+        newNavBar.setTitleVerticalPositionAdjustment(-statusbarHeight - 2, forBarMetrics: UIBarMetrics.Default)
+        
+        // 4. create a custom back button
+        var backButton:UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+        var image: UIImage = UIImage(named: "spruce-arrow-back")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
+        backButton.setImage(image, forState: UIControlState.Normal)
+        backButton.frame = CGRect(x: -10, y: 0, width: 20, height: 20)
+        backButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+        backButton.imageView?.tintColor = UIColor.lightGrayColor()
+        backButton.addTarget(self, action: "backTapped:", forControlEvents: UIControlEvents.TouchUpInside)
+        backButton.exclusiveTouch = true
+        
+        //var backButtonView:UIView = UIView(frame: CGRect(x: 0, y: 0, width: backButton.frame.width, height: backButton.frame.height))
+        //backButtonView.addSubview(backButton)
+        
+        var backBarButtonItem:UIBarButtonItem = UIBarButtonItem(customView: backButton)
+        backBarButtonItem.tintColor = UIColor(red: 170/255, green: 170/255, blue: 170/255, alpha: 1.0)
+        
+        //newNavItem.leftBarButtonItem = backBarButtonItem
+        
+        newNavBar.setItems([newNavItem], animated: false)
+        
+        // 5. add the nav bar to the main view
+        self.view.addSubview(newNavBar)
+        
+        // here the spinner is initialized
+        let activityViewWidth: CGFloat = 50
+        activityView = UIActivityIndicatorView(activityIndicatorStyle: UIActivityIndicatorViewStyle.White)
+        activityView.color = sprubixColor
+        activityView.frame = CGRect(x: screenWidth / 2 - activityViewWidth / 2, y: screenHeight / 2 - activityViewWidth / 2, width: activityViewWidth, height: activityViewWidth)
+        
+        view.addSubview(activityView)
     }
-    
-    // UISearchResultsUpdating Protocol
-    func updateSearchResultsForSearchController(searchController: UISearchController) {
-        var searchString = searchController.searchBar.text
-        
-        switch (searchController.searchBar.selectedScopeButtonIndex) {
-        case 0:
-            filteredData = searchString.isEmpty ? outfitData : outfitData.filter({(dataString: String) -> Bool in
-                return dataString.rangeOfString(searchString, options: .CaseInsensitiveSearch) != nil
-            })
-            
-        case 1:
-            filteredData = searchString.isEmpty ? pieceData : pieceData.filter({(dataString: String) -> Bool in
-                return dataString.rangeOfString(searchString, options: .CaseInsensitiveSearch) != nil
-            })
-            
-        case 2:
-            filteredData = searchString.isEmpty ? peopleData : peopleData.filter({(dataString: String) -> Bool in
-                return dataString.rangeOfString(searchString, options: .CaseInsensitiveSearch) != nil
-            })
-            
-        default:
-            break
-        }
-        
-        filterTableView.reloadData()
-    }
-    
+
     // UISearchBarDelegate
-    func searchBarCancelButtonClicked(searchBar: UISearchBar) {
-        
-        dismissSearchViewController()
+    func searchBar(searchBar: UISearchBar, textDidChange searchText: String) {
+        println("update: \(searchText)")
     }
     
     func searchBar(searchBar: UISearchBar, selectedScopeButtonIndexDidChange selectedScope: Int) {
-        switch selectedScope {
-        case 0:
-            filteredData = outfitData
-        case 1:
-            filteredData = pieceData
-        case 2:
-            filteredData = peopleData
-        default:
-            break
-        }
-        
-        filterTableView.reloadData()
+
+        currentScope = selectedScope
     }
+    
+    func searchBarCancelButtonClicked(searchBar: UISearchBar) {
+        dismissSearchViewController()
+	}
     
     func searchBarSearchButtonClicked(searchBar: UISearchBar) {
-        search()
-    }
-    
-    private func dismissSearchViewController() {
-        searchController.searchBar.scopeButtonTitles = nil
+        var searchString = searchBar.text
         
-        UIView.transitionWithView(self.navigationController!.view, duration: 0.3, options: UIViewAnimationOptions.TransitionCrossDissolve, animations: {
-            self.navigationController?.popViewControllerAnimated(false)
-            }, completion: nil)
-    }
-    
-    // UITableViewDataSource
-    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return filteredData.count
-    }
-    
-    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell: UITableViewCell = tableView.dequeueReusableCellWithIdentifier(searchCellIdentifier) as! UITableViewCell
-        cell.textLabel?.text = filteredData[indexPath.row]
-        cell.textLabel?.textColor = UIColor.darkGrayColor()
-        cell.backgroundColor = UIColor.whiteColor()
+        println("search clicked: \(searchString)")
         
-        return cell
-    }
-    
-    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        searchController.searchBar.text = filteredData[indexPath.row]
+        var searchURL: String!
+        var params: NSMutableDictionary = NSMutableDictionary()
         
-        search()
-    }
-    
-    func search() {
-        selectedScopeIndex = searchController.searchBar.selectedScopeButtonIndex
-        
-        println("Search Scope: \(scopeTitles[selectedScopeIndex]) , Text: \(searchController.searchBar.text)")
-        showSearchResultsView()
-    }
-    
-    func showSearchResultsView() {
-        // adjust searchbar
-        searchController.searchBar.scopeButtonTitles = nil
-        searchController.searchBar.sizeToFit()
-        searchController.searchBar.resignFirstResponder()
-        
-        var searchResultsViewController = SearchResultsViewController()
-        
-        switch (selectedScopeIndex) {
+        switch currentScope {
         case 0:
-            searchResultsViewController.currentScopeState = ScopeState.Outfits
+            // Outfits
+            searchURL = "/outfits/search"
         case 1:
-            searchResultsViewController.currentScopeState = ScopeState.Pieces
+            // Pieces
+            searchURL = "/pieces/search"
         case 2:
-            searchResultsViewController.currentScopeState = ScopeState.People
+            // Users
+            searchURL = "/users/search"
         default:
-            break
+            fatalError("Unknown scope in SearchViewController")
         }
         
-        searchResultsViewController.fullTextSearchString = searchController.searchBar.text
-        self.navigationController?.pushViewController(searchResultsViewController, animated: true)
+        params.setObject(searchString, forKey: "full_text")
+        
+        activityView.startAnimating()
+        
+        // REST call to server to retrieve results
+        manager.POST(SprubixConfig.URL.api + searchURL,
+            parameters: params,
+            success: { (operation: AFHTTPRequestOperation!, responseObject:
+                AnyObject!) in
+                
+                self.activityView.stopAnimating()
+                
+                if self.currentScope != 2 {
+                    // instantiate results view controller
+                    let searchResultsViewController = SearchResultsViewController()
+                    
+                    searchResultsViewController.searchString = searchString
+                    searchResultsViewController.searchURL = searchURL
+                    searchResultsViewController.currentScope = self.currentScope
+                    searchResultsViewController.results = responseObject["data"] as! [NSDictionary]
+                    
+                    self.navigationController!.delegate = nil
+                    self.navigationController?.pushViewController(searchResultsViewController, animated: true)
+                } else {
+                    let searchResultsUsersViewController = UIStoryboard.searchResultsUsersViewController()
+                    
+                    searchResultsUsersViewController!.searchString = searchString
+                    searchResultsUsersViewController!.searchURL = searchURL
+                    searchResultsUsersViewController!.results = responseObject["data"] as! [NSDictionary]
+                    
+                    self.navigationController!.delegate = nil
+                    self.navigationController?.pushViewController(searchResultsUsersViewController!, animated: true)
+                }
+                
+            },
+            failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                println("Error: " + error.localizedDescription)
+                
+                self.activityView.stopAnimating()
+        })
+        
+    }
+
+    private func dismissSearchViewController() {
+	    UIView.transitionWithView(self.navigationController!.view, duration: 0.3, options: UIViewAnimationOptions.TransitionCrossDissolve, animations: {
+	        self.navigationController?.popViewControllerAnimated(false)
+	        }, completion: nil)
+    }
+    
+    func backTapped(sender: UIBarButtonItem) {
+        dismissSearchViewController()
     }
 }

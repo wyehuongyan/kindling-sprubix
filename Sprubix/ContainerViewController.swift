@@ -432,6 +432,10 @@ extension UIStoryboard {
         return mainStoryboard().instantiateViewControllerWithIdentifier("SprubixCamera") as? SprubixCameraViewController
     }
     
+    class func searchResultsUsersViewController() -> SearchResultsUsersViewController? {
+        return mainStoryboard().instantiateViewControllerWithIdentifier("SearchResultsUsersView") as? SearchResultsUsersViewController
+    }
+    
     // Menu storyboard
     class func sidePanelViewController() -> SidePanelViewController? {
         return menuStoryboard().instantiateViewControllerWithIdentifier("SidePanel") as? SidePanelViewController

@@ -250,6 +250,8 @@ class FavoritesViewController: UIViewController, DZNEmptyDataSetSource, DZNEmpty
                             },
                             failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                                 println("Error: " + error.localizedDescription)
+                                
+                                self.activityView.stopAnimating()
                         })
                     }
                 }

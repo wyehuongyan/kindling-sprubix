@@ -119,6 +119,7 @@
 		84D697271AC7E05800C676FD /* SpruceShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D697261AC7E05800C676FD /* SpruceShareViewController.swift */; };
 		84D697291AC922DA00C676FD /* logo-final-square.png in Resources */ = {isa = PBXBuildFile; fileRef = 84D697281AC922DA00C676FD /* logo-final-square.png */; };
 		84EAB5281B4568520064F888 /* CreateOutfitViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84EAB5271B4568520064F888 /* CreateOutfitViewController.swift */; };
+		84EB844B1B988AE900F042F1 /* SearchResultsUsersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84EB844A1B988AE900F042F1 /* SearchResultsUsersViewController.swift */; };
 		84EBF05C1B306176008D2306 /* SpruceSearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84EBF05B1B306176008D2306 /* SpruceSearchViewController.swift */; };
 		84EBF05E1B30619B008D2306 /* MyClosetViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84EBF05D1B30619B008D2306 /* MyClosetViewController.swift */; };
 		84FDB9601B1595FA00E8D720 /* NotificationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FDB95F1B1595FA00E8D720 /* NotificationCell.swift */; };
@@ -254,6 +255,7 @@
 		84D697261AC7E05800C676FD /* SpruceShareViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpruceShareViewController.swift; sourceTree = "<group>"; };
 		84D697281AC922DA00C676FD /* logo-final-square.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "logo-final-square.png"; sourceTree = "<group>"; };
 		84EAB5271B4568520064F888 /* CreateOutfitViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CreateOutfitViewController.swift; sourceTree = "<group>"; };
+		84EB844A1B988AE900F042F1 /* SearchResultsUsersViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchResultsUsersViewController.swift; sourceTree = "<group>"; };
 		84EBF05B1B306176008D2306 /* SpruceSearchViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpruceSearchViewController.swift; sourceTree = "<group>"; };
 		84EBF05D1B30619B008D2306 /* MyClosetViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MyClosetViewController.swift; sourceTree = "<group>"; };
 		84FDB95F1B1595FA00E8D720 /* NotificationCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotificationCell.swift; sourceTree = "<group>"; };
@@ -453,6 +455,7 @@
 				8405D0661B5F8B6000B42752 /* PeopleFeedViewController.swift */,
 				05044E351B95DE3400A50F3F /* SearchViewController.swift */,
 				05044E371B9601A000A50F3F /* SearchResultsViewController.swift */,
+				84EB844A1B988AE900F042F1 /* SearchResultsUsersViewController.swift */,
 			);
 			name = Feed;
 			sourceTree = "<group>";
@@ -959,6 +962,7 @@
 				059E98931B563B85007A5A42 /* EditProfileViewController.swift in Sources */,
 				84FDB9631B15A63700E8D720 /* NotificationViewController.swift in Sources */,
 				8405D0311B4FD3A400B42752 /* PaymentMethodCell.swift in Sources */,
+				84EB844B1B988AE900F042F1 /* SearchResultsUsersViewController.swift in Sources */,
 				84B3354C1AB449F500B9707D /* PieceDetailsViewController.swift in Sources */,
 				05F7EDE01B58EA0F00CB2665 /* HelpCenterViewController.swift in Sources */,
 				840950DF1B7C9BD70094BE76 /* ShopOrderRefundCell.swift in Sources */,
