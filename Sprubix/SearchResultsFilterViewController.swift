@@ -48,6 +48,9 @@ class SearchResultsFilterViewController: UIViewController, UITableViewDataSource
         
         filterCategoriesTableView.registerClass(UITableViewCell.self, forCellReuseIdentifier: "cell")
         
+        // get rid of line seperator for empty cells
+        filterCategoriesTableView.tableFooterView = UIView(frame: CGRectZero)
+        
         view.addSubview(filterCategoriesTableView)
     }
     
@@ -88,6 +91,7 @@ class SearchResultsFilterViewController: UIViewController, UITableViewDataSource
         var category = categories[indexPath.row]
         
         cell.textLabel?.text = category["name"] as? String
+        cell.textLabel?.textColor = UIColor.darkGrayColor()
         
         if selectedIndexPath != nil && indexPath == selectedIndexPath {
             cell.accessoryType = UITableViewCellAccessoryType.Checkmark

@@ -58,6 +58,10 @@ class CartViewController: UIViewController, UITableViewDataSource, UITableViewDe
     var shippingGrandTotal: Float = 0
     var grandTotal: Float = 0
     
+    // checkout
+    var insufficientIdsDict: NSMutableDictionary = NSMutableDictionary()
+    var checkoutButton: UIButton!
+    
     @IBOutlet var cartTableView: UITableView!
     
     // points earned
@@ -146,15 +150,16 @@ class CartViewController: UIViewController, UITableViewDataSource, UITableViewDe
         newNavItem.leftBarButtonItem = backBarButtonItem
         
         // 5. create a done buton
-        var nextButton:UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
-        nextButton.setTitle("checkout", forState: UIControlState.Normal)
-        nextButton.setTitleColor(sprubixColor, forState: UIControlState.Normal)
-        nextButton.frame = CGRect(x: 0, y: 0, width: 80, height: 20)
-        nextButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
-        nextButton.addTarget(self, action: "checkout:", forControlEvents: UIControlEvents.TouchUpInside)
+        checkoutButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+        checkoutButton.setTitle("checkout", forState: UIControlState.Normal)
+        checkoutButton.setTitleColor(sprubixColor, forState: UIControlState.Normal)
+        checkoutButton.setTitleColor(UIColor.lightGrayColor(), forState: UIControlState.Disabled)
+        checkoutButton.frame = CGRect(x: 0, y: 0, width: 80, height: 20)
+        checkoutButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+        checkoutButton.addTarget(self, action: "checkout:", forControlEvents: UIControlEvents.TouchUpInside)
         
-        var nextBarButtonItem:UIBarButtonItem = UIBarButtonItem(customView: nextButton)
-        newNavItem.rightBarButtonItem = nextBarButtonItem
+        var checkoutBarButtonItem: UIBarButtonItem = UIBarButtonItem(customView: checkoutButton)
+        newNavItem.rightBarButtonItem = checkoutBarButtonItem
         
         newNavBar.setItems([newNavItem], animated: false)
         
@@ -276,7 +281,8 @@ class CartViewController: UIViewController, UITableViewDataSource, UITableViewDe
         let price = piece["price"] as! NSString
         let quantity = cartItem["quantity"] as! Int
         let size = cartItem["size"] as? String
-
+        let cartItemId = cartItem["id"] as! Int
+        
         cell.cartItemName.text = piece["name"] as? String
         cell.cartItemPrice.text = String(format: "$%.2f", price.floatValue * Float(quantity))
         cell.cartItemQuantity.text = "Quantity: \(quantity)"
@@ -293,6 +299,20 @@ class CartViewController: UIViewController, UITableViewDataSource, UITableViewDe
         let pieceImageURL: NSURL = NSURL(string: thumbnailURLString)!
         
         cell.cartItemImageView.setImageWithURL(pieceImageURL)
+        
+        // insufficient cart item
+        if insufficientIdsDict.objectForKey("\(cartItemId)") != nil {
+            var insufficientItem = insufficientIdsDict.objectForKey("\(cartItemId)") as! NSDictionary
+            
+            var quantityLeft = insufficientItem["quantity_left"] as! String
+            
+            cell.cartItemPrice.text = "Stock left: \(quantityLeft)"
+            cell.cartItemPrice.textColor = UIColor.redColor()
+            cell.backgroundColor = UIColor(red: 253/255, green: 253/255, blue: 150/255, alpha: 1)
+        } else {
+            cell.cartItemPrice.textColor = UIColor.blackColor()
+            cell.backgroundColor = UIColor.whiteColor()
+        }
         
         cell.editCartItemAction = { Void in
             
@@ -362,21 +382,38 @@ class CartViewController: UIViewController, UITableViewDataSource, UITableViewDe
     }
     
     func retrieveCartItems() {
-        // REST call to server to create cart item and add to user's cart
-        manager.GET(SprubixConfig.URL.api + "/cart",
-            parameters: nil,
-            success: { (operation: AFHTTPRequestOperation!, responseObject:
-                AnyObject!) in
-                
-                self.cartData = responseObject as! NSDictionary
-                
-                if self.cartData.allKeys.count > 0 {
-                    self.formatCartItemData()
+        verifyStock { (insufficient) -> Void in
+            if insufficient != nil {
+                // some stock is insufficient
+                for insufficient in insufficient! {
+                    var cartItemId = insufficient["cart_item_id"] as! Int
+                    
+                    self.insufficientIdsDict.setObject(insufficient, forKey: "\(cartItemId)")
                 }
-            },
-            failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
-                println("Error: " + error.localizedDescription)
-        })
+                
+                // set checkout button to be disabled
+                self.checkoutButton.enabled = false
+            } else {
+                // OK
+                self.checkoutButton.enabled = true
+            }
+            
+            // REST call to server to create cart item and add to user's cart
+            manager.GET(SprubixConfig.URL.api + "/cart",
+                parameters: nil,
+                success: { (operation: AFHTTPRequestOperation!, responseObject:
+                    AnyObject!) in
+                    
+                    self.cartData = responseObject as! NSDictionary
+                    
+                    if self.cartData.allKeys.count > 0 {
+                        self.formatCartItemData()
+                    }
+                },
+                failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                    println("Error: " + error.localizedDescription)
+            })
+        }
     }
     
     func formatCartItemData() {
@@ -956,7 +993,7 @@ class CartViewController: UIViewController, UITableViewDataSource, UITableViewDe
                     if status == "200" {
                         // success
                         TSMessage.showNotificationInViewController(                        TSMessage.defaultViewController(), title: "Success!", subtitle: "Item updated", image: UIImage(named: "filter-check"), type: TSMessageNotificationType.Success, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: true)
-                        
+                            
                         self.retrieveCartItems()
                         self.buyPopup?.dismiss(true)
                     } else {
@@ -976,6 +1013,8 @@ class CartViewController: UIViewController, UITableViewDataSource, UITableViewDe
     }
     
     private func verifyStock(completionHandler: ((insufficient : [NSDictionary]?) -> Void)) {
+        insufficientIdsDict.removeAllObjects()
+        
         manager.GET(SprubixConfig.URL.api + "/cart/verify",
             parameters: nil,
             success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in

@@ -163,7 +163,7 @@ class SearchViewController: UIViewController, UISearchBarDelegate {
                     searchResultsViewController.currentPage = responseObject["current_page"] as? Int
                     searchResultsViewController.lastPage = responseObject["last_page"] as? Int
                     
-                    self.navigationController!.delegate = nil
+                    self.navigationController?.delegate = nil
                     self.navigationController?.pushViewController(searchResultsViewController, animated: true)
                 } else {
                     // instantiate users results view controller
@@ -175,7 +175,7 @@ class SearchViewController: UIViewController, UISearchBarDelegate {
                     searchResultsUsersViewController!.currentPage = responseObject["current_page"] as? Int
                     searchResultsUsersViewController!.lastPage = responseObject["last_page"] as? Int
                     
-                    self.navigationController!.delegate = nil
+                    self.navigationController?.delegate = nil
                     self.navigationController?.pushViewController(searchResultsUsersViewController!, animated: true)
                 }
                 

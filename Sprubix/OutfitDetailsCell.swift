@@ -437,27 +437,42 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
                 let userType = userData!["shoppable_type"] as! String
                 
                 if userType.lowercaseString.rangeOfString("shopper") != nil {
-                    addToBagButton = UIButton(frame: CGRect(x: screenWidth / 2, y: screenHeight - navigationHeight, width: screenWidth / 2, height: navigationHeight))
+                    let buttonView = UIView(frame: CGRectMake(0, 0, screenWidth, navigationHeight))
+                    
+                    addToBagButton = UIButton(frame: CGRect(x: screenWidth / 3, y: screenHeight - navigationHeight, width: 2 * screenWidth / 3, height: navigationHeight))
                     addToBagButton.backgroundColor = sprubixColor
-                    addToBagButton.titleLabel?.font = UIFont.boldSystemFontOfSize(18.0)
+                    
+                    var image: UIImage = UIImage(named: "sidemenu-cart")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
+                    
+                    addToBagButton.setImage(image, forState: UIControlState.Normal)
+                    addToBagButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+                    addToBagButton.imageView?.tintColor = UIColor.whiteColor()
+                    addToBagButton.imageEdgeInsets = UIEdgeInsetsMake(10, 0, 10, 0)
+                    addToBagButton.titleLabel?.font = UIFont.boldSystemFontOfSize(16.0)
                     addToBagButton.setTitle("Buy Outfit Now", forState: UIControlState.Normal)
                     addToBagButton.addTarget(self, action: "addToBagButtonPressed:", forControlEvents: UIControlEvents.TouchUpInside)
                     
-                    contentView.addSubview(addToBagButton)
+                    buttonView.addSubview(addToBagButton)
                     
                     // spruce button
-                    spruceButton = UIButton(frame: CGRect(x: 0, y: screenHeight - navigationHeight, width: screenWidth / 2, height: navigationHeight))
-                    spruceButton.backgroundColor = sprubixLightGray
-                    spruceButton.titleLabel?.font = UIFont.boldSystemFontOfSize(18.0)
-                    spruceButton.setTitleColor(sprubixColor, forState: UIControlState.Normal)
-                    spruceButton.setTitle("Spruce Outfit", forState: UIControlState.Normal)
+                    spruceButton = UIButton(frame: CGRect(x: 0, y: screenHeight - navigationHeight, width: screenWidth / 3, height: navigationHeight))
+                    spruceButton.backgroundColor = sprubixGray
+                    
+                    image = UIImage(named: "profile-mycloset")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
+                    
+                    spruceButton.setImage(image, forState: UIControlState.Normal)
+                    spruceButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+                    spruceButton.imageView?.tintColor = UIColor.grayColor()
+                    spruceButton.imageEdgeInsets = UIEdgeInsetsMake(8, 0, 12, 0)
+                    spruceButton.titleLabel?.font = UIFont.boldSystemFontOfSize(16.0)
+                    spruceButton.setTitleColor(UIColor.grayColor(), forState: UIControlState.Normal)
+                    spruceButton.setTitle("Spruce", forState: UIControlState.Normal)
                     spruceButton.addTarget(self, action: "spruceButtonPressed:", forControlEvents: UIControlEvents.TouchUpInside)
                     
-                    spruceButtonLine = UIView(frame: CGRect(x: 0, y: 0, width: spruceButton.frame.width, height: 1))
-                    spruceButtonLine.backgroundColor = sprubixColor
-                    spruceButton.addSubview(spruceButtonLine)
+                    buttonView.addSubview(spruceButton)
                     
-                    contentView.addSubview(spruceButton)
+                    Glow.addGlow(buttonView)
+                    contentView.addSubview(buttonView)
                     
                     // manual dim background because of TSMessage being blocked
                     darkenedOverlay = UIView(frame: CGRectMake(0, 0, screenWidth, screenHeight))
@@ -469,15 +484,21 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
             } else {
                 // spruce button
                 spruceButton = UIButton(frame: CGRect(x: 0, y: screenHeight - navigationHeight, width: screenWidth, height: navigationHeight))
-                spruceButton.backgroundColor = sprubixLightGray
-                spruceButton.titleLabel?.font = UIFont.boldSystemFontOfSize(18.0)
-                spruceButton.setTitleColor(sprubixColor, forState: UIControlState.Normal)
-                spruceButton.setTitle("Spruce Outfit Now", forState: UIControlState.Normal)
+                spruceButton.backgroundColor = sprubixGray
+                
+                var image: UIImage = UIImage(named: "profile-mycloset")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
+                
+                spruceButton.setImage(image, forState: UIControlState.Normal)
+                spruceButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+                spruceButton.imageView?.tintColor = UIColor.grayColor()
+                spruceButton.imageEdgeInsets = UIEdgeInsetsMake(8, 0, 12, 0)
+                spruceButton.titleLabel?.font = UIFont.boldSystemFontOfSize(16.0)
+
+                spruceButton.setTitleColor(UIColor.grayColor(), forState: UIControlState.Normal)
+                spruceButton.setTitle("Spruce Outfit", forState: UIControlState.Normal)
                 spruceButton.addTarget(self, action: "spruceButtonPressed:", forControlEvents: UIControlEvents.TouchUpInside)
                 
-                spruceButtonLine = UIView(frame: CGRect(x: 0, y: 0, width: spruceButton.frame.width, height: 1))
-                spruceButtonLine.backgroundColor = sprubixColor
-                spruceButton.addSubview(spruceButtonLine)
+                Glow.addGlow(spruceButton)
                 
                 contentView.addSubview(spruceButton)
             }
