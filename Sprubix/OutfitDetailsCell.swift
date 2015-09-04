@@ -437,8 +437,6 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
                 let userType = userData!["shoppable_type"] as! String
                 
                 if userType.lowercaseString.rangeOfString("shopper") != nil {
-                    let buttonView = UIView(frame: CGRectMake(0, 0, screenWidth, navigationHeight))
-                    
                     addToBagButton = UIButton(frame: CGRect(x: screenWidth / 3, y: screenHeight - navigationHeight, width: 2 * screenWidth / 3, height: navigationHeight))
                     addToBagButton.backgroundColor = sprubixColor
                     
@@ -452,7 +450,7 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
                     addToBagButton.setTitle("Buy Outfit Now", forState: UIControlState.Normal)
                     addToBagButton.addTarget(self, action: "addToBagButtonPressed:", forControlEvents: UIControlEvents.TouchUpInside)
                     
-                    buttonView.addSubview(addToBagButton)
+                    contentView.addSubview(addToBagButton)
                     
                     // spruce button
                     spruceButton = UIButton(frame: CGRect(x: 0, y: screenHeight - navigationHeight, width: screenWidth / 3, height: navigationHeight))
@@ -469,10 +467,7 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
                     spruceButton.setTitle("Spruce", forState: UIControlState.Normal)
                     spruceButton.addTarget(self, action: "spruceButtonPressed:", forControlEvents: UIControlEvents.TouchUpInside)
                     
-                    buttonView.addSubview(spruceButton)
-                    
-                    Glow.addGlow(buttonView)
-                    contentView.addSubview(buttonView)
+                    contentView.addSubview(spruceButton)
                     
                     // manual dim background because of TSMessage being blocked
                     darkenedOverlay = UIView(frame: CGRectMake(0, 0, screenWidth, screenHeight))
@@ -497,8 +492,6 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
                 spruceButton.setTitleColor(UIColor.grayColor(), forState: UIControlState.Normal)
                 spruceButton.setTitle("Spruce Outfit", forState: UIControlState.Normal)
                 spruceButton.addTarget(self, action: "spruceButtonPressed:", forControlEvents: UIControlEvents.TouchUpInside)
-                
-                Glow.addGlow(spruceButton)
                 
                 contentView.addSubview(spruceButton)
             }
