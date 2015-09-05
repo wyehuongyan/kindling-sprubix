@@ -423,6 +423,7 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
 
 extension UIStoryboard {
     class func mainStoryboard() -> UIStoryboard { return UIStoryboard(name: "Main", bundle: NSBundle.mainBundle()) }
+    class func authStoryboard() -> UIStoryboard { return UIStoryboard(name: "Auth", bundle: NSBundle.mainBundle()) }
     class func shopStoryboard() -> UIStoryboard { return UIStoryboard(name: "Shop", bundle: NSBundle.mainBundle()) }
     class func menuStoryboard() -> UIStoryboard { return UIStoryboard(name: "Menu", bundle: NSBundle.mainBundle()) }
     class func settingsStoryboard() -> UIStoryboard { return UIStoryboard(name: "Settings", bundle: NSBundle.mainBundle()) }
@@ -430,6 +431,11 @@ extension UIStoryboard {
     // Main storyboard
     class func sprubixCameraViewController() -> SprubixCameraViewController? {
         return mainStoryboard().instantiateViewControllerWithIdentifier("SprubixCamera") as? SprubixCameraViewController
+    }
+    
+    // Auth storyboard
+    class func signInViewController() -> SignInViewController? {
+        return authStoryboard().instantiateViewControllerWithIdentifier("SignIn") as? SignInViewController
     }
     
     // Menu storyboard

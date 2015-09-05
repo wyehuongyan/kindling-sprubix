@@ -49,15 +49,8 @@ class SignInViewController: UIViewController, UITableViewDataSource, UITableView
     
     var userSignupData: NSMutableDictionary = NSMutableDictionary()
     
-    @IBAction func clickTermsOfService(sender: UIButton) {
-        let webURL: NSURL = NSURL(string: "http://www.sprubix.com/terms-of-service")!
-        UIApplication.sharedApplication().openURL(webURL)
-    }
-    
-    @IBAction func clickPrivacyPolicy(sender: UIButton) {
-        let webURL: NSURL = NSURL(string: "http://www.sprubix.com/privacy-policy")!
-        UIApplication.sharedApplication().openURL(webURL)
-    }
+    var termsOfServiceButton: UIButton!
+    var privacyPolicyButton: UIButton!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -85,7 +78,67 @@ class SignInViewController: UIViewController, UITableViewDataSource, UITableView
         continueButton.addTarget(self, action: "continueButtonPressed:", forControlEvents: UIControlEvents.TouchUpInside)
         
         view.addSubview(continueButton)
-
+        
+        // footer
+        let footerLine1: String = "By signing up, you agree with Sprubix's"
+        let footerLine2Join: String = "and"
+        let footerLine2TOS: String = "Terms of Service"
+        let footerLine2PP: String = "Privacy Policy"
+        let footerFont: UIFont = UIFont.systemFontOfSize(12)
+        
+        let footerLine2JoinLabel = UILabel()
+        footerLine2JoinLabel.text = footerLine2Join
+        footerLine2JoinLabel.font = footerFont
+        footerLine2JoinLabel.textColor = UIColor.darkGrayColor()
+        footerLine2JoinLabel.textAlignment = NSTextAlignment.Center
+        footerLine2JoinLabel.sizeToFit()
+        
+        let footerLine2X: CGFloat = screenWidth / 2
+        let footerLine2Y: CGFloat = screenHeight - footerLine2JoinLabel.frame.height / 2 - 15
+        footerLine2JoinLabel.frame.origin.x = footerLine2X - footerLine2JoinLabel.frame.width / 2
+        footerLine2JoinLabel.frame.origin.y = footerLine2Y
+        
+        view.addSubview(footerLine2JoinLabel)
+        
+        termsOfServiceButton = UIButton(frame: CGRect(x: 0, y: footerLine2Y, width: screenWidth, height: 10))
+        termsOfServiceButton.setTitle(footerLine2TOS, forState: UIControlState.Normal)
+        termsOfServiceButton.setTitleColor(sprubixColor, forState: UIControlState.Normal)
+        termsOfServiceButton.setTitleColor(UIColor.whiteColor(), forState: UIControlState.Highlighted)
+        termsOfServiceButton.addTarget(self, action: "clickedTermsOfService:", forControlEvents: UIControlEvents.TouchUpInside)
+        termsOfServiceButton.titleLabel?.font = footerFont
+        termsOfServiceButton.sizeToFit()
+        termsOfServiceButton.frame.origin.x = footerLine2JoinLabel.frame.origin.x - termsOfServiceButton.frame.width - 3
+        termsOfServiceButton.frame.origin.y = footerLine2Y - 7
+        
+        view.addSubview(termsOfServiceButton)
+        
+        privacyPolicyButton = UIButton(frame: CGRect(x: 0, y: footerLine2Y, width: screenWidth, height: 10))
+        privacyPolicyButton.setTitle(footerLine2PP, forState: UIControlState.Normal)
+        privacyPolicyButton.setTitleColor(sprubixColor, forState: UIControlState.Normal)
+        privacyPolicyButton.setTitleColor(UIColor.whiteColor(), forState: UIControlState.Highlighted)
+        privacyPolicyButton.addTarget(self, action: "clickedPrivacyPolicy:", forControlEvents: UIControlEvents.TouchUpInside)
+        privacyPolicyButton.titleLabel?.font = footerFont
+        privacyPolicyButton.sizeToFit()
+        privacyPolicyButton.frame.origin.x = footerLine2JoinLabel.frame.origin.x + footerLine2JoinLabel.frame.width + 3
+        privacyPolicyButton.frame.origin.y = footerLine2Y - 7
+        
+        view.addSubview(privacyPolicyButton)
+        
+        let footerLine1Label = UILabel()
+        footerLine1Label.text = footerLine1
+        footerLine1Label.font = footerFont
+        footerLine1Label.textColor = UIColor.darkGrayColor()
+        footerLine1Label.textAlignment = NSTextAlignment.Center
+        footerLine1Label.sizeToFit()
+        
+        let footerLine1X: CGFloat = screenWidth / 2 - footerLine1Label.frame.width / 2
+        let footerLine1Y: CGFloat = footerLine2Y - 15
+        footerLine1Label.frame.origin.x = footerLine1X
+        footerLine1Label.frame.origin.y = footerLine1Y
+        
+        view.addSubview(footerLine1Label)
+        
+        // Toolbar layout
         initLayout()
     }
     
@@ -267,6 +320,16 @@ class SignInViewController: UIViewController, UITableViewDataSource, UITableView
         if passwordText != nil && passwordText.superview != nil {
             passwordText.removeFromSuperview()
         }
+    }
+    
+    func clickedTermsOfService(sender: UIButton) {
+        let webURL: NSURL = NSURL(string: "http://www.sprubix.com/terms-of-service")!
+        UIApplication.sharedApplication().openURL(webURL)
+    }
+    
+    func clickedPrivacyPolicy(sender: UIButton) {
+        let webURL: NSURL = NSURL(string: "http://www.sprubix.com/privacy-policy")!
+        UIApplication.sharedApplication().openURL(webURL)
     }
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
