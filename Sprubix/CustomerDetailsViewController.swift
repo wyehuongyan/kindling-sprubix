@@ -213,10 +213,18 @@ class CustomerDetailsViewController: UIViewController, UITableViewDataSource, UI
                     let shop = shopOrder["user"] as! NSDictionary
                     let email = shop["email"] as! String
                     
-                    var contactNumber = shop["contact_number"] as! String
+                    var contactNumber: String = "Not Available"
                     
-                    if contactNumber == "" {
-                        contactNumber = "Not available"
+                    if !shop["user_info"]!.isKindOfClass(NSNull) {
+                        let shopInfo = shop["user_info"] as! NSDictionary
+                        
+                        if !shopInfo["contact_number"]!.isKindOfClass(NSNull) {
+                            contactNumber = shopInfo["contact_number"] as! String
+                            
+                            if contactNumber == "" {
+                                contactNumber = "Not available"
+                            }
+                        }
                     }
                     
                     cell.emailAddress.text = email

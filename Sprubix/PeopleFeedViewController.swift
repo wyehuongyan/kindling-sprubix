@@ -303,17 +303,25 @@ class PeopleFeedViewController: UIViewController, DZNEmptyDataSetSource, DZNEmpt
         
         let userImageString = person["image"] as! String
         let username = person["username"] as? String
+        let name = person["name"] as? String
         let pieces = person["pieces"] as! [NSDictionary]
         
         cell.userImageView.setImageWithURL(NSURL(string: userImageString))
-        cell.userRealNameLabel.text = person["name"] as? String
         cell.user = person
         cell.followed = person["followed"] as! Bool
 
         cell.delegate = self
         
         if username != nil {
-            cell.userNameLabel.text = "@\(username!)"
+            cell.userNameLabel.text = username!
+        }
+        
+        if name != nil {
+            cell.userRealNameLabel.text = name!
+        } else {
+            if username != nil {
+                cell.userRealNameLabel.text = username!
+            }
         }
         
         cell.initItemPreview(pieces)

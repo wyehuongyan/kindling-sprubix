@@ -72,18 +72,18 @@ class PeopleFeedCell: UITableViewCell {
         let userNameLabelHeight: CGFloat = 18.0
         let followButtonWidth = userNameLabelHeight * 2
         
-        userRealNameLabel = UILabel(frame: CGRectMake(userImageView.frame.origin.x + userImageViewWidth + 10.0, 21.0, screenWidth - userImageViewWidth - 40.0 - followButtonWidth, userNameLabelHeight))
-        userRealNameLabel.font = UIFont(name: userRealNameLabel.font.fontName, size: 16.0)
-        userRealNameLabel.textColor = sprubixColor
-        
-        contentView.addSubview(userRealNameLabel)
-        
-        // create username label
-        userNameLabel = UILabel(frame: CGRectMake(userImageView.frame.origin.x + userImageViewWidth + 10.0, userRealNameLabel.frame.origin.y + userNameLabelHeight + 2.0, screenWidth - userImageViewWidth - 40.0 - followButtonWidth, userNameLabelHeight))
-        userNameLabel.font = UIFont(name: userRealNameLabel.font.fontName, size: 14.0)
-        userNameLabel.textColor = UIColor.lightGrayColor()
+        userNameLabel = UILabel(frame: CGRectMake(userImageView.frame.origin.x + userImageViewWidth + 10.0, 21.0, screenWidth - userImageViewWidth - 40.0 - followButtonWidth, userNameLabelHeight))
+        userNameLabel.font = UIFont(name: userNameLabel.font.fontName, size: 16.0)
+        userNameLabel.textColor = sprubixColor
         
         contentView.addSubview(userNameLabel)
+        
+        // create username label
+        userRealNameLabel = UILabel(frame: CGRectMake(userImageView.frame.origin.x + userImageViewWidth + 10.0, userNameLabel.frame.origin.y + userNameLabelHeight + 2.0, screenWidth - userImageViewWidth - 40.0 - followButtonWidth, userNameLabelHeight))
+        userRealNameLabel.font = UIFont(name: userRealNameLabel.font.fontName, size: 14.0)
+        userRealNameLabel.textColor = UIColor.lightGrayColor()
+        
+        contentView.addSubview(userRealNameLabel)
         
         // create follow button
         followButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton

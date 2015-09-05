@@ -41,6 +41,8 @@ class SidePanelViewController: UIViewController, UITableViewDataSource, UITableV
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        view.backgroundColor = UIColor.whiteColor()
+        
         initUserInfo()
         
         sidePanelTableView.separatorColor = UIColor.clearColor()
