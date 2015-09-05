@@ -24,6 +24,7 @@ PODS:
   - AFNetworking/UIKit (2.5.4):
     - AFNetworking/NSURLConnection
     - AFNetworking/NSURLSession
+  - AMPopTip (0.9.12)
   - AMTagListView (0.6.3)
   - Bolts (1.2.0):
     - Bolts/AppLinks (= 1.2.0)
@@ -148,6 +149,7 @@ DEPENDENCIES:
   - ActionSheetPicker-3.0 (~> 1.6.2)
   - AFNetworkActivityLogger (~> 2.0)
   - AFNetworking (~> 2.5.4)
+  - AMPopTip (~> 0.9.12)
   - AMTagListView (~> 0.6.3)
   - Braintree
   - Charts (~> 2.1.2)
@@ -185,6 +187,7 @@ SPEC CHECKSUMS:
   ActionSheetPicker-3.0: cc9f90ae785070623e9b972270013c3242190fb0
   AFNetworkActivityLogger: 121486778117d53b3ab1c61d264b88081d0c3eee
   AFNetworking: 05edc0ac4c4c8cf57bcf4b84be5b0744b6d8e71e
+  AMPopTip: 3c98a9b38148868366b57765064bd9565f653038
   AMTagListView: 3f95751a6bae491553800447d4f5deba033ca7da
   Bolts: d176cb1e0012175589e389a9db49b85e27787576
   Braintree: 7df7050fd35c19a7e81409b15efe0320b980b3d4

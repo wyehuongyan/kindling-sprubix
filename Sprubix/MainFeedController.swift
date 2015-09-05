@@ -13,6 +13,7 @@ import AFNetworking
 import SVPullToRefresh
 import TSMessages
 import Crashlytics
+import AMPopTip
 
 class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataSetDelegate, UICollectionViewDataSource, OutfitInteractionProtocol, CHTCollectionViewDelegateWaterfallLayout, TransitionProtocol {
     var delegate: SidePanelViewControllerDelegate?
@@ -45,6 +46,9 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
     var dropdownVisible: Bool = false
     let dropdownButtonHeight = navigationHeight
     let dropdownViewHeight = navigationHeight * 3
+    
+    // onboarding tooltip
+    var tooltipDropdown: AMPopTip!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -95,6 +99,7 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         
         initButtons()
         initDropdown()
+        initTooltip()
         
         // fresh login for initial load
         freshLogin = true
@@ -258,6 +263,10 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         activityView.frame = CGRect(x: screenWidth / 2 - activityViewWidth / 2, y: screenHeight / 3 - activityViewWidth / 2, width: activityViewWidth, height: activityViewWidth)
         
         view.addSubview(activityView)
+    }
+    
+    func initTooltip() {
+        //var tooltipDropdown = AMPoptip.
     }
     
     // REST calls

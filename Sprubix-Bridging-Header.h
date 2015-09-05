@@ -22,5 +22,6 @@
 #import "TSMessages/TSMessage.h"
 #import "Braintree/Braintree.h"
 #import "Mixpanel/Mixpanel.h"
+#import "AMPopTip/AMPopTip.h"
 //#import "FBSDKCoreKit/FBSDKCoreKit.h>"
 //#import "FBSDKLoginKit/FBSDKLoginKit.h>"

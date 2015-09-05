@@ -204,19 +204,52 @@ class SignUpViewController: UIViewController, FBSDKLoginButtonDelegate, UIScroll
     }
     
     func facebookButtonPressed(sender: UIButton) {
-        goSignInPage()
+        goSignInPage(sender)
     }
     
     func emailButtonPressed(sender: UIButton) {
-        goSignInPage()
+        goSignInPage(sender)
     }
     
     func haveAccountButtonPressed(sender: UIButton) {
-        goSignInPage()
+        goSignInPage(sender)
     }
     
-    func goSignInPage() {
+    func goSignInPage(sender: UIButton) {
         let signInViewController = UIStoryboard.signInViewController()
+
+        if let senderButton = sender as? FBSDKLoginButton {
+            // send to signup from FB, prefill info
+            signInViewController!.currentCreateAccountState = .Signup
+            
+            if let facebook_id = self.FBUserData.valueForKey("facebook_id") as? String {
+                signInViewController!.userSignupData.setValue(facebook_id, forKey: "facebook_id")
+            }
+            
+            if let email = self.FBUserData.valueForKey("email") as? String {
+                signInViewController!.userSignupData.setValue(email, forKey: "email")
+            }
+            
+            if let firstName = self.FBUserData.valueForKey("first_name") as? String {
+                signInViewController!.userSignupData.setValue(firstName, forKey: "first_name")
+            }
+            
+            if let lastName = self.FBUserData.valueForKey("last_name") as? String {
+                signInViewController!.userSignupData.setValue(lastName, forKey: "last_name")
+            }
+            
+            if let gender = self.FBUserData.valueForKey("gender") as? String {
+                signInViewController!.userSignupData.setValue(gender, forKey: "gender")
+            }
+        }
+        // send to signup
+        else if sender == emailButton {
+            signInViewController!.currentCreateAccountState = .Signup
+        }
+        // send to login
+        else {
+            signInViewController!.currentCreateAccountState = .Login
+        }
         
         self.navigationController?.pushViewController(signInViewController!, animated: true)
     }
@@ -229,45 +262,6 @@ class SignUpViewController: UIViewController, FBSDKLoginButtonDelegate, UIScroll
     func clickedPrivacyPolicy(sender: UIButton) {
         let webURL: NSURL = NSURL(string: "http://www.sprubix.com/privacy-policy")!
         UIApplication.sharedApplication().openURL(webURL)
-    }
-    
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        let vc = segue.destinationViewController as! SignInViewController
-        
-        if let senderButton = sender as? FBSDKLoginButton {
-            // send to signup from FB, prefill info
-            vc.currentCreateAccountState = .Signup
-            
-            if let facebook_id = self.FBUserData.valueForKey("facebook_id") as? String {
-                vc.userSignupData.setValue(facebook_id, forKey: "facebook_id")
-            }
-            
-            if let email = self.FBUserData.valueForKey("email") as? String {
-                vc.userSignupData.setValue(email, forKey: "email")
-            }
-            
-            if let firstName = self.FBUserData.valueForKey("first_name") as? String {
-                vc.userSignupData.setValue(firstName, forKey: "first_name")
-            }
-            
-            if let lastName = self.FBUserData.valueForKey("last_name") as? String {
-                vc.userSignupData.setValue(lastName, forKey: "last_name")
-            }
-            
-            if let gender = self.FBUserData.valueForKey("gender") as? String {
-                vc.userSignupData.setValue(gender, forKey: "gender")
-            }
-        }
-        else if let senderButton = sender as? UIButton {
-            // send to signup
-            if (sender as! UIButton) == emailButton {
-                vc.currentCreateAccountState = .Signup
-            }
-                // send to login
-            else {
-                vc.currentCreateAccountState = .Login
-            }
-        }
     }
     
     func getFBUserData(sender: FBSDKLoginButton) {

@@ -32,6 +32,7 @@ target "Sprubix" do
   pod 'FBSDKLoginKit', '~> 4.5.1'
   pod 'FBSDKShareKit', '~> 4.5.1'
   pod 'JLRoutes', '~> 1.5.2'
+  pod 'AMPopTip', '~> 0.9.12'
 end
 
 target "SprubixTests" do
