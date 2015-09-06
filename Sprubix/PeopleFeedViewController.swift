@@ -316,7 +316,7 @@ class PeopleFeedViewController: UIViewController, DZNEmptyDataSetSource, DZNEmpt
             cell.userNameLabel.text = username!
         }
         
-        if name != nil {
+        if name != nil && name != "" {
             cell.userRealNameLabel.text = name!
         } else {
             if username != nil {

@@ -13,12 +13,43 @@ class SprucePieceFeedCell: UICollectionViewCell {
     var piece: NSDictionary!
     var compressedDueToDress: Bool!
     
+    var userThumbnail: UIImageView!
+    var userRealNameLabel: UILabel!
+    var usernameLabel: UILabel!
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         
         self.autoresizingMask = UIViewAutoresizing.FlexibleWidth
         
         contentView.addSubview(pieceImageView)
+        
+        let userImageWidth: CGFloat = 35.0
+        userThumbnail = UIImageView(frame: CGRectMake(10, 10, userImageWidth, userImageWidth))
+        
+        userThumbnail.contentMode = UIViewContentMode.ScaleAspectFit
+        userThumbnail.layer.cornerRadius = userThumbnail.frame.size.width / 2
+        userThumbnail.clipsToBounds = true
+        userThumbnail.layer.borderWidth = 0.5
+        userThumbnail.layer.borderColor = UIColor.lightGrayColor().CGColor
+        
+        contentView.addSubview(userThumbnail)
+        
+        /*
+        usernameLabel = UILabel(frame: CGRectMake(userThumbnail.frame.origin.x + userImageWidth + 5, 10, screenWidth / 2, userImageWidth / 2))
+        
+        usernameLabel.textColor = sprubixColor
+        usernameLabel.font = UIFont.systemFontOfSize(12.0)
+        
+        contentView.addSubview(usernameLabel)
+        
+        userRealNameLabel = UILabel(frame: CGRectMake(userThumbnail.frame.origin.x + userImageWidth + 5, 10 + userImageWidth / 2, screenWidth / 2, userImageWidth / 2))
+        
+        userRealNameLabel.textColor = UIColor.grayColor()
+        userRealNameLabel.font = UIFont.systemFontOfSize(12.0)
+        
+        contentView.addSubview(userRealNameLabel)
+        */
     }
 
     required init(coder aDecoder: NSCoder) {

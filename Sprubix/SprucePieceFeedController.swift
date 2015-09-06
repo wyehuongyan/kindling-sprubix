@@ -262,7 +262,27 @@ class SprucePieceFeedController: UICollectionViewController, UICollectionViewDel
             index = 0
         }
         
-        collectionCell.piece = sprucePieces[indexPath.row] as NSDictionary
+        let piece = sprucePieces[indexPath.row] as NSDictionary
+        collectionCell.piece = piece
+        
+        let user = piece["user"] as! NSDictionary
+        var userImageURL = user["image"] as? String
+        let name = user["name"] as? String
+        let username = user["username"] as? String
+        
+        if userImageURL != nil {
+            collectionCell.userThumbnail.setImageWithURL(NSURL(string: userImageURL!))
+        }
+        
+        /*
+        collectionCell.usernameLabel.text = username!
+        
+        if name != nil && name != "" {
+            collectionCell.userRealNameLabel.text = name!
+        } else {
+            collectionCell.userRealNameLabel.text = username!
+        }
+        */
         
         collectionCell.setNeedsLayout()
         collectionCell.setNeedsDisplay()
