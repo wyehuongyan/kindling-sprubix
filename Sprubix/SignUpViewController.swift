@@ -447,7 +447,7 @@ class SignUpViewController: UIViewController, FBSDKLoginButtonDelegate, UIScroll
         let textHeight: CGFloat = 100
         let titleWidth: CGFloat = screenWidth * 0.9
         
-        let welcomeTitle: String = "Welcome to Sprubix"
+        let welcomeTitle: String = "" // replace with logo
         let discoverTitle: String = "Discover"
         let shareTitle: String = "Share"
         let saveTitle: String = "Save"
@@ -456,8 +456,8 @@ class SignUpViewController: UIViewController, FBSDKLoginButtonDelegate, UIScroll
         
         let welcomeText: String = "Never run out of oufit ideas again!"
         let discoverText: String = "Follow people and be inspired.\nExplore new ways to create outfits with items in your closet"
-        let shareText: String = "Inspire others!\nExpress you style, by yourself."
-        let saveText: String = "Save more then you shop more!\nWho complains about having more clothes?"
+        let shareText: String = "Inspire others!\nExpress your style, be yourself."
+        let saveText: String = "Save more when you shop more!\nWho complains about having more clothes?"
         let enjoyText: String = "Create outfits and earn points when people buy from it!"
         var texts: [String] = [welcomeText, discoverText, shareText, saveText, enjoyText]
         
@@ -490,6 +490,27 @@ class SignUpViewController: UIViewController, FBSDKLoginButtonDelegate, UIScroll
             onboardingTextScrollView.addSubview(titleLabels[index])
             onboardingTextScrollView.addSubview(textLabels[index])
         }
+        
+        // Logo
+        let logoView: UIView = UIView()
+        let sprubixLogo: UIImageView = UIImageView(image: UIImage(named: "main-sprubix-logo-inverse"))
+        let sprubixText: UIImageView = UIImageView(image: UIImage(named: "main-sprubix-text"))
+        
+        sprubixLogo.contentMode = UIViewContentMode.ScaleAspectFit
+        sprubixText.contentMode = UIViewContentMode.ScaleAspectFit
+        sprubixText.image = sprubixText.image?.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
+        sprubixText.tintColor = UIColor.whiteColor()
+        
+        sprubixLogo.frame =  CGRect(x: 0, y: 0, width: 60, height: 60)
+        sprubixText.frame =  CGRect(x: sprubixLogo.frame.width + 10, y: 0, width: 120, height: 60)
+        
+        logoView.frame.origin.x = screenWidth / 2 - (sprubixLogo.frame.width + sprubixText.frame.width) / 2
+        logoView.frame.origin.y = titleY - 10
+            
+        logoView.addSubview(sprubixLogo)
+        logoView.addSubview(sprubixText)
+        
+        onboardingTextScrollView.addSubview(logoView)
         
         view.addSubview(onboardingTextScrollView)
     }
