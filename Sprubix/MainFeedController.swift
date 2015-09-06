@@ -13,7 +13,7 @@ import AFNetworking
 import SVPullToRefresh
 import TSMessages
 import Crashlytics
-import AMPopTip
+import JDFTooltips
 
 class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataSetDelegate, UICollectionViewDataSource, OutfitInteractionProtocol, CHTCollectionViewDelegateWaterfallLayout, TransitionProtocol {
     var delegate: SidePanelViewControllerDelegate?
@@ -47,8 +47,9 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
     let dropdownButtonHeight = navigationHeight
     let dropdownViewHeight = navigationHeight * 3
     
-    // onboarding tooltip
-    var tooltipDropdown: AMPopTip!
+    // tooltip
+    var tooltipManager: JDFSequentialTooltipManager!
+    let tooltipWidth: CGFloat = screenWidth / 2
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -99,7 +100,6 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         
         initButtons()
         initDropdown()
-        initTooltip()
         
         // fresh login for initial load
         freshLogin = true
@@ -160,6 +160,13 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
                 self.insertMoreOutfits()
             }
         })
+        
+        // Tooltip
+        let onboarded = defaults.boolForKey("onboardedMainFeed")
+        
+        if onboarded == false {
+            tooltipOnboarding()
+        }
     }
     
     override func viewWillDisappear(animated: Bool) {
@@ -225,6 +232,29 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         self.navigationItem.rightBarButtonItems = [searchBarButtonItem]
     }
     
+    func tooltipOnboarding() {
+        tooltipManager = JDFSequentialTooltipManager(hostView: self.view)
+        tooltipManager.showsBackdropView = true
+        tooltipManager.backdropColour = UIColor.blackColor()
+        tooltipManager.backdropAlpha = 0.3
+        
+        let dropdownText = "Change the feed to Discover outfits and People"
+        let outfitText = "Touch here to view outfit details"
+        let ctaText = "Add a new outfit now!"
+        
+        let dropdownPoint: CGPoint = CGPoint(x: screenWidth/2 - 20, y: 60)
+        let outfitPoint: CGPoint = CGPoint(x: screenWidth * 0.45, y: screenHeight/3)
+
+        let dropdownTooltip: JDFTooltipView = JDFTooltipView(targetPoint: dropdownPoint, hostView: self.view, tooltipText: dropdownText, arrowDirection: JDFTooltipViewArrowDirection.Up, width: screenWidth*2/3)
+        let outfitTooltip: JDFTooltipView = JDFTooltipView(targetPoint: outfitPoint, hostView: self.view, tooltipText: outfitText, arrowDirection: JDFTooltipViewArrowDirection.Left, width: tooltipWidth)
+        let ctaTooltip: JDFTooltipView = JDFTooltipView(targetView: createOutfitButton, hostView: self.view, tooltipText: ctaText, arrowDirection: JDFTooltipViewArrowDirection.Down, width: tooltipWidth)
+        
+        tooltipManager.addTooltip(dropdownTooltip)
+        tooltipManager.addTooltip(outfitTooltip)
+        tooltipManager.addTooltip(ctaTooltip)
+        // 1 more for spruce-button at collectionview cell rendering
+    }
+    
     func initCollectionViewLayout() {
         // layout for outfits tab
         outfitsLayout = SprubixStretchyHeader()
@@ -263,10 +293,6 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         activityView.frame = CGRect(x: screenWidth / 2 - activityViewWidth / 2, y: screenHeight / 3 - activityViewWidth / 2, width: activityViewWidth, height: activityViewWidth)
         
         view.addSubview(activityView)
-    }
-    
-    func initTooltip() {
-        //var tooltipDropdown = AMPoptip.
     }
     
     // REST calls
@@ -583,6 +609,34 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         cell.creationTime = outfit["created_at_custom_format"] as! NSDictionary
         
         cell.setNeedsLayout()
+        
+        // tooltip
+        let onboarded = defaults.boolForKey("onboardedMainFeed")
+        
+        if onboarded == false && indexPath.row == 0 {
+            var spruceText = "Edit the outfit"
+            
+            let attributes: UICollectionViewLayoutAttributes = collectionView.layoutAttributesForItemAtIndexPath(indexPath)!
+            let cellRect: CGRect = attributes.frame
+            
+            var sprucePointY: CGFloat = cellRect.height + 40
+            
+            // spruce button appears outside the visible screen (because outfitcell is too big)
+            if sprucePointY > screenHeight {
+                sprucePointY = screenHeight - 10
+                spruceText = "Edit the outfit with the spruce button below"
+            }
+            
+            let sprucePoint = CGPoint(x: 40, y: sprucePointY)
+            let spruceTooltip: JDFTooltipView = JDFTooltipView(targetPoint: sprucePoint, hostView: self.view, tooltipText: spruceText, arrowDirection: JDFTooltipViewArrowDirection.Down, width: tooltipWidth)
+            
+            tooltipManager.addTooltip(spruceTooltip)
+            tooltipManager.setFontForAllTooltips(UIFont.systemFontOfSize(16))
+            tooltipManager.setTextColourForAllTooltips(UIColor.whiteColor())
+            tooltipManager.setBackgroundColourForAllTooltips(sprubixColor)
+            tooltipManager.showNextTooltip()
+            defaults.setBool(true, forKey: "onboardedMainFeed")
+        }
         
         return cell
     }

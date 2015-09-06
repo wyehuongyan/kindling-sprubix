@@ -24,7 +24,6 @@ PODS:
   - AFNetworking/UIKit (2.5.4):
     - AFNetworking/NSURLConnection
     - AFNetworking/NSURLSession
-  - AMPopTip (0.9.12)
   - AMTagListView (0.6.3)
   - Bolts (1.2.0):
     - Bolts/AppLinks (= 1.2.0)
@@ -85,6 +84,7 @@ PODS:
   - Firebase (2.3.3)
   - GPUImage (0.1.7)
   - HexColors (2.3.0)
+  - JDFTooltips (1.0)
   - JLRoutes (1.5.2)
   - KLCPopup (1.0)
   - Mixpanel (2.8.2):
@@ -149,7 +149,6 @@ DEPENDENCIES:
   - ActionSheetPicker-3.0 (~> 1.6.2)
   - AFNetworkActivityLogger (~> 2.0)
   - AFNetworking (~> 2.5.4)
-  - AMPopTip (~> 0.9.12)
   - AMTagListView (~> 0.6.3)
   - Braintree
   - Charts (~> 2.1.2)
@@ -162,6 +161,7 @@ DEPENDENCIES:
   - FBSDKShareKit (~> 4.5.1)
   - Firebase (>= 2.3.3)
   - GPUImage (~> 0.1.7)
+  - JDFTooltips (~> 1.0)
   - JLRoutes (~> 1.5.2)
   - KLCPopup (~> 1.0)
   - Mixpanel (~> 2.8.2)
@@ -187,7 +187,6 @@ SPEC CHECKSUMS:
   ActionSheetPicker-3.0: cc9f90ae785070623e9b972270013c3242190fb0
   AFNetworkActivityLogger: 121486778117d53b3ab1c61d264b88081d0c3eee
   AFNetworking: 05edc0ac4c4c8cf57bcf4b84be5b0744b6d8e71e
-  AMPopTip: 3c98a9b38148868366b57765064bd9565f653038
   AMTagListView: 3f95751a6bae491553800447d4f5deba033ca7da
   Bolts: d176cb1e0012175589e389a9db49b85e27787576
   Braintree: 7df7050fd35c19a7e81409b15efe0320b980b3d4
@@ -202,6 +201,7 @@ SPEC CHECKSUMS:
   Firebase: 2db60272f68ce40c7d47e5ae6eddc16977c65d4c
   GPUImage: 733a5f0fab92df9de1c37ba9df520a833ccb406d
   HexColors: 6ad3947c3447a055a3aa8efa859def096351fe5f
+  JDFTooltips: 439e3f1010b5e689e8438f66fce8448726e59897
   JLRoutes: fc36fd38ab476d5ac3a6a84b05be60e4b1a2bc81
   KLCPopup: 76c5a19227977f1e53d85236f9ef42257c168d98
   Mixpanel: f4d71ac2a306e7cda6ad03d4a2be249a0fd7a967

@@ -41,16 +41,6 @@ class SignUpViewController: UIViewController, FBSDKLoginButtonDelegate, UIScroll
     var termsOfServiceButton: UIButton!
     var privacyPolicyButton: UIButton!
     
-    @IBAction func clickTermsOfService(sender: UIButton) {
-        let webURL: NSURL = NSURL(string: "http://www.sprubix.com/terms-of-service")!
-        UIApplication.sharedApplication().openURL(webURL)
-    }
-    
-    @IBAction func clickPrivacyPolicy(sender: UIButton) {
-        let webURL: NSURL = NSURL(string: "http://www.sprubix.com/privacy-policy")!
-        UIApplication.sharedApplication().openURL(webURL)
-    }
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.

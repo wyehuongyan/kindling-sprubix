@@ -8,6 +8,7 @@
 
 import UIKit
 import QuartzCore
+import JDFTooltips
 
 protocol SpruceViewProtocol {
     func dismissSpruceView()
@@ -48,6 +49,9 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, SprucePieceF
     var addPieceButton: UIButton!
     
     var activityView: UIActivityIndicatorView!
+    
+    // tooltip
+    var tooltipManager: JDFSequentialTooltipManager!
     
     func trashPiece(sender: AnyObject) {
         toggleDeletePieceCrosses()
@@ -139,6 +143,34 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, SprucePieceF
             mixpanel.people.increment("Spruce Outfit", by: 1)
         }
         // Mixpanel - End
+    }
+    
+    override func viewDidAppear(animated: Bool) {
+        // Tooltip
+        let onboarded = defaults.boolForKey("onboardedSpruce")
+        
+        if onboarded == false {
+            tooltipOnboarding()
+        }
+    }
+    
+    func tooltipOnboarding() {
+        tooltipManager = JDFSequentialTooltipManager(hostView: self.view)
+        tooltipManager.showsBackdropView = true
+        tooltipManager.backdropColour = UIColor.blackColor()
+        tooltipManager.backdropAlpha = 0.3
+        
+        let swipeText = "Think you can make a better outfit?\nSwipe left or right to mix and match the outfit"
+        let swipePoint: CGPoint = CGPoint(x: screenWidth/2 - 20, y: screenHeight/3)
+        let swipeTooltip: JDFTooltipView = JDFTooltipView(targetPoint: swipePoint, hostView: self.view, tooltipText: swipeText, arrowDirection: JDFTooltipViewArrowDirection.Down, width: screenWidth*2/3)
+        
+        tooltipManager.addTooltip(swipeTooltip)
+        
+        tooltipManager.setFontForAllTooltips(UIFont.systemFontOfSize(16))
+        tooltipManager.setTextColourForAllTooltips(UIColor.whiteColor())
+        tooltipManager.setBackgroundColourForAllTooltips(sprubixColor)
+        tooltipManager.showNextTooltip()
+        defaults.setBool(true, forKey: "onboardedSpruce")
     }
     
     func initToolBar() {

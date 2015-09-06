@@ -12,6 +12,7 @@ import KLCPopup
 import ActionSheetPicker_3_0
 import TSMessages
 import FBSDKShareKit
+import JDFTooltips
 
 @objc
 protocol DetailsCellActions {
@@ -111,6 +112,10 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
     // spruce button
     var spruceButton: UIButton!
     var spruceButtonLine: UIView!
+    
+    // tooltip
+    var tooltipManager: JDFSequentialTooltipManager!
+    let tooltipWidth: CGFloat = screenWidth / 2
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -431,6 +436,33 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
                 outfitHeight += pieceHeight // accumulate height of all pieces
             }
             
+            // tooltip
+            let onboardedOutfitDetails = defaults.boolForKey("onboardedOutfitDetails")
+            let onboardedOutfitDetails1CTA = defaults.boolForKey("onboardedOutfitDetails1CTA")
+            let onboardedOutfitDetails2CTA = defaults.boolForKey("onboardedOutfitDetails2CTA")
+            
+            if onboardedOutfitDetails == false || onboardedOutfitDetails1CTA == false || onboardedOutfitDetails2CTA == false {
+                tooltipManager = JDFSequentialTooltipManager(hostView: self.contentView)
+                tooltipManager.showsBackdropView = true
+                tooltipManager.backdropColour = UIColor.blackColor()
+                tooltipManager.backdropAlpha = 0.3
+                
+                if onboardedOutfitDetails == false {
+                    let pulldownText = "Pull down to go back.\nPull further to return to main feed."
+                    let pieceText = "Touch here to view item details"
+                    
+                    let pulldownPoint: CGPoint = CGPoint(x: screenWidth/2 - 40, y: 20)
+                    let piecePoint: CGPoint = CGPoint(x: screenWidth/2 - 40, y: screenHeight/3)
+                    
+                    let pulldownTooltip: JDFTooltipView = JDFTooltipView(targetPoint: pulldownPoint, hostView: self.contentView, tooltipText: pulldownText, arrowDirection: JDFTooltipViewArrowDirection.Up, width: screenWidth*2/3)
+                    let pieceTooltip: JDFTooltipView = JDFTooltipView(targetPoint: piecePoint, hostView: self.contentView, tooltipText: pieceText, arrowDirection: JDFTooltipViewArrowDirection.Down, width: screenWidth*2/3)
+                    
+                    tooltipManager.addTooltip(pulldownTooltip)
+                    tooltipManager.addTooltip(pieceTooltip)
+                    defaults.setBool(true, forKey: "onboardedOutfitDetails")
+                }
+            }
+            
             // add to bag CTA button
             if purchasable {
                 let userData: NSDictionary? = defaults.dictionaryForKey("userData")
@@ -465,6 +497,19 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
                     darkenedOverlay?.alpha = 0
                     
                     contentView.addSubview(darkenedOverlay!)
+                    
+                    // tooltip: 2 buttons
+                    if onboardedOutfitDetails2CTA == false {
+                        let spruceText = "Dislike something here?\nEdit the outfit!"
+                        let buyText = "Like everything here?\nBuy them now!"
+                        
+                        let spruceTooltip: JDFTooltipView = JDFTooltipView(targetView: spruceButton, hostView: self.contentView, tooltipText: spruceText, arrowDirection: JDFTooltipViewArrowDirection.Down, width: tooltipWidth)
+                        let buyTooltip: JDFTooltipView = JDFTooltipView(targetView: addToBagButton, hostView: self.contentView, tooltipText: buyText, arrowDirection: JDFTooltipViewArrowDirection.Down, width: tooltipWidth)
+                        
+                        tooltipManager.addTooltip(spruceTooltip)
+                        tooltipManager.addTooltip(buyTooltip)
+                        defaults.setBool(true, forKey: "onboardedOutfitDetails2CTA")
+                    }
                 }
             } else {
                 // spruce button
@@ -480,6 +525,23 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
                 spruceButton.addSubview(spruceButtonLine)
                 
                 contentView.addSubview(spruceButton)
+                
+                // tooltip: 1 button
+                if onboardedOutfitDetails1CTA == false {
+                    let spruceText = "Like the outfit but\ndislike a certain item?\nEdit the outfit now!"
+                    let sprucePoint: CGPoint = CGPoint(x: screenWidth/2 - 40, y: spruceButton.frame.origin.y)
+                    let spruceTooltip: JDFTooltipView = JDFTooltipView(targetPoint: sprucePoint, hostView: self.contentView, tooltipText: spruceText, arrowDirection: JDFTooltipViewArrowDirection.Down, width: screenWidth*2/3)
+                    
+                    tooltipManager.addTooltip(spruceTooltip)
+                    defaults.setBool(true, forKey: "onboardedOutfitDetails1CTA")
+                }
+            }
+            
+            if onboardedOutfitDetails == false || onboardedOutfitDetails1CTA == false || onboardedOutfitDetails2CTA == false {
+                tooltipManager.setFontForAllTooltips(UIFont.systemFontOfSize(16))
+                tooltipManager.setTextColourForAllTooltips(UIColor.whiteColor())
+                tooltipManager.setBackgroundColourForAllTooltips(sprubixColor)
+                tooltipManager.showNextTooltip()
             }
             
             return outfitImageCell
