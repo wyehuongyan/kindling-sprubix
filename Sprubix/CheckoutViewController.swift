@@ -663,7 +663,7 @@ class CheckoutViewController: UIViewController, UITableViewDataSource, UITableVi
                     }
                     
                     // popup: these items are out of stock
-                    var alert = UIAlertController(title: "Insufficient stock", message: "Sorry, someone else bought these items before we did! \n\(message)", preferredStyle: UIAlertControllerStyle.Alert)
+                    var alert = UIAlertController(title: "Insufficient stock", message: "Sorry, someone else bought these items before you did! \n\(message)", preferredStyle: UIAlertControllerStyle.Alert)
                     alert.view.tintColor = sprubixColor
                     
                     // // choice: go back to cart to edit

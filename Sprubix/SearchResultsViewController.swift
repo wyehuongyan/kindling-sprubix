@@ -2,95 +2,154 @@
 //  SearchResultsViewController.swift
 //  Sprubix
 //
-//  Created by Shion Wah on 1/9/15.
+//  Created by Yan Wye Huong on 3/9/15.
 //  Copyright (c) 2015 Sprubix. All rights reserved.
 //
 
 import UIKit
 import CHTCollectionViewWaterfallLayout
 import AFNetworking
-import ActionSheetPicker_3_0
 
-enum ScopeState {
-    case Outfits
-    case Pieces
-    case People
-}
-
-class SearchResultsViewController: UIViewController, UISearchBarDelegate, UICollectionViewDataSource, UICollectionViewDelegate, CHTCollectionViewDelegateWaterfallLayout, TransitionProtocol {
+class SearchResultsViewController: UIViewController, UISearchBarDelegate, UICollectionViewDataSource, UICollectionViewDelegate, CHTCollectionViewDelegateWaterfallLayout, TransitionProtocol, CategoryFilterProtocol {
     
-    var searchResultsController: UISearchController!
-    var piecesTableView: UITableView!
+    var results: [NSDictionary] = [NSDictionary]()
+    let resultsPieceCellIdentifier = "ProfilePieceCell"
+    let resultsOutfitCellIdentifier = "ProfileOutfitCell"
     
-    var outfits: [NSDictionary] = [NSDictionary]()
-    var pieces: [NSDictionary] = [NSDictionary]()
-    var currentPage: Int! = 0
-    var lastPage: Int!
+    // custom nav bar
+    var newNavBar: UINavigationBar!
+    var newNavItem: UINavigationItem!
+    var searchBar: UISearchBar?
+    
+    var searchString: String!
+    var searchURL: String!
+    var currentScope: Int = 0
+    
+    var currentPage: Int?
+    var lastPage: Int?
     
     // collection view
-    var outfitsLayout: SprubixStretchyHeader!
-    var outfitsPiecesCollectionView: UICollectionView!
-    
-    var resultsPieceLayout: SprubixStretchyHeader!
-    var resultsOutfitLayout: SprubixStretchyHeader!
-    
-    // table view
-    let resultsPieceCellIdentifier = "ProfilePieceCell"
-    
-    // search outfits and pieces
-    var currentScopeState: ScopeState = ScopeState.Outfits
-    var fullTextSearchString: String = ""
-    let types: [String] = ["HEAD", "TOP", "BOTTOM", "FEET"]
-    
-    // filter
-    let categoryList: [String] = ["All", "Accessory", "Hat", "Top", "Dress", "Pants", "Skirt", "Shoes"]
-    var selectedCategory: String = "All"
+    var resultsLayout: SprubixStretchyHeader!
+    var resultsCollectionView: UICollectionView!
+    var resultsCollectionViewY: CGFloat = 0
     
     // filter buttons
-    let searchBarHeight: CGFloat = 65
-    let filterButtonHeight: CGFloat = 50
+    var filterButtonHeight: CGFloat = 50
     var filterButtonCategory: UIButton!
     
-    var activityView: UIActivityIndicatorView!
+    // categories
+    var itemCategories: [NSDictionary] = [NSDictionary]()
+    var selectedCategory: NSDictionary?
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         view.backgroundColor = UIColor.whiteColor()
         
-        if searchResultsController == nil {
-            searchResultsController = UISearchController(searchResultsController: nil)
-            searchResultsController.dimsBackgroundDuringPresentation = false
-            searchResultsController.hidesNavigationBarDuringPresentation = false
-            
-            searchResultsController.searchBar.barTintColor = sprubixLightGray
-            searchResultsController.searchBar.text = fullTextSearchString
-            searchResultsController.searchBar.sizeToFit()
+        if currentScope == 0 {
+            filterButtonHeight = 0
         }
         
-        //self.definesPresentationContext = true
-        
         initSearchFilterButtons()
+        
+        resultsCollectionViewY = navigationHeaderAndStatusbarHeight + filterButtonHeight
+        
         initCollectionView()
-        search()
     }
     
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
-        println(self.navigationController?.viewControllers)
+        
+        containerViewController.statusBarHidden = false
+        self.setNeedsStatusBarAppearanceUpdate()
+        
+        initNavBar()
+        retrieveItemCategories()
+    }
+    
+    override func viewWillDisappear(animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        containerViewController.statusBarHidden = true
+        self.setNeedsStatusBarAppearanceUpdate()
     }
     
     override func viewDidAppear(animated: Bool) {
         super.viewDidAppear(animated)
         
-        if !searchResultsController.active {
-            self.presentViewController(searchResultsController!, animated: true, completion: nil)
-            searchResultsController.resignFirstResponder()
+        // infinite scrolling
+        resultsCollectionView.addInfiniteScrollingWithActionHandler({
+            self.insertMoreResults()
+        })
+    }
+    
+    private func retrieveItemCategories() {
+        if itemCategories.count <= 0 {
+            // REST call to retrieve piece categories
+            manager.GET(SprubixConfig.URL.api + "/piece/categories",
+                parameters: nil,
+                success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                    
+                    self.itemCategories = responseObject as! [NSDictionary]
+                    
+                },
+                failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                    println("Error: " + error.localizedDescription)
+            })
         }
     }
     
+    func initNavBar() {
+        self.navigationController?.setNavigationBarHidden(true, animated: false)
+        
+        // 2. create new nav bar and style it
+        newNavBar = UINavigationBar(frame: CGRectMake(0, 0, self.view.bounds.width, navigationHeaderAndStatusbarHeight))
+        newNavBar.barTintColor = UIColor.whiteColor()
+        newNavBar.backgroundColor = UIColor.whiteColor()
+        newNavBar.translucent = false
+        
+        // 3. add a new navigation item w/title to the new nav bar
+        let searchBarContainer = UIView(frame: CGRectMake(0, 0, screenWidth, navigationHeight))
+        searchBarContainer.backgroundColor = UIColor.whiteColor()
+        searchBar = UISearchBar(frame: CGRectMake(0, 0, screenWidth - 50, navigationHeight))
+        searchBar?.barTintColor = UIColor.whiteColor()
+        searchBar?.backgroundColor = UIColor.whiteColor()
+        searchBar?.setBackgroundImage(UIImage(), forBarPosition: UIBarPosition.Any, barMetrics: UIBarMetrics.Default)
+        searchBar?.delegate = self
+        searchBar?.text = searchString
+        
+        searchBarContainer.addSubview(searchBar!)
+        
+        newNavItem = UINavigationItem()
+        newNavItem.titleView = searchBarContainer
+        newNavItem.titleView?.userInteractionEnabled = true
+        
+        // 4. create a custom back button
+        var backButton:UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+        var image: UIImage = UIImage(named: "spruce-arrow-back")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
+        backButton.setImage(image, forState: UIControlState.Normal)
+        backButton.frame = CGRect(x: -10, y: 0, width: 20, height: 20)
+        backButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+        backButton.imageView?.tintColor = UIColor.lightGrayColor()
+        backButton.addTarget(self, action: "backTapped:", forControlEvents: UIControlEvents.TouchUpInside)
+        backButton.exclusiveTouch = true
+        
+        //var backButtonView:UIView = UIView(frame: CGRect(x: 0, y: 0, width: backButton.frame.width, height: backButton.frame.height))
+        //backButtonView.addSubview(backButton)
+        
+        var backBarButtonItem:UIBarButtonItem = UIBarButtonItem(customView: backButton)
+        backBarButtonItem.tintColor = UIColor(red: 170/255, green: 170/255, blue: 170/255, alpha: 1.0)
+        
+        newNavItem.leftBarButtonItem = backBarButtonItem
+        
+        newNavBar.setItems([newNavItem], animated: false)
+        
+        // 5. add the nav bar to the main view
+        self.view.addSubview(newNavBar)
+    }
+    
     func initSearchFilterButtons() {
-        let filterButtonViewY: CGFloat = searchBarHeight
+        let filterButtonViewY: CGFloat = navigationHeaderAndStatusbarHeight
         let filterButtonView = UIView(frame: CGRect(x: 0, y: filterButtonViewY, width: screenWidth, height: filterButtonHeight))
         filterButtonView.backgroundColor = UIColor.whiteColor()
         
@@ -114,21 +173,13 @@ class SearchResultsViewController: UIViewController, UISearchBarDelegate, UIColl
     }
     
     func initCollectionViewLayout() {
-        // layout for outfits tab
-        resultsOutfitLayout = SprubixStretchyHeader()
-        resultsOutfitLayout.sectionInset = UIEdgeInsetsMake(10, 10, 10, 10)
-        resultsOutfitLayout.footerHeight = 10
-        resultsOutfitLayout.minimumColumnSpacing = 10
-        resultsOutfitLayout.minimumInteritemSpacing = 10
-        resultsOutfitLayout.columnCount = 2
-        
         // layout for pieces tab
-        resultsPieceLayout = SprubixStretchyHeader()
-        resultsPieceLayout.sectionInset = UIEdgeInsetsMake(10, 10, 10, 10)
-        resultsPieceLayout.footerHeight = 10
-        resultsPieceLayout.minimumColumnSpacing = 10
-        resultsPieceLayout.minimumInteritemSpacing = 10
-        resultsPieceLayout.columnCount = 3
+        resultsLayout = SprubixStretchyHeader()
+        resultsLayout.sectionInset = UIEdgeInsetsMake(10, 10, 10, 10)
+        resultsLayout.footerHeight = 10
+        resultsLayout.minimumColumnSpacing = 10
+        resultsLayout.minimumInteritemSpacing = 10
+        resultsLayout.columnCount = 3
     }
     
     // Outfits and Pieces
@@ -136,142 +187,100 @@ class SearchResultsViewController: UIViewController, UISearchBarDelegate, UIColl
         initCollectionViewLayout()
         
         // collection view
-        let outfitsPiecesCollectionViewY: CGFloat = searchBarHeight + filterButtonHeight
-        outfitsPiecesCollectionView = UICollectionView(frame: CGRectMake(0, outfitsPiecesCollectionViewY, screenWidth, screenHeight - outfitsPiecesCollectionViewY), collectionViewLayout: resultsPieceLayout)
+        resultsCollectionView = UICollectionView(frame: CGRectMake(0, resultsCollectionViewY, screenWidth, screenHeight - navigationHeaderAndStatusbarHeight - filterButtonHeight), collectionViewLayout: resultsLayout)
         
-        //outfitsPiecesCollectionView.registerClass(ProfileOutfitCell.self, forCellWithReuseIdentifier: resultsOutfitCellIdentifier)
-        outfitsPiecesCollectionView.registerClass(ProfilePieceCell.self, forCellWithReuseIdentifier: resultsPieceCellIdentifier)
+        resultsCollectionView.registerClass(ProfilePieceCell.self, forCellWithReuseIdentifier: resultsPieceCellIdentifier)
+        resultsCollectionView.registerClass(ProfileOutfitCell.self, forCellWithReuseIdentifier: resultsOutfitCellIdentifier)
         
-        outfitsPiecesCollectionView.alwaysBounceVertical = true
-        outfitsPiecesCollectionView.backgroundColor = sprubixGray
+        resultsCollectionView.alwaysBounceVertical = true
+        resultsCollectionView.backgroundColor = sprubixGray
         
-        outfitsPiecesCollectionView.dataSource = self
-        outfitsPiecesCollectionView.delegate = self
+        resultsCollectionView.dataSource = self
+        resultsCollectionView.delegate = self
         
-        view.addSubview(outfitsPiecesCollectionView)
-        
-        // here the spinner is initialized
-        let activityViewWidth: CGFloat = 50
-        let activityViewY: CGFloat = (screenHeight / 2 - activityViewWidth / 2) - outfitsPiecesCollectionViewY
-        activityView = UIActivityIndicatorView(activityIndicatorStyle: UIActivityIndicatorViewStyle.White)
-        activityView.color = sprubixColor
-        activityView.frame = CGRect(x: screenWidth / 2 - activityViewWidth / 2, y: activityViewY, width: activityViewWidth, height: activityViewWidth)
-        
-        outfitsPiecesCollectionView.addSubview(activityView)
-    }
-    
-    func retrieveSearchPieces() {
-        
-        activityView.startAnimating()
-        
-        // REST call to server to retrieve search pieces
-        manager.POST(SprubixConfig.URL.api + "/pieces/search",
-            parameters: [
-                "full_text": fullTextSearchString,
-                "category": selectedCategory
-            ],
-            success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
-                self.pieces = responseObject["data"] as! [NSDictionary]
-                self.currentPage = responseObject["current_page"] as? Int
-                self.lastPage = responseObject["last_page"] as? Int
-                
-                self.outfitsPiecesCollectionView.reloadData()
-                self.activityView.stopAnimating()
-            },
-            failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
-                println("Error: " + error.localizedDescription)
-        })
+        view.addSubview(resultsCollectionView)
     }
     
     // UICollectionViewDataSource
     func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        var count = 0
         
-        switch (currentScopeState) {
-        case .Outfits:
-            count = outfits.count
-        case .Pieces:
-            count = pieces.count
-        default:
-            break
-        }
-        
-        return count
+        return results.count
     }
     
     func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
-        var cell: UICollectionViewCell!
         
-
-        
-        
-        
-        
-        cell = collectionView.dequeueReusableCellWithReuseIdentifier(resultsPieceCellIdentifier, forIndexPath: indexPath) as! ProfilePieceCell
-        
-        var result = pieces[indexPath.row] as NSDictionary
-        var pieceImagesString = result["images"] as! NSString
-        var pieceImagesData:NSData = pieceImagesString.dataUsingEncoding(NSUTF8StringEncoding)!
-        
-        var pieceImagesDict: NSDictionary = NSJSONSerialization.JSONObjectWithData(pieceImagesData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSDictionary
-        
-        (cell as! ProfilePieceCell).imageURLString = pieceImagesDict["cover"] as! String
-        
-        // this part is to calculate the correct dimensions of the ProfilePieceCell.
-        // On the UI it appears as a square but the real dimensions must be recorded for the animation scale to work properly
-        let pieceHeight = result["height"] as! CGFloat
-        let pieceWidth = result["width"] as! CGFloat
-        
-        let imageGridHeight = pieceHeight * gridWidth/pieceWidth
-        
-        (cell as! ProfilePieceCell).imageGridSize = CGRect(x: 0, y: 0, width: gridWidth, height: imageGridHeight)
-
-        
-        
-        
-        
-        
-        
-        cell.setNeedsLayout()
-        
-        return cell
+        switch currentScope {
+        case 0:
+            // outfits
+            let cell = collectionView.dequeueReusableCellWithReuseIdentifier(resultsOutfitCellIdentifier, forIndexPath: indexPath) as! ProfileOutfitCell
+            
+            var outfit = results[indexPath.row] as NSDictionary
+            var outfitImagesString = outfit["images"] as! NSString
+            var outfitImagesData:NSData = outfitImagesString.dataUsingEncoding(NSUTF8StringEncoding)!
+            
+            var outfitImagesDict: NSDictionary = NSJSONSerialization.JSONObjectWithData(outfitImagesData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSDictionary
+            var outfitImageDict: NSDictionary = outfitImagesDict["images"] as! NSDictionary
+            
+            cell.imageURLString = outfitImageDict["small"] as! String
+            
+            return cell
+            
+        case 1:
+            // piece
+            let cell = collectionView.dequeueReusableCellWithReuseIdentifier(resultsPieceCellIdentifier, forIndexPath: indexPath) as! ProfilePieceCell
+            
+            var piece = results[indexPath.row] as NSDictionary
+            var pieceImagesString = piece["images"] as! NSString
+            var pieceImagesData:NSData = pieceImagesString.dataUsingEncoding(NSUTF8StringEncoding)!
+            
+            var pieceImagesDict: NSDictionary = NSJSONSerialization.JSONObjectWithData(pieceImagesData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSDictionary
+            
+            (cell as ProfilePieceCell).imageURLString = pieceImagesDict["cover"] as! String
+            
+            // this part is to calculate the correct dimensions of the ProfilePieceCell.
+            // On the UI it appears as a square but the real dimensions must be recorded for the animation scale to work properly
+            let pieceHeight = piece["height"] as! CGFloat
+            let pieceWidth = piece["width"] as! CGFloat
+            
+            let imageGridHeight = pieceHeight * gridWidth/pieceWidth
+            
+            (cell as ProfilePieceCell).imageGridSize = CGRect(x: 0, y: 0, width: gridWidth, height: imageGridHeight)
+            
+            cell.setNeedsLayout()
+            
+            return cell
+            
+        default:
+            fatalError("Unknown scope in SearchResultsViewController")
+        }
     }
     
-    func collectionView(collectionView: UICollectionView, didSelectItemAtIndexPath indexPath: NSIndexPath) {
-
-        
-        
-        
-        let piece = pieces[indexPath.row] as NSDictionary
-        let pieceId = piece["id"] as! Int
-        
-        // retrieve outfits using this piece
-        manager.GET(SprubixConfig.URL.api + "/piece/\(pieceId)/user",
-            parameters: nil,
-            success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
-                let pieceOwner = responseObject as! NSDictionary
-                
-                let pieceDetailsViewController = PieceDetailsViewController(collectionViewLayout: self.detailsViewControllerLayout(), currentIndexPath:indexPath)
-                pieceDetailsViewController.pieces = self.pieces
-                pieceDetailsViewController.user = pieceOwner
-                
-                collectionView.setToIndexPath(indexPath)
-                
-                //self.navigationController!.dismissViewControllerAnimated(true, completion: nil)
-                self.navigationController!.delegate = transitionDelegateHolder
-                self.navigationController!.pushViewController(pieceDetailsViewController, animated: true)
-            },
-            failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
-                println("Error: " + error.localizedDescription)
-        })
-        
-        
-        
-
+    func collectionView(collectionView: UICollectionView, didSelectItemAtIndexPath indexPath: NSIndexPath){
+        switch currentScope {
+        case 0:
+            let outfitDetailsViewController = OutfitDetailsViewController(collectionViewLayout: detailsViewControllerLayout(), currentIndexPath: indexPath)
+            
+            outfitDetailsViewController.outfits = results
+            collectionView.setToIndexPath(indexPath)
+            
+            self.navigationController!.delegate = transitionDelegateHolder
+            navigationController!.pushViewController(outfitDetailsViewController, animated: true)
+        case 1:
+            let pieceDetailsViewController = PieceDetailsViewController(collectionViewLayout: detailsViewControllerLayout(), currentIndexPath: indexPath)
+            
+            pieceDetailsViewController.pieces = results
+            collectionView.setToIndexPath(indexPath)
+            
+            self.navigationController!.delegate = transitionDelegateHolder
+            navigationController!.pushViewController(pieceDetailsViewController, animated: true)
+        default:
+            break
+        }
     }
     
     func detailsViewControllerLayout () -> UICollectionViewFlowLayout {
         let flowLayout = UICollectionViewFlowLayout()
+        
         let itemSize = CGSizeMake(screenWidth, screenHeight)
         
         flowLayout.itemSize = itemSize
@@ -288,17 +297,18 @@ class SearchResultsViewController: UIViewController, UISearchBarDelegate, UIColl
         var itemHeight:CGFloat!
         var itemWidth:CGFloat!
         
-
+        let result = results[indexPath.row] as NSDictionary
         
-        
-        
-        let piece = pieces[indexPath.row] as NSDictionary
-        itemHeight = piece["height"] as! CGFloat
-        itemWidth = piece["height"] as! CGFloat
-
-        
-        
-        
+        switch currentScope {
+        case 0:
+            itemHeight = result["height"] as! CGFloat
+            itemWidth = result["width"] as! CGFloat
+        case 1:
+            itemHeight = result["height"] as! CGFloat
+            itemWidth = result["height"] as! CGFloat
+        default:
+            fatalError("Unknown scope in SearchResultsViewController")
+        }
         
         let imageHeight = itemHeight * gridWidth/itemWidth
         
@@ -307,70 +317,129 @@ class SearchResultsViewController: UIViewController, UISearchBarDelegate, UIColl
     
     // TransitionProtocol
     func transitionCollectionView() -> UICollectionView!{
-        return outfitsPiecesCollectionView
+        return resultsCollectionView
     }
     
-    // UISearchBarDelegate
-    func searchBarCancelButtonClicked(searchBar: UISearchBar) {
-        println(self.navigationController!.viewControllers)
-        dismissSearchViewController()
-    }
-    
-    private func dismissSearchViewController() {
-        let prevIndex: Int = self.navigationController!.viewControllers.count - 3
-        var prevVC = self.navigationController!.viewControllers[prevIndex] as! UIViewController
-        println(self.navigationController!.viewControllers)
+    // CategoryFilterProtocol
+    func categorySelected(category: NSDictionary?) {
+        selectedCategory = category
         
-        self.navigationController!.popToViewController(prevVC, animated: true)
+        let categoryName = selectedCategory!["name"] as! String
+        
+        currentPage = 0
+        lastPage = nil
+        
+        // set category button title
+        filterButtonCategory.setTitle("Category : \(categoryName)", forState: UIControlState.Normal)
+        
+        retrieveFilteredResults()
     }
     
-    func search() {
-        println("Result Scope: \(currentScopeState.hashValue) , Text: \(fullTextSearchString)")
+    func retrieveFilteredResults() {
+        var params = NSMutableDictionary()
         
-        if fullTextSearchString != "" {
-            switch(currentScopeState) {
-            case .Outfits:
-                //retrieveSearchOutfits()
-                println("ret outfits")
-            case .Pieces:
-                retrieveSearchPieces()
-            case .People:
-                //retrieveSearchPeople()
-                println("ret people")
-            default:
-                break
+        params.setObject(searchString, forKey: "full_text")
+        
+        if selectedCategory != nil {
+            let selectedCategoryId = selectedCategory!["id"] as! Int
+            
+            params.setObject(selectedCategoryId, forKey: "category_id")
+        }
+        
+        // REST call to server to refresh the results
+        manager.POST(SprubixConfig.URL.api + searchURL,
+            parameters: params,
+            success: { (operation: AFHTTPRequestOperation!, responseObject:
+                AnyObject!) in
+                
+                self.results = responseObject["data"] as! [NSDictionary]
+                self.currentPage = responseObject["current_page"] as? Int
+                self.lastPage = responseObject["last_page"] as? Int
+                
+                self.resultsCollectionView.reloadData()
+                
+            },
+            failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                println("Error: " + error.localizedDescription)
+                
+        })
+    }
+    
+    func insertMoreResults() {
+        if lastPage == nil || currentPage < lastPage {
+            var params = NSMutableDictionary()
+            
+            params.setObject(searchString, forKey: "full_text")
+            
+            if selectedCategory != nil {
+                let selectedCategoryId = selectedCategory!["id"] as! Int
+                
+                params.setObject(selectedCategoryId, forKey: "category_id")
+            }
+            
+            let nextPage = currentPage! + 1
+            
+            // REST call to server to refresh the results
+            manager.POST(SprubixConfig.URL.api + searchURL + "?page=\(nextPage)",
+                parameters: params,
+                success: { (operation: AFHTTPRequestOperation!, responseObject:
+                    AnyObject!) in
+                    
+                    var results = responseObject["data"] as! [NSDictionary]
+                    
+                    self.currentPage = nextPage
+                    
+                    for result in results {
+                        self.results.append(result)
+                        
+                        self.resultsCollectionView.insertItemsAtIndexPaths([NSIndexPath(forItem: self.results.count - 1, inSection: 0)])
+                        
+                        if self.resultsCollectionView.infiniteScrollingView != nil {
+                            self.resultsCollectionView.infiniteScrollingView.stopAnimating()
+                        }
+                    }
+                    
+                },
+                failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                    println("Error: " + error.localizedDescription)
+                    
+                    if self.resultsCollectionView.infiniteScrollingView != nil {
+                        self.resultsCollectionView.infiniteScrollingView.stopAnimating()
+                    }
+            })
+        } else {
+            if self.resultsCollectionView.infiniteScrollingView != nil {
+                self.resultsCollectionView.infiniteScrollingView.stopAnimating()
             }
         }
     }
     
-    func categoryPressed(sender: UIButton) {
-        let picker: ActionSheetStringPicker = ActionSheetStringPicker(title: "Filter Items", rows: categoryList, initialSelection: 0,
-            doneBlock: { actionSheetPicker, selectedIndex, selectedValue in
-                
-                self.selectedCategory = selectedValue as! String
-                self.filterButtonCategory.setTitle("Category : \(self.selectedCategory)", forState: UIControlState.Normal)
-                self.search()
-                
-            }, cancelBlock: nil, origin: view)
+    // UISearchBarDelegate
+    func searchBarShouldBeginEditing(searchBar: UISearchBar) -> Bool {
+        self.navigationController?.popViewControllerAnimated(false)
         
-        // custom done button
-        let doneButton = UIBarButtonItem(title: "done", style: UIBarButtonItemStyle.Plain, target: nil, action: nil)
-        
-        doneButton.setTitleTextAttributes([NSForegroundColorAttributeName: sprubixColor], forState: UIControlState.Normal)
-        
-        picker.setDoneButton(doneButton)
-        
-        // custom cancel button
-        var cancelButton:UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
-        
-        cancelButton.setTitle("X", forState: UIControlState.Normal)
-        cancelButton.setTitleColor(sprubixColor, forState: UIControlState.Normal)
-        cancelButton.frame = CGRect(x: 0, y: 0, width: 20, height: 20)
-        
-        picker.setCancelButton(UIBarButtonItem(customView: cancelButton))
-        
-        picker.showActionSheetPicker()
+        return true
     }
     
+    // nav bar callback
+    func categoryPressed(sender: UIButton) {
+        if itemCategories.count > 0 {
+            // display category filter
+            let searchResultsFilterViewController = SearchResultsFilterViewController()
+            
+            searchResultsFilterViewController.categories = itemCategories
+            searchResultsFilterViewController.delegate = self
+            
+            self.navigationController?.presentViewController(searchResultsFilterViewController, animated: true, completion: nil)
+        }
+    }
     
+    func backTapped(sender: UIBarButtonItem) {
+        var childrenCount = self.navigationController!.viewControllers.count
+        var feedChild: AnyObject = self.navigationController!.viewControllers[childrenCount-3]
+        
+        UIView.transitionWithView(self.navigationController!.view, duration: 0.3, options: UIViewAnimationOptions.TransitionCrossDissolve, animations: {
+            self.navigationController?.popToViewController(feedChild as! UIViewController, animated: false)
+            }, completion: nil)
+    }
 }

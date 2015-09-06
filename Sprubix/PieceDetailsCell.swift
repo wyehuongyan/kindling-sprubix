@@ -476,7 +476,15 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
                     // add to bag CTA button
                     addToBagButton = UIButton(frame: CGRect(x: 0, y: screenHeight - navigationHeight, width: screenWidth, height: navigationHeight))
                     addToBagButton.backgroundColor = sprubixColor
-                    addToBagButton.titleLabel?.font = UIFont.boldSystemFontOfSize(18.0)
+                    
+                    var image: UIImage = UIImage(named: "sidemenu-cart")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
+                    
+                    addToBagButton.setImage(image, forState: UIControlState.Normal)
+                    addToBagButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+                    addToBagButton.imageView?.tintColor = UIColor.whiteColor()
+                    addToBagButton.imageEdgeInsets = UIEdgeInsetsMake(10, 0, 10, 0)
+
+                    addToBagButton.titleLabel?.font = UIFont.boldSystemFontOfSize(16.0)
                     addToBagButton.setTitle("Buy Now", forState: UIControlState.Normal)
                     addToBagButton.addTarget(self, action: "addToBagButtonPressed:", forControlEvents: UIControlEvents.TouchUpInside)
                     

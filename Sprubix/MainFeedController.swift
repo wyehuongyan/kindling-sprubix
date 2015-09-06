@@ -1126,9 +1126,13 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
     func searchButtonPressed(sender: UIButton) {
         let searchViewController = SearchViewController()
         
+        /*
         UIView.transitionWithView(self.navigationController!.view, duration: 0.3, options: UIViewAnimationOptions.TransitionCrossDissolve, animations: {
             self.navigationController?.pushViewController(searchViewController, animated: false)
             }, completion: nil)
+        */
+        
+        self.navigationController?.pushViewController(searchViewController, animated: false)
     }
     
     func countExposedOutfits() {

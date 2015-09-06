@@ -438,6 +438,10 @@ extension UIStoryboard {
         return authStoryboard().instantiateViewControllerWithIdentifier("SignIn") as? SignInViewController
     }
     
+    class func searchResultsUsersViewController() -> SearchResultsUsersViewController? {
+        return mainStoryboard().instantiateViewControllerWithIdentifier("SearchResultsUsersView") as? SearchResultsUsersViewController
+    }
+    
     // Menu storyboard
     class func sidePanelViewController() -> SidePanelViewController? {
         return menuStoryboard().instantiateViewControllerWithIdentifier("SidePanel") as? SidePanelViewController
