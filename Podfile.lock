@@ -63,7 +63,7 @@ PODS:
     - Braintree/API
   - Charts (2.1.2)
   - CHTCollectionViewWaterfallLayout (0.9.1)
-  - Crashlytics (3.1.1)
+  - Crashlytics (3.2.0)
   - DZNEmptyDataSet (1.5.2)
   - Fabric (1.2.8):
     - Fabric/Base (= 1.2.8)
@@ -192,7 +192,7 @@ SPEC CHECKSUMS:
   Braintree: 7df7050fd35c19a7e81409b15efe0320b980b3d4
   Charts: bedcb1fcb5d2b41119ae14629ffa23ed439233d0
   CHTCollectionViewWaterfallLayout: 1a8da4fc662702cbddda8926ced266036a829f84
-  Crashlytics: 39ab395565bc03c29cdecd2b9d103ebf30930c10
+  Crashlytics: a29e4f820aa401482b26043dc5d78adf08ac7573
   DZNEmptyDataSet: 741da409081a4bf707c949c964623a6ad1799772
   Fabric: a9eabe53915e9f1db55a84dd2838737928675878
   FBSDKCoreKit: f335eaf6865e1e1597dee1debfb533045500da47
