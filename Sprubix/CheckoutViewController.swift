@@ -37,6 +37,7 @@ class CheckoutViewController: UIViewController, UITableViewDataSource, UITableVi
     var itemTotal: Float?
     var orderTotal: Float!
     var pointsTotal: Float!
+    var outfitsContributorsData: NSMutableDictionary!
     var placeOrderButton: UIButton!
 
     var grandTotalAmount: UILabel!
@@ -820,6 +821,7 @@ class CheckoutViewController: UIViewController, UITableViewDataSource, UITableVi
         orderInfo.setObject(totalShippingRate, forKey: "total_shipping_rate")
         orderInfo.setObject(orderTotal, forKey: "total_price")
         orderInfo.setObject(pointsTotal, forKey: "total_points")
+        orderInfo.setObject(outfitsContributorsData, forKey: "outfit_contributors_data")
         
         let defaultDeliveryAddressId = defaultDeliveryAddress["id"] as! Int
         let defaultPaymentMethodId = defaultPaymentMethod["id"] as! Int

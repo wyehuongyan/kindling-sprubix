@@ -21,6 +21,7 @@ class CheckoutPointsViewController: UIViewController, UITableViewDataSource, UIT
     
     var parentOutfitDict: NSMutableDictionary?
     var outfitsPointsData: NSMutableDictionary = NSMutableDictionary()
+    var outfitsContributorsData: NSMutableDictionary = NSMutableDictionary()
     var outfitIds = [Int]()
     var outfits: NSMutableDictionary?
     var pieces: [NSDictionary] = [NSDictionary]()
@@ -97,6 +98,7 @@ class CheckoutPointsViewController: UIViewController, UITableViewDataSource, UIT
             }
             
             pointsTotal = 0
+            outfitsPointsData.removeAllObjects()
             
             // loop through parentOutfitDict and prepend to checkoutPointsArray
             for (parentOutfitId, piecesKeyCartItemsDict) in parentOutfitDict! {
@@ -106,6 +108,7 @@ class CheckoutPointsViewController: UIViewController, UITableViewDataSource, UIT
                 
                 // calculate total price for each piece id
                 var outfitTotalPrice: Float = 0
+                var boughtPieceIds: [Int] = [Int]()
                 
                 for (piece, cartItems) in piecesKeyCartItemsDict as! NSDictionary {
                     var totalQuantity = 0
@@ -120,6 +123,8 @@ class CheckoutPointsViewController: UIViewController, UITableViewDataSource, UIT
                     let price = (piece["price"] as! NSString).floatValue
                     let pieceTotalPrice = Float(totalQuantity) * price
                     outfitTotalPrice += pieceTotalPrice
+                    
+                    boughtPieceIds.append(piece["id"] as! Int)
                 }
                 
                 var outfitPointsData = NSMutableDictionary()
@@ -130,6 +135,7 @@ class CheckoutPointsViewController: UIViewController, UITableViewDataSource, UIT
 
                 outfitPointsData.setObject(numUniquePieces, forKey: "num_unique_pieces")
                 
+                // buyer total points entitlement
                 if numUniquePieces > 1 {
                     percentEntitlement = 0.03
                     
@@ -150,7 +156,16 @@ class CheckoutPointsViewController: UIViewController, UITableViewDataSource, UIT
                 outfitPointsData.setObject(pointsEarned, forKey: "points_earned")
                 pointsTotal += pointsEarned
                 
+                // contributors total points entitlement
+                var outfitContributorData = NSMutableDictionary()
+                var contributorPointsEarned = (0.01 * outfitTotalPrice) * 100
+                
+                outfitContributorData.setObject(contributorPointsEarned, forKey: "contributor_points_earned")
+                outfitContributorData.setObject(boughtPieceIds, forKey: "bought_piece_ids")
+                
+                // set
                 outfitsPointsData.setObject(outfitPointsData, forKey: parentOutfitId as! Int)
+                outfitsContributorsData.setObject(outfitContributorData, forKey: "\(parentOutfitId)")
             }
         }
     }
@@ -397,6 +412,7 @@ class CheckoutPointsViewController: UIViewController, UITableViewDataSource, UIT
         checkoutViewController?.sellerShippingRate = cartViewController!.sellerShippingRate
         checkoutViewController?.orderTotal = cartViewController?.grandTotal
         checkoutViewController?.pointsTotal = pointsTotal
+        checkoutViewController?.outfitsContributorsData = outfitsContributorsData
         
         checkoutViewController?.delegate = cartViewController?.delegate
         
