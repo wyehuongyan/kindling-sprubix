@@ -110,12 +110,14 @@ class SidePanelViewController: UIViewController, UITableViewDataSource, UITableV
             let pointsTextViewHeight: CGFloat = 30.0
             pointsTextView = UITextView(frame: CGRectMake(0, 10, screenWidth / 2.75, pointsTextViewHeight))
             
-            pointsTextView.backgroundColor = sprubixColor
+            pointsTextView.backgroundColor = UIColor.whiteColor()
             pointsTextView.textAlignment = NSTextAlignment.Right
             pointsTextView.text = "loading..."
-            pointsTextView.textColor = UIColor.whiteColor()
+            pointsTextView.textColor = sprubixColor
             pointsTextView.font = UIFont.systemFontOfSize(14.0)
             pointsTextView.layer.cornerRadius = pointsTextViewHeight / 2
+            pointsTextView.layer.borderColor = sprubixColor.CGColor
+            pointsTextView.layer.borderWidth = 2.0
             pointsTextView.textContainerInset = UIEdgeInsetsMake(6, 0, 6, 6);
             pointsTextView.clipsToBounds = true
             
