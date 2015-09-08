@@ -319,9 +319,12 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
                     Glow.addGlow(commentsButton)
                     
                     let padding: CGFloat = 10
+                    let pieceUser = piece["user"] as! NSDictionary
+                    let shoppable = pieceUser["shoppable"] as! NSDictionary
+                    let buyable: Bool? = shoppable["purchasable"] as? Bool
                     
                     // price label and buy button if outfit has price and quantity
-                    if piece["price"] as! String != "0.00" {
+                    if buyable != nil && buyable! != false && piece["price"] as! String != "0.00" {
                         if !piece["quantity"]!.isKindOfClass(NSNull) {
                             // price label
                             let priceLabelHeight: CGFloat = 35
@@ -360,7 +363,7 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
                     
                     // user thumbnail and name on top left
                     let userThumbnailWidth: CGFloat = 35
-                    let pieceUser = piece["user"] as! NSDictionary
+                    
                     userThumbnail = UIImageView(frame: CGRectMake(padding, padding, userThumbnailWidth, userThumbnailWidth))
                     
                     userThumbnail.layer.cornerRadius = userThumbnail.frame.size.width / 2

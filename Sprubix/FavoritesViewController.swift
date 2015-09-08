@@ -29,6 +29,9 @@ class FavoritesViewController: UIViewController, DZNEmptyDataSetSource, DZNEmpty
     var currentChoice: UIButton!
     var activityView: UIActivityIndicatorView!
     
+    var currentPage: Int?
+    var lastPage: Int?
+    
     // liked
     var likedOutfits:[NSDictionary] = [NSDictionary]()
     var likedPieces:[NSDictionary] = [NSDictionary]()
@@ -66,6 +69,15 @@ class FavoritesViewController: UIViewController, DZNEmptyDataSetSource, DZNEmpty
     
     override func viewDidDisappear(animated: Bool) {
         super.viewDidDisappear(animated)
+    }
+    
+    override func viewDidAppear(animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        // infinite scrolling
+        likedCollectionView.addInfiniteScrollingWithActionHandler({
+            self.insertMoreItems()
+        })
     }
     
     func initNavBar() {
@@ -170,6 +182,8 @@ class FavoritesViewController: UIViewController, DZNEmptyDataSetSource, DZNEmpty
         
         likedCollectionView.autoresizingMask = UIViewAutoresizing.FlexibleWidth | UIViewAutoresizing.FlexibleHeight
         likedCollectionView.showsVerticalScrollIndicator = false
+        likedCollectionView.bounces = true
+        likedCollectionView.alwaysBounceVertical = true
         
         // // register classes
         likedCollectionView.registerClass(ProfileOutfitCell.self, forCellWithReuseIdentifier: profileOutfitCellIdentifier)
@@ -233,26 +247,8 @@ class FavoritesViewController: UIViewController, DZNEmptyDataSetSource, DZNEmpty
                         }
                     }
                     
-                    if self.likedOutfitIds.count > 0 && self.likedOutfits.count <= 0 {
-                        // REST call to retrieve respective outfits/pieces
-                        // // outfits
-                        manager.POST(SprubixConfig.URL.api + "/outfits/ids",
-                            parameters: [
-                                "ids": self.likedOutfitIds
-                            ],
-                            success: { (operation: AFHTTPRequestOperation!, responseObject:
-                                AnyObject!) in
-                                
-                                self.likedOutfits = responseObject["data"] as! [NSDictionary]
-                                
-                                self.activityView.stopAnimating()
-                                self.likedCollectionView.reloadData()
-                            },
-                            failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
-                                println("Error: " + error.localizedDescription)
-                                
-                                self.activityView.stopAnimating()
-                        })
+                    if self.likedOutfitIds.count > 0 {
+                        self.likedOutfitsPressed(self.button1)
                     }
                 }
             })
@@ -465,11 +461,39 @@ class FavoritesViewController: UIViewController, DZNEmptyDataSetSource, DZNEmpty
             sender.addSubview(buttonLine)
             sender.tintColor = sprubixColor
             
+            self.currentPage = nil
+            self.lastPage = nil
             self.currentFavoriteState = FavoriteState.Outfits
+        
+            activityView.startAnimating()
+            
+            manager.POST(SprubixConfig.URL.api + "/outfits/ids",
+                parameters: [
+                    "ids": self.likedOutfitIds
+                ],
+                success: { (operation: AFHTTPRequestOperation!, responseObject:
+                    AnyObject!) in
+                    
+                    self.likedOutfits = responseObject["data"] as! [NSDictionary]
+                    
+                    // if state is still outfits (user may switch away)
+                    if self.currentFavoriteState == .Outfits {
+                        self.currentPage = responseObject["current_page"] as? Int
+                        self.lastPage = responseObject["last_page"] as? Int
+                        self.currentFavoriteState = FavoriteState.Outfits
 
-            self.likedCollectionView.reloadData()
-            self.likedCollectionView.collectionViewLayout.invalidateLayout()
-            self.likedCollectionView.setCollectionViewLayout(self.likedOutfitsLayout, animated: false)
+                        self.activityView.stopAnimating()
+                        self.likedCollectionView.reloadData()
+                        
+                        self.likedCollectionView.collectionViewLayout.invalidateLayout()
+                        self.likedCollectionView.setCollectionViewLayout(self.likedOutfitsLayout, animated: false)
+                        }
+                },
+                failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                    println("Error: " + error.localizedDescription)
+                    
+                    self.activityView.stopAnimating()
+            })
             
             // Mixpanel - Viewed Favorites, Outfit
             mixpanel.track("Viewed Favorites", properties: [
@@ -488,35 +512,40 @@ class FavoritesViewController: UIViewController, DZNEmptyDataSetSource, DZNEmpty
             sender.addSubview(buttonLine)
             sender.tintColor = sprubixColor
             
+            self.currentPage = nil
+            self.lastPage = nil
+            self.currentFavoriteState = FavoriteState.Pieces
+            
             // // pieces
-            if likedPieces.count <= 0 {
-                activityView.startAnimating()
-                
-                manager.POST(SprubixConfig.URL.api + "/pieces/ids",
-                    parameters: [
-                        "ids": likedPieceIds
-                    ],
-                    success: { (operation: AFHTTPRequestOperation!, responseObject:
-                        AnyObject!) in
+            activityView.startAnimating()
+            
+            manager.POST(SprubixConfig.URL.api + "/pieces/ids",
+                parameters: [
+                    "ids": likedPieceIds
+                ],
+                success: { (operation: AFHTTPRequestOperation!, responseObject:
+                    AnyObject!) in
 
-                        self.likedPieces = responseObject["data"] as! [NSDictionary]
+                    self.likedPieces = responseObject["data"] as! [NSDictionary]
+                    
+                    // if state is still pieces (user may switch away)
+                    if self.currentFavoriteState == .Pieces {
+                        self.currentPage = responseObject["current_page"] as? Int
+                        self.lastPage = responseObject["last_page"] as? Int
                         self.currentFavoriteState = FavoriteState.Pieces
+                        
                         self.activityView.stopAnimating()
                         self.likedCollectionView.reloadData()
                         
                         self.likedCollectionView.collectionViewLayout.invalidateLayout()
                         self.likedCollectionView.setCollectionViewLayout(self.likedOutfitsLayout, animated: false)
-                    },
-                    failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
-                        println("Error: " + error.localizedDescription)
-                })
-            } else {
-                self.currentFavoriteState = FavoriteState.Pieces
-                
-                self.likedCollectionView.reloadData()
-                self.likedCollectionView.collectionViewLayout.invalidateLayout()
-                self.likedCollectionView.setCollectionViewLayout(self.likedOutfitsLayout, animated: false)
-            }
+                    }
+                },
+                failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                    println("Error: " + error.localizedDescription)
+                    
+                    self.activityView?.stopAnimating()
+            })
             
             // Mixpanel - Viewed Favorites, Piece
             mixpanel.track("Viewed Favorites", properties: [
@@ -527,11 +556,99 @@ class FavoritesViewController: UIViewController, DZNEmptyDataSetSource, DZNEmpty
         }
     }
     
+    func insertMoreItems() {
+        println("insert more items")
+        
+        if currentPage < lastPage {
+            switch(currentFavoriteState) {
+            case .Outfits:
+                insertMoreOutfits()
+            case .Pieces:
+                insertMorePieces()
+            }
+        } else {
+            // currentPage >= lastPage
+            if self.likedCollectionView.infiniteScrollingView != nil {
+                self.likedCollectionView.infiniteScrollingView.stopAnimating()
+            }
+        }
+    }
+    
+    private func insertMoreOutfits() {
+        let nextPage = currentPage! + 1
+        
+        manager.POST(SprubixConfig.URL.api + "/outfits/ids?page=\(nextPage)",
+            parameters: [
+                "ids": self.likedOutfitIds
+            ],
+            success: { (operation: AFHTTPRequestOperation!, responseObject:
+                AnyObject!) in
+                
+                let moreOutfits = responseObject["data"] as! [NSDictionary]
+                
+                for moreOutfit in moreOutfits {
+                    self.likedOutfits.append(moreOutfit)
+                    
+                    self.likedCollectionView.insertItemsAtIndexPaths([NSIndexPath(forItem: self.likedOutfits.count - 1, inSection: 0)])
+                }
+                
+                self.currentPage = nextPage
+                
+                if self.likedCollectionView.infiniteScrollingView != nil {
+                    self.likedCollectionView.infiniteScrollingView.stopAnimating()
+                }
+            },
+            failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                println("Error: " + error.localizedDescription)
+                
+                self.activityView.stopAnimating()
+                
+                if self.likedCollectionView.infiniteScrollingView != nil {
+                    self.likedCollectionView.infiniteScrollingView.stopAnimating()
+                }
+        })
+    }
+    
+    private func insertMorePieces() {
+        let nextPage = currentPage! + 1
+        
+        manager.POST(SprubixConfig.URL.api + "/pieces/ids?page=\(nextPage)",
+            parameters: [
+                "ids": likedPieceIds
+            ],
+            success: { (operation: AFHTTPRequestOperation!, responseObject:
+                AnyObject!) in
+                
+                let morePieces = responseObject["data"] as! [NSDictionary]
+                
+                for morePiece in morePieces {
+                    self.likedPieces.append(morePiece)
+                    
+                    self.likedCollectionView.insertItemsAtIndexPaths([NSIndexPath(forItem: self.likedOutfits.count - 1, inSection: 0)])
+                }
+                
+                self.currentPage = nextPage
+                
+                if self.likedCollectionView.infiniteScrollingView != nil {
+                    self.likedCollectionView.infiniteScrollingView.stopAnimating()
+                }
+            },
+            failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                println("Error: " + error.localizedDescription)
+                
+                if self.likedCollectionView.infiniteScrollingView != nil {
+                    self.likedCollectionView.infiniteScrollingView.stopAnimating()
+                }
+        })
+    }
+    
     private func deselectAllButtons() {
         buttonLine.removeFromSuperview()
         
         button1.tintColor = UIColor.lightGrayColor()
         button2.tintColor = UIColor.lightGrayColor()
+        
+        self.activityView.stopAnimating()
     }
     
     func backTapped(sender: UIBarButtonItem) {
