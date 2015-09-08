@@ -243,7 +243,7 @@ class CheckoutViewController: UIViewController, UITableViewDataSource, UITableVi
                         SSKeychain.setPassword(token, forService: "braintree", account: username)
                         
                         // init braintree
-                        braintreeRef = Braintree(clientToken: token)
+                        braintreeRef = Braintree(clientToken: token!)
                         
                         println("Braintree instance initialized")
                         

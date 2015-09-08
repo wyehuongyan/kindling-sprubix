@@ -140,7 +140,7 @@ class PaymentMethodsDetailsViewController: UIViewController, UITableViewDataSour
                         SSKeychain.setPassword(token, forService: "braintree", account: username)
                         
                         // init braintree
-                        braintreeRef = Braintree(clientToken: token)
+                        braintreeRef = Braintree(clientToken: token!)
                         
                         println("Braintree instance initialized")
                         
@@ -266,13 +266,15 @@ class PaymentMethodsDetailsViewController: UIViewController, UITableViewDataSour
                 if (error != nil) {
                     println("Error in tokenizing card: \(error)")
                 } else {
-                    println("Success \nNonce: \(nonce)")
+                    //println("Success \nNonce: \(nonce)")
 
+                    var isDefault: Bool = self.isDefaultSwitch != nil ? self.isDefaultSwitch.on : true
+                    
                     // 2. REST call to server to save payment nonce and card info
                     manager.POST(SprubixConfig.URL.api + "/billing/payment/create",
                         parameters: [
-                            "nonce": nonce,
-                            "is_default": self.isDefaultSwitch != nil ? self.isDefaultSwitch.on : true
+                            "nonce": nonce!,
+                            "is_default": isDefault
                         ],
                         success: { (operation: AFHTTPRequestOperation!, responseObject:
                             AnyObject!) in

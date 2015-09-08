@@ -31,43 +31,43 @@ PODS:
   - Bolts/AppLinks (1.2.0):
     - Bolts/Tasks
   - Bolts/Tasks (1.2.0)
-  - Braintree (3.9.2):
-    - Braintree/API (= 3.9.2)
-    - Braintree/Coinbase (= 3.9.2)
-    - Braintree/Drop-In (= 3.9.2)
-    - Braintree/Payments (= 3.9.2)
-    - Braintree/PayPal (= 3.9.2)
-    - Braintree/UI (= 3.9.2)
-    - Braintree/Venmo (= 3.9.2)
-  - Braintree/API (3.9.2)
-  - Braintree/Coinbase (3.9.2):
+  - Braintree (3.9.3):
+    - Braintree/API (= 3.9.3)
+    - Braintree/Coinbase (= 3.9.3)
+    - Braintree/Drop-In (= 3.9.3)
+    - Braintree/Payments (= 3.9.3)
+    - Braintree/PayPal (= 3.9.3)
+    - Braintree/UI (= 3.9.3)
+    - Braintree/Venmo (= 3.9.3)
+  - Braintree/API (3.9.3)
+  - Braintree/Coinbase (3.9.3):
     - Braintree/API
-  - Braintree/Drop-In (3.9.2):
+  - Braintree/Drop-In (3.9.3):
     - Braintree/API
     - Braintree/Coinbase
     - Braintree/Payments
     - Braintree/PayPal
     - Braintree/UI
     - Braintree/Venmo
-  - Braintree/Payments (3.9.2):
+  - Braintree/Payments (3.9.3):
     - Braintree/API
     - Braintree/Coinbase
     - Braintree/PayPal
     - Braintree/Venmo
-  - Braintree/PayPal (3.9.2):
+  - Braintree/PayPal (3.9.3):
     - Braintree/API
     - Braintree/UI
-  - Braintree/UI (3.9.2):
+  - Braintree/UI (3.9.3):
     - Braintree/API
-  - Braintree/Venmo (3.9.2):
+  - Braintree/Venmo (3.9.3):
     - Braintree/API
   - Charts (2.1.2)
   - CHTCollectionViewWaterfallLayout (0.9.1)
   - Crashlytics (3.2.0)
   - DZNEmptyDataSet (1.5.2)
-  - Fabric (1.2.8):
-    - Fabric/Base (= 1.2.8)
-  - Fabric/Base (1.2.8)
+  - Fabric (1.4.1):
+    - Fabric/Base (= 1.4.1)
+  - Fabric/Base (1.4.1)
   - FBSDKCoreKit (4.5.1):
     - Bolts (~> 1.1)
     - FBSDKCoreKit/arc (= 4.5.1)
@@ -189,12 +189,12 @@ SPEC CHECKSUMS:
   AFNetworking: 05edc0ac4c4c8cf57bcf4b84be5b0744b6d8e71e
   AMTagListView: 3f95751a6bae491553800447d4f5deba033ca7da
   Bolts: d176cb1e0012175589e389a9db49b85e27787576
-  Braintree: 7df7050fd35c19a7e81409b15efe0320b980b3d4
+  Braintree: 996027dcc8633569f2405bc57dca11f367050c60
   Charts: bedcb1fcb5d2b41119ae14629ffa23ed439233d0
   CHTCollectionViewWaterfallLayout: 1a8da4fc662702cbddda8926ced266036a829f84
   Crashlytics: a29e4f820aa401482b26043dc5d78adf08ac7573
   DZNEmptyDataSet: 741da409081a4bf707c949c964623a6ad1799772
-  Fabric: a9eabe53915e9f1db55a84dd2838737928675878
+  Fabric: 4f718eeca4c02c7d6f6f4e5f0e5f87c63aa38458
   FBSDKCoreKit: f335eaf6865e1e1597dee1debfb533045500da47
   FBSDKLoginKit: 225cc9a388a92916ee3f3bb14422017b6e44b65b
   FBSDKShareKit: 642034ac9f30793dfd897851b724bb4281750266
