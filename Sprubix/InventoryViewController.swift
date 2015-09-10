@@ -10,10 +10,25 @@ import UIKit
 import DZNEmptyDataSet
 import AFNetworking
 
+enum InventoryState {
+    case All
+    case LowStock
+}
+
 class InventoryViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, DZNEmptyDataSetSource, DZNEmptyDataSetDelegate {
     
+    var currentInventoryState: InventoryState = .All
+    
     // tool bar
-    @IBOutlet var toolBarView: UIView!
+    var toolBarView: UIView!
+    let searchBarViewHeight: CGFloat = 44
+    let searchBarTextFieldHeight: CGFloat = 24
+    
+    var searchBarTextField: UITextField!
+    var searchBarPlaceholderText: String = "Search your inventory"
+    
+    var activityView: UIActivityIndicatorView!
+    
     var button1: UIButton! // all
     var button2: UIButton! // low stock
     var buttonLine: UIView!
@@ -31,11 +46,41 @@ class InventoryViewController: UIViewController, UITableViewDataSource, UITableV
     var selectedIndexPath: NSIndexPath!
     var selectedPiece: NSDictionary!
     
+    var tableTapGestureRecognizer: UITapGestureRecognizer!
+    var makeKeyboardVisible = true
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         view.backgroundColor = UIColor.whiteColor()
         
+        initTableView()
+        initToolBar()
+        retrieveInventoryPieces()
+    }
+    
+    override func viewWillAppear(animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        makeKeyboardVisible = true
+        // listen to keyboard show/hide events
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("keyboardWillChange:"), name:UIKeyboardWillChangeFrameNotification, object: nil)
+        
+        initNavBar()
+        refreshEditedPiece()
+    }
+    
+    override func viewWillDisappear(animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        makeKeyboardVisible = false
+        self.view.endEditing(true)
+        
+        // listen to keyboard show/hide events
+        NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardWillChangeFrameNotification, object: nil)
+    }
+    
+    func initTableView() {
         // get rid of line seperator for empty cells
         inventoryTableView.backgroundColor = sprubixGray
         inventoryTableView.tableFooterView = UIView(frame: CGRectZero)
@@ -44,15 +89,18 @@ class InventoryViewController: UIViewController, UITableViewDataSource, UITableV
         inventoryTableView.emptyDataSetSource = self
         inventoryTableView.emptyDataSetDelegate = self
         
-        initToolBar()
-        retrieveInventoryPieces()
-    }
-    
-    override func viewWillAppear(animated: Bool) {
-        super.viewWillAppear(animated)
+        // gesture recognizer for table view
+        tableTapGestureRecognizer = UITapGestureRecognizer(target: self, action: "tableTapped:")
+        tableTapGestureRecognizer.enabled = false
+        self.view.addGestureRecognizer(tableTapGestureRecognizer)
         
-        initNavBar()
-        refreshEditedPiece()
+        // here the spinner is initialized
+        let activityViewWidth: CGFloat = 50
+        activityView = UIActivityIndicatorView(activityIndicatorStyle: UIActivityIndicatorViewStyle.White)
+        activityView.color = sprubixColor
+        activityView.frame = CGRect(x: screenWidth / 2 - activityViewWidth / 2, y: screenHeight / 3 - activityViewWidth / 2, width: activityViewWidth, height: activityViewWidth)
+        
+        view.addSubview(activityView)
     }
     
     func initNavBar() {
@@ -85,6 +133,17 @@ class InventoryViewController: UIViewController, UITableViewDataSource, UITableV
         
         newNavItem.leftBarButtonItem = backBarButtonItem
         
+        // 5. create a options button
+        var optionsButton:UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+        optionsButton.setTitle("options", forState: UIControlState.Normal)
+        optionsButton.setTitleColor(sprubixColor, forState: UIControlState.Normal)
+        optionsButton.frame = CGRect(x: 0, y: 0, width: 70, height: 20)
+        optionsButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+        optionsButton.addTarget(self, action: "inventoryOptionsTapped:", forControlEvents: UIControlEvents.TouchUpInside)
+        
+        var optionsBarButtonItem:UIBarButtonItem = UIBarButtonItem(customView: optionsButton)
+        newNavItem.rightBarButtonItem = optionsBarButtonItem
+        
         newNavBar.setItems([newNavItem], animated: false)
         
         // 5. add the nav bar to the main view
@@ -92,8 +151,31 @@ class InventoryViewController: UIViewController, UITableViewDataSource, UITableV
     }
     
     func initToolBar() {
+        // search bar
+        let searchBarView = UIView(frame: CGRectMake(0, navigationHeight, screenWidth, searchBarViewHeight))
+        
+        searchBarView.backgroundColor = sprubixLightGray
+        
+        searchBarTextField = UITextField(frame: CGRectMake(10, 10, screenWidth - 20, searchBarTextFieldHeight))
+        
+        searchBarTextField.placeholder = searchBarPlaceholderText
+        searchBarTextField.backgroundColor = UIColor.whiteColor()
+        searchBarTextField.layer.cornerRadius = 3.0
+        searchBarTextField.textColor = UIColor.darkGrayColor()
+        searchBarTextField.tintColor = sprubixColor
+        searchBarTextField.font = UIFont.systemFontOfSize(15.0)
+        searchBarTextField.returnKeyType = UIReturnKeyType.Search
+        //searchBarTextField.textContainerInset = UIEdgeInsetsMake(3, 3, 0, 0);
+        //searchBarTextField.delegate = self
+        searchBarTextField.textAlignment = NSTextAlignment.Center
+        
+        searchBarView.addSubview(searchBarTextField)
+        
+        view.addSubview(searchBarView)
+        
         // toolbar items
-        let toolbarHeight = toolBarView.frame.size.height
+        let toolbarHeight: CGFloat = 50.0
+        var toolBarView = UIView(frame: CGRectMake(0, navigationHeight + searchBarViewHeight, screenWidth, toolbarHeight))
         var buttonWidth = screenWidth / 2
         
         button1 = UIButton.buttonWithType(UIButtonType.System) as! UIButton
@@ -134,6 +216,8 @@ class InventoryViewController: UIViewController, UITableViewDataSource, UITableV
         // button 1 is initially selected
         button1.addSubview(buttonLine)
         button1.tintColor = sprubixColor
+        
+        view.addSubview(toolBarView)
     }
     
     func refreshEditedPiece() {
@@ -163,19 +247,63 @@ class InventoryViewController: UIViewController, UITableViewDataSource, UITableV
         let userId:Int? = defaults.objectForKey("userId") as? Int
         
         if userId != nil {
+            activityView.startAnimating()
+            
             manager.GET(SprubixConfig.URL.api + "/user/\(userId!)/pieces",
                 parameters: nil,
                 success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
-                    self.pieces = responseObject["data"] as! [NSDictionary]
                     
-                    if self.pieces.count > 0 {
-                        self.inventoryTableView.reloadData()
-                    } else {
-                        println("Oops, there are no pieces in your closet.")
+                    self.activityView.stopAnimating()
+                    
+                    if self.currentInventoryState == InventoryState.All {
+                        
+                        self.pieces = responseObject["data"] as! [NSDictionary]
+                        
+                        if self.pieces.count > 0 {
+                            self.inventoryTableView.reloadData()
+                        } else {
+                            println("Oops, there are no pieces in your closet.")
+                        }
                     }
                 },
                 failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                     println("Error: " + error.localizedDescription)
+                    
+                    self.activityView.stopAnimating()
+            })
+        } else {
+            println("userId not found, please login or create an account")
+        }
+    }
+    
+    func retrieveLowInventoryPieces() {
+        let userId:Int? = defaults.objectForKey("userId") as? Int
+        
+        if userId != nil {
+            activityView.startAnimating()
+            
+            manager.GET(SprubixConfig.URL.api + "/user/\(userId!)/low/pieces",
+                parameters: nil,
+                success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                    
+                    self.activityView.stopAnimating()
+                    
+                    // if inventory state still = .LowStock
+                    if self.currentInventoryState == InventoryState.LowStock {
+                    
+                        self.pieces = responseObject as! [NSDictionary]
+                        
+                        if self.pieces.count > 0 {
+                            self.inventoryTableView.reloadData()
+                        } else {
+                            println("There are currently no pieces in low stock.")
+                        }
+                    }
+                },
+                failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                    println("Error: " + error.localizedDescription)
+                    
+                    self.activityView.stopAnimating()
             })
         } else {
             println("userId not found, please login or create an account")
@@ -240,39 +368,117 @@ class InventoryViewController: UIViewController, UITableViewDataSource, UITableV
     }
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier(inventoryCellIdentifier, forIndexPath: indexPath) as! InventoryCell
         
-        let piece = pieces[indexPath.row] as NSDictionary
-        var piecePrice = piece["price"] as! String
-        
-        if !piece["quantity"]!.isKindOfClass(NSNull) {
-            var pieceQuantityString = piece["quantity"] as! String
-            var pieceQuantityData:NSData = pieceQuantityString.dataUsingEncoding(NSUTF8StringEncoding)!
+        switch currentInventoryState {
+        case .All:
+            let cell = tableView.dequeueReusableCellWithIdentifier(inventoryCellIdentifier, forIndexPath: indexPath) as! InventoryCell
             
-            var pieceQuantityDict = NSJSONSerialization.JSONObjectWithData(pieceQuantityData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSDictionary
+            let piece = pieces[indexPath.row] as NSDictionary
+            var piecePrice = piece["price"] as! String
             
-            var total = 0
-            
-            for (size, pieceQuantity) in pieceQuantityDict {
-                total += (pieceQuantity as! String).toInt()!
+            if !piece["quantity"]!.isKindOfClass(NSNull) {
+                var pieceQuantityString = piece["quantity"] as! String
+                var pieceQuantityData:NSData = pieceQuantityString.dataUsingEncoding(NSUTF8StringEncoding)!
+                
+                var pieceQuantityDict = NSJSONSerialization.JSONObjectWithData(pieceQuantityData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSDictionary
+                
+                // get low stock limit
+                let userData: NSDictionary! = defaults.dictionaryForKey("userData")
+                let shoppable = userData["shoppable"] as! NSDictionary
+                let lowStockLimit = shoppable["low_stock_limit"] as! String
+                
+                var total = 0
+                var lowSizes = NSMutableArray()
+                
+                for (size, pieceQuantity) in pieceQuantityDict {
+                    var stock = (pieceQuantity as! String).toInt()!
+                    total += stock
+                    
+                    // check if there's low stock for size here
+                    if stock <= lowStockLimit.toInt() {
+                        lowSizes.addObject(size)
+                    }
+                }
+                
+                if lowSizes.count > 0 {
+                    let lowSizesText = lowSizes.componentsJoinedByString(", ")
+                    
+                    cell.inventoryQuantity.text = "Low: \(lowSizesText)"
+                    cell.inventoryQuantity.textColor = UIColor.redColor()
+                    cell.backgroundColor = sprubixYellow
+                } else {
+                    cell.inventoryQuantity.text = "\(total) left in stock"
+                    cell.inventoryQuantity.textColor = UIColor.darkGrayColor()
+                    cell.backgroundColor = UIColor.whiteColor()
+                }
             }
             
-            cell.inventoryQuantity.text = "\(total) left in stock"
+            cell.inventoryName.text = piece["name"] as? String
+            cell.inventoryPrice.text = "$\(piecePrice)"
+            
+            let pieceImagesString = piece["images"] as! NSString
+            let pieceImagesData:NSData = pieceImagesString.dataUsingEncoding(NSUTF8StringEncoding)!
+            
+            let pieceImagesDict: NSDictionary = NSJSONSerialization.JSONObjectWithData(pieceImagesData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSDictionary
+            
+            let imageURL = NSURL(string: pieceImagesDict["cover"] as! String)
+            
+            cell.inventoryImage.setImageWithURL(imageURL)
+        
+            return cell
+        case .LowStock:
+            let cell = tableView.dequeueReusableCellWithIdentifier(inventoryCellIdentifier, forIndexPath: indexPath) as! InventoryCell
+            
+            let piece = pieces[indexPath.row] as NSDictionary
+            var piecePrice = piece["price"] as! String
+            
+            if !piece["quantity"]!.isKindOfClass(NSNull) {
+                var pieceQuantityString = piece["quantity"] as! String
+                var pieceQuantityData:NSData = pieceQuantityString.dataUsingEncoding(NSUTF8StringEncoding)!
+                
+                var pieceQuantityDict = NSJSONSerialization.JSONObjectWithData(pieceQuantityData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSDictionary
+                
+                // get low stock limit
+                let userData: NSDictionary! = defaults.dictionaryForKey("userData")
+                let shoppable = userData["shoppable"] as! NSDictionary
+                let lowStockLimit = shoppable["low_stock_limit"] as! String
+                
+                var total = 0
+                var lowSizes = NSMutableArray()
+                
+                for (size, pieceQuantity) in pieceQuantityDict {
+                    var stock = (pieceQuantity as! String).toInt()!
+                    total += stock
+                    
+                    // check if there's low stock for size here
+                    if stock <= lowStockLimit.toInt() {
+                        lowSizes.addObject(size)
+                    }
+                }
+                
+                let lowSizesText = lowSizes.componentsJoinedByString(", ")
+                
+                cell.inventoryQuantity.text = "Low: \(lowSizesText)"
+                cell.inventoryQuantity.textColor = UIColor.redColor()
+                cell.backgroundColor = sprubixYellow
+            }
+            
+            cell.inventoryName.text = piece["name"] as? String
+            cell.inventoryPrice.text = "$\(piecePrice)"
+            
+            let pieceImagesString = piece["images"] as! NSString
+            let pieceImagesData:NSData = pieceImagesString.dataUsingEncoding(NSUTF8StringEncoding)!
+            
+            let pieceImagesDict: NSDictionary = NSJSONSerialization.JSONObjectWithData(pieceImagesData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSDictionary
+            
+            let imageURL = NSURL(string: pieceImagesDict["cover"] as! String)
+            
+            cell.inventoryImage.setImageWithURL(imageURL)
+            
+            return cell
+        default:
+            fatalError("Unknown inventory state in InventoryViewController")
         }
-        
-        cell.inventoryName.text = piece["name"] as? String
-        cell.inventoryPrice.text = "$\(piecePrice)"
-        
-        let pieceImagesString = piece["images"] as! NSString
-        let pieceImagesData:NSData = pieceImagesString.dataUsingEncoding(NSUTF8StringEncoding)!
-        
-        let pieceImagesDict: NSDictionary = NSJSONSerialization.JSONObjectWithData(pieceImagesData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSDictionary
-        
-        let imageURL = NSURL(string: pieceImagesDict["cover"] as! String)
-        
-        cell.inventoryImage.setImageWithURL(imageURL)
-        
-        return cell
     }
     
     // MARK: UITableViewDelegate
@@ -350,6 +556,14 @@ class InventoryViewController: UIViewController, UITableViewDataSource, UITableV
             sender.addSubview(buttonLine)
             sender.tintColor = sprubixColor
             
+            currentInventoryState = .All
+            
+            // empty pieces
+            pieces.removeAll()
+            inventoryTableView.reloadData()
+            
+            retrieveInventoryPieces()
+            
             // Mixpanel - Viewed Inventory, All
             mixpanel.track("Viewed Inventory", properties: [
                 "Source": "Inventory View",
@@ -367,6 +581,14 @@ class InventoryViewController: UIViewController, UITableViewDataSource, UITableV
             sender.addSubview(buttonLine)
             sender.tintColor = sprubixColor
             
+            currentInventoryState = .LowStock
+            
+            // empty pieces
+            pieces.removeAll()
+            inventoryTableView.reloadData()
+            
+            retrieveLowInventoryPieces()
+            
             // Mixpanel - Viewed Inventory, Low Stock
             mixpanel.track("Viewed Inventory", properties: [
                 "Source": "Inventory View",
@@ -383,8 +605,29 @@ class InventoryViewController: UIViewController, UITableViewDataSource, UITableV
         button2.tintColor = UIColor.lightGrayColor()
     }
     
+    func keyboardWillChange(notification: NSNotification) {
+        if makeKeyboardVisible {
+            tableTapGestureRecognizer.enabled = true
+        } else {
+            tableTapGestureRecognizer.enabled = false
+            self.makeKeyboardVisible = true
+        }
+    }
+    
+    func tableTapped(gesture: UITapGestureRecognizer) {
+        makeKeyboardVisible = false
+        
+        self.view.endEditing(true)
+    }
+    
     // nav bar button callbacks
     func backTapped(sender: UIBarButtonItem) {
         self.navigationController?.popViewControllerAnimated(true)
+    }
+    
+    func inventoryOptionsTapped(sender: UIBarButtonItem) {
+        let inventoryOptionsViewController = InventoryOptionsViewController()
+        
+        self.navigationController?.pushViewController(inventoryOptionsViewController, animated: true)
     }
 }

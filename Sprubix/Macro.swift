@@ -19,6 +19,7 @@ let navigationHeaderAndStatusbarHeight : CGFloat = navigationHeight + statusbarH
 let sprubixColor: UIColor = UIColor(red: 255/255, green: 102/255, blue: 108/255, alpha: 1)
 let sprubixGray: UIColor = UIColor(red: 229/255, green: 229/255, blue: 229/255, alpha: 1)
 let sprubixLightGray: UIColor = UIColor(red: 240/255, green: 240/255, blue: 240/255, alpha: 1)
+let sprubixYellow: UIColor = UIColor(red: 255/255, green: 255/255, blue: 224/255, alpha: 1)
 
 var timestamp: String {
     get {

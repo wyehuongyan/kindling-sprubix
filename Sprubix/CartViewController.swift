@@ -308,7 +308,7 @@ class CartViewController: UIViewController, UITableViewDataSource, UITableViewDe
             
             cell.cartItemPrice.text = "Stock left: \(quantityLeft)"
             cell.cartItemPrice.textColor = UIColor.redColor()
-            cell.backgroundColor = UIColor(red: 253/255, green: 253/255, blue: 150/255, alpha: 1)
+            cell.backgroundColor = sprubixYellow
         } else {
             cell.cartItemPrice.textColor = UIColor.blackColor()
             cell.backgroundColor = UIColor.whiteColor()
