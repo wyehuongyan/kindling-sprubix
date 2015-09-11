@@ -32,6 +32,8 @@ class DashboardViewController: UIViewController, UITableViewDataSource, ChartVie
     @IBOutlet var popularItemsTableView: UITableView!
     @IBOutlet var popularItemsTopConstraint: NSLayoutConstraint!
     @IBOutlet var popularItemsBotConstraint: NSLayoutConstraint!
+    @IBOutlet var popularItemsLeftConstraint: NSLayoutConstraint!
+    @IBOutlet var popularItemsRightConstraint: NSLayoutConstraint!
     
     var revenueChartView: BarChartView!
     let revenueChartY: CGFloat = navigationHeight + 40
@@ -40,6 +42,9 @@ class DashboardViewController: UIViewController, UITableViewDataSource, ChartVie
     var monthIncrement: Int = 0
     var dashboardMonth: DashboardMonth = .Current
     var popularPieces: [NSDictionary] = [NSDictionary]()
+    
+    var piecesCount: Int = 0
+    var deliveryOptionsCount: Int = 0
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -51,6 +56,7 @@ class DashboardViewController: UIViewController, UITableViewDataSource, ChartVie
         super.viewWillAppear(animated)
         
         initNavBar()
+        shopOnboarding()
         refreshDashboardData()
     }
     
@@ -135,6 +141,33 @@ class DashboardViewController: UIViewController, UITableViewDataSource, ChartVie
         self.refreshDashboardData()
     }
     
+    func shopOnboarding() {
+        // REST call to server to get piece count and delivery options
+        manager.GET(SprubixConfig.URL.api + "dashboard/onboarding",
+            parameters: nil,
+            success: { (operation: AFHTTPRequestOperation!, responseObject:
+                AnyObject!) in
+                
+                var data = responseObject["data"] as! NSDictionary
+                
+                self.piecesCount = data["piecesCount"] as! Int
+                self.deliveryOptionsCount = data["deliveryOptionsCount"] as! Int
+                
+                let onboarded = defaults.boolForKey("onboardedInventory")
+                
+                if self.piecesCount == 0 || self.deliveryOptionsCount == 0 || onboarded == false{
+                    self.dashboardOverlay.changeTitle("Let's Get Started!")
+                } else {
+                    self.dashboardOverlay.changeTitle("Popular Items")
+                }
+
+            },
+            failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                println("Error: " + error.localizedDescription)
+        })
+        
+    }
+    
     func initDashboard() {
         // Overlay info
         dashboardOverlay = DashboardOverlay()
@@ -172,6 +205,8 @@ class DashboardViewController: UIViewController, UITableViewDataSource, ChartVie
         
         popularItemsTopConstraint.constant = popularItemsY
         popularItemsBotConstraint.constant = popularItemsHeight
+        popularItemsLeftConstraint.constant -= 4
+        popularItemsRightConstraint.constant -= 4
         
         popularItemsTableView.backgroundColor = sprubixGray
         popularItemsTableView.tableFooterView = UIView(frame: CGRectZero)
@@ -237,24 +272,103 @@ class DashboardViewController: UIViewController, UITableViewDataSource, ChartVie
     }
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        // Onboarding needed
+        let onboarded = defaults.boolForKey("onboardedInventory")
+        
+        if piecesCount == 0 || deliveryOptionsCount == 0 || onboarded == false {
+            return 3
+        }
+        
+        // No onboarding
         return popularPieces.count
     }
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier(dashboardItemCellIdentifier, forIndexPath: indexPath) as! DashboardItemCell
         
-        if indexPath.row < popularPieces.count {
-            if let itemName = popularPieces[indexPath.row]["name"] as? String {
-                cell.itemName.text = itemName
+        // Onboarding needed, show guidlines
+        let onboarded = defaults.boolForKey("onboardedInventory")
+        
+        if piecesCount == 0 || deliveryOptionsCount == 0 || onboarded == false {
+            switch indexPath.row {
+            case 0:
+                let header: String = "1. List an Item"
+                let text: String = "Create an outfit to start selling"
+                
+                if piecesCount > 0 {
+                    let attributedHeader = NSAttributedString(string: header, attributes: [NSStrikethroughStyleAttributeName: 1, NSForegroundColorAttributeName: sprubixColor])
+                    let attributedText = NSAttributedString(string: text, attributes: [NSStrikethroughStyleAttributeName: 1])
+                    
+                    cell.itemName.attributedText = attributedHeader
+                    cell.itemSold.attributedText = attributedText
+                    
+                } else {
+                    cell.itemName.text = header
+                    cell.itemName.textColor = sprubixColor
+                    cell.itemSold.text = text
+                }
+                
+                cell.itemImageView.image = UIImage(named: "sidemenu-create")
+                
+            case 1:
+                let header: String = "2. Check out the Inventory"
+                let text: String = "Verify that everything is correct"
+                
+                if onboarded == true {
+                    let attributedHeader = NSAttributedString(string: header, attributes: [NSStrikethroughStyleAttributeName: 1, NSForegroundColorAttributeName: sprubixColor])
+                    let attributedText = NSAttributedString(string: text, attributes: [NSStrikethroughStyleAttributeName: 1])
+                    
+                    cell.itemName.attributedText = attributedHeader
+                    cell.itemSold.attributedText = attributedText
+                    
+                } else {
+                    cell.itemName.text = header
+                    cell.itemName.textColor = sprubixColor
+                    cell.itemSold.text = text
+                }
+                
+                cell.itemImageView.image = UIImage(named: "sidemenu-inventory")
+                
+            case 2:
+                let header: String = "3. Add a Delivery Option"
+                let text: String = "Decide on a shipping method"
+                
+                if deliveryOptionsCount > 0 {
+                    let attributedHeader = NSAttributedString(string: header, attributes: [NSStrikethroughStyleAttributeName: 1, NSForegroundColorAttributeName: sprubixColor])
+                    let attributedText = NSAttributedString(string: text, attributes: [NSStrikethroughStyleAttributeName: 1])
+                    
+                    cell.itemName.attributedText = attributedHeader
+                    cell.itemSold.attributedText = attributedText
+                    
+                } else {
+                    cell.itemName.text = header
+                    cell.itemName.textColor = sprubixColor
+                    cell.itemSold.text = text
+                }
+
+                cell.itemImageView.image = UIImage(named: "sidemenu-fulfilment")
+            default:
+                break
             }
             
-            if let itemSold = popularPieces[indexPath.row]["sold"] as? Int {
-                cell.itemSold.text = "\(itemSold) sold"
-            }
-            
-            if let image = popularPieces[indexPath.row]["images"] as? String {
-                let thumbnail = NSURL(string: image)
-                cell.itemImageView.setImageWithURL(thumbnail)
+        }
+        // No onboarding, show popular items
+        else {
+            if indexPath.row < popularPieces.count {
+                if let itemName = popularPieces[indexPath.row]["name"] as? String {
+                    cell.itemName.text = itemName
+                    cell.itemName.textColor = UIColor.darkGrayColor()
+                }
+                
+                if let itemSold = popularPieces[indexPath.row]["sold"] as? Int {
+                    cell.itemSold.text = "\(itemSold) sold"
+                    cell.itemSold.textColor = UIColor.darkGrayColor()
+                }
+                
+                if let image = popularPieces[indexPath.row]["images"] as? String {
+                    let thumbnail = NSURL(string: image)
+                    cell.itemImageView.setImageWithURL(thumbnail)
+                }
             }
         }
         

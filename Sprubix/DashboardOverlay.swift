@@ -244,4 +244,8 @@ class DashboardOverlay: UIView {
             refundedOrdersView.removeFromSuperview()
         }
     }
+    
+    func changeTitle(text: String) {
+        popularItemsTitleText.text = text
+    }
 }
