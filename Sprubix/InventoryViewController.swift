@@ -39,6 +39,9 @@ class InventoryViewController: UIViewController, UITableViewDataSource, UITableV
     let inventoryCellIdentifier: String = "InventoryCell"
     @IBOutlet var inventoryTableView: UITableView!
     
+    var currentPage: Int = 0
+    var lastPage: Int?
+    
     // custom nav bar
     var newNavBar: UINavigationBar!
     var newNavItem: UINavigationItem!
@@ -78,6 +81,17 @@ class InventoryViewController: UIViewController, UITableViewDataSource, UITableV
         
         // listen to keyboard show/hide events
         NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardWillChangeFrameNotification, object: nil)
+    }
+    
+    override func viewDidAppear(animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        // infinite scrolling
+        inventoryTableView.addInfiniteScrollingWithActionHandler({
+            if self.currentInventoryState == InventoryState.All {
+                self.retrieveInventoryPieces()
+            }
+        })
     }
     
     func initTableView() {
@@ -244,33 +258,65 @@ class InventoryViewController: UIViewController, UITableViewDataSource, UITableV
     }
     
     func retrieveInventoryPieces() {
-        let userId:Int? = defaults.objectForKey("userId") as? Int
+        let nextPage = currentPage + 1
         
-        if userId != nil {
-            activityView.startAnimating()
+        if nextPage <= lastPage || lastPage == nil {
+            let userId:Int? = defaults.objectForKey("userId") as? Int
             
-            manager.GET(SprubixConfig.URL.api + "/user/\(userId!)/pieces",
-                parameters: nil,
-                success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
-                    
-                    if self.currentInventoryState == InventoryState.All {
-                        self.activityView.stopAnimating()
-                        self.pieces = responseObject["data"] as! [NSDictionary]
+            if userId != nil {
+                
+                if lastPage == nil {
+                    activityView.startAnimating()
+                }
+                
+                manager.GET(SprubixConfig.URL.api + "/user/\(userId!)/pieces?page=\(nextPage)",
+                    parameters: nil,
+                    success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
                         
-                        if self.pieces.count > 0 {
-                            self.inventoryTableView.reloadData()
-                        } else {
-                            println("Oops, there are no pieces in your closet.")
+                        if self.currentInventoryState == InventoryState.All {
+                            
+                            self.activityView.stopAnimating()
+                            self.currentPage = responseObject["current_page"] as! Int
+                            self.lastPage = responseObject["last_page"] as? Int
+                            
+                            let pieces = responseObject["data"] as! [NSDictionary]
+                            
+                            if self.pieces.count > 0 {
+                                for piece in pieces {
+                                    self.pieces.append(piece)
+                                    
+                                    self.inventoryTableView.insertRowsAtIndexPaths([NSIndexPath(forRow: self.pieces.count - 1, inSection: 0)], withRowAnimation: UITableViewRowAnimation.None)
+                                }
+                            } else {
+                                self.pieces = pieces
+                                self.inventoryTableView.reloadData()
+                            }
+                            
+                            if self.inventoryTableView.infiniteScrollingView != nil {
+                                self.inventoryTableView.infiniteScrollingView.stopAnimating()
+                            }
                         }
-                    }
-                },
-                failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
-                    println("Error: " + error.localizedDescription)
-                    
-                    self.activityView.stopAnimating()
-            })
+                    },
+                    failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                        println("Error: " + error.localizedDescription)
+                        
+                        self.activityView.stopAnimating()
+                        
+                        if self.inventoryTableView.infiniteScrollingView != nil {
+                            self.inventoryTableView.infiniteScrollingView.stopAnimating()
+                        }
+                })
+            } else {
+                println("userId not found, please login or create an account")
+                
+                if self.inventoryTableView.infiniteScrollingView != nil {
+                    self.inventoryTableView.infiniteScrollingView.stopAnimating()
+                }
+            }
         } else {
-            println("userId not found, please login or create an account")
+            if self.inventoryTableView.infiniteScrollingView != nil {
+                self.inventoryTableView.infiniteScrollingView.stopAnimating()
+            }
         }
     }
     
@@ -578,6 +624,8 @@ class InventoryViewController: UIViewController, UITableViewDataSource, UITableV
             sender.tintColor = sprubixColor
             
             currentInventoryState = .All
+            currentPage = 0
+            lastPage = nil
             
             // empty pieces
             pieces.removeAll()
