@@ -90,6 +90,7 @@
 		84ACA11E1AE78F250084D4CF /* SprubixCameraViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84ACA11D1AE78F250084D4CF /* SprubixCameraViewController.swift */; };
 		84ACA1211AE790020084D4CF /* SprubixCamera.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84ACA1201AE790020084D4CF /* SprubixCamera.swift */; };
 		84ACA1231AE7B5C80084D4CF /* EditSnapshotViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84ACA1221AE7B5C80084D4CF /* EditSnapshotViewController.swift */; };
+		84B1FF8F1BA1645800CC46C0 /* InventoryOptionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B1FF8E1BA1645800CC46C0 /* InventoryOptionsViewController.swift */; };
 		84B334E51AAB00DD00B9707D /* SidePanelViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B334E41AAB00DD00B9707D /* SidePanelViewController.swift */; };
 		84B334E81AAB0C7D00B9707D /* SidePanelOption.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B334E71AAB0C7D00B9707D /* SidePanelOption.swift */; };
 		84B334EA1AAB0CC900B9707D /* SidePanelCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B334E91AAB0CC900B9707D /* SidePanelCell.swift */; };
@@ -227,6 +228,7 @@
 		84ACA11D1AE78F250084D4CF /* SprubixCameraViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SprubixCameraViewController.swift; sourceTree = "<group>"; };
 		84ACA1201AE790020084D4CF /* SprubixCamera.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SprubixCamera.swift; sourceTree = "<group>"; };
 		84ACA1221AE7B5C80084D4CF /* EditSnapshotViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EditSnapshotViewController.swift; sourceTree = "<group>"; };
+		84B1FF8E1BA1645800CC46C0 /* InventoryOptionsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InventoryOptionsViewController.swift; sourceTree = "<group>"; };
 		84B334E41AAB00DD00B9707D /* SidePanelViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SidePanelViewController.swift; sourceTree = "<group>"; };
 		84B334E71AAB0C7D00B9707D /* SidePanelOption.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SidePanelOption.swift; sourceTree = "<group>"; };
 		84B334E91AAB0CC900B9707D /* SidePanelCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SidePanelCell.swift; sourceTree = "<group>"; };
@@ -516,10 +518,10 @@
 		848871801B36A112001D60A1 /* Shop */ = {
 			isa = PBXGroup;
 			children = (
-				848871811B36A140001D60A1 /* InventoryViewController.swift */,
 				84C6648D1B3AB80600E18FF7 /* DeliveryOptionsViewController.swift */,
 				84C664911B3AEA5400E18FF7 /* DeliveryOptionsDetailsViewController.swift */,
 				05BE68861B75C0410098FDCF /* DashboardViewController.swift */,
+				84B1FF901BA188C700CC46C0 /* Inventory */,
 				845834CA1B7486EA007C6F6B /* Refund */,
 				8405D0581B5B60DF00B42752 /* Checkout */,
 				8405D0591B5B610200B42752 /* Order */,
@@ -588,6 +590,15 @@
 				8486D4151B04774800ED31BA /* SprubixPiece.swift */,
 			);
 			name = Create;
+			sourceTree = "<group>";
+		};
+		84B1FF901BA188C700CC46C0 /* Inventory */ = {
+			isa = PBXGroup;
+			children = (
+				848871811B36A140001D60A1 /* InventoryViewController.swift */,
+				84B1FF8E1BA1645800CC46C0 /* InventoryOptionsViewController.swift */,
+			);
+			name = Inventory;
 			sourceTree = "<group>";
 		};
 		84B334E61AAB0C5A00B9707D /* Models */ = {
@@ -907,6 +918,7 @@
 				84B3353E1AB2BA2000B9707D /* TransitionProtocol.swift in Sources */,
 				84B3352C1AAEE2EB00B9707D /* UserProfileHeader.swift in Sources */,
 				84C6648E1B3AB80600E18FF7 /* DeliveryOptionsViewController.swift in Sources */,
+				84B1FF8F1BA1645800CC46C0 /* InventoryOptionsViewController.swift in Sources */,
 				8475ECFB1B24055D0000111A /* FavoritesViewController.swift in Sources */,
 				845048B91A9ECC81008BDBAA /* SignUpViewController.swift in Sources */,
 				84C664921B3AEA5400E18FF7 /* DeliveryOptionsDetailsViewController.swift in Sources */,

@@ -422,7 +422,10 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         
         pieceDetailInfoView.addSubview(pieceSpecsView)
         
-        if piece["price"] as! String != "0.00" {
+        let shoppable = user["shoppable"] as! NSDictionary
+        let buyable: Bool? = shoppable["purchasable"] as? Bool
+        
+        if buyable != nil && buyable! != false && piece["price"] as! String != "0.00" {
             if !piece["quantity"]!.isKindOfClass(NSNull) {
                 // price label
                 let padding: CGFloat = 10

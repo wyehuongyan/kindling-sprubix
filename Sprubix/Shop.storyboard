@@ -991,10 +991,6 @@
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="gXM-iP-FEX">
-                                <rect key="frame" x="0.0" y="44" width="600" height="50"/>
-                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                            </view>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="100" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="YBI-K4-oca">
                                 <rect key="frame" x="0.0" y="114" width="600" height="486"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -1071,15 +1067,14 @@
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstItem="YBI-K4-oca" firstAttribute="top" secondItem="aAc-jz-bjX" secondAttribute="bottom" constant="94" id="ZNc-ak-rKZ"/>
                             <constraint firstAttribute="trailing" secondItem="YBI-K4-oca" secondAttribute="trailing" id="f65-q0-CIH"/>
                             <constraint firstItem="YBI-K4-oca" firstAttribute="leading" secondItem="7sa-kk-v75" secondAttribute="leading" id="n5u-Al-1qs"/>
                             <constraint firstItem="Ctg-wo-fud" firstAttribute="top" secondItem="YBI-K4-oca" secondAttribute="bottom" id="oET-4Q-057"/>
+                            <constraint firstItem="YBI-K4-oca" firstAttribute="top" secondItem="aAc-jz-bjX" secondAttribute="bottom" constant="94" id="orW-iG-t6o"/>
                         </constraints>
                     </view>
                     <connections>
                         <outlet property="inventoryTableView" destination="YBI-K4-oca" id="bth-nA-cUU"/>
-                        <outlet property="toolBarView" destination="gXM-iP-FEX" id="qou-by-a8o"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="fnI-3N-Qva" userLabel="First Responder" sceneMemberID="firstResponder"/>
