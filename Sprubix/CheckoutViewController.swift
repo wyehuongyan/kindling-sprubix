@@ -288,6 +288,12 @@ class CheckoutViewController: UIViewController, UITableViewDataSource, UITableVi
                 let deliveryAddressesViewController = UIStoryboard.deliveryAddressesViewController()
                 
                 self.navigationController?.pushViewController(deliveryAddressesViewController!, animated: true)
+                
+                // Mixpanel - Add Delivery Address, Checkout
+                mixpanel.track("Add Delivery Address", properties: [
+                    "Source": "Checkout"
+                ])
+                // Mixpanel - End
             case 1:
                 // default payment method
                 
@@ -295,6 +301,12 @@ class CheckoutViewController: UIViewController, UITableViewDataSource, UITableVi
                 let paymentMethodsViewController = UIStoryboard.paymentMethodsViewController()
                 
                 self.navigationController?.pushViewController(paymentMethodsViewController!, animated: true)
+                
+                // Mixpanel - Add Payment Method, Checkout
+                mixpanel.track("Add Payment Method", properties: [
+                    "Source": "Checkout"
+                ])
+                // Mixpanel - End
             default:
                 fatalError("Unknown row in default section selected")
             }
@@ -694,9 +706,6 @@ class CheckoutViewController: UIViewController, UITableViewDataSource, UITableVi
                                 mixpanel.track("Placed Order", properties: [
                                     "Status": "Success"
                                 ])
-                                // Mixpanel - People, Revenue
-                                mixpanel.people.trackCharge(self.orderTotal)
-                                // Mixpanel - End
                             }
                             
                         } else if status == "500" {

@@ -198,7 +198,7 @@ class DashboardOverlay: UIView {
         numRefundedOrders.textAlignment = NSTextAlignment.Center
         
         numRefundedOrdersText = UILabel(frame: CGRectMake(0, 25, screenWidth/3, 30))
-        numRefundedOrdersText.text = "Refunded"
+        numRefundedOrdersText.text = "Refunding"
         numRefundedOrdersText.font = subTextFont
         numRefundedOrdersText.textColor = subTextColor
         numRefundedOrdersText.textAlignment = NSTextAlignment.Center

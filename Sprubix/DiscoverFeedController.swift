@@ -446,6 +446,10 @@ class DiscoverFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyD
                             
                         }
                     })
+                    
+                    // Mixpanel - Liked Outfit (decrement)
+                    mixpanel.people.increment("Outfits Liked", by: -1)
+                    // Mixpanel - End
                 }
             })
         } else {
@@ -601,6 +605,16 @@ class DiscoverFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyD
                                     }
                                 }
                             })
+                            
+                            // Mixpanel - Liked Outfit
+                            mixpanel.track("Liked Outfits", properties: [
+                                "Source": "Main Feed",
+                                "Page": "Discover",
+                                "Outfit ID": outfitId,
+                                "Owner User ID": receiver["id"] as! Int
+                            ])
+                            mixpanel.people.increment("Outfits Liked", by: 1)
+                            // Mixpanel - End
                         }
                     })
                     
@@ -630,10 +644,29 @@ class DiscoverFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyD
         
         navigationController!.delegate = nil
         navigationController!.pushViewController(commentsViewController!, animated: true)
+        
+        // Mixpanel - Viewed Outfit Comments, Main Feed
+        mixpanel.track("Viewed Outfit Comments", properties: [
+            "Source": "Main Feed",
+            "Page": "Discover",
+            "Outfit ID": outfitId,
+            "Owner User ID": receiverId
+        ])
+        mixpanel.people.increment("Outfit Comments Viewed", by: 1)
+        // Mixpanel - End
     }
     
     func showProfile(user: NSDictionary) {
         delegate?.showUserProfile(user)
+        
+        // Mixpanel - Viewed User Profile, Main Feed
+        mixpanel.track("Viewed User Profile", properties: [
+            "Source": "Main Feed",
+            "Page": "Discover",
+            "Tab": "Outfit",
+            "Target User ID": user.objectForKey("id") as! Int
+        ])
+        // Mixpanel - End
     }
     
     func tappedOutfit(indexPath: NSIndexPath) {
@@ -647,6 +680,15 @@ class DiscoverFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyD
         
         navigationController!.delegate = transitionDelegateHolder
         navigationController!.pushViewController(outfitDetailsViewController, animated: true)
+        
+        // Mixpanel - Viewed Outfit Details
+        mixpanel.track("Viewed Outfit Details", properties: [
+            "Source": "Main Feed",
+            "Page": "Discover",
+            "Outfit ID": outfits[indexPath.row].objectForKey("id") as! Int,
+            "Owner User ID": outfits[indexPath.row].objectForKey("user_id") as! Int
+        ])
+        // Mixpanel - End
     }
     
     func spruceOutfit(indexPath: NSIndexPath) {
@@ -663,6 +705,15 @@ class DiscoverFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyD
             self.shyNavBarManager = nil
             navigationController!.delegate = nil
             self.navigationController?.pushViewController(self.spruceViewController!, animated: true)
+            
+            // Mixpanel - Spruce Outfit
+            mixpanel.track("Spruce Outfit", properties: [
+                "Source": "Main Feed",
+                "Page": "Discover",
+                "Outfit ID": selectedOutfit.objectForKey("id") as! Int,
+                "Owner User ID": selectedOutfit.objectForKey("user_id") as! Int
+            ])
+            // Mixpanel - End
         }
     }
 
@@ -994,7 +1045,7 @@ class DiscoverFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyD
                     exposedOutfits.append(cell.outfitId)
                     
                     // Mixpanel - Exposed Outfits
-                    mixpanel.people.increment("Exposed Outfits", by: 1)
+                    mixpanel.people.increment("Outfits Exposed", by: 1)
                     // Mixpanel - End
                 }
             }

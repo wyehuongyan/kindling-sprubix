@@ -629,8 +629,8 @@ class SnapshotShareController: UIViewController, UITableViewDelegate, UITableVie
         
         sprubixOutfitDict.setObject(pieces, forKey: "pieces")
         
-        // Mixpanel - Spruce Outfit Image Upload, Timer
-        mixpanel.timeEvent("Spruce Outfit Image Upload")
+        // Mixpanel - Create Outfit Image Upload, Timer
+        mixpanel.timeEvent("Create Outfit Image Upload")
         // Mixpanel - End
         
         // upload:
@@ -688,6 +688,7 @@ class SnapshotShareController: UIViewController, UITableViewDelegate, UITableVie
                     "Status": "Success"
                 ])
                 mixpanel.people.increment("Outfits Created", by: 1)
+                mixpanel.people.increment("Pieces Created", by: self.sprubixPieces.count)
                 // Mixpanel - End
                 
             }, failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
@@ -719,6 +720,13 @@ class SnapshotShareController: UIViewController, UITableViewDelegate, UITableVie
         // Share to Facebook
         if shareToFacebook {
             sharePhotoToFacebook(outfitImage)
+            
+            // Mixpanel - Share, Facebook
+            mixpanel.track("Share", properties: [
+                "Type": "Outfit",
+                "Platform": "Facebook"
+            ])
+            // Mixpanel - End
         }
     }
     

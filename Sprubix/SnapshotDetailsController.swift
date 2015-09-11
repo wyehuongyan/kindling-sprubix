@@ -1082,8 +1082,8 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
 
             sprubixDict.setObject(pieces, forKey: "pieces")
             
-            // Mixpanel - Spruce Outfit Image Upload, Timer
-            mixpanel.timeEvent("Spruce Outfit Image Upload")
+            // Mixpanel - Create Outfit Image Upload, Timer
+            mixpanel.timeEvent("Create Outfit Image Upload")
             // Mixpanel - End
             
             // upload piece data
@@ -1124,6 +1124,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
                         "Type" : "Piece",
                         "Status": "Success"
                     ])
+                    mixpanel.people.increment("Pieces Created", by: 1)
                     // Mixpanel - End
                     
                 }, failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in

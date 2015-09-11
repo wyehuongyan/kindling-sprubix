@@ -572,16 +572,18 @@ class MixpanelService {
             "$created": NSDate(),
             "Distinct ID" : distinctId,
             "Points" : 0,
-            "Exposed Outfits": 0,
-            "Liked Outfits": 0,
-            "Liked Pieces": 0,
+            "Outfits Exposed": 0,
+            "Pieces Exposed": 0,
+            "Outfits Liked": 0,
+            "Pieces Liked": 0,
             "Outfits Created": 0,
+            "Pieces Created": 0,
             "Spruce Outfit": 0,
             "Spruce Outfit Swipe": 0,
-            "Viewed Outfit Details": 0,
-            "Viewed Piece Details": 0,
-            "Viewed Outfit Comments": 0,
-            "Viewed Piece Comments": 0
+            "Outfit Details Viewed": 0,
+            "Piece Details Viewed": 0,
+            "Outfit Comments Viewed": 0,
+            "Piece Comments Viewed": 0
         ])
         
         mixpanel.flush()
@@ -638,10 +640,18 @@ class MixpanelService {
         case "App Launched":
             let id = getUserIdWithNewUser()
             
-            mixpanel.track(eventName, properties: [
-                "User ID": id,
-                "Timestamp": NSDate()
-            ])
+            // Existing user and is logged in, need to Identify
+            if id != -1 {
+                setup()
+                mixpanel.track(eventName)
+            }
+            // New user, don't need to Identify
+            else {
+                mixpanel.track(eventName, properties: [
+                    "User ID": id,
+                    "Timestamp": NSDate()
+                ])
+            }
             
         case "Viewed Signup Page":
             let id = getUserIdWithNewUser()
@@ -655,6 +665,7 @@ class MixpanelService {
             if let property = propertySet {
                 var id: Int = getUserIdWithNewUser()
                 let status: String = property["Status"] as! String
+                let source: String = property["Source"] as! String
                 
                 if status == "Success" {
                     id = property["User ID"] as! Int
@@ -663,6 +674,7 @@ class MixpanelService {
                 mixpanel.track(eventName, properties: [
                     "User ID": id,
                     "Status": status,
+                    "Source": source,
                     "Timestamp": NSDate()
                 ])
             } else {

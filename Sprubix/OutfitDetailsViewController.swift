@@ -37,12 +37,8 @@ class OutfitDetailsViewController: UICollectionViewController, UICollectionViewD
                 self.currentVisibleIndexPath = indexPath
                 self.currentVisibleOutfit = self.outfits[indexPath.row]
                 
-                // Mixpanel - Viewed Outfit Details
-                mixpanel.track("Viewed Outfit Details", properties: [
-                    "Outfit ID": self.currentVisibleOutfit!.objectForKey("id") as! Int,
-                    "Owner User ID": self.currentVisibleOutfit!.objectForKey("user_id") as! Int
-                ])
-                mixpanel.people.increment("Viewed Outfit Details", by: 1)
+                // Mixpanel People - Viewed Outfit Details
+                mixpanel.people.increment("Outfit Details Viewed", by: 1)
                 // Mixpanel - End
             }})
     }

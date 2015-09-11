@@ -186,6 +186,25 @@ class SearchViewController: UIViewController, UISearchBarDelegate {
                 self.activityView.stopAnimating()
         })
         
+        // Mixpanel - Search
+        var searchType = ""
+        
+        switch currentScope {
+        case 0:
+            searchType = "Outfit"
+        case 1:
+            searchType = "Piece"
+        case 2:
+            searchType = "People"
+        default:
+            searchType = ""
+        }
+        
+        mixpanel.track("Search", properties: [
+            "Type": searchType,
+            "Keyword": searchString
+        ])
+        // Mixpanel - End
     }
 
     private func dismissSearchViewController() {

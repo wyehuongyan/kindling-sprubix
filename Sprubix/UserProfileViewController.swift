@@ -403,6 +403,15 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
             
             navigationController?.delegate = transitionDelegateHolder
             navigationController!.pushViewController(outfitDetailsViewController, animated: true)
+            
+            // Mixpanel - Viewed Outfit Details
+            mixpanel.track("Viewed Outfit Details", properties: [
+                "Source": "Profile View",
+                "Tab": "Outfit",
+                "Outfit ID": outfits[indexPath.row].objectForKey("id") as! Int,
+                "Owner User ID": outfits[indexPath.row].objectForKey("user_id") as! Int
+            ])
+            // Mixpanel - End
         case .Pieces:
             let pieceDetailsViewController = PieceDetailsViewController(collectionViewLayout: detailsViewControllerLayout(), currentIndexPath:indexPath)
             pieceDetailsViewController.pieces = pieces
@@ -412,6 +421,15 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
             
             navigationController?.delegate = transitionDelegateHolder
             navigationController!.pushViewController(pieceDetailsViewController, animated: true)
+            
+            // Mixpanel - Viewed Piece Details
+            mixpanel.track("Viewed Piece Details", properties: [
+                "Source": "Profile View",
+                "Tab": "Piece",
+                "Piece ID": pieces[indexPath.row].objectForKey("id") as! Int,
+                "Owner User ID": pieces[indexPath.row].objectForKey("user_id") as! Int
+            ])
+            // Mixpanel - End
         case .Community:
             let outfitDetailsViewController = OutfitDetailsViewController(collectionViewLayout: detailsViewControllerLayout(), currentIndexPath:indexPath)
             outfitDetailsViewController.outfits = communityOutfits
@@ -420,6 +438,15 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
             
             navigationController?.delegate = transitionDelegateHolder
             navigationController!.pushViewController(outfitDetailsViewController, animated: true)
+            
+            // Mixpanel - Viewed Outfit Details
+            mixpanel.track("Viewed Outfit Details", properties: [
+                "Source": "Profile View",
+                "Tab": "Community",
+                "Outfit ID": communityOutfits[indexPath.row].objectForKey("id") as! Int,
+                "Owner User ID": communityOutfits[indexPath.row].objectForKey("user_id") as! Int
+            ])
+            // Mixpanel - End
         default:
             break
         }

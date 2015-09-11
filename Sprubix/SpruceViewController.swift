@@ -134,12 +134,8 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, SprucePieceF
         
         initNavBar()
 
-        // Mixpanel - Spruce Outfit (prevents coming from Create > Spruce Closet
+        // Mixpanel - People - Spruce Outfit (prevents coming from Create > Spruce Closet), only add from 'spruce button'
         if outfit != nil {
-            mixpanel.track("Spruce Outfit", properties: [
-            "Outfit ID": outfit!.objectForKey("id") as! Int,
-            "Owner User ID": outfit!.objectForKey("user_id") as! Int
-            ])
             mixpanel.people.increment("Spruce Outfit", by: 1)
         }
         // Mixpanel - End
