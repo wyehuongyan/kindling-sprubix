@@ -18,7 +18,7 @@ class InventoryOptionsViewController: UIViewController, UITableViewDataSource, U
     var inventoryOptionsTableView: UITableView!
     var lowStockLimitCell: UITableViewCell = UITableViewCell()
     var lowStockLimitText: UITextField!
-    var lowStockLimit: String!
+    var lowStockLimit: Int!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -32,7 +32,7 @@ class InventoryOptionsViewController: UIViewController, UITableViewDataSource, U
         let userData: NSDictionary! = defaults.dictionaryForKey("userData")
         let shoppable = userData["shoppable"] as! NSDictionary
         
-        lowStockLimit = shoppable["low_stock_limit"] as! String
+        lowStockLimit = shoppable["low_stock_limit"] as! Int
         
         initNavBar()
         initTableView()
@@ -108,8 +108,8 @@ class InventoryOptionsViewController: UIViewController, UITableViewDataSource, U
             
             lowStockLimitText.placeholder = "e.g 5"
             
-            if lowStockLimit != "0" {
-                lowStockLimitText.text = lowStockLimit
+            if lowStockLimit != 0 {
+                lowStockLimitText.text = "\(lowStockLimit)"
             }
             
             lowStockLimitText.keyboardType = UIKeyboardType.NumberPad
@@ -157,7 +157,7 @@ class InventoryOptionsViewController: UIViewController, UITableViewDataSource, U
                         TSMessage.showNotificationInViewController(
                             TSMessage.defaultViewController(),
                             title: "Success!",
-                            subtitle: "Profile updated",
+                            subtitle: "Limit updated",
                             image: UIImage(named: "filter-check"),
                             type: TSMessageNotificationType.Success,
                             duration: delay,

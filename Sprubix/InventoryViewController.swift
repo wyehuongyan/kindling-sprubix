@@ -15,13 +15,13 @@ enum InventoryState {
     case LowStock
 }
 
-class InventoryViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, DZNEmptyDataSetSource, DZNEmptyDataSetDelegate {
+class InventoryViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, DZNEmptyDataSetSource, DZNEmptyDataSetDelegate, UITextFieldDelegate {
     
     var currentInventoryState: InventoryState = .All
     
     // tool bar
     var toolBarView: UIView!
-    let searchBarViewHeight: CGFloat = 44
+    let searchBarViewHeight: CGFloat = 0 // navigationHeight
     let searchBarTextFieldHeight: CGFloat = 24
     
     var searchBarTextField: UITextField!
@@ -166,7 +166,7 @@ class InventoryViewController: UIViewController, UITableViewDataSource, UITableV
         searchBarTextField.font = UIFont.systemFontOfSize(15.0)
         searchBarTextField.returnKeyType = UIReturnKeyType.Search
         //searchBarTextField.textContainerInset = UIEdgeInsetsMake(3, 3, 0, 0);
-        //searchBarTextField.delegate = self
+        searchBarTextField.delegate = self
         searchBarTextField.textAlignment = NSTextAlignment.Center
         
         searchBarView.addSubview(searchBarTextField)
@@ -253,10 +253,8 @@ class InventoryViewController: UIViewController, UITableViewDataSource, UITableV
                 parameters: nil,
                 success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
                     
-                    self.activityView.stopAnimating()
-                    
                     if self.currentInventoryState == InventoryState.All {
-                        
+                        self.activityView.stopAnimating()
                         self.pieces = responseObject["data"] as! [NSDictionary]
                         
                         if self.pieces.count > 0 {
@@ -286,11 +284,9 @@ class InventoryViewController: UIViewController, UITableViewDataSource, UITableV
                 parameters: nil,
                 success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
                     
-                    self.activityView.stopAnimating()
-                    
                     // if inventory state still = .LowStock
                     if self.currentInventoryState == InventoryState.LowStock {
-                    
+                        self.activityView.stopAnimating()
                         self.pieces = responseObject as! [NSDictionary]
                         
                         if self.pieces.count > 0 {
@@ -385,7 +381,7 @@ class InventoryViewController: UIViewController, UITableViewDataSource, UITableV
                 // get low stock limit
                 let userData: NSDictionary! = defaults.dictionaryForKey("userData")
                 let shoppable = userData["shoppable"] as! NSDictionary
-                let lowStockLimit = shoppable["low_stock_limit"] as! String
+                let lowStockLimit = shoppable["low_stock_limit"] as! Int
                 
                 var total = 0
                 var lowSizes = NSMutableArray()
@@ -395,7 +391,7 @@ class InventoryViewController: UIViewController, UITableViewDataSource, UITableV
                     total += stock
                     
                     // check if there's low stock for size here
-                    if stock <= lowStockLimit.toInt() {
+                    if stock <= lowStockLimit {
                         lowSizes.addObject(size)
                     }
                 }
@@ -441,7 +437,7 @@ class InventoryViewController: UIViewController, UITableViewDataSource, UITableV
                 // get low stock limit
                 let userData: NSDictionary! = defaults.dictionaryForKey("userData")
                 let shoppable = userData["shoppable"] as! NSDictionary
-                let lowStockLimit = shoppable["low_stock_limit"] as! String
+                let lowStockLimit = shoppable["low_stock_limit"] as! Int
                 
                 var total = 0
                 var lowSizes = NSMutableArray()
@@ -451,7 +447,7 @@ class InventoryViewController: UIViewController, UITableViewDataSource, UITableV
                     total += stock
                     
                     // check if there's low stock for size here
-                    if stock <= lowStockLimit.toInt() {
+                    if stock <= lowStockLimit {
                         lowSizes.addObject(size)
                     }
                 }
@@ -479,6 +475,31 @@ class InventoryViewController: UIViewController, UITableViewDataSource, UITableV
         default:
             fatalError("Unknown inventory state in InventoryViewController")
         }
+    }
+    
+    // UITextFieldDelegate
+    func textFieldShouldReturn(textField: UITextField) -> Bool {
+        let userId:Int? = defaults.objectForKey("userId") as? Int
+        
+        if textField.text != "" && userId != nil {
+            // REST call to server to do full text search
+            manager.POST(SprubixConfig.URL.api + "/pieces",
+                parameters: [
+                    "user_id": userId!,
+                    "full_text": textField.text
+                ],
+                success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                    
+                    self.pieces = responseObject["data"] as! [NSDictionary]
+                    
+                    self.inventoryTableView.reloadData()
+                },
+                failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                    println("Error: " + error.localizedDescription)
+            })
+        }
+        
+        return true
     }
     
     // MARK: UITableViewDelegate
