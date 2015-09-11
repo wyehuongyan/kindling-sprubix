@@ -49,6 +49,9 @@ class FavoritesViewController: UIViewController, DZNEmptyDataSetSource, DZNEmpty
     // collection views
     var likedCollectionView: UICollectionView!
     
+    // track first launch to prevent double counting (skip once)
+    var firstLaunch: Bool!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -65,6 +68,8 @@ class FavoritesViewController: UIViewController, DZNEmptyDataSetSource, DZNEmpty
         initNavBar()
         
         self.navigationController!.delegate = nil
+        
+        firstLaunch = true
     }
     
     override func viewDidDisappear(animated: Bool) {
@@ -421,6 +426,14 @@ class FavoritesViewController: UIViewController, DZNEmptyDataSetSource, DZNEmpty
             
             self.navigationController!.delegate = transitionDelegateHolder
             navigationController!.pushViewController(outfitDetailsViewController, animated: true)
+            
+            // Mixpanel - Viewed Outfit Details
+            mixpanel.track("Viewed Outfit Details", properties: [
+                "Source": "Favorites View",
+                "Outfit ID": likedOutfits[indexPath.row].objectForKey("id") as! Int,
+                "Owner User ID": likedOutfits[indexPath.row].objectForKey("user_id") as! Int
+            ])
+            // Mixpanel - End
         case .Pieces:
             let pieceDetailsViewController = PieceDetailsViewController(collectionViewLayout: detailsViewControllerLayout(), currentIndexPath: indexPath)
             
@@ -429,6 +442,14 @@ class FavoritesViewController: UIViewController, DZNEmptyDataSetSource, DZNEmpty
             
             self.navigationController!.delegate = transitionDelegateHolder
             navigationController!.pushViewController(pieceDetailsViewController, animated: true)
+            
+            // Mixpanel - Viewed Piece Details
+            mixpanel.track("Viewed Piece Details", properties: [
+                "Source": "Favorites View",
+                "Piece ID": likedPieces[indexPath.row].objectForKey("id") as! Int,
+                "Owner User ID": likedPieces[indexPath.row].objectForKey("user_id") as! Int
+            ])
+            // Mixpanel - End
         default:
             break
         }
@@ -495,11 +516,15 @@ class FavoritesViewController: UIViewController, DZNEmptyDataSetSource, DZNEmpty
                     self.activityView.stopAnimating()
             })
             
+            
             // Mixpanel - Viewed Favorites, Outfit
-            mixpanel.track("Viewed Favorites", properties: [
-                "Source": "Favorites View",
-                "Tab": "Outfit"
-            ])
+            if !firstLaunch {
+                mixpanel.track("Viewed Favorites", properties: [
+                    "Source": "Favorites View",
+                    "Tab": "Outfit"
+                ])
+            }
+            firstLaunch = false
             // Mixpanel - End
         }
     }

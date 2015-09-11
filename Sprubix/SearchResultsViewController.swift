@@ -265,6 +265,14 @@ class SearchResultsViewController: UIViewController, UISearchBarDelegate, UIColl
             
             self.navigationController!.delegate = transitionDelegateHolder
             navigationController!.pushViewController(outfitDetailsViewController, animated: true)
+            
+            // Mixpanel - Viewed Outfit Details
+            mixpanel.track("Viewed Outfit Details", properties: [
+                "Source": "Search Results",
+                "Outfit ID": results[indexPath.row].objectForKey("id") as! Int,
+                "Owner User ID": results[indexPath.row].objectForKey("user_id") as! Int
+            ])
+            // Mixpanel - End
         case 1:
             let pieceDetailsViewController = PieceDetailsViewController(collectionViewLayout: detailsViewControllerLayout(), currentIndexPath: indexPath)
             
@@ -273,6 +281,14 @@ class SearchResultsViewController: UIViewController, UISearchBarDelegate, UIColl
             
             self.navigationController!.delegate = transitionDelegateHolder
             navigationController!.pushViewController(pieceDetailsViewController, animated: true)
+            
+            // Mixpanel - Viewed Piece Details
+            mixpanel.track("Viewed Piece Details", properties: [
+                "Source": "Search Results",
+                "Piece ID": results[indexPath.row].objectForKey("id") as! Int,
+                "Owner User ID": results[indexPath.row].objectForKey("user_id") as! Int
+            ])
+            // Mixpanel - End
         default:
             break
         }

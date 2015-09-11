@@ -18,18 +18,18 @@ import FBSDKCoreKit
 
 struct SprubixConfig {
     struct URL {
-        //static let api: String = "http://192.168.1.1/~shion/kindling-core/public/index.php"
+        static let api: String = "http://192.168.1.1/~shion/kindling-core/public/index.php"
         //static let api: String = "http://sprubix-ch.ngrok.io/~shion/kindling-core/public/index.php"
-        static let api: String = "http://sprubix-wh.ngrok.io/~wyehuongyan/kindling-core/public/index.php"
+        //static let api: String = "http://sprubix-wh.ngrok.io/~wyehuongyan/kindling-core/public/index.php"
         static let firebase: String = "https://sprubixtest.firebaseio.com/"
         
         //static let api: String = "http://api.sprubix.com"
         //static let firebase: String = "https://sprubix.firebaseio.com/"
     }
     struct Token {
-        static let mixpanel = ""
+        //static let mixpanel = ""
         
-        //static let mixpanel = "7b1423643b7e52dad5680f5fdc390a88" // iOS Test 2
+        static let mixpanel = "7b1423643b7e52dad5680f5fdc390a88" // iOS Test 2
     }
 }
 

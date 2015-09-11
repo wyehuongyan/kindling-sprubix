@@ -408,6 +408,15 @@ class PeopleFeedViewController: UIViewController, DZNEmptyDataSetSource, DZNEmpt
     
     func showProfile(user: NSDictionary) {
         containerViewController.showUserProfile(user)
+        
+        // Mixpanel - Viewed User Profile, Main Feed
+        mixpanel.track("Viewed User Profile", properties: [
+            "Source": "Main Feed",
+            "Page": "People",
+            "Tab": "Outfit",
+            "Target User ID": user.objectForKey("id") as! Int
+        ])
+        // Mixpanel - End
     }
     
     func showPieceDetails(piece: NSDictionary) {
@@ -436,6 +445,15 @@ class PeopleFeedViewController: UIViewController, DZNEmptyDataSetSource, DZNEmpt
                     
                     self.navigationController?.view.layer.addAnimation(transition, forKey: kCATransition)
                     self.navigationController!.pushViewController(pieceDetailsViewController, animated: false)
+                    
+                    // Mixpanel - Viewed Piece Details
+                    mixpanel.track("Viewed Piece Details", properties: [
+                        "Source": "Main Feed",
+                        "Page": "People",
+                        "Piece ID": [piece][0].objectForKey("id") as! Int,
+                        "Owner User ID": [piece][0].objectForKey("user_id") as! Int
+                    ])
+                    // Mixpanel - End
                 },
                 failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                     println("Error: " + error.localizedDescription)

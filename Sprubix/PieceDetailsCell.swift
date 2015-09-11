@@ -877,8 +877,16 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
     
     func creditsShowProfile(sender: UIButton) {
         containerViewController.showUserProfile(postedByButton.user!)
+
+        // Mixpanel - Viewed User Profile, Piece View
+        mixpanel.track("Viewed User Profile", properties: [
+            "Source": "Piece View",
+            "Tab": "Outfit",
+            "Target User ID": piece["user_id"] as! Int
+        ])
+        // Mixpanel - End
     }
-    
+
     func animateHeart() {
         if likeImageView != nil {
             UIView.animateWithDuration(0.3, delay: 0.2, usingSpringWithDamping: 0.9, initialSpringVelocity: 0, options: .CurveEaseInOut, animations: {
@@ -1305,7 +1313,7 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
             "Piece ID": pieceId,
             "Owner User ID": piece["user_id"] as! Int
         ])
-        mixpanel.people.increment("Viewed Piece Comments", by: 1)
+        mixpanel.people.increment("Piece Comments Viewed", by: 1)
         // Mixpanel - End
     }
     
@@ -1391,6 +1399,13 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         let button : FBSDKShareButton = FBSDKShareButton()
         button.shareContent = content
         button.sendActionsForControlEvents(UIControlEvents.TouchUpInside)
+        
+        // Mixpanel - Share, Facebook
+        mixpanel.track("Share", properties: [
+            "Type": "Piece",
+            "Platform": "Facebook"
+        ])
+        // Mixpanel - End
     }
     
 }

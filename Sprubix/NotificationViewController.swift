@@ -584,6 +584,14 @@ class NotificationViewController: UIViewController, DZNEmptyDataSetSource, DZNEm
                         
                         self.navigationController?.view.layer.addAnimation(transition, forKey: kCATransition)
                         self.navigationController!.pushViewController(outfitDetailsViewController, animated: false)
+                        
+                        // Mixpanel - Viewed Outfit Details
+                        mixpanel.track("Viewed Outfit Details", properties: [
+                            "Source": "Notification View",
+                            "Outfit ID": [outfit][0].objectForKey("id") as! Int,
+                            "Owner User ID": [outfit][0].objectForKey("user_id") as! Int
+                        ])
+                        // Mixpanel - End
                     },
                     failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                         println("Error: " + error.localizedDescription)
@@ -613,6 +621,14 @@ class NotificationViewController: UIViewController, DZNEmptyDataSetSource, DZNEm
                         
                         self.navigationController?.view.layer.addAnimation(transition, forKey: kCATransition)
                         self.navigationController!.pushViewController(pieceDetailsViewController, animated: false)
+                        
+                        // Mixpanel - Viewed Piece Details
+                        mixpanel.track("Viewed Piece Details", properties: [
+                            "Source": "Notification View",
+                            "Piece ID": [piece][0].objectForKey("id") as! Int,
+                            "Owner User ID": [piece][0].objectForKey("user_id") as! Int
+                        ])
+                        // Mixpanel - End
                     },
                     failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                         println("Error: " + error.localizedDescription)

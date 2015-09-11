@@ -254,6 +254,12 @@ class SidePanelViewController: UIViewController, UITableViewDataSource, UITableV
             break
         case .Refunds:
             delegate?.showRefunds()
+            
+            // Mixpanel - Viewed Orders, Side Panel
+            mixpanel.track("Viewed Refunds", properties: [
+                "Source": "Side Panel"
+            ])
+            // Mixpanel - End
             break
         case .DeliveryOptions:
             delegate?.showDeliveryOptions()

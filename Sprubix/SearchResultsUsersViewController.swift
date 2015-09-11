@@ -204,6 +204,13 @@ class SearchResultsUsersViewController: UIViewController, UISearchBarDelegate, U
         let user: NSDictionary = results[indexPath.row]
         
         containerViewController.showUserProfile(user)
+        
+        // Mixpanel - Viewed User Profile, Search Results
+        mixpanel.track("Viewed User Profile", properties: [
+            "Source": "Search Results",
+            "Target User ID": user.objectForKey("id") as! Int
+        ])
+        // Mixpanel - End
     }
     
     func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {

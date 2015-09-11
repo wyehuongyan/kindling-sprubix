@@ -573,10 +573,19 @@ class SignInViewController: UIViewController, UITableViewDataSource, UITableView
                         self.signInSprubix()
                         
                         // Mixpanel - Signed Up, Success
-                        mixpanel.track("User Signed Up", properties: [
-                            "User ID": data.objectForKey("id") as! Int,
-                            "Status": "Success"
-                        ])
+                        if facebook_id != "" {
+                            MixpanelService.track("User Signed Up", propertySet: [
+                                "User ID": data.objectForKey("id") as! Int,
+                                "Status": "Success",
+                                "Source": "Facebook"
+                            ])
+                        } else {
+                            MixpanelService.track("User Signed Up", propertySet: [
+                                "User ID": data.objectForKey("id") as! Int,
+                                "Status": "Success",
+                                "Source": "Email"
+                            ])
+                        }
                         // Mixpanel - Register
                         MixpanelService.register(data)
                         // Mixpanel - End
@@ -601,6 +610,18 @@ class SignInViewController: UIViewController, UITableViewDataSource, UITableView
                         atPosition: TSMessageNotificationPosition.Bottom,
                         canBeDismissedByUser: true)
                     
+                    // Mixpanel - Signed Up, Fail
+                    if facebook_id != "" {
+                        MixpanelService.track("User Signed Up", propertySet: [
+                            "Status": "Fail",
+                            "Source": "Facebook"
+                        ])
+                    } else {
+                        MixpanelService.track("User Signed Up", propertySet: [
+                            "Status": "Fail",
+                            "Source": "Email"
+                        ])
+                    }
                     // Mixpanel - Signed Up, Fail
                     MixpanelService.track("User Signed Up", propertySet: ["Status" : "Fail"])
                     // Mixpanel - End

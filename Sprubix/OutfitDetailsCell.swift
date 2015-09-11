@@ -812,6 +812,14 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
         navController!.pushViewController(pieceDetailsViewController, animated: false)
         
         navController!.delegate = transitionDelegateHolder
+        
+        // Mixpanel - Viewed Piece Details
+        mixpanel.track("Viewed Piece Details", properties: [
+            "Source": "Outfit View",
+            "Piece ID": pieces[currentIndexPath.row].objectForKey("id") as! Int,
+            "Owner User ID": pieces[currentIndexPath.row].objectForKey("user_id") as! Int
+        ])
+        // Mixpanel - End
     }
     
     func wasDoubleTapped(gesture: UITapGestureRecognizer) {
@@ -1048,7 +1056,7 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
                                 "Piece ID": pieceId,
                                 "Owner User ID": receiver["id"] as! Int
                             ])
-                            mixpanel.people.increment("Liked Pieces", by: 1)
+                            mixpanel.people.increment("Pieces Liked", by: 1)
                             // Mixpanel - End
                         }
                     })
@@ -1165,7 +1173,7 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
                             })
                             
                             // Mixpanel - Liked Pieces (decrement)
-                            mixpanel.people.increment("Liked Pieces", by: -1)
+                            mixpanel.people.increment("Pieces Liked", by: -1)
                             // Mixpanel - End
                         }
                     })
@@ -1300,7 +1308,7 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
             "Outfit ID": outfitId,
             "Owner User ID": user["id"] as! Int
         ])
-        mixpanel.people.increment("Viewed Outfit Comments", by: 1)
+        mixpanel.people.increment("Outfit Comments Viewed", by: 1)
         // Mixpanel - End
     }
     
@@ -1884,7 +1892,7 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
                     "Piece ID": pieceId,
                     "Owner User ID": piece["user_id"] as! Int
                 ])
-                mixpanel.people.increment("Viewed Piece Comments", by: 1)
+                mixpanel.people.increment("Piece Comments Viewed", by: 1)
                 // Mixpanel - End
             }
         }
@@ -2005,6 +2013,13 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
         let button : FBSDKShareButton = FBSDKShareButton()
         button.shareContent = content
         button.sendActionsForControlEvents(UIControlEvents.TouchUpInside)
+        
+        // Mixpanel - Share, Facebook
+        mixpanel.track("Share", properties: [
+            "Type": "Outfit",
+            "Platform": "Facebook"
+        ])
+        // Mixpanel - End
     }
     
     func spruceButtonPressed(sender: UIButton) {
@@ -2016,6 +2031,14 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
         
         navController?.delegate = nil
         navController?.pushViewController(spruceViewController, animated: true)
+        
+        // Mixpanel - Spruce Outfit
+        mixpanel.track("Spruce Outfit", properties: [
+            "Source": "Outfit View",
+            "Outfit ID": outfit.objectForKey("id") as! Int,
+            "Owner User ID": outfit.objectForKey("user_id") as! Int
+        ])
+        // Mixpanel - End
     }
 
 }
