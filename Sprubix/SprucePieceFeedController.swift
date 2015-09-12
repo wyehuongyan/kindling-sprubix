@@ -37,6 +37,8 @@ class SprucePieceFeedController: UICollectionViewController, UICollectionViewDel
     var scrolling:Bool = false
     var index:Int! // current page
     var currentVisibleCell: SprucePieceFeedCell!
+    var currentPage: Int = 0
+    var lastPage: Int?
     
     var startingPieceHeight: CGFloat!
     
@@ -50,7 +52,7 @@ class SprucePieceFeedController: UICollectionViewController, UICollectionViewDel
         // store original starting heights
         self.startingPieceHeight = pieceHeight
         
-        let collectionView :UICollectionView = self.collectionView!;
+        let collectionView: UICollectionView = self.collectionView!;
         collectionView.pagingEnabled = true
         collectionView.showsHorizontalScrollIndicator = false
         collectionView.backgroundColor = sprubixGray
@@ -77,6 +79,10 @@ class SprucePieceFeedController: UICollectionViewController, UICollectionViewDel
         super.viewWillAppear(animated)
         
         self.navigationController?.navigationBarHidden = true
+    }
+    
+    override func viewDidAppear(animated: Bool) {
+        super.viewDidAppear(animated)
     }
     
     func initButtons() {
@@ -216,6 +222,7 @@ class SprucePieceFeedController: UICollectionViewController, UICollectionViewDel
         // Mixpanel - End
         
         delegate?.resizeOutfit()
+        checkPagination()
     }
     
     override func scrollViewDidEndScrollingAnimation(scrollView: UIScrollView) {
@@ -236,6 +243,13 @@ class SprucePieceFeedController: UICollectionViewController, UICollectionViewDel
         // Mixpanel - End
         
         delegate?.resizeOutfit()
+        checkPagination()
+    }
+    
+    func checkPagination() {
+        if index >= sprucePieces.count - 1 {
+            insertMorePiecesOfType(pieceType)
+        }
     }
     
     func setCurrentVisibleCell() {
@@ -294,11 +308,114 @@ class SprucePieceFeedController: UICollectionViewController, UICollectionViewDel
         return self.collectionView!.frame.size
     }
     
+    func insertMorePiecesOfType(pieceType: String) {
+        let nextPage = currentPage + 1
+        
+        if lastPage == nil || nextPage <= lastPage {
+            let userId:Int? = defaults.objectForKey("userId") as? Int
+            
+            if userId != nil {
+                if outfit != nil {
+                    // get owner ids of each individual piece in the outfit
+                    let pieces = outfit!["pieces"] as! [NSDictionary]
+                    var ownerIds = [Int]()
+                    
+                    for piece in pieces {
+                        var pieceType = piece["type"] as! String
+                        
+                        // except self
+                        if pieceType != self.pieceType {
+                            var owner = piece["user"] as! NSDictionary
+                            var ownerId: Int = owner["id"] as! Int
+                            
+                            ownerIds.append(ownerId)
+                        }
+                    }
+                    
+                    manager.POST(SprubixConfig.URL.api + "/spruce/pieces?page=\(nextPage)",
+                        parameters: [
+                            "type" : pieceType,
+                            "user_ids": ownerIds
+                        ],
+                        success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                            var pieces = responseObject["data"] as! [NSDictionary]
+                            self.currentPage = responseObject["current_page"] as! Int
+                            self.lastPage = responseObject["last_page"] as? Int
+                            
+                            self.collectionView?.performBatchUpdates({
+                                // update data source
+                                for var i = 0; i < pieces.count; i++ {
+                                    let piece = pieces[i]
+                                    
+                                    self.sprucePieces.append(piece)
+                                    
+                                    self.collectionView!.insertItemsAtIndexPaths([NSIndexPath(forItem: self.sprucePieces.count - 1, inSection: 0)])
+                                }
+                                
+                                }, completion: { finished in
+                                    
+                                    if finished {
+                                        if self.piece == nil {
+                                            // update current visible cell
+                                            self.setCurrentVisibleCell()
+                                            
+                                            // resize
+                                            self.delegate?.resizeOutfit()
+                                        }
+                                    }
+                            })
+                        },
+                        failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                            println("Error: " + error.localizedDescription)
+                    })
+                    
+                } else {
+                    manager.POST(SprubixConfig.URL.api + "/pieces?page=\(nextPage)",
+                        parameters: [
+                            "type" : pieceType
+                        ],
+                        success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                            var pieces = responseObject["data"] as! [NSDictionary]
+                            self.currentPage = responseObject["current_page"] as! Int
+                            self.lastPage = responseObject["last_page"] as? Int
+                            
+                            self.collectionView?.performBatchUpdates({
+                                // update data source
+                                for var i = 0; i < pieces.count; i++ {
+                                    let piece = pieces[i]
+                                    
+                                    self.sprucePieces.append(piece)
+                                    
+                                    self.collectionView!.insertItemsAtIndexPaths([NSIndexPath(forItem: self.sprucePieces.count - 1, inSection: 0)])
+                                }
+                                
+                                }, completion: { finished in
+                                    
+                                    if finished {
+                                        if self.piece == nil {
+                                            // update current visible cell
+                                            self.setCurrentVisibleCell()
+                                            
+                                            // resize
+                                            self.delegate?.resizeOutfit()
+                                        }
+                                    }
+                            })
+                        },
+                        failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                            println("Error: " + error.localizedDescription)
+                    })
+                }
+            } else {
+                println("userId not found, please login or create an account")
+            }
+        }
+    }
+
     func retrievePiecesOfType(pieceType: String) {
         let userId:Int? = defaults.objectForKey("userId") as? Int
         
         if userId != nil {
-            
             if outfit != nil {
                 // get owner ids of each individual piece in the outfit
                 let pieces = outfit!["pieces"] as! [NSDictionary]
@@ -323,6 +440,8 @@ class SprucePieceFeedController: UICollectionViewController, UICollectionViewDel
                     ],
                     success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
                         var pieces = responseObject["data"] as! [NSDictionary]
+                        self.currentPage = responseObject["current_page"] as! Int
+                        self.lastPage = responseObject["last_page"] as? Int
                         
                         self.collectionView?.performBatchUpdates({
                             // update data source
@@ -363,6 +482,8 @@ class SprucePieceFeedController: UICollectionViewController, UICollectionViewDel
                     ],
                     success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
                         var pieces = responseObject["data"] as! [NSDictionary]
+                        self.currentPage = responseObject["current_page"] as! Int
+                        self.lastPage = responseObject["last_page"] as? Int
                         
                         self.collectionView?.performBatchUpdates({
                             // update data source
@@ -399,7 +520,6 @@ class SprucePieceFeedController: UICollectionViewController, UICollectionViewDel
         } else {
             println("userId not found, please login or create an account")
         }
-
     }
     
     func insertMorePieces(pieces: [NSDictionary]) {
