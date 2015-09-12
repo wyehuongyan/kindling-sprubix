@@ -572,6 +572,10 @@ class OrdersViewController: UIViewController, UITableViewDataSource, UITableView
         }
         
         self.navigationController?.pushViewController(dashboardViewController!, animated: true)
+        
+        // Mixpanel - Viewed Dashboard
+        mixpanel.track("Viewed Dashboard")
+        // Mixpanel - End
     }
     
     // DZNEmptyDataSetSource

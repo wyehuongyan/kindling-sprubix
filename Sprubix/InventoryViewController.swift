@@ -60,6 +60,9 @@ class InventoryViewController: UIViewController, UITableViewDataSource, UITableV
         initTableView()
         initToolBar()
         retrieveInventoryPieces()
+        
+        // shop onboarding
+        defaults.setBool(true, forKey: "onboardedInventory")
     }
     
     override func viewWillAppear(animated: Bool) {

@@ -108,6 +108,11 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
         
+        containerViewController.statusBarHidden = false
+        self.setNeedsStatusBarAppearanceUpdate()
+        
+        initNavBar()
+
         // if shop logs in, show dashboard
         if freshLogin {
             if let userData: NSDictionary? = defaults.dictionaryForKey("userData"), shoppableType: String? = userData!["shoppable_type"] as? String {
@@ -123,11 +128,6 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
                 }
             }
         }
-        
-        containerViewController.statusBarHidden = false
-        self.setNeedsStatusBarAppearanceUpdate()
-        
-        initNavBar()
         
         // other stuff
         if(refreshControl.refreshing) {
