@@ -153,7 +153,7 @@ class SprucePieceFeedController: UICollectionViewController, UICollectionViewDel
         deleteOverlay.alpha = 0
         
         var deleteCross = UIButton.buttonWithType(UIButtonType.System) as! UIButton
-        deleteCross.frame = CGRect(x: arrowButtonPadding, y: arrowButtonPadding, width: 30, height: 30)
+        deleteCross.frame = CGRect(x: screenWidth - arrowButtonPadding - 30, y: arrowButtonPadding, width: 30, height: 30)
         deleteCross.setTitle("X", forState: UIControlState.Normal)
         deleteCross.titleLabel?.font = UIFont(name: deleteCross.titleLabel!.font.fontName, size: 24)
         deleteCross.setTitleColor(sprubixColor, forState: UIControlState.Normal)

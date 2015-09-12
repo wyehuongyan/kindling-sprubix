@@ -231,10 +231,22 @@ class SignUpViewController: UIViewController, FBSDKLoginButtonDelegate, UIScroll
             if let gender = self.FBUserData.valueForKey("gender") as? String {
                 signInViewController!.userSignupData.setValue(gender, forKey: "gender")
             }
+            
+            // Mixpanel - Viewed Signup Page, Facebook
+            mixpanel.track("Viewed Signup Page", properties: [
+                "Source": "Facebook"
+            ])
+            // Mixpanel - End
         }
         // send to signup
         else if sender == emailButton {
             signInViewController!.currentCreateAccountState = .Signup
+            
+            // Mixpanel - Viewed Signup Page, Email
+            mixpanel.track("Viewed Signup Page", properties: [
+                "Source": "Email"
+            ])
+            // Mixpanel - End
         }
         // send to login
         else {

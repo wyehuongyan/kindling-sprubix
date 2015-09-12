@@ -405,6 +405,7 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, SprucePieceF
             // disable all other buttons
             addPieceButton.enabled = false
             closetButton.enabled = false
+            searchButton.enabled = false
             
             var emptyNavItem:UINavigationItem = UINavigationItem()
             emptyNavItem.title = "Remove"
@@ -422,6 +423,7 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, SprucePieceF
             // enable all other buttons
             addPieceButton.enabled = true
             closetButton.enabled = true
+            searchButton.enabled = true
 
             newNavBar.setItems([newNavItem], animated: true)
 

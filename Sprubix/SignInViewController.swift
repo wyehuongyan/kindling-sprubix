@@ -164,10 +164,6 @@ class SignInViewController: UIViewController, UITableViewDataSource, UITableView
             loginToolbarButton.tintColor = sprubixColor
             loginToolbarButton.sendActionsForControlEvents(UIControlEvents.TouchUpInside)
         }
-        
-        // Mixpanel - Viewed Signup Page
-        MixpanelService.track("Viewed Signup Page")
-        // Mixpanel - End
     }
     
     func backTapped(sender: UIBarButtonItem) {

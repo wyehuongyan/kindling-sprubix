@@ -75,6 +75,11 @@ class DiscoverFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyD
         self.setNeedsStatusBarAppearanceUpdate()
         
         initNavBar()
+        
+        // reset
+        spruceViewController?.view.removeFromSuperview()
+        spruceViewController = nil
+        
         retrieveOutfits()
         
         if self.shyNavBarManager.scrollView == nil {

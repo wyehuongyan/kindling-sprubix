@@ -160,7 +160,8 @@ class DashboardViewController: UIViewController, UITableViewDataSource, ChartVie
                 } else {
                     self.dashboardOverlay.changeTitle("Popular Items")
                 }
-
+                
+                self.popularItemsTableView.reloadData()
             },
             failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                 println("Error: " + error.localizedDescription)
