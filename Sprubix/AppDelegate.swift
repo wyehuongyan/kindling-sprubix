@@ -20,10 +20,10 @@ struct SprubixConfig {
     struct URL {
         //static let api: String = "http://192.168.1.1/~shion/kindling-core/public/index.php"
         //static let api: String = "http://sprubix-ch.ngrok.io/~shion/kindling-core/public/index.php"
-        static let api: String = "http://sprubix-wh.ngrok.io/~wyehuongyan/kindling-core/public/index.php"
+        //static let api: String = "http://sprubix-wh.ngrok.io/~wyehuongyan/kindling-core/public/index.php"
         static let firebase: String = "https://sprubixtest.firebaseio.com/"
         
-        //static let api: String = "http://api.sprubix.com"
+        static let api: String = "https://api.sprubix.com"
         //static let firebase: String = "https://sprubix.firebaseio.com/"
     }
     struct Token {
@@ -55,6 +55,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         window!.backgroundColor = UIColor.whiteColor()
         window!.tintColor = sprubixColor
         
+        configureSecurityPolicy()
         checkLoggedIn()
         
         // handle push notifications when app is not running
@@ -113,6 +114,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         if atSignupScreen == false {
             checkLoggedIn();
         }
+    }
+    
+    func configureSecurityPolicy() {
+        let securityPolicy = AFSecurityPolicy()
+        let certificatePath = NSBundle.mainBundle().pathForResource("SprubixCA", ofType: "cer")!
+        let certificateData = NSData(contentsOfFile: certificatePath)!
+        
+        securityPolicy.pinnedCertificates = [certificateData];
+        securityPolicy.allowInvalidCertificates = true
+        securityPolicy.validatesCertificateChain = false
+        manager.securityPolicy = securityPolicy
     }
     
     func checkLoggedIn() {

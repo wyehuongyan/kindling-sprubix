@@ -86,6 +86,7 @@
 		8488717A1B32996E001D60A1 /* SpruceSearchResultsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 848871791B32996E001D60A1 /* SpruceSearchResultsViewController.swift */; };
 		8488717F1B369CBA001D60A1 /* InventoryCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8488717E1B369CBA001D60A1 /* InventoryCell.swift */; };
 		848871821B36A140001D60A1 /* InventoryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 848871811B36A140001D60A1 /* InventoryViewController.swift */; };
+		8493A3C51BA86221006B190E /* SprubixCA.cer in Resources */ = {isa = PBXBuildFile; fileRef = 8493A3C41BA85D86006B190E /* SprubixCA.cer */; };
 		849CECA11B8EBEE8005D8EA4 /* CheckoutItemPointsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849CECA01B8EBEE8005D8EA4 /* CheckoutItemPointsCell.swift */; };
 		84ACA11E1AE78F250084D4CF /* SprubixCameraViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84ACA11D1AE78F250084D4CF /* SprubixCameraViewController.swift */; };
 		84ACA1211AE790020084D4CF /* SprubixCamera.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84ACA1201AE790020084D4CF /* SprubixCamera.swift */; };
@@ -224,6 +225,7 @@
 		848871791B32996E001D60A1 /* SpruceSearchResultsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpruceSearchResultsViewController.swift; sourceTree = "<group>"; };
 		8488717E1B369CBA001D60A1 /* InventoryCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InventoryCell.swift; sourceTree = "<group>"; };
 		848871811B36A140001D60A1 /* InventoryViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InventoryViewController.swift; sourceTree = "<group>"; };
+		8493A3C41BA85D86006B190E /* SprubixCA.cer */ = {isa = PBXFileReference; lastKnownFileType = file; path = SprubixCA.cer; sourceTree = "<group>"; };
 		849CECA01B8EBEE8005D8EA4 /* CheckoutItemPointsCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CheckoutItemPointsCell.swift; sourceTree = "<group>"; };
 		84ACA11D1AE78F250084D4CF /* SprubixCameraViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SprubixCameraViewController.swift; sourceTree = "<group>"; };
 		84ACA1201AE790020084D4CF /* SprubixCamera.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SprubixCamera.swift; sourceTree = "<group>"; };
@@ -390,6 +392,7 @@
 		845048B11A9ECC81008BDBAA /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				8493A3C41BA85D86006B190E /* SprubixCA.cer */,
 				845048D61A9ECFE2008BDBAA /* Sprubix-Bridging-Header.h */,
 				845048BD1A9ECC81008BDBAA /* Images.xcassets */,
 				845048B21A9ECC81008BDBAA /* Info.plist */,
@@ -823,6 +826,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8493A3C51BA86221006B190E /* SprubixCA.cer in Resources */,
 				8405D0461B54DB8700B42752 /* Settings.storyboard in Resources */,
 				845048BC1A9ECC81008BDBAA /* Main.storyboard in Resources */,
 				845048C11A9ECC81008BDBAA /* LaunchScreen.xib in Resources */,
