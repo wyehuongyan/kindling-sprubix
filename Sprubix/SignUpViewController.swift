@@ -365,8 +365,8 @@ class SignUpViewController: UIViewController, FBSDKLoginButtonDelegate, UIScroll
                                 var data = response["data"] as! String
                                 println(data)
                                 
-                                // FB account dont exist, go Segue
-                                self.performSegueWithIdentifier("EmailSegue", sender: sender)
+                                // FB account dont exist, go sign-in
+                                self.goSignInPage(sender)
                             }
                         }
                     },

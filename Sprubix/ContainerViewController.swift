@@ -87,15 +87,17 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
         let userData: NSDictionary? = defaults.dictionaryForKey("userData")
         
         if userData != nil {
-            notificationScope.show(authChange: { (finished, results) -> Void in
-                var settings: UIUserNotificationSettings = UIUserNotificationSettings(forTypes: UIUserNotificationType.Alert | UIUserNotificationType.Sound | UIUserNotificationType.Badge, categories: nil)
-                
-                UIApplication.sharedApplication().registerUserNotificationSettings(settings)
-                UIApplication.sharedApplication().registerForRemoteNotifications()
-                
-                }, cancelled: { (results) -> Void in
-                    println("Unable to register to push notifications, thing was cancelled")
-            })
+            Delay.delay(1.0) {
+                self.notificationScope.show(authChange: { (finished, results) -> Void in
+                    var settings: UIUserNotificationSettings = UIUserNotificationSettings(forTypes: UIUserNotificationType.Alert | UIUserNotificationType.Sound | UIUserNotificationType.Badge, categories: nil)
+                    
+                    UIApplication.sharedApplication().registerUserNotificationSettings(settings)
+                    UIApplication.sharedApplication().registerForRemoteNotifications()
+                    
+                    }, cancelled: { (results) -> Void in
+                        println("Unable to register to push notifications, thing was cancelled")
+                })
+            }
         }
     }
     

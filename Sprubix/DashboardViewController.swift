@@ -143,7 +143,7 @@ class DashboardViewController: UIViewController, UITableViewDataSource, ChartVie
     
     func shopOnboarding() {
         // REST call to server to get piece count and delivery options
-        manager.GET(SprubixConfig.URL.api + "dashboard/onboarding",
+        manager.GET(SprubixConfig.URL.api + "/dashboard/onboarding",
             parameters: nil,
             success: { (operation: AFHTTPRequestOperation!, responseObject:
                 AnyObject!) in
