@@ -789,6 +789,7 @@
 		845048A61A9ECC81008BDBAA /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				LastSwiftUpdateCheck = 0700;
 				LastUpgradeCheck = 0610;
 				ORGANIZATIONNAME = Sprubix;
 				TargetAttributes = {
