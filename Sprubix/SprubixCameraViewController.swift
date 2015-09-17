@@ -28,7 +28,7 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
     var feetButton: UIButton!
     
     var cameraPreview: UIView!
-    var cameraPreviewSilhouette: UIImageView!
+    var cameraPreviewSilhouette: UIImageView?
     var handleBarView: UIView!
     var pieceSelectorView: UIView!
     var pieceSelectorlabel: UILabel!
@@ -323,8 +323,8 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
             cameraPreview = UIView(frame: CGRectMake(0, 0, screenWidth, screenWidth / 0.75))
             
             cameraPreviewSilhouette = UIImageView(frame: cameraPreview.bounds)
-            cameraPreviewSilhouette.contentMode = UIViewContentMode.ScaleAspectFit
-            cameraPreviewSilhouette.alpha = 0.5
+            cameraPreviewSilhouette?.contentMode = UIViewContentMode.ScaleAspectFit
+            cameraPreviewSilhouette?.alpha = 0.5
             
             var touch = UITapGestureRecognizer(target:self, action:"manualFocus:")
             cameraPreview.addGestureRecognizer(touch)
@@ -336,7 +336,7 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
             self.preview?.frame = self.cameraPreview.bounds
             self.cameraPreview.layer.addSublayer(self.preview)
             
-            cameraPreview.addSubview(cameraPreviewSilhouette)
+            cameraPreview.addSubview(cameraPreviewSilhouette!)
         }
     }
     
@@ -531,24 +531,24 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
         switch currentPiece {
         case "HEAD":
             self.cameraCapture.setImage(UIImage(named: "view-item-cat-head"), forState: UIControlState.Normal)
-            cameraPreviewSilhouette.image = UIImage(named: "silhouette-head")
+            cameraPreviewSilhouette?.image = UIImage(named: "silhouette-head")
             
         case "TOP":
             if dressButton.selected {
                 self.cameraCapture.setImage(UIImage(named: "view-item-cat-dress"), forState: UIControlState.Normal)
-                cameraPreviewSilhouette.image = UIImage(named: "silhouette-dress")
+                cameraPreviewSilhouette?.image = UIImage(named: "silhouette-dress")
             } else {
                 self.cameraCapture.setImage(UIImage(named: "view-item-cat-top"), forState: UIControlState.Normal)
-                cameraPreviewSilhouette.image = UIImage(named: "silhouette-top")
+                cameraPreviewSilhouette?.image = UIImage(named: "silhouette-top")
             }
             
         case "BOTTOM":
             self.cameraCapture.setImage(UIImage(named: "view-item-cat-bot"), forState: UIControlState.Normal)
-            cameraPreviewSilhouette.image = UIImage(named: "silhouette-shorts")
+            cameraPreviewSilhouette?.image = UIImage(named: "silhouette-shorts")
             
         case "FEET":
             self.cameraCapture.setImage(UIImage(named: "view-item-cat-feet"), forState: UIControlState.Normal)
-            cameraPreviewSilhouette.image = UIImage(named: "silhouette-feet")
+            cameraPreviewSilhouette?.image = UIImage(named: "silhouette-feet")
             
         default:
             fatalError("Invalid piece info for setting snapbutton icon")
