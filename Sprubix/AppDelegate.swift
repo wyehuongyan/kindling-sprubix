@@ -23,7 +23,7 @@ struct SprubixConfig {
         static let api: String = "http://sprubix-wh.ngrok.io/~wyehuongyan/kindling-core/public/index.php"
         static let firebase: String = "https://sprubixtest.firebaseio.com/"
         
-        //static let api: String = "https://api.sprubix.com"
+        //static let api: String = "https://api.sprbx.com"
         //static let firebase: String = "https://sprubix.firebaseio.com/"
     }
     struct Token {
