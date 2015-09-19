@@ -68,22 +68,9 @@ class MainFeedCell: UICollectionViewCell, TransitionWaterfallGridViewProtocol {
         clipsToBounds = true
         layer.borderWidth = 1.0
         layer.borderColor = UIColor.lightGrayColor().CGColor
-    }
-    
-    override func prepareForReuse() {
-        infoView.removeFromSuperview()
-        likeButton.selected = false
-        imageViewContent.removeFromSuperview()
-    }
-    
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        
-        let imageURL = NSURL(string: imageURLString!)
         
         imageViewContent = UIImageView()
         imageViewContent.frame = CGRectMake(0, 0, frame.size.width, frame.size.height - cellInfoViewHeight)
-        imageViewContent.setImageWithURL(imageURL)
         imageViewContent.contentMode = UIViewContentMode.ScaleAspectFit
         imageViewContent.userInteractionEnabled = true
         
@@ -125,13 +112,10 @@ class MainFeedCell: UICollectionViewCell, TransitionWaterfallGridViewProtocol {
         userThumbnail.layer.borderWidth = 0.5
         userThumbnail.layer.borderColor = UIColor.lightGrayColor().CGColor
         
-        let userThumbnailURL = NSURL(string: user["image"] as! String)
-        userThumbnail.setImageWithURL(userThumbnailURL)
-        
         // gesture recognizer
         let userThumbnailToProfile:UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: "showProfile:")
         userThumbnailToProfile.numberOfTapsRequired = 1
-
+        
         userThumbnail.userInteractionEnabled = true
         userThumbnail.addGestureRecognizer(userThumbnailToProfile)
         
@@ -140,10 +124,6 @@ class MainFeedCell: UICollectionViewCell, TransitionWaterfallGridViewProtocol {
         // user name
         let userNameWidth: CGFloat = frame.size.width / 2
         userName = UILabel(frame: CGRectMake(2 * padding + userThumbnail.frame.size.width, padding, userNameWidth, userThumbnailWidth))
-        
-        userName.text = user["username"] as? String
-        userName.font = UIFont(name: userName.font.fontName, size: 14)
-        userName.textColor = UIColor.lightGrayColor()
         
         let userNameToProfile:UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: "showProfile:")
         userNameToProfile.numberOfTapsRequired = 1
@@ -156,16 +136,6 @@ class MainFeedCell: UICollectionViewCell, TransitionWaterfallGridViewProtocol {
         // timestamp
         let timestampWidth: CGFloat = infoView.frame.size.height / 2 - padding
         timestamp = UILabel(frame: CGRectMake(frame.size.width - timestampWidth - padding, padding, timestampWidth, userThumbnailWidth))
-        
-        let timestampString = creationTime["created_at_human"] as! String
-        var timestampArray = split(timestampString) {$0 == " "}
-        var time = timestampArray[0]
-        var stamp = timestampArray[1]
-        
-        timestamp.text = time + stamp[0]
-        timestamp.textAlignment = NSTextAlignment.Right
-        timestamp.font = UIFont(name: timestamp.font.fontName, size: 14)
-        timestamp.textColor = UIColor.lightGrayColor()
         
         infoView.addSubview(timestamp)
         
@@ -183,10 +153,8 @@ class MainFeedCell: UICollectionViewCell, TransitionWaterfallGridViewProtocol {
         cartIconButton.backgroundColor = sprubixLightGray
         cartIconButton.frame = CGRectMake(3 * likeButtonWidth, 0, likeButtonWidth, infoViewBottom.frame.size.height)
         cartIconButton.imageEdgeInsets = UIEdgeInsetsMake(5, 5, 5, 5)
-
-        if purchasable != nil && purchasable! {
-            infoViewBottom.addSubview(cartIconButton)
-        }
+        
+        infoViewBottom.addSubview(cartIconButton)
         
         // like button
         likeButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
@@ -200,32 +168,6 @@ class MainFeedCell: UICollectionViewCell, TransitionWaterfallGridViewProtocol {
         likeButton.frame = CGRectMake(4 * likeButtonWidth, 0, likeButtonWidth, infoViewBottom.frame.size.height)
         likeButton.imageEdgeInsets = UIEdgeInsetsMake(5, 5, 5, 5)
         likeButton.addTarget(self, action: "toggleOutfitLike:", forControlEvents: UIControlEvents.TouchUpInside)
-        
-        // very first time: check likebutton selected
-        let userData: NSDictionary? = defaults.dictionaryForKey("userData")
-        let username = userData!["username"] as! String
-        
-        let poutfitLikesUserRef = firebaseRef.childByAppendingPath("poutfits/\(itemIdentifier)/likes/\(username)")
-        
-        if liked != nil {
-            self.likeButton.selected = self.liked!
-        } else {
-            // check if user has already liked this outfit
-            poutfitLikesUserRef.observeSingleEventOfType(.Value, withBlock: {
-                snapshot in
-                
-                if (snapshot.value as? NSNull) != nil {
-                    // not yet liked
-                    self.liked = false
-                } else {
-                    self.liked = true
-                }
-                
-                self.likeButton.selected = self.liked!
-                
-                self.delegate?.setOutfitsLiked(self.outfitId, liked: self.liked!)
-            })
-        }
         
         infoViewBottom.addSubview(likeButton)
         
@@ -268,6 +210,77 @@ class MainFeedCell: UICollectionViewCell, TransitionWaterfallGridViewProtocol {
         
         contentView.addSubview(likeImageView)
         contentView.addSubview(infoView)
+    }
+    
+    override func prepareForReuse() {
+        //infoView.removeFromSuperview()
+        likeButton.selected = false
+        //imageViewContent.removeFromSuperview()
+    }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+    
+        let imageURL = NSURL(string: imageURLString!)
+        
+        imageViewContent.frame = CGRectMake(0, 0, frame.size.width, frame.size.height - cellInfoViewHeight)
+        imageViewContent.setImageWithURL(imageURL)
+        
+        infoView.frame = CGRectMake(0, imageViewContent.frame.size.height, frame.size.width, cellInfoViewHeight)
+        
+        let userThumbnailURL = NSURL(string: user["image"] as! String)
+        userThumbnail.setImageWithURL(userThumbnailURL)
+        
+        userName.text = user["username"] as? String
+        userName.font = UIFont(name: userName.font.fontName, size: 14)
+        userName.textColor = UIColor.lightGrayColor()
+        
+        let timestampString = creationTime["created_at_human"] as! String
+        var timestampArray = split(timestampString) {$0 == " "}
+        var time = timestampArray[0]
+        var stamp = timestampArray[1]
+        
+        if stamp.lowercaseString.rangeOfString("month") != nil {
+            timestamp.text = "\(time.toInt()! * 4)" + "w"
+        } else {
+            timestamp.text = time + stamp[0]
+        }
+        
+        timestamp.textAlignment = NSTextAlignment.Right
+        timestamp.font = UIFont(name: timestamp.font.fontName, size: 14)
+        timestamp.textColor = UIColor.lightGrayColor()
+        
+        if purchasable != nil && purchasable! {
+            cartIconButton.alpha = 1.0
+        } else {
+            cartIconButton.alpha = 0.0
+        }
+        
+        // very first time: check likebutton selected
+        let userData: NSDictionary? = defaults.dictionaryForKey("userData")
+        let username = userData!["username"] as! String
+        
+        let poutfitLikesUserRef = firebaseRef.childByAppendingPath("poutfits/\(itemIdentifier)/likes/\(username)")
+        
+        if liked != nil {
+            self.likeButton.selected = self.liked!
+        } else {
+            // check if user has already liked this outfit
+            poutfitLikesUserRef.observeSingleEventOfType(.Value, withBlock: {
+                snapshot in
+                
+                if (snapshot.value as? NSNull) != nil {
+                    // not yet liked
+                    self.liked = false
+                } else {
+                    self.liked = true
+                }
+                
+                self.likeButton.selected = self.liked!
+                
+                self.delegate?.setOutfitsLiked(self.outfitId, liked: self.liked!)
+            })
+        }
     }
     
     func snapShotForTransition() -> UIView! {
