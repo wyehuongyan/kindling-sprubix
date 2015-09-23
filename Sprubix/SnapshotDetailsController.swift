@@ -12,6 +12,7 @@ import MRProgress
 import PermissionScope
 import ActionSheetPicker_3_0
 import MLPAutoCompleteTextField
+import TSMessages
 
 class SprubixItemThumbnail: UIButton {
     var hasThumbnail: Bool = false
@@ -1021,7 +1022,10 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
     }
     
     func addToClosetPressed(sender: UIButton) {
-        if validatePieceInfo() {
+        let validateResult = self.validateInputs()
+        let delay: NSTimeInterval = 3
+        
+        if validateResult.valid {
             // init sprubix piece
             sprubixPiece.images.removeAll()
             
@@ -1102,34 +1106,75 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
                 
                 }, success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
                     // success block
-                    println("Upload Success")
+                    var response = responseObject as! NSDictionary
+                    var status = response["status"] as! String
                     
-                    Delay.delay(0.6) {
-                        // go back to main feed
-                        self.navigationController!.delegate = nil
+                    if status == "200" {
+                        println("Upload Success")
+                    
+                        Delay.delay(0.6) {
+                            // go back to main feed
+                            self.navigationController!.delegate = nil
+                            
+                            let transition = CATransition()
+                            transition.duration = 0.3
+                            transition.type = kCATransitionReveal
+                            transition.subtype = kCATransitionFromBottom
+                            transition.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
+                            
+                            self.navigationController!.view.layer.addAnimation(transition, forKey: kCATransition)
+                            self.navigationController?.popToViewController(self.navigationController?.viewControllers.first! as! UIViewController, animated: false)
+                        }
                         
-                        let transition = CATransition()
-                        transition.duration = 0.3
-                        transition.type = kCATransitionReveal
-                        transition.subtype = kCATransitionFromBottom
-                        transition.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
+                        // Mixpanel - Create Outfit Image Upload, Success
+                        mixpanel.track("Create Outfit Image Upload", properties: [
+                            "Method": "Camera",
+                            "Type" : "Piece",
+                            "Status": "Success"
+                        ])
+                        mixpanel.people.increment("Pieces Created", by: 1)
+                        // Mixpanel - End
                         
-                        self.navigationController!.view.layer.addAnimation(transition, forKey: kCATransition)
-                        self.navigationController?.popToViewController(self.navigationController?.viewControllers.first! as! UIViewController, animated: false)
+                    } else {
+                        // error exception
+                        TSMessage.showNotificationInViewController(
+                            TSMessage.defaultViewController(),
+                            title: "Error",
+                            subtitle: "Something went wrong.\nPlease try again.",
+                            image: UIImage(named: "filter-cross"),
+                            type: TSMessageNotificationType.Error,
+                            duration: delay,
+                            callback: nil,
+                            buttonTitle: nil,
+                            buttonCallback: nil,
+                            atPosition: TSMessageNotificationPosition.Bottom,
+                            canBeDismissedByUser: true)
+                        
+                        // Print reply from server
+                        var message = response["message"] as! String
+                        var data = response["data"] as! NSDictionary
+                        
+                        println(message + " " + status)
+                        println(data)
                     }
-                    
-                    // Mixpanel - Create Outfit Image Upload, Success
-                    mixpanel.track("Create Outfit Image Upload", properties: [
-                        "Method": "Camera",
-                        "Type" : "Piece",
-                        "Status": "Success"
-                    ])
-                    mixpanel.people.increment("Pieces Created", by: 1)
-                    // Mixpanel - End
                     
                 }, failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                     // failure block
                     println("Upload Fail")
+                    
+                    // error exception
+                    TSMessage.showNotificationInViewController(
+                        TSMessage.defaultViewController(),
+                        title: "Error",
+                        subtitle: "Something went wrong.\nPlease try again.",
+                        image: UIImage(named: "filter-cross"),
+                        type: TSMessageNotificationType.Error,
+                        duration: delay,
+                        callback: nil,
+                        buttonTitle: nil,
+                        buttonCallback: nil,
+                        atPosition: TSMessageNotificationPosition.Bottom,
+                        canBeDismissedByUser: true)
                     
                     // Mixpanel - Create Outfit Image Upload, Fail
                     mixpanel.track("Create Outfit Image Upload", properties: [
@@ -1152,11 +1197,28 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
             overlayView.setModeAndProgressWithStateOfOperation(requestOperation)
             
             overlayView.tintColor = sprubixColor
+        } else {
+            // Validation failed
+            TSMessage.showNotificationInViewController(
+                self,
+                title: "Error",
+                subtitle: validateResult.message,
+                image: UIImage(named: "filter-cross"),
+                type: TSMessageNotificationType.Error,
+                duration: delay,
+                callback: nil,
+                buttonTitle: nil,
+                buttonCallback: nil,
+                atPosition: TSMessageNotificationPosition.Bottom,
+                canBeDismissedByUser: true)
         }
     }
 
     func doneTapped(sender: UIBarButtonItem) {
-        if validatePieceInfo() {
+        let validateResult = self.validateInputs()
+        let delay: NSTimeInterval = 3
+        
+        if validateResult.valid {
             sprubixPiece.images.removeAll()
             
             for thumbnail in thumbnails {
@@ -1245,15 +1307,56 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
                     
                     }, success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
                         // success block
-                        println("Upload Success")
+                        var response = responseObject as! NSDictionary
+                        var status = response["status"] as! String
                         
-                        Delay.delay(0.6) {
-                            self.navigationController?.popViewControllerAnimated(true)
+                        if status == "200" {
+                            println("Upload Success")
+                        
+                            Delay.delay(0.6) {
+                                self.navigationController?.popViewControllerAnimated(true)
+                            }
+                            
+                        } else {
+                            // error exception
+                            TSMessage.showNotificationInViewController(
+                                TSMessage.defaultViewController(),
+                                title: "Error",
+                                subtitle: "Something went wrong.\nPlease try again.",
+                                image: UIImage(named: "filter-cross"),
+                                type: TSMessageNotificationType.Error,
+                                duration: delay,
+                                callback: nil,
+                                buttonTitle: nil,
+                                buttonCallback: nil,
+                                atPosition: TSMessageNotificationPosition.Bottom,
+                                canBeDismissedByUser: true)
+                            
+                            // Print reply from server
+                            var message = response["message"] as! String
+                            var data = response["data"] as! NSDictionary
+                            
+                            println(message + " " + status)
+                            println(data)
                         }
                         
                     }, failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                         // failure block
                         println("Upload Fail")
+                        
+                        // error exception
+                        TSMessage.showNotificationInViewController(
+                            TSMessage.defaultViewController(),
+                            title: "Error",
+                            subtitle: "Something went wrong.\nPlease try again.",
+                            image: UIImage(named: "filter-cross"),
+                            type: TSMessageNotificationType.Error,
+                            duration: delay,
+                            callback: nil,
+                            buttonTitle: nil,
+                            buttonCallback: nil,
+                            atPosition: TSMessageNotificationPosition.Bottom,
+                            canBeDismissedByUser: true)
                 })
                 
                 // upload progress
@@ -1269,14 +1372,125 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
                 
                 overlayView.tintColor = sprubixColor
             }
+        } else {
+            // Validation failed
+            TSMessage.showNotificationInViewController(
+                self,
+                title: "Error",
+                subtitle: validateResult.message,
+                image: UIImage(named: "filter-cross"),
+                type: TSMessageNotificationType.Error,
+                duration: delay,
+                callback: nil,
+                buttonTitle: nil,
+                buttonCallback: nil,
+                atPosition: TSMessageNotificationPosition.Bottom,
+                canBeDismissedByUser: true)
         }
     }
     
-    func validatePieceInfo() -> Bool {
-        // check if category, price and quantity (if shop) is present
-        // there must be at least one image
+    // check if category, price and quantity (if shop) is present
+    // there must be at least one image
+    func validateInputs() -> (valid: Bool, message: String) {
+        var valid: Bool = true
+        var message: String = ""
         
-        return true
+        // Compulsory for all: 1 image, item category
+        var hasOneThumbnail: Bool = false
+        
+        for thumbnail in thumbnails {
+            if thumbnail.hasThumbnail {
+                hasOneThumbnail = true
+            }
+        }
+        
+        if hasOneThumbnail == false {
+            message += "Please add an item photo\n"
+            valid = false
+        }
+        
+        if itemDetailsCategory.text == "" {
+            message += "Please choose a category\n"
+            valid = false
+        }
+        
+        if isShop {
+            // if shop, name and brand are required
+            if itemDetailsName.text == "" {
+                message += "Please enter an item name\n"
+                valid = false
+            }
+            else if count(itemDetailsName.text) > 255 {
+                message += "The item name is too long\n"
+                valid = false
+            }
+            
+            if itemDetailsBrand.text == "" {
+                message += "Please enter the brand name\n"
+                valid = false
+            }
+            else if count(itemDetailsBrand.text) > 255 {
+                message += "The brand name is too long\n"
+                valid = false
+            }
+            
+            // Shop only: check if category, price and quantity (if shop) is present
+            if itemDetailsSize.text == "" {
+                message += "Please enter the sizes\n"
+                valid = false
+            }
+            
+            // All sizes must have a quantity
+            var allHaveQuantity: Bool = true
+            
+            if itemDetailsQuantity.text == "" {
+                message += "Please enter the quantity\n"
+                allHaveQuantity = false
+            }
+            
+            for moreQuantityTextField in moreQuantityTextFields {
+                if moreQuantityTextField.text == "" {
+                    allHaveQuantity = false
+                }
+            }
+            
+            if allHaveQuantity == false {
+                message += "Please enter the quantity for all the sizes\n"
+                valid = false
+            }
+            
+            if itemDetailsPrice.text == "" {
+                message += "Please enter the item price\n"
+                valid = false
+            }
+            else if itemDetailsPrice.text.floatValue < 10 {
+                message += "The item price cannot be lower than $10\n"
+                valid = false
+            }
+        }
+        else {
+            // if non-shop, name and brand are optional
+            if count(itemDetailsName.text) > 255 {
+                message += "The item name is too long\n"
+                valid = false
+            }
+            
+            if count(itemDetailsBrand.text) > 255 {
+                message += "The brand name is too long\n"
+                valid = false
+            }
+        }
+        
+        // If description is placeholder text, remove it
+        if descriptionText != nil && descriptionText.text == placeholderText {
+            descriptionText.text = ""
+        }
+        else if descriptionText != nil && count(descriptionText.text) > 255 {
+            message += "The description is too long\n"
+            valid = false
+        }
+
+        return (valid, message)
     }
     
     func resizeImage(image: UIImage, width: CGFloat) -> UIImage {

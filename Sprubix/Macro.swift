@@ -20,6 +20,10 @@ let sprubixColor: UIColor = UIColor(red: 255/255, green: 102/255, blue: 108/255,
 let sprubixGray: UIColor = UIColor(red: 229/255, green: 229/255, blue: 229/255, alpha: 1)
 let sprubixLightGray: UIColor = UIColor(red: 240/255, green: 240/255, blue: 240/255, alpha: 1)
 let sprubixYellow: UIColor = UIColor(red: 255/255, green: 255/255, blue: 224/255, alpha: 1)
+let sprubixBlue: UIColor = UIColor(red: 102/255, green: 180/255, blue: 255/255, alpha: 1)
+let sprubixLightBlue: UIColor = UIColor(red: 102/255, green: 220/255, blue: 255/255, alpha: 1)
+let sprubixGreen: UIColor = UIColor(red: 102/255, green: 255/255, blue: 102/255, alpha: 1)
+let sprubixOrange: UIColor = UIColor(red: 255/255, green: 152/255, blue: 102/255, alpha: 1)
 
 var timestamp: String {
     get {

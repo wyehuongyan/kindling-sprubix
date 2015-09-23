@@ -120,6 +120,8 @@ class SidePanelViewController: UIViewController, UITableViewDataSource, UITableV
             pointsTextView.layer.borderWidth = 2.0
             pointsTextView.textContainerInset = UIEdgeInsetsMake(6, 0, 6, 6);
             pointsTextView.clipsToBounds = true
+            pointsTextView.editable = false
+            pointsTextView.selectable = false
             
             sidePanelTopView.addSubview(pointsTextView)
         }

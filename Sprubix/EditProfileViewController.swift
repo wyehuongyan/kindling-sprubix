@@ -54,6 +54,7 @@ class EditProfileViewController: UITableViewController, UITextViewDelegate, UIIm
         super.viewDidLoad()
         
         var tap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: "dismissKeyboard")
+        tap.cancelsTouchesInView = false
         view.addGestureRecognizer(tap)
         
         initUserInfo()
@@ -339,7 +340,28 @@ class EditProfileViewController: UITableViewController, UITextViewDelegate, UIIm
                         println(data)
                         println(userInfo)
                         
-                    } else if status == "500" {
+                    } else if status == "400" {
+                        // error exception
+                        TSMessage.showNotificationInViewController(
+                            TSMessage.defaultViewController(),
+                            title: "Error",
+                            subtitle: "Something went wrong.\nPlease try again.",
+                            image: UIImage(named: "filter-cross"),
+                            type: TSMessageNotificationType.Error,
+                            duration: delay,
+                            callback: nil,
+                            buttonTitle: nil,
+                            buttonCallback: nil,
+                            atPosition: TSMessageNotificationPosition.Bottom,
+                            canBeDismissedByUser: true)
+                        
+                        // Print reply from server
+                        var data = response["data"] as! NSDictionary
+                        
+                        println(message + " " + status)
+                        println(data)
+                        
+                    } else {
                         var exception = response["exception"] as! String
                         
                         // error exception

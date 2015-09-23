@@ -42,15 +42,15 @@ class OrderDetailsStatusCell: UITableViewCell {
         case 2:
             // Shipping Requested
             statusImageName = "order-shipping-requested"
-            statusTintColor = UIColor.cyanColor()
+            statusTintColor = sprubixBlue
         case 3:
             // Shipping Posted
             statusImageName = "order-shipping-posted"
-            statusTintColor = UIColor.blueColor()
+            statusTintColor = sprubixLightBlue
         case 4:
             // Shipping Delivered
             statusImageName = "order-shipping-received"
-            statusTintColor = UIColor.greenColor()
+            statusTintColor = sprubixGreen
         case 5:
             // Payment Failed
             statusImageName = "order-cancelled"
@@ -58,7 +58,7 @@ class OrderDetailsStatusCell: UITableViewCell {
         case 6:
             // Shipping Delayed
             statusImageName = "order-shipping-requested"
-            statusTintColor = UIColor.orangeColor()
+            statusTintColor = sprubixOrange
         case 7:
             // Cancelled
             statusImageName = "order-cancelled"

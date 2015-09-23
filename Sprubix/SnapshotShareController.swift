@@ -12,6 +12,7 @@ import MRProgress
 import ActionSheetPicker_3_0
 import FBSDKShareKit
 import FBSDKLoginKit
+import TSMessages
 
 class SnapshotShareController: UIViewController, UITableViewDelegate, UITableViewDataSource, UITextViewDelegate, SprubixPieceProtocol, FBSDKSharingDelegate {
     
@@ -562,171 +563,231 @@ class SnapshotShareController: UIViewController, UITableViewDelegate, UITableVie
     }
     
     func shareButtonPressed(sender: UIButton) {
+        let validateResult = self.validateInputs()
+        let delay: NSTimeInterval = 3
         
-        var width: CGFloat = screenWidth
-        var totalHeight: CGFloat = 0
-        
-        // calculate totalHeight
-        for image in images {
-            var newImageHeight = image.size.height * width / image.size.width
+        if validateResult.valid {
             
-            totalHeight += newImageHeight
-        }
-        
-        // create the merged outfit image (all pieces into one)
-        var size:CGSize = CGSizeMake(width, totalHeight)
-        var prevHeight:CGFloat = 0
-        
-        UIGraphicsBeginImageContextWithOptions(size, false, 0.0) // avoid image quality degrading
-        
-        for image in images {
-            var newImageHeight = image.size.height * width / image.size.width
+            var width: CGFloat = screenWidth
+            var totalHeight: CGFloat = 0
             
-            image.drawInRect(CGRectMake(0, prevHeight, size.width, newImageHeight))
+            // calculate totalHeight
+            for image in images {
+                var newImageHeight = image.size.height * width / image.size.width
+                
+                totalHeight += newImageHeight
+            }
             
-            prevHeight += newImageHeight
-        }
-        
-        // final image
-        var outfitImage:UIImage = UIGraphicsGetImageFromCurrentImageContext()
-        
-        UIGraphicsEndImageContext()
+            // create the merged outfit image (all pieces into one)
+            var size:CGSize = CGSizeMake(width, totalHeight)
+            var prevHeight:CGFloat = 0
+            
+            UIGraphicsBeginImageContextWithOptions(size, false, 0.0) // avoid image quality degrading
+            
+            for image in images {
+                var newImageHeight = image.size.height * width / image.size.width
+                
+                image.drawInRect(CGRectMake(0, prevHeight, size.width, newImageHeight))
+                
+                prevHeight += newImageHeight
+            }
+            
+            // final image
+            var outfitImage:UIImage = UIGraphicsGetImageFromCurrentImageContext()
+            
+            UIGraphicsEndImageContext()
 
-        // create SprubixOutfit
-        let userData:NSDictionary! = defaults.dictionaryForKey("userData")
-        
-        var sprubixOutfitDict: NSMutableDictionary = [
-            "num_pieces": sprubixPieces.count,
-            "description": descriptionText.text,
-            "created_by": userData["username"] as! String,
-            "from": userData["username"] as! String,
-            "user_id": userData["id"] as! Int,
-            "height": outfitImage.scale * outfitImage.size.height,
-            "width": outfitImage.scale * outfitImage.size.width
-        ]
-        
-        var pieces: NSMutableDictionary = NSMutableDictionary()
-        for sprubixPiece in sprubixPieces {
-            var pieceDict: NSMutableDictionary = NSMutableDictionary()
-            pieceDict.setObject(sprubixPiece.images.count, forKey: "num_images")
-            pieceDict.setObject(sprubixPiece.name != nil ? sprubixPiece.name : "", forKey: "name")
-            pieceDict.setObject(sprubixPiece.category != nil ? sprubixPiece.category : "", forKey: "category")
-            pieceDict.setObject(sprubixPiece.type, forKey: "type")
-            pieceDict.setObject(sprubixPiece.isDress, forKey: "is_dress")
-            pieceDict.setObject(sprubixPiece.brand != nil ? sprubixPiece.brand : "", forKey: "brand")
-            pieceDict.setObject(sprubixPiece.price != nil ? sprubixPiece.price : "", forKey: "price")
-            pieceDict.setObject(sprubixPiece.desc != nil ? sprubixPiece.desc : "", forKey: "description")
-            pieceDict.setObject(sprubixPiece.images[0].scale * sprubixPiece.images[0].size.height, forKey: "height")
-            pieceDict.setObject(sprubixPiece.images[0].scale * sprubixPiece.images[0].size.width, forKey: "width")
-            pieceDict.setObject(sprubixPiece.size != nil ? sprubixPiece.size : "", forKey: "size")
+            // create SprubixOutfit
+            let userData:NSDictionary! = defaults.dictionaryForKey("userData")
             
-            if sprubixPiece.quantity != nil {
-                pieceDict.setObject(sprubixPiece.quantity, forKey: "quantity")
-            }
+            var sprubixOutfitDict: NSMutableDictionary = [
+                "num_pieces": sprubixPieces.count,
+                "description": descriptionText.text,
+                "created_by": userData["username"] as! String,
+                "from": userData["username"] as! String,
+                "user_id": userData["id"] as! Int,
+                "height": outfitImage.scale * outfitImage.size.height,
+                "width": outfitImage.scale * outfitImage.size.width
+            ]
             
-            pieces.setObject(pieceDict, forKey: sprubixPiece.type.lowercaseString)
-        }
-        
-        sprubixOutfitDict.setObject(pieces, forKey: "pieces")
-        
-        // Mixpanel - Create Outfit Image Upload, Timer
-        mixpanel.timeEvent("Create Outfit Image Upload")
-        // Mixpanel - End
-        
-        // upload:
-        // 1. outfit finalimage
-        // 2. piece images for each sprubixPiece
-        // 3. sprubixOutfit information (parameters)
-        // 4. sprubixPiece information (parameters)
-        
-        var outfitImageData: NSData = UIImageJPEGRepresentation(outfitImage, 0.5);
-        
-        var requestOperation: AFHTTPRequestOperation = manager.POST(SprubixConfig.URL.api + "/upload/outfit/create", parameters: sprubixOutfitDict, constructingBodyWithBlock: { formData in
-            let data: AFMultipartFormData = formData
-            
-            // append outfit image
-            data.appendPartWithFileData(outfitImageData, name: "outfit", fileName: "outfit.jpg", mimeType: "image/jpeg")
-            
-            // append piece images
-            for var i = 0; i < self.sprubixPieces.count; i++ {
-                var sprubixPiece = self.sprubixPieces[i]
+            var pieces: NSMutableDictionary = NSMutableDictionary()
+            for sprubixPiece in sprubixPieces {
+                var pieceDict: NSMutableDictionary = NSMutableDictionary()
+                pieceDict.setObject(sprubixPiece.images.count, forKey: "num_images")
+                pieceDict.setObject(sprubixPiece.name != nil ? sprubixPiece.name : "", forKey: "name")
+                pieceDict.setObject(sprubixPiece.category != nil ? sprubixPiece.category : "", forKey: "category")
+                pieceDict.setObject(sprubixPiece.type, forKey: "type")
+                pieceDict.setObject(sprubixPiece.isDress, forKey: "is_dress")
+                pieceDict.setObject(sprubixPiece.brand != nil ? sprubixPiece.brand : "", forKey: "brand")
+                pieceDict.setObject(sprubixPiece.price != nil ? sprubixPiece.price : "", forKey: "price")
+                pieceDict.setObject(sprubixPiece.desc != nil ? sprubixPiece.desc : "", forKey: "description")
+                pieceDict.setObject(sprubixPiece.images[0].scale * sprubixPiece.images[0].size.height, forKey: "height")
+                pieceDict.setObject(sprubixPiece.images[0].scale * sprubixPiece.images[0].size.width, forKey: "width")
+                pieceDict.setObject(sprubixPiece.size != nil ? sprubixPiece.size : "", forKey: "size")
                 
-                for var j = 0; j < sprubixPiece.images.count; j++ {
-                    var pieceImage: UIImage = sprubixPiece.images[j]
-                    var pieceImageData: NSData = UIImageJPEGRepresentation(pieceImage, 0.5)
-                    
-                    var pieceImageName = "piece_\(sprubixPiece.type.lowercaseString)_\(j)"
-                    var pieceImageFileName = pieceImageName + ".jpg"
-                    
-                    data.appendPartWithFileData(pieceImageData, name: pieceImageName, fileName: pieceImageFileName, mimeType: "image/jpeg")
-                }
-            }
-            
-            }, success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
-                // success block
-                println("Upload Success")
-                //println(responseObject)
-                
-                self.delay(0.6) {
-                    // go back to main feed
-                    self.navigationController!.delegate = nil
-                    
-                    let transition = CATransition()
-                    transition.duration = 0.3
-                    transition.type = kCATransitionReveal
-                    transition.subtype = kCATransitionFromBottom
-                    transition.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
-                    
-                    self.navigationController!.view.layer.addAnimation(transition, forKey: kCATransition)
-                    self.navigationController?.popToViewController(self.navigationController?.viewControllers.first! as! UIViewController, animated: false)
+                if sprubixPiece.quantity != nil {
+                    pieceDict.setObject(sprubixPiece.quantity, forKey: "quantity")
                 }
                 
-                // Mixpanel - Create Outfit Image Upload, Success
-                mixpanel.track("Create Outfit Image Upload", properties: [
-                    "Method": "Camera",
-                    "Type" : "Outfit",
-                    "Status": "Success"
-                ])
-                mixpanel.people.increment("Outfits Created", by: 1)
-                mixpanel.people.increment("Pieces Created", by: self.sprubixPieces.count)
-                // Mixpanel - End
-                
-            }, failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
-                // failure block
-                println("Upload Fail")
-                
-                // Mixpanel - Create Outfit Image Upload, Fail
-                mixpanel.track("Create Outfit Image Upload", properties: [
-                    "Method": "Camera",
-                    "Type" : "Outfit",
-                    "Status": "Fail"
-                ])
-                // Mixpanel - End
-        })
-        
-        // upload progress
-        requestOperation.setUploadProgressBlock { (bytesWritten: UInt, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) -> Void in
-            var percentDone: Double = Double(totalBytesWritten) / Double(totalBytesExpectedToWrite)
+                pieces.setObject(pieceDict, forKey: sprubixPiece.type.lowercaseString)
+            }
             
-            println("percentage done: \(percentDone)")
-        }
-        
-        // overlay indicator
-        var overlayView: MRProgressOverlayView = MRProgressOverlayView.showOverlayAddedTo(self.view, animated: true)
-        overlayView.setModeAndProgressWithStateOfOperation(requestOperation)
-        
-        overlayView.tintColor = sprubixColor
-        
-        // Share to Facebook
-        if shareToFacebook {
-            sharePhotoToFacebook(outfitImage)
+            sprubixOutfitDict.setObject(pieces, forKey: "pieces")
             
-            // Mixpanel - Share, Facebook
-            mixpanel.track("Share", properties: [
-                "Type": "Outfit",
-                "Platform": "Facebook"
-            ])
+            // Mixpanel - Create Outfit Image Upload, Timer
+            mixpanel.timeEvent("Create Outfit Image Upload")
             // Mixpanel - End
+            
+            // upload:
+            // 1. outfit finalimage
+            // 2. piece images for each sprubixPiece
+            // 3. sprubixOutfit information (parameters)
+            // 4. sprubixPiece information (parameters)
+            
+            var outfitImageData: NSData = UIImageJPEGRepresentation(outfitImage, 0.5);
+            
+            var requestOperation: AFHTTPRequestOperation = manager.POST(SprubixConfig.URL.api + "/upload/outfit/create", parameters: sprubixOutfitDict, constructingBodyWithBlock: { formData in
+                let data: AFMultipartFormData = formData
+                
+                // append outfit image
+                data.appendPartWithFileData(outfitImageData, name: "outfit", fileName: "outfit.jpg", mimeType: "image/jpeg")
+                
+                // append piece images
+                for var i = 0; i < self.sprubixPieces.count; i++ {
+                    var sprubixPiece = self.sprubixPieces[i]
+                    
+                    for var j = 0; j < sprubixPiece.images.count; j++ {
+                        var pieceImage: UIImage = sprubixPiece.images[j]
+                        var pieceImageData: NSData = UIImageJPEGRepresentation(pieceImage, 0.5)
+                        
+                        var pieceImageName = "piece_\(sprubixPiece.type.lowercaseString)_\(j)"
+                        var pieceImageFileName = pieceImageName + ".jpg"
+                        
+                        data.appendPartWithFileData(pieceImageData, name: pieceImageName, fileName: pieceImageFileName, mimeType: "image/jpeg")
+                    }
+                }
+                
+                }, success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                    // success block
+                    var response = responseObject as! NSDictionary
+                    var status = response["status"] as! String
+                    
+                    if status == "200" {
+                        println("Upload Success")
+                        
+                        self.delay(0.6) {
+                            // go back to main feed
+                            self.navigationController!.delegate = nil
+                            
+                            let transition = CATransition()
+                            transition.duration = 0.3
+                            transition.type = kCATransitionReveal
+                            transition.subtype = kCATransitionFromBottom
+                            transition.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
+                            
+                            self.navigationController!.view.layer.addAnimation(transition, forKey: kCATransition)
+                            self.navigationController?.popToViewController(self.navigationController?.viewControllers.first! as! UIViewController, animated: false)
+                        }
+                        
+                        // Mixpanel - Create Outfit Image Upload, Success
+                        mixpanel.track("Create Outfit Image Upload", properties: [
+                            "Method": "Camera",
+                            "Type" : "Outfit",
+                            "Status": "Success"
+                        ])
+                        mixpanel.people.increment("Outfits Created", by: 1)
+                        mixpanel.people.increment("Pieces Created", by: self.sprubixPieces.count)
+                        // Mixpanel - End
+                        
+                    } else {
+                        // error exception
+                        TSMessage.showNotificationInViewController(
+                            TSMessage.defaultViewController(),
+                            title: "Error",
+                            subtitle: "Something went wrong.\nPlease try again.",
+                            image: UIImage(named: "filter-cross"),
+                            type: TSMessageNotificationType.Error,
+                            duration: delay,
+                            callback: nil,
+                            buttonTitle: nil,
+                            buttonCallback: nil,
+                            atPosition: TSMessageNotificationPosition.Bottom,
+                            canBeDismissedByUser: true)
+                        
+                        // Print reply from server
+                        var message = response["message"] as! String
+                        var data = response["data"] as! NSDictionary
+                        
+                        println(message + " " + status)
+                        println(data)
+                    }
+                    
+                }, failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                    // failure block
+                    println("Upload Fail")
+                    
+                    // error exception
+                    TSMessage.showNotificationInViewController(
+                        TSMessage.defaultViewController(),
+                        title: "Error",
+                        subtitle: "Something went wrong.\nPlease try again.",
+                        image: UIImage(named: "filter-cross"),
+                        type: TSMessageNotificationType.Error,
+                        duration: delay,
+                        callback: nil,
+                        buttonTitle: nil,
+                        buttonCallback: nil,
+                        atPosition: TSMessageNotificationPosition.Bottom,
+                        canBeDismissedByUser: true)
+                    
+                    // Mixpanel - Create Outfit Image Upload, Fail
+                    mixpanel.track("Create Outfit Image Upload", properties: [
+                        "Method": "Camera",
+                        "Type" : "Outfit",
+                        "Status": "Fail"
+                    ])
+                    // Mixpanel - End
+            })
+            
+            // upload progress
+            requestOperation.setUploadProgressBlock { (bytesWritten: UInt, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) -> Void in
+                var percentDone: Double = Double(totalBytesWritten) / Double(totalBytesExpectedToWrite)
+                
+                println("percentage done: \(percentDone)")
+            }
+            
+            // overlay indicator
+            var overlayView: MRProgressOverlayView = MRProgressOverlayView.showOverlayAddedTo(self.view, animated: true)
+            overlayView.setModeAndProgressWithStateOfOperation(requestOperation)
+            
+            overlayView.tintColor = sprubixColor
+            
+            // Share to Facebook
+            if shareToFacebook {
+                sharePhotoToFacebook(outfitImage)
+                
+                // Mixpanel - Share, Facebook
+                mixpanel.track("Share", properties: [
+                    "Type": "Outfit",
+                    "Platform": "Facebook"
+                ])
+                // Mixpanel - End
+            }
+            
+        } else {
+            // Validation failed
+            TSMessage.showNotificationInViewController(
+                self,
+                title: "Error",
+                subtitle: validateResult.message,
+                image: UIImage(named: "filter-cross"),
+                type: TSMessageNotificationType.Error,
+                duration: delay,
+                callback: nil,
+                buttonTitle: nil,
+                buttonCallback: nil,
+                atPosition: TSMessageNotificationPosition.Bottom,
+                canBeDismissedByUser: true)
         }
     }
     
@@ -827,5 +888,36 @@ class SnapshotShareController: UIViewController, UITableViewDelegate, UITableVie
     
     func sharerDidCancel(sharer: FBSDKSharing!) {
         println("FBSDKSharing Photo Sharing Cancelled")
+    }
+    
+    func validateInputs() -> (valid: Bool, message: String) {
+        var valid: Bool = true
+        var message: String = ""
+        
+        // All pieces must have a category
+        var allHaveCategory: Bool = true
+        
+        for sprubixPiece in sprubixPieces {
+            if sprubixPiece.category == nil {
+                allHaveCategory = false
+            }
+        }
+        
+        if allHaveCategory == false {
+            message += "Please choose a category for all the items\n"
+            valid = false
+        }
+        
+        // If description is placeholder text, remove it
+        if descriptionText.text == placeholderText {
+            descriptionText.text = ""
+        }
+        
+        if count(descriptionText.text) > 255 {
+            message += "The description is too long\n"
+            valid = false
+        }
+        
+        return (valid, message)
     }
 }
