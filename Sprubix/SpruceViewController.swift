@@ -51,7 +51,8 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, SprucePieceF
     var activityView: UIActivityIndicatorView!
     
     // tooltip
-    var tooltipManager: JDFSequentialTooltipManager!
+    var tooltipManager: JDFSequentialTooltipManager!// tooltip
+    let tooltipWidth: CGFloat = screenWidth / 2
     
     func trashPiece(sender: AnyObject) {
         toggleDeletePieceCrosses()
@@ -146,21 +147,29 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, SprucePieceF
         let onboarded = defaults.boolForKey("onboardedSpruce")
         
         if onboarded == false {
-            tooltipOnboarding()
+            initTooltipOnboarding()
         }
     }
     
-    func tooltipOnboarding() {
+    func initTooltipOnboarding() {
         tooltipManager = JDFSequentialTooltipManager(hostView: self.view)
         tooltipManager.showsBackdropView = true
         tooltipManager.backdropColour = UIColor.blackColor()
         tooltipManager.backdropAlpha = 0.3
         
         let swipeText = "Think you can make a better outfit?\nSwipe left or right to mix and match the outfit"
+        let closetText = "Add items from your closet"
+        let addPieceText = "Add another category to the outfit"
+        
         let swipePoint: CGPoint = CGPoint(x: screenWidth/2 - 20, y: screenHeight/3)
+        
         let swipeTooltip: JDFTooltipView = JDFTooltipView(targetPoint: swipePoint, hostView: self.view, tooltipText: swipeText, arrowDirection: JDFTooltipViewArrowDirection.Down, width: screenWidth*2/3)
+        let closetTooltip: JDFTooltipView = JDFTooltipView(targetView: closetButton, hostView: self.view, tooltipText: closetText, arrowDirection: JDFTooltipViewArrowDirection.Down, width: tooltipWidth)
+        let addPieceTooltip: JDFTooltipView = JDFTooltipView(targetView: addPieceButton, hostView: self.view, tooltipText: addPieceText, arrowDirection: JDFTooltipViewArrowDirection.Down, width: tooltipWidth)
         
         tooltipManager.addTooltip(swipeTooltip)
+        tooltipManager.addTooltip(closetTooltip)
+        tooltipManager.addTooltip(addPieceTooltip)
         
         tooltipManager.setFontForAllTooltips(UIFont.systemFontOfSize(16))
         tooltipManager.setTextColourForAllTooltips(UIColor.whiteColor())

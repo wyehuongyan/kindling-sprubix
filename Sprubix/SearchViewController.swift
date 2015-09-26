@@ -18,7 +18,7 @@ class SearchViewController: UIViewController, UISearchBarDelegate {
     
     var activityView: UIActivityIndicatorView!
     
-    var scopeButtonTitles = ["Outfits", "Pieces", "Users"]
+    var scopeButtonTitles = ["Outfits", "Items", "People"]
     var currentScope = 0
 
     override func viewDidLoad() {

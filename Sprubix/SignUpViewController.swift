@@ -165,6 +165,7 @@ class SignUpViewController: UIViewController, FBSDKLoginButtonDelegate, UIScroll
         
         let onboardingPageControlY: CGFloat = signInViewY - 30
         onboardingPageControl = UIPageControl(frame: CGRect(x: 0, y: onboardingPageControlY, width: screenWidth, height: 10))
+        onboardingPageControl.enabled = false
         onboardingPageControl.currentPage = 0
         onboardingPageControl.numberOfPages = onboardingImageViews.count
         
@@ -532,12 +533,20 @@ class SignUpViewController: UIViewController, FBSDKLoginButtonDelegate, UIScroll
         let offsetX = onboardingTextScrollView.contentOffset.x
         let offset = offsetX / pageWidth
         let page = Int(floor(offset))
-        
+        println(page)
         if page + 1 < 5 && offsetX > 0 {
             onboardingImageViews[page+1].alpha = offset - CGFloat(page)
         }
         
         onboardingPageControl.currentPage = page
+    }
+    
+    func scrollViewDidEndScrollingAnimation(scrollView: UIScrollView) {
+        for var index = 0 ; index < onboardingImageViews.count ; index++ {
+            if index != onboardingPageControl.currentPage {
+                onboardingImageViews[index].alpha = 0
+            }
+        }
     }
     
 }

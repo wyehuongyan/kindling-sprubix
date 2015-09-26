@@ -50,6 +50,7 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
     // tooltip
     var tooltipManager: JDFSequentialTooltipManager!
     let tooltipWidth: CGFloat = screenWidth / 2
+    var tooltipEnable: Bool = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -160,13 +161,6 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
                 self.insertMoreOutfits()
             }
         })
-        
-        // Tooltip
-        let onboarded = defaults.boolForKey("onboardedMainFeed")
-        
-        if onboarded == false {
-            tooltipOnboarding()
-        }
     }
     
     override func viewWillDisappear(animated: Bool) {
@@ -230,29 +224,6 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         
         var searchBarButtonItem: UIBarButtonItem = UIBarButtonItem(customView: searchButton)
         self.navigationItem.rightBarButtonItems = [searchBarButtonItem]
-    }
-    
-    func tooltipOnboarding() {
-        tooltipManager = JDFSequentialTooltipManager(hostView: self.view)
-        tooltipManager.showsBackdropView = true
-        tooltipManager.backdropColour = UIColor.blackColor()
-        tooltipManager.backdropAlpha = 0.3
-        
-        let dropdownText = "Change the feed to Discover outfits and People"
-        let outfitText = "Touch here to view outfit details"
-        let ctaText = "Add a new outfit now!"
-        
-        let dropdownPoint: CGPoint = CGPoint(x: screenWidth/2 - 20, y: 60)
-        let outfitPoint: CGPoint = CGPoint(x: screenWidth * 0.45, y: screenHeight/3)
-
-        let dropdownTooltip: JDFTooltipView = JDFTooltipView(targetPoint: dropdownPoint, hostView: self.view, tooltipText: dropdownText, arrowDirection: JDFTooltipViewArrowDirection.Up, width: screenWidth*2/3)
-        let outfitTooltip: JDFTooltipView = JDFTooltipView(targetPoint: outfitPoint, hostView: self.view, tooltipText: outfitText, arrowDirection: JDFTooltipViewArrowDirection.Left, width: tooltipWidth)
-        let ctaTooltip: JDFTooltipView = JDFTooltipView(targetView: createOutfitButton, hostView: self.view, tooltipText: ctaText, arrowDirection: JDFTooltipViewArrowDirection.Down, width: tooltipWidth)
-        
-        tooltipManager.addTooltip(dropdownTooltip)
-        tooltipManager.addTooltip(outfitTooltip)
-        tooltipManager.addTooltip(ctaTooltip)
-        // 1 more for spruce-button at collectionview cell rendering
     }
     
     func initCollectionViewLayout() {
@@ -614,31 +585,65 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         let onboarded = defaults.boolForKey("onboardedMainFeed")
         
         if onboarded == false && indexPath.row == 0 {
-            var spruceText = "Edit the outfit"
-            
             let attributes: UICollectionViewLayoutAttributes = collectionView.layoutAttributesForItemAtIndexPath(indexPath)!
             let cellRect: CGRect = attributes.frame
-            
-            var sprucePointY: CGFloat = cellRect.height + 40
-            
-            // spruce button appears outside the visible screen (because outfitcell is too big)
-            if sprucePointY > screenHeight {
-                sprucePointY = screenHeight - 10
-                spruceText = "Edit the outfit with the spruce button below"
-            }
-            
-            let sprucePoint = CGPoint(x: 40, y: sprucePointY)
-            let spruceTooltip: JDFTooltipView = JDFTooltipView(targetPoint: sprucePoint, hostView: self.view, tooltipText: spruceText, arrowDirection: JDFTooltipViewArrowDirection.Down, width: tooltipWidth)
-            
-            tooltipManager.addTooltip(spruceTooltip)
-            tooltipManager.setFontForAllTooltips(UIFont.systemFontOfSize(16))
-            tooltipManager.setTextColourForAllTooltips(UIColor.whiteColor())
-            tooltipManager.setBackgroundColourForAllTooltips(sprubixColor)
-            tooltipManager.showNextTooltip()
-            defaults.setBool(true, forKey: "onboardedMainFeed")
+
+            initTooltipOnboarding(cellRect)
+            startTooltipOnboarding()
         }
         
         return cell
+    }
+    
+    func initTooltipOnboarding(spruceButtonCellRect: CGRect) {
+        tooltipManager = JDFSequentialTooltipManager(hostView: self.view)
+        tooltipManager.showsBackdropView = true
+        tooltipManager.backdropColour = UIColor.blackColor()
+        tooltipManager.backdropAlpha = 0.3
+        
+        let dropdownText = "Change the feed to Discover outfits and People"
+        let outfitText = "Touch here to view outfit details"
+        var spruceText = "Edit the outfit"
+        let ctaText = "Add a new outfit now!"
+        
+        let dropdownPoint: CGPoint = CGPoint(x: screenWidth/2 - 20, y: 60)
+        let outfitPoint: CGPoint = CGPoint(x: screenWidth * 0.45, y: screenHeight/3)
+        
+        var sprucePointY: CGFloat = spruceButtonCellRect.height + 40
+        
+        // spruce button appears outside the visible screen (because outfitcell is too big)
+        if sprucePointY > screenHeight {
+            sprucePointY = screenHeight - 10
+            spruceText = "Edit the outfit with the spruce button below"
+        }
+        
+        let sprucePoint = CGPoint(x: 40, y: sprucePointY)
+        
+        let dropdownTooltip: JDFTooltipView = JDFTooltipView(targetPoint: dropdownPoint, hostView: self.view, tooltipText: dropdownText, arrowDirection: JDFTooltipViewArrowDirection.Up, width: screenWidth*2/3)
+        let outfitTooltip: JDFTooltipView = JDFTooltipView(targetPoint: outfitPoint, hostView: self.view, tooltipText: outfitText, arrowDirection: JDFTooltipViewArrowDirection.Left, width: tooltipWidth)
+        let spruceTooltip: JDFTooltipView = JDFTooltipView(targetPoint: sprucePoint, hostView: self.view, tooltipText: spruceText, arrowDirection: JDFTooltipViewArrowDirection.Down, width: tooltipWidth)
+        let ctaTooltip: JDFTooltipView = JDFTooltipView(targetView: createOutfitButton, hostView: self.view, tooltipText: ctaText, arrowDirection: JDFTooltipViewArrowDirection.Down, width: tooltipWidth)
+        
+        tooltipManager.addTooltip(dropdownTooltip)
+        tooltipManager.addTooltip(outfitTooltip)
+        tooltipManager.addTooltip(spruceTooltip)
+        tooltipManager.addTooltip(ctaTooltip)
+
+        tooltipManager.setFontForAllTooltips(UIFont.systemFontOfSize(16))
+        tooltipManager.setTextColourForAllTooltips(UIColor.whiteColor())
+        tooltipManager.setBackgroundColourForAllTooltips(sprubixColor)
+    }
+    
+    func startTooltipOnboarding () {
+        let onboarded = defaults.boolForKey("onboardedMainFeed")
+        
+        if onboarded == false {
+            // check if tooltip is initialized
+            if tooltipManager != nil {
+                tooltipManager.showNextTooltip()
+                defaults.setBool(true, forKey: "onboardedMainFeed")
+            }
+        }
     }
     
     func scrollViewDidScroll(scrollView: UIScrollView) {
