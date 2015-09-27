@@ -52,8 +52,6 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        registerNotifications()
-        
         // main feed
         mainFeedController = MainFeedController()
         mainFeedController?.delegate = self
@@ -69,6 +67,8 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
         
         let panGestureRecognizer = UIPanGestureRecognizer(target: self, action: "handlePanGesture:")
         sprubixNavigationController.view.addGestureRecognizer(panGestureRecognizer)
+        
+        registerNotifications()
     }
     
     func registerNotifications() {
@@ -87,17 +87,21 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
         let userData: NSDictionary? = defaults.dictionaryForKey("userData")
         
         if userData != nil {
-            Delay.delay(1.0) {
-                self.notificationScope.show(authChange: { (finished, results) -> Void in
-                    var settings: UIUserNotificationSettings = UIUserNotificationSettings(forTypes: UIUserNotificationType.Alert | UIUserNotificationType.Sound | UIUserNotificationType.Badge, categories: nil)
+            self.notificationScope.show(authChange: { (finished, results) -> Void in
+                var settings: UIUserNotificationSettings = UIUserNotificationSettings(forTypes: UIUserNotificationType.Alert | UIUserNotificationType.Sound | UIUserNotificationType.Badge, categories: nil)
+                
+                UIApplication.sharedApplication().registerUserNotificationSettings(settings)
+                UIApplication.sharedApplication().registerForRemoteNotifications()
+                
+                self.mainFeedController?.tooltipEnable = true
+                self.mainFeedController?.startTooltipOnboarding()
+                
+                }, cancelled: { (results) -> Void in
+                    self.mainFeedController?.tooltipEnable = true
+                    self.mainFeedController?.startTooltipOnboarding()
                     
-                    UIApplication.sharedApplication().registerUserNotificationSettings(settings)
-                    UIApplication.sharedApplication().registerForRemoteNotifications()
-                    
-                    }, cancelled: { (results) -> Void in
-                        println("Unable to register to push notifications, thing was cancelled")
-                })
-            }
+                    println("Unable to register to push notifications, thing was cancelled")
+            })
         }
     }
     

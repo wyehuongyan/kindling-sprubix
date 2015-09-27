@@ -8,6 +8,7 @@
 
 import UIKit
 import AFNetworking
+import JDFTooltips
 
 protocol PieceInteractionProtocol {
     func likedPiece(piece: NSDictionary)
@@ -26,6 +27,10 @@ class PieceDetailsViewController: UICollectionViewController, UICollectionViewDe
     var pullOffset = CGPointZero
     
     var piecesRelevantCollectionView: UICollectionView? // relevant outfit collection from pieceDetailsCell
+    
+    // tooltip
+    var tooltipManager: JDFSequentialTooltipManager!
+    let tooltipWidth: CGFloat = screenWidth * 2/3
     
     init(collectionViewLayout layout: UICollectionViewLayout!, currentIndexPath indexPath: NSIndexPath){
         super.init(collectionViewLayout:layout)
@@ -65,6 +70,39 @@ class PieceDetailsViewController: UICollectionViewController, UICollectionViewDe
     
     override func viewDidLoad(){
         super.viewDidLoad()
+    }
+    
+    override func viewDidAppear(animated: Bool) {
+        // Tooltip
+        let onboarded = defaults.boolForKey("onboardedPieceDetails")
+        
+        if onboarded == false {
+            initTooltipOnboarding()
+        }
+    }
+    
+    func initTooltipOnboarding() {
+        tooltipManager = JDFSequentialTooltipManager(hostView: self.view)
+        tooltipManager.showsBackdropView = true
+        tooltipManager.backdropColour = UIColor.blackColor()
+        tooltipManager.backdropAlpha = 0.3
+        
+        let swipeText = "Swipe left or right to\nview the next item out this outfit"
+        let swipePoint: CGPoint = CGPoint(x: screenWidth/2 - 20, y: screenHeight*3/4)
+        
+        let swipeTooltip: JDFTooltipView = JDFTooltipView(targetPoint: swipePoint, hostView: self.view, tooltipText: swipeText, arrowDirection: JDFTooltipViewArrowDirection.Down, width: screenWidth*2/3)
+        
+        tooltipManager.addTooltip(swipeTooltip)
+        
+        tooltipManager.setFontForAllTooltips(UIFont.systemFontOfSize(16))
+        tooltipManager.setTextColourForAllTooltips(UIColor.whiteColor())
+        tooltipManager.setBackgroundColourForAllTooltips(sprubixColor)
+        
+        Delay.delay(0.5) {
+            self.tooltipManager.showNextTooltip()
+        }
+        
+        defaults.setBool(true, forKey: "onboardedPieceDetails")
     }
     
     override func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell{

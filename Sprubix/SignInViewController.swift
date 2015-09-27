@@ -618,8 +618,6 @@ class SignInViewController: UIViewController, UITableViewDataSource, UITableView
                             "Source": "Email"
                         ])
                     }
-                    // Mixpanel - Signed Up, Fail
-                    MixpanelService.track("User Signed Up", propertySet: ["Status" : "Fail"])
                     // Mixpanel - End
             })
             
@@ -653,7 +651,11 @@ class SignInViewController: UIViewController, UITableViewDataSource, UITableView
             var emailString = ""
             
             let userNameText = self.userNameText.text
-            passwordString = self.passwordText.text
+            
+            // if not signup from facebook, get from textfield, else it'll be filled already
+            if userSignupData.count == 0 {
+                passwordString = self.passwordText.text
+            }
             
             // check if username or email was entered
             if userNameText.rangeOfString("@") != nil{

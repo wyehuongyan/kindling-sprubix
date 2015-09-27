@@ -1444,7 +1444,6 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
             var allHaveQuantity: Bool = true
             
             if itemDetailsQuantity.text == "" {
-                message += "Please enter the quantity\n"
                 allHaveQuantity = false
             }
             
