@@ -398,6 +398,7 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
         case .Outfits:
             let outfitDetailsViewController = OutfitDetailsViewController(collectionViewLayout: detailsViewControllerLayout(), currentIndexPath:indexPath)
             outfitDetailsViewController.outfits = outfits
+            outfitDetailsViewController.delegate = containerViewController.mainInstance()
             
             collectionView.setToIndexPath(indexPath)
             
@@ -433,6 +434,7 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
         case .Community:
             let outfitDetailsViewController = OutfitDetailsViewController(collectionViewLayout: detailsViewControllerLayout(), currentIndexPath:indexPath)
             outfitDetailsViewController.outfits = communityOutfits
+            outfitDetailsViewController.delegate = containerViewController.mainInstance()
             
             collectionView.setToIndexPath(indexPath)
             

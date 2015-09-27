@@ -596,13 +596,11 @@ class CheckoutViewController: UIViewController, UITableViewDataSource, UITableVi
                 ////// set value into the dict
                 self.sellerOrderTotalDiscounts.setObject(sellerOrderTotalDiscount!, forKey: checkoutItemPointsCell.seller)
                 
-                ////// refresh the other cells
+                ////// refresh the cells placeholders
                 for itemCell in self.itemCells {
-                    if itemCell != checkoutItemPointsCell {
-                        itemCell.usePointsTextField.placeholder = String(format: "Use Points: %.0f", self.pointsRemaining!)
-                        itemCell.usePointsTextField.setNeedsDisplay()
-                        itemCell.discount.setNeedsDisplay()
-                    }
+                    itemCell.usePointsTextField.placeholder = String(format: "Use Points: %.0f", self.pointsRemaining!)
+                    itemCell.usePointsTextField.setNeedsDisplay()
+                    itemCell.discount.setNeedsDisplay()
                 }
                 
                 // final cost

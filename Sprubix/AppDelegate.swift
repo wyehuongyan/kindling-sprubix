@@ -28,8 +28,7 @@ struct SprubixConfig {
     }
     struct Token {
         static let mixpanel = ""
-        
-        //static let mixpanel = "7b1423643b7e52dad5680f5fdc390a88" // iOS Test 2
+        //static let mixpanel = "7b1423643b7e52dad5680f5fdc390a88" // live
     }
 }
 

@@ -26,7 +26,7 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
     
     // main feed
     var sprubixNavigationController: UINavigationController!
-    var mainFeedController: MainFeedController!
+    var mainFeedController: MainFeedController?
     var sidePanelViewController: SidePanelViewController? // optional as it will be added/removed at times
     var darkenedOverlay:UIView? // darkened overlay over the view when sidemenu is toggled on
     
@@ -56,8 +56,8 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
         
         // main feed
         mainFeedController = MainFeedController()
-        mainFeedController.delegate = self
-        sprubixNavigationController = UINavigationController(rootViewController: mainFeedController)
+        mainFeedController?.delegate = self
+        sprubixNavigationController = UINavigationController(rootViewController: mainFeedController!)
         
         view.addSubview(sprubixNavigationController.view)
         addChildViewController(sprubixNavigationController)
@@ -196,17 +196,6 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
         
         sprubixNavigationController.delegate = nil
         sprubixNavigationController.pushViewController(ordersViewController!, animated: true)
-
-        /*
-        let checkoutOrderViewController = CheckoutOrderViewController()
-        
-        checkoutOrderViewController.userOrderId = 8
-        
-        self.closeSidePanel()
-        
-        sprubixNavigationController.delegate = nil
-        sprubixNavigationController.pushViewController(checkoutOrderViewController, animated: true)
-        */
     }
     
     func showShopOrderDetails(shopOrder: NSDictionary) {
@@ -251,6 +240,10 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
         
         sprubixNavigationController.delegate = nil
         sprubixNavigationController.pushViewController(cartViewController!, animated: true)
+    }
+    
+    func mainInstance() -> MainFeedController? {
+        return mainFeedController
     }
     
     // SprubixFeedControllerDelegate

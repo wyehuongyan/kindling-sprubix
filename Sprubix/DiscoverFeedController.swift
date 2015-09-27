@@ -982,6 +982,8 @@ class DiscoverFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyD
         var childrenCount = self.navigationController!.viewControllers.count
         var prevChild: AnyObject = self.navigationController!.viewControllers[childrenCount-2]
         
+        navigationController!.delegate = nil
+        
         if prevChild.isKindOfClass(PeopleFeedViewController) {
             UIView.transitionWithView(self.navigationController!.view, duration: 0.3, options: UIViewAnimationOptions.TransitionCrossDissolve, animations: {
                 self.navigationController?.popViewControllerAnimated(false)
@@ -1009,6 +1011,8 @@ class DiscoverFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyD
         
         var childrenCount = self.navigationController!.viewControllers.count
         var prevChild: AnyObject = self.navigationController!.viewControllers[childrenCount-2]
+        
+        navigationController!.delegate = nil
         
         if prevChild.isKindOfClass(MainFeedController) {
             UIView.transitionWithView(self.navigationController!.view, duration: 0.3, options: UIViewAnimationOptions.TransitionCrossDissolve, animations: {

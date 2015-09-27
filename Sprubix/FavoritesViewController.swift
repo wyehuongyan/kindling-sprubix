@@ -422,6 +422,8 @@ class FavoritesViewController: UIViewController, DZNEmptyDataSetSource, DZNEmpty
             let outfitDetailsViewController = OutfitDetailsViewController(collectionViewLayout: detailsViewControllerLayout(), currentIndexPath: indexPath)
             
             outfitDetailsViewController.outfits = likedOutfits
+            outfitDetailsViewController.delegate = containerViewController.mainInstance()
+            
             collectionView.setToIndexPath(indexPath)
             
             self.navigationController!.delegate = transitionDelegateHolder

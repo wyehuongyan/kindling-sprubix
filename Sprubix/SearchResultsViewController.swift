@@ -92,6 +92,12 @@ class SearchResultsViewController: UIViewController, UISearchBarDelegate, UIColl
                     
                     self.itemCategories = responseObject as! [NSDictionary]
                     
+                    // insert "All" category
+                    var allCategory = NSMutableDictionary()
+                    allCategory.setObject("All", forKey: "name")
+                    
+                    self.itemCategories.insert(allCategory, atIndex: 0)
+                    
                 },
                 failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                     println("Error: " + error.localizedDescription)
@@ -261,6 +267,7 @@ class SearchResultsViewController: UIViewController, UISearchBarDelegate, UIColl
             let outfitDetailsViewController = OutfitDetailsViewController(collectionViewLayout: detailsViewControllerLayout(), currentIndexPath: indexPath)
             
             outfitDetailsViewController.outfits = results
+            outfitDetailsViewController.delegate = containerViewController.mainInstance()
             collectionView.setToIndexPath(indexPath)
             
             self.navigationController!.delegate = transitionDelegateHolder
@@ -338,14 +345,18 @@ class SearchResultsViewController: UIViewController, UISearchBarDelegate, UIColl
     
     // CategoryFilterProtocol
     func categorySelected(category: NSDictionary?) {
-        selectedCategory = category
-        
-        let categoryName = selectedCategory!["name"] as! String
+        if category!["name"] as! String == "All" {
+            selectedCategory = nil
+        } else {
+            selectedCategory = category
+        }
         
         currentPage = 0
         lastPage = nil
         
         // set category button title
+        let categoryName = category!["name"] as! String
+        
         filterButtonCategory.setTitle("Category : \(categoryName)", forState: UIControlState.Normal)
         
         retrieveFilteredResults()

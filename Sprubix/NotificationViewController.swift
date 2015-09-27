@@ -574,6 +574,7 @@ class NotificationViewController: UIViewController, DZNEmptyDataSetSource, DZNEm
                         let outfitDetailsViewController = OutfitDetailsViewController(collectionViewLayout: self.detailsViewControllerLayout(), currentIndexPath: NSIndexPath(forRow: 0, inSection: 0))
                         
                         outfitDetailsViewController.outfits = [outfit]
+                        outfitDetailsViewController.delegate = containerViewController.mainInstance()
                         
                         // push outfitDetailsViewController onto navigation stack
                         let transition = CATransition()

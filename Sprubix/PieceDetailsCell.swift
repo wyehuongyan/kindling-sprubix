@@ -40,6 +40,8 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
     
     var liked: Bool?
     var likeButton: UIButton!
+    var itemLikesImage: UIButton!
+    var itemLikesLabel:UILabel!
     var likeImageView: UIImageView!
     var commentsButton: UIButton!
     
@@ -244,31 +246,6 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         likeButton.addTarget(self, action: "togglePieceLike:", forControlEvents: UIControlEvents.TouchUpInside)
         likeButton.exclusiveTouch = true
         
-        // very first time: check likebutton selected
-        let userData: NSDictionary? = defaults.dictionaryForKey("userData")
-        let username = userData!["username"] as! String
-        let pieceId = piece["id"] as! Int
-        
-        let poutfitLikesUserRef = firebaseRef.childByAppendingPath("poutfits/piece_\(pieceId)/likes/\(username)")
-        
-        if liked != nil {
-            likeButton.selected = liked!
-        } else {
-            // check if user has already liked this outfit
-            poutfitLikesUserRef.observeSingleEventOfType(.Value, withBlock: {
-                snapshot in
-                
-                if (snapshot.value as? NSNull) != nil {
-                    // not yet liked
-                    self.liked = false
-                } else {
-                    self.liked = true
-                }
-                
-                self.likeButton.selected = self.liked!
-            })
-        }
-        
         pieceDetailInfoView.addSubview(likeButton)
         Glow.addGlow(likeButton)
         
@@ -332,19 +309,47 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         let itemImageViewWidth:CGFloat = 0.3 * screenWidth
         
         // likes
-        var itemLikesImage = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+        itemLikesImage = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
         itemLikesImage.setImage(UIImage(named: "main-like"), forState: UIControlState.Normal)
+        itemLikesImage.setImage(UIImage(named: "main-like-filled"), forState: UIControlState.Selected)
+        itemLikesImage.addTarget(self, action: "togglePieceLike:", forControlEvents: UIControlEvents.TouchUpInside)
         itemLikesImage.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
         itemLikesImage.frame = CGRect(x: 0, y: 0, width: itemImageViewWidth, height: itemSpecHeight)
         itemLikesImage.imageEdgeInsets = UIEdgeInsetsMake(10, 10, 10, 0)
         
         Glow.addGlow(itemLikesImage)
         
-        var itemLikesLabel:UILabel = UILabel(frame: CGRect(x: itemImageViewWidth, y: 0, width: screenWidth - itemImageViewWidth, height: itemSpecHeight))
+        itemLikesLabel = UILabel(frame: CGRect(x: itemImageViewWidth, y: 0, width: screenWidth - itemImageViewWidth, height: itemSpecHeight))
         if numTotalLikes != 0 {
             itemLikesLabel.text = numTotalLikes > 1 ? "\(numTotalLikes) people like this" : "\(numTotalLikes) person likes this"
         } else {
             itemLikesLabel.text = "Be the first to like!"
+        }
+        
+        // very first time: check likebutton selected
+        let userData: NSDictionary? = defaults.dictionaryForKey("userData")
+        let username = userData!["username"] as! String
+        let pieceId = piece["id"] as! Int
+        
+        let poutfitLikesUserRef = firebaseRef.childByAppendingPath("poutfits/piece_\(pieceId)/likes/\(username)")
+        
+        if liked != nil {
+            likeButton.selected = liked!
+            itemLikesImage.selected = liked!
+        } else {
+            // check if user has already liked this outfit
+            poutfitLikesUserRef.observeSingleEventOfType(.Value, withBlock: {
+                snapshot in
+                
+                if (snapshot.value as? NSNull) != nil {
+                    // not yet liked
+                    self.liked = false
+                } else {
+                    self.liked = true
+                }
+                
+                self.likeButton.selected = self.liked!
+            })
         }
         
         // name
@@ -826,6 +831,7 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         
         let outfitDetailsViewController = OutfitDetailsViewController(collectionViewLayout: detailsViewControllerLayout(), currentIndexPath:indexPath)
         outfitDetailsViewController.outfits = outfits
+        outfitDetailsViewController.delegate = containerViewController.mainInstance()
         
         collectionView.setToIndexPath(indexPath)
         navController!.pushViewController(outfitDetailsViewController, animated: true)
@@ -861,6 +867,7 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
     // gesture recognizers 
     func wasDoubleTapped(gesture: UITapGestureRecognizer) {
         likeButton.selected = true
+        liked = true
         doubleTappedAction?(like: true)
         animateHeart()
     }
@@ -868,13 +875,31 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
     func togglePieceLike(sender: UIButton) {
         if sender.selected != true {
             sender.selected = true
+            likeButton.selected = true
+            itemLikesImage.selected = true
             
+            liked = true
             doubleTappedAction?(like: true)
             animateHeart()
+            
+            numTotalLikes += 1
         } else {
             sender.selected = false
+            likeButton.selected = false
+            itemLikesImage.selected = false
             
+            liked = false
             doubleTappedAction?(like: false)
+            
+            if numTotalLikes > 0 {
+                numTotalLikes -= 1
+            }
+        }
+        
+        if numTotalLikes != 0 {
+            itemLikesLabel.text = numTotalLikes > 1 ? "\(numTotalLikes) people like this" : "\(numTotalLikes) person likes this"
+        } else {
+            itemLikesLabel.text = "Be the first to like!"
         }
     }
     
@@ -1047,6 +1072,7 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
                 }, completion: nil)
             
             self.selectedSize = nil
+            self.buyPieceInfo?.removeObjectsForKeys(["size", "quantity", "delivery_option_id"])
         }
         
         buyPopup?.show()
@@ -1369,7 +1395,11 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
             }
         })
         
-        // retrieve total number of comments
+        retrieveTotalLikes(poutfitIdentifier)
+    }
+    
+    func retrieveTotalLikes(poutfitIdentifier: String) {
+        // retrieve total number of likes
         let poutfitLikesCountRef = firebaseRef.childByAppendingPath("poutfits/\(poutfitIdentifier)/num_likes")
         
         numTotalLikes = 0

@@ -96,6 +96,7 @@ class PieceDetailsViewController: UICollectionViewController, UICollectionViewDe
            
             // reset to nil
             collectionCell.commentsViewController = nil
+            collectionCell.buyPieceInfo?.removeAllObjects()
             
             self.returnToPrevious()
         }

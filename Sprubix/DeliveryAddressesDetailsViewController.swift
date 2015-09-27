@@ -396,7 +396,7 @@ class DeliveryAddressesDetailsViewController: UIViewController, UITableViewDataS
     }
     
     private func showCountryPicker() {
-        let picker: ActionSheetStringPicker = ActionSheetStringPicker(title: "Country", rows: sortedCountryArray as [String], initialSelection: 197,
+        let picker: ActionSheetStringPicker = ActionSheetStringPicker(title: "Country", rows: sortedCountryArray as [String], initialSelection: 191,
         doneBlock: { actionSheetPicker, selectedIndex, selectedValue in
             
             self.countryText.text = selectedValue as! String

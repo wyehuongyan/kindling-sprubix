@@ -1578,6 +1578,7 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
                 }, completion: nil)
             
             self.selectedSizes.removeAll()
+            self.buyPieceInfo?.removeObjectsForKeys(["size", "quantity", "delivery_option_id"])
         }
         
         buyPopup?.show()

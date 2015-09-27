@@ -127,6 +127,7 @@ class OutfitDetailsViewController: UICollectionViewController, UICollectionViewD
             
             // reset to nil
             collectionCell.commentsViewController = nil
+            collectionCell.buyPieceInfo?.removeAllObjects()
             
             self.returnToPrevious()
         }

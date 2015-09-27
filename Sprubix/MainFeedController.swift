@@ -1119,10 +1119,9 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
     
     func discoverFeedTapped(sender: UIButton) {
         
-        if discoverFeedController == nil {
-            discoverFeedController = DiscoverFeedController()
-            discoverFeedController!.delegate = containerViewController
-        }
+        discoverFeedController = DiscoverFeedController()
+        discoverFeedController!.delegate = containerViewController
+        navigationController!.delegate = nil
         
         UIView.transitionWithView(self.navigationController!.view, duration: 0.3, options: UIViewAnimationOptions.TransitionCrossDissolve, animations: {
             self.navigationController?.pushViewController(discoverFeedController!, animated: false)
@@ -1137,6 +1136,8 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
             peopleFeedController = PeopleFeedViewController()
             peopleFeedController!.delegate = containerViewController
         }
+        
+        navigationController!.delegate = nil
         
         UIView.transitionWithView(self.navigationController!.view, duration: 0.3, options: UIViewAnimationOptions.TransitionCrossDissolve, animations: {
             self.navigationController?.pushViewController(peopleFeedController!, animated: false)
