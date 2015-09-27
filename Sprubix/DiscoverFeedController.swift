@@ -49,6 +49,7 @@ class DiscoverFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyD
     let dropdownViewHeight = navigationHeight * 3
     
     // feed
+    var mainFeedController: MainFeedController?
     var peopleFeedController: PeopleFeedViewController?
     
     override func viewDidLoad() {
@@ -66,6 +67,13 @@ class DiscoverFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyD
         refreshControl.addTarget(self, action: "refresh:", forControlEvents: UIControlEvents.ValueChanged)
         discoverCollectionView.insertSubview(refreshControl, atIndex: 0)
         refreshControl.endRefreshing()
+        
+        // get reference to mainfeed
+        for vc in self.navigationController!.viewControllers {
+            if vc.isKindOfClass(MainFeedController) {
+                mainFeedController = vc as? MainFeedController
+            }
+        }
     }
     
     override func viewWillAppear(animated: Bool) {
@@ -356,6 +364,11 @@ class DiscoverFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyD
     // OutfitInteractionProtocol
     func setOutfitsLiked(outfitId: Int, liked: Bool) {
         outfitsLiked.setObject(liked, forKey: outfitId)
+        
+        // Sync with MainFeed's local like array
+        if mainFeedController != nil {
+            mainFeedController!.outfitsLiked.setObject(liked, forKey: outfitId)
+        }
     }
     
     func unlikedOutfit(outfitId: Int, itemIdentifier: String, receiver: NSDictionary) {
@@ -384,7 +397,7 @@ class DiscoverFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyD
                     // does not exist, already unliked
                     println("You have already unliked this outfit")
                     
-                    self.outfitsLiked.setObject(false, forKey: outfitId)
+                    self.setOutfitsLiked(outfitId, liked: false)
                 } else {
                     // was liked, set it to unliked here
                     poutfitLikesUserRef.observeSingleEventOfType(.Value, withBlock: {
@@ -422,7 +435,7 @@ class DiscoverFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyD
                                     likeRef.removeValue()
                                     poutfitLikesUserRef.removeValue()
                                     
-                                    self.outfitsLiked.setObject(false, forKey: outfitId)
+                                    self.setOutfitsLiked(outfitId, liked: false)
                                     
                                     // update poutfitRef num of likes
                                     let poutfitLikeCountRef = poutfitRef.childByAppendingPath("num_likes")
@@ -595,7 +608,7 @@ class DiscoverFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyD
                                             } else {
                                                 println("Outfit liked successfully!")
                                                 // add to outfits dictionary
-                                                self.outfitsLiked.setObject(true, forKey: outfitId)
+                                                self.setOutfitsLiked(outfitId, liked: true)
                                             }
                                     })
                                     
@@ -627,7 +640,7 @@ class DiscoverFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyD
                     println("You have already liked this outfit")
                     
                     // add to outfits dictionary
-                    self.outfitsLiked.setObject(true, forKey: outfitId)
+                    self.setOutfitsLiked(outfitId, liked: true)
                 }
             })
             
@@ -870,6 +883,7 @@ class DiscoverFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyD
         var outfitId = outfit["id"] as! Int
         cell.itemIdentifier = "outfit_\(outfitId)"
         cell.outfitId = outfitId
+        cell.purchasable = outfit["purchasable"] as? Bool
         
         // assign image
         var outfitImagesString = outfit["images"] as! NSString

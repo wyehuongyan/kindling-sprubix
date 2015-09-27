@@ -33,6 +33,9 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
     var inspiredBy: NSDictionary!
     var recentComments: [NSDictionary] = [NSDictionary]()
     var numTotalComments: Int = 0
+    
+    var itemLikesImage: UIButton?
+    var itemLikesLabel: UILabel?
     var numTotalLikes: Int = 0
     
     // credits
@@ -332,20 +335,21 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         let itemImageViewWidth:CGFloat = 0.3 * screenWidth
         
         // likes
-        var itemLikesImage = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
-        itemLikesImage.setImage(UIImage(named: "main-like"), forState: UIControlState.Normal)
-        itemLikesImage.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
-        itemLikesImage.frame = CGRect(x: 0, y: 0, width: itemImageViewWidth, height: itemSpecHeight)
-        itemLikesImage.imageEdgeInsets = UIEdgeInsetsMake(10, 10, 10, 0)
+        itemLikesImage?.removeFromSuperview()
+        itemLikesImage = UIButton.buttonWithType(UIButtonType.Custom) as? UIButton
+        itemLikesImage!.setImage(UIImage(named: "main-like"), forState: UIControlState.Normal)
+        itemLikesImage!.setImage(UIImage(named: "main-like-filled"), forState: UIControlState.Selected)
+        itemLikesImage!.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+        itemLikesImage!.frame = CGRect(x: 0, y: 0, width: itemImageViewWidth, height: itemSpecHeight)
+        itemLikesImage!.imageEdgeInsets = UIEdgeInsetsMake(10, 10, 10, 0)
+        itemLikesImage!.addTarget(self, action: "togglePieceLike:", forControlEvents: UIControlEvents.TouchUpInside)
+        itemLikesImage!.selected = likeButton.selected
         
-        Glow.addGlow(itemLikesImage)
+        Glow.addGlow(itemLikesImage!)
         
-        var itemLikesLabel:UILabel = UILabel(frame: CGRect(x: itemImageViewWidth, y: 0, width: screenWidth - itemImageViewWidth, height: itemSpecHeight))
-        if numTotalLikes != 0 {
-            itemLikesLabel.text = numTotalLikes > 1 ? "\(numTotalLikes) people like this" : "\(numTotalLikes) person likes this"
-        } else {
-            itemLikesLabel.text = "Be the first to like!"
-        }
+        itemLikesLabel?.removeFromSuperview()
+        itemLikesLabel = UILabel(frame: CGRect(x: itemImageViewWidth, y: 0, width: screenWidth - itemImageViewWidth, height: itemSpecHeight))
+        refreshItemLikesLabel()
         
         // name
         var itemNameImage = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
@@ -405,8 +409,8 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         
         itemSizeLabel.text = pieceSizesArray.componentsJoinedByString("/")
         
-        pieceSpecsView.addSubview(itemLikesImage)
-        pieceSpecsView.addSubview(itemLikesLabel)
+        pieceSpecsView.addSubview(itemLikesImage!)
+        pieceSpecsView.addSubview(itemLikesLabel!)
         
         pieceSpecsView.addSubview(itemNameImage)
         pieceSpecsView.addSubview(itemNameLabel)
@@ -865,17 +869,35 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         animateHeart()
     }
     
+    func refreshItemLikesLabel() {
+        if numTotalLikes != 0 {
+            itemLikesLabel!.text = numTotalLikes > 1 ? "\(numTotalLikes) people like this" : "\(numTotalLikes) person likes this"
+        } else {
+            itemLikesLabel!.text = "Be the first to like!"
+        }
+    }
+    
     func togglePieceLike(sender: UIButton) {
         if sender.selected != true {
-            sender.selected = true
+            likeButton.selected = true
+            itemLikesImage?.selected = true
             
             doubleTappedAction?(like: true)
             animateHeart()
+            
+            numTotalLikes += 1
         } else {
-            sender.selected = false
+            likeButton.selected = false
+            itemLikesImage?.selected = false
             
             doubleTappedAction?(like: false)
+            
+            if numTotalLikes > 0 {
+                numTotalLikes -= 1
+            }
         }
+        
+        refreshItemLikesLabel()
     }
     
     func creditsShowProfile(sender: UIButton) {
@@ -1033,6 +1055,9 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         
         buyPieceView.addSubview(addToCart)
         
+        // load the delivery methods for this piece
+        preloadBuyDeliveryMethod()
+        
         buyPopup = KLCPopup(contentView: popupContentView, showType: KLCPopupShowType.BounceInFromTop, dismissType: KLCPopupDismissType.BounceOutToTop, maskType: KLCPopupMaskType.Clear, dismissOnBackgroundTouch: true, dismissOnContentTouch: false)
         
         // dim background
@@ -1146,30 +1171,30 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         }
     }
     
-    func selectBuyDeliveryMethod(sender: UIButton) {
-        if deliveryMethods == nil {
-            // REST call to server to retrieve delivery methods
-            var shopId: Int? = user["id"] as? Int
-            
-            if shopId != nil {
-                manager.POST(SprubixConfig.URL.api + "/delivery/options",
-                    parameters: [
-                        "user_id": shopId!
-                    ],
-                    success: { (operation: AFHTTPRequestOperation!, responseObject:
-                        AnyObject!) in
-                        
-                        self.deliveryMethods = responseObject["data"] as? [NSDictionary]
-                        
-                        self.showBuyDeliveryMethodPicker(sender)
-                    },
-                    failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
-                        println("Error: " + error.localizedDescription)
-                })
-            } else {
-                println("userId not found, please login or create an account")
-            }
+    func preloadBuyDeliveryMethod() {
+        // REST call to server to retrieve delivery methods
+        var shopId: Int? = user["id"] as? Int
+        
+        if shopId != nil {
+            manager.POST(SprubixConfig.URL.api + "/delivery/options",
+                parameters: [
+                    "user_id": shopId!
+                ],
+                success: { (operation: AFHTTPRequestOperation!, responseObject:
+                    AnyObject!) in
+                    
+                    self.deliveryMethods = responseObject["data"] as? [NSDictionary]
+                },
+                failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                    println("Error: " + error.localizedDescription)
+            })
         } else {
+            println("userId not found, please login or create an account")
+        }
+    }
+    
+    func selectBuyDeliveryMethod(sender: UIButton) {
+        if deliveryMethods != nil {
             showBuyDeliveryMethodPicker(sender)
         }
     }

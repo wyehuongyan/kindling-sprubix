@@ -716,6 +716,11 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
     // OutfitInteractionProtocol
     func setOutfitsLiked(outfitId: Int, liked: Bool) {
         outfitsLiked.setObject(liked, forKey: outfitId)
+        
+        // Sync with Discover's local like array
+        if discoverFeedController != nil {
+            discoverFeedController!.outfitsLiked.setObject(liked, forKey: outfitId)
+        }
     }
     
     func unlikedOutfit(outfitId: Int, itemIdentifier: String, receiver: NSDictionary) {
@@ -744,7 +749,7 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
                     // does not exist, already unliked
                     println("You have already unliked this outfit")
                     
-                    self.outfitsLiked.setObject(false, forKey: outfitId)
+                    self.setOutfitsLiked(outfitId, liked: false)
                 } else {
                     // was liked, set it to unliked here
                     poutfitLikesUserRef.observeSingleEventOfType(.Value, withBlock: {
@@ -782,7 +787,7 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
                                     likeRef.removeValue()
                                     poutfitLikesUserRef.removeValue()
                                     
-                                    self.outfitsLiked.setObject(false, forKey: outfitId)
+                                    self.setOutfitsLiked(outfitId, liked: false)
                                     
                                     // update poutfitRef num of likes
                                     let poutfitLikeCountRef = poutfitRef.childByAppendingPath("num_likes")
@@ -955,7 +960,7 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
                                             } else {
                                                 println("Outfit liked successfully!")
                                                 // add to outfits dictionary
-                                                self.outfitsLiked.setObject(true, forKey: outfitId)
+                                                self.setOutfitsLiked(outfitId, liked: true)
                                             }
                                     })
                                     
@@ -987,7 +992,7 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
                     println("You have already liked this outfit")
                     
                     // add to outfits dictionary
-                    self.outfitsLiked.setObject(true, forKey: outfitId)
+                    self.setOutfitsLiked(outfitId, liked: true)
                 }
             })
             

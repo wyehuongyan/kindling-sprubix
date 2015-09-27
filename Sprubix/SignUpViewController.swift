@@ -533,21 +533,23 @@ class SignUpViewController: UIViewController, FBSDKLoginButtonDelegate, UIScroll
         let offsetX = onboardingTextScrollView.contentOffset.x
         let offset = offsetX / pageWidth
         let page = Int(floor(offset))
-        println(page)
+        
         if page + 1 < 5 && offsetX > 0 {
             onboardingImageViews[page+1].alpha = offset - CGFloat(page)
+            onboardingImageViews[page].alpha = 1
         }
         
         onboardingPageControl.currentPage = page
     }
     
-    func scrollViewDidEndScrollingAnimation(scrollView: UIScrollView) {
+    func scrollViewDidEndDecelerating(scrollView: UIScrollView) {
         for var index = 0 ; index < onboardingImageViews.count ; index++ {
             if index != onboardingPageControl.currentPage {
-                onboardingImageViews[index].alpha = 0
+                UIView.animateWithDuration(0.5, delay: 0.0, options: UIViewAnimationOptions.CurveEaseInOut, animations: {
+                    self.onboardingImageViews[index].alpha = 0
+                }, completion: nil)
             }
         }
     }
-    
 }
 

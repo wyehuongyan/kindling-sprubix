@@ -89,7 +89,7 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
     
     var buyPieceViews: [UIView] = [UIView]()
     
-    var deliveryMethods: [NSDictionary]?
+    var deliveryMethods: [Int: [NSDictionary]] = [Int: [NSDictionary]]()
     var buyPieceInfo: NSMutableDictionary?
     var buyPiecesInfo: NSMutableDictionary = NSMutableDictionary()
     var buyPopup: KLCPopup?
@@ -1573,6 +1573,9 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
                     
                     sellablePieces += 1
                     buyPieces.append(piece)
+                    
+                    // load the delivery methods for this piece
+                    preloadBuyDeliveryMethod(i)
                 }
             }
         }
@@ -1707,9 +1710,8 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
         }
     }
     
-    func selectBuyDeliveryMethod(sender: UIButton) {
-        let pos = find(buyPieceViews, sender.superview!)
-        let piece: NSDictionary = buyPieces[pos!] as NSDictionary
+    func preloadBuyDeliveryMethod(pieceId: Int) {
+        let piece: NSDictionary = buyPieces[pieceId] as NSDictionary
         let owner: NSDictionary = piece["user"] as! NSDictionary
         
         // REST call to server to retrieve delivery methods
@@ -1723,15 +1725,21 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
                 success: { (operation: AFHTTPRequestOperation!, responseObject:
                     AnyObject!) in
                     
-                    self.deliveryMethods = responseObject["data"] as? [NSDictionary]
-                    
-                    self.showBuyDeliveryMethodPicker(sender)
+                    self.deliveryMethods[pieceId] = responseObject["data"] as? [NSDictionary]
                 },
                 failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                     println("Error: " + error.localizedDescription)
             })
         } else {
             println("userId not found, please login or create an account")
+        }
+    }
+    
+    func selectBuyDeliveryMethod(sender: UIButton) {
+        let pos = find(buyPieceViews, sender.superview!)
+        
+        if deliveryMethods[pos!] != nil {
+            self.showBuyDeliveryMethodPicker(sender)
         }
     }
     
@@ -1744,7 +1752,7 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
         var deliveryArray: [String] = [String]()
         var deliveryIdsArray: [Int] = [Int]()
         
-        for deliveryOption in deliveryMethods! {
+        for deliveryOption in deliveryMethods[pos!]! {
             let deliveryOptionName = deliveryOption["name"] as! String
             let deliveryOptionPrice = deliveryOption["price"] as! String
             let deliveryOptionId = deliveryOption["id"] as! Int
