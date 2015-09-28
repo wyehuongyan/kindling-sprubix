@@ -1571,11 +1571,12 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
                     var selectedSize: String = ""
                     selectedSizes.append(selectedSize)
                     
-                    sellablePieces += 1
                     buyPieces.append(piece)
                     
                     // load the delivery methods for this piece
-                    preloadBuyDeliveryMethod(i)
+                    preloadBuyDeliveryMethod(sellablePieces)
+                    
+                    sellablePieces += 1
                 }
             }
         }
@@ -1711,8 +1712,8 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
         }
     }
     
-    func preloadBuyDeliveryMethod(pieceId: Int) {
-        let piece: NSDictionary = buyPieces[pieceId] as NSDictionary
+    func preloadBuyDeliveryMethod(pieceIndex: Int) {
+        let piece: NSDictionary = buyPieces[pieceIndex] as NSDictionary
         let owner: NSDictionary = piece["user"] as! NSDictionary
         
         // REST call to server to retrieve delivery methods
@@ -1726,7 +1727,7 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
                 success: { (operation: AFHTTPRequestOperation!, responseObject:
                     AnyObject!) in
                     
-                    self.deliveryMethods[pieceId] = responseObject["data"] as? [NSDictionary]
+                    self.deliveryMethods[pieceIndex] = responseObject["data"] as? [NSDictionary]
                 },
                 failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                     println("Error: " + error.localizedDescription)
