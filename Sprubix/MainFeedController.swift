@@ -50,7 +50,6 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
     // tooltip
     var tooltipManager: JDFSequentialTooltipManager!
     let tooltipWidth: CGFloat = screenWidth / 2
-    var tooltipEnable: Bool = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -589,7 +588,6 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
             let cellRect: CGRect = attributes.frame
 
             initTooltipOnboarding(cellRect)
-            startTooltipOnboarding()
         }
         
         return cell
@@ -634,7 +632,7 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         tooltipManager.setBackgroundColourForAllTooltips(sprubixColor)
     }
     
-    func startTooltipOnboarding () {
+    func startTooltipOnboarding() {
         let onboarded = defaults.boolForKey("onboardedMainFeed")
         
         if onboarded == false {

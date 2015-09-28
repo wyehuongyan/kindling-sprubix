@@ -93,11 +93,9 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
                 UIApplication.sharedApplication().registerUserNotificationSettings(settings)
                 UIApplication.sharedApplication().registerForRemoteNotifications()
                 
-                self.mainFeedController?.tooltipEnable = true
                 self.mainFeedController?.startTooltipOnboarding()
                 
                 }, cancelled: { (results) -> Void in
-                    self.mainFeedController?.tooltipEnable = true
                     self.mainFeedController?.startTooltipOnboarding()
                     
                     println("Unable to register to push notifications, thing was cancelled")
