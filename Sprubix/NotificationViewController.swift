@@ -339,6 +339,10 @@ class NotificationViewController: UIViewController, DZNEmptyDataSetSource, DZNEm
         switch type {
         case "like":
             notificationMessage = "@\(senderUsername) liked your item. \(duration)"
+        case "spruce_outfit":
+            notificationMessage = "@\(senderUsername) spruced your outfit. \(duration)"
+        case "spruce_piece":
+            notificationMessage = "@\(senderUsername) used your item(s) in a new outfit. \(duration)"
         case "comment":
             let comment = notification["comment"] as! NSDictionary
             let commentBody = comment["body"] as! String

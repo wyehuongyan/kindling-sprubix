@@ -432,46 +432,72 @@ class SpruceShareViewController: UIViewController, UITableViewDelegate, UITableV
             data.appendPartWithFileData(outfitImageData, name: "outfit", fileName: "outfit.jpg", mimeType: "image/jpeg")
         }, success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
             // success block
-            println("Upload Success")
+            //println("Upload Success")
 
-            self.delay(0.6) {
-                // go back to main feed
-                self.navigationController!.delegate = nil
-                
-                let transition = CATransition()
-                transition.duration = 0.3
-                transition.type = kCATransitionReveal
-                transition.subtype = kCATransitionFromBottom
-                transition.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
-                
-                self.navigationController!.view.layer.addAnimation(transition, forKey: kCATransition)
-                
-                // Goto where the spruceButton is pressed: currentVC - 2 (SpruceShare, SpruceView)
-                let vcDesinationIndex = self.navigationController!.viewControllers.count - 3
-                
-                // Make sure furthest is MainFeed (index 0), but this case shouldn't happen (just checking to make sure)
-                if vcDesinationIndex >= 0 {
-                    self.navigationController!.popToViewController(self.navigationController!.viewControllers[vcDesinationIndex] as! UIViewController, animated: false)
-                }
-                // Go to MainFeed (furthest)
-                else {
-                    self.navigationController!.popToViewController(self.navigationController!.viewControllers.first as! UIViewController, animated: false)
-                }
-            }
+            var response = responseObject as! NSDictionary
+            var status = response["status"] as! String
             
-            // Mixpanel - Create Outfit Image Upload, Success
-            mixpanel.track("Create Outfit Image Upload", properties: [
-                "Method": "Closet",
-                "Type": "Outfit",
-                "Status": "Success"
-            ])
-            mixpanel.people.increment("Outfits Created", by: 1)
-            mixpanel.people.increment("Pieces Created", by: self.numPieces)
-            // Mixpanel - End
+            if status == "200" {
+                var outfit = response["outfit"] as! NSDictionary
+                var pieces = outfit["pieces"] as! [NSDictionary]
+                
+                // outfit notification
+                let outfitId = outfit["id"] as! Int
+                let itemIdentifier = "outfit_\(outfitId)"
+                
+                var outfitImagesString = outfit["images"] as! NSString
+                var outfitImagesData:NSData = outfitImagesString.dataUsingEncoding(NSUTF8StringEncoding)!
+                
+                var outfitImagesDict: NSDictionary = NSJSONSerialization.JSONObjectWithData(outfitImagesData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSDictionary
+                var outfitImageDict: NSDictionary = outfitImagesDict["images"] as! NSDictionary
+                
+                let thumbnailURLString = outfitImageDict["thumbnail"] as! String
+                let receiverUsername: String = self.usernameFrom
+                
+                self.sendNotification(itemIdentifier, thumbnailURLString: thumbnailURLString, receiverUsername: receiverUsername, poutfitType: "outfit")
+                
+                // unique piece owners dictionary
+                var uniquePieceOwners = NSMutableDictionary()
+                
+                // send notification to each piece owner
+                for piece in pieces {
+                    let pieceOwner = piece["user"] as! NSDictionary
+                    let pieceOwnerUsername = pieceOwner["username"] as! String
+                    
+                    // pieceOwner has not been sent notification yet
+                    // this is to prevent spamming of multiple pieces to same owner
+                    if uniquePieceOwners.objectForKey(pieceOwnerUsername) == nil {
+                        self.sendNotification(itemIdentifier, thumbnailURLString: thumbnailURLString, receiverUsername: pieceOwnerUsername, poutfitType: "piece")
+                        
+                        uniquePieceOwners.setObject(true, forKey: pieceOwnerUsername)
+                    }
+                }
+                
+                // Mixpanel - Create Outfit Image Upload, Success
+                mixpanel.track("Create Outfit Image Upload", properties: [
+                    "Method": "Closet",
+                    "Type": "Outfit",
+                    "Status": "Success"
+                    ])
+                mixpanel.people.increment("Outfits Created", by: 1)
+                mixpanel.people.increment("Pieces Created", by: self.numPieces)
+                // Mixpanel - End
+                
+                self.returnToMainFeed()
+                
+            } else if status == "500" {
+                // Mixpanel - Create Outfit Image Upload, Fail
+                mixpanel.track("Create Outfit Image Upload", properties: [
+                    "Method": "Closet",
+                    "Type": "Outfit",
+                    "Status": "Fail"
+                    ])
+                // Mixpanel - End
+            }
 
         }, failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
             // failure block
-            println("Upload Fail")
+            //println("Upload Fail")
             
             // Mixpanel - Create Outfit Image Upload, Fail
             mixpanel.track("Create Outfit Image Upload", properties: [
@@ -507,14 +533,94 @@ class SpruceShareViewController: UIViewController, UITableViewDelegate, UITableV
             // Mixpanel - End
         }
     }
-
-    func delay(delay:Double, closure:()->()) {
-        dispatch_after(
-            dispatch_time(
-                DISPATCH_TIME_NOW,
-                Int64(delay * Double(NSEC_PER_SEC))
-            ),
-            dispatch_get_main_queue(), closure)
+    
+    private func sendNotification(itemIdentifier: String, thumbnailURLString: String, receiverUsername: String, poutfitType: String) {
+        let userData: NSDictionary? = defaults.dictionaryForKey("userData")
+        
+        if userData != nil {
+            // firebase collections: users and notifications
+            let notificationsRef = firebaseRef.childByAppendingPath("notifications")
+            
+            let senderUsername = userData!["username"] as! String
+            let senderImage = userData!["image"] as! String
+            
+            if senderUsername != receiverUsername {
+            
+                let createdAt = timestamp
+                let shoppableType: String? = userData!["shoppable_type"] as? String
+                
+                let receiverUserNotificationsRef = firebaseRef.childByAppendingPath("users/\(receiverUsername)/notifications")
+                
+                // push new notifications
+                let notificationRef = notificationsRef.childByAutoId()
+                
+                let notification = [
+                    "poutfit": [
+                        "key": itemIdentifier,
+                        "image": thumbnailURLString
+                    ],
+                    "created_at": createdAt,
+                    "sender": [
+                        "username": senderUsername, // yourself
+                        "image": senderImage
+                    ],
+                    "receiver": receiverUsername,
+                    "type": "spruce_\(poutfitType)",
+                    "unread": true
+                ]
+                
+                notificationRef.setValue(notification, withCompletionBlock: {
+                    
+                    (error:NSError?, ref:Firebase!) in
+                    
+                    if (error != nil) {
+                        println("Error: Notification could not be added.")
+                    } else {
+                        // update target user notifications
+                        let receiverUserNotificationRef = receiverUserNotificationsRef.childByAppendingPath(notificationRef.key)
+                        
+                        receiverUserNotificationRef.updateChildValues([
+                            "created_at": createdAt,
+                            "unread": true
+                            ], withCompletionBlock: {
+                                
+                                (error:NSError?, ref:Firebase!) in
+                                
+                                if (error != nil) {
+                                    println("Error: Notification Key could not be added to Users.")
+                                }
+                        })
+                    }
+                })
+            }
+        }
+    }
+    
+    func returnToMainFeed() {
+        Delay.delay(0.6, closure: {
+            // go back to main feed
+            self.navigationController!.delegate = nil
+            
+            let transition = CATransition()
+            transition.duration = 0.3
+            transition.type = kCATransitionReveal
+            transition.subtype = kCATransitionFromBottom
+            transition.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
+            
+            self.navigationController!.view.layer.addAnimation(transition, forKey: kCATransition)
+            
+            // Goto where the spruceButton is pressed: currentVC - 2 (SpruceShare, SpruceView)
+            let vcDesinationIndex = self.navigationController!.viewControllers.count - 3
+            
+            // Make sure furthest is MainFeed (index 0), but this case shouldn't happen (just checking to make sure)
+            if vcDesinationIndex >= 0 {
+                self.navigationController!.popToViewController(self.navigationController!.viewControllers[vcDesinationIndex] as! UIViewController, animated: false)
+            }
+                // Go to MainFeed (furthest)
+            else {
+                self.navigationController!.popToViewController(self.navigationController!.viewControllers.first as! UIViewController, animated: false)
+            }
+        })
     }
     
     func backTapped(sender: UIBarButtonItem) {
