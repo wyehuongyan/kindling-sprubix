@@ -319,7 +319,7 @@ class ShopOrderRefundsViewController: UIViewController, UITableViewDataSource, U
     
     // DZNEmptyDataSetSource
     func titleForEmptyDataSet(scrollView: UIScrollView!) -> NSAttributedString! {
-        let text: String = "\nWays to deliver items to your customers"
+        let text: String = "\nItems on request for refund"
         
         let attributes: NSDictionary = [
             NSFontAttributeName: UIFont.boldSystemFontOfSize(18.0),
@@ -332,7 +332,19 @@ class ShopOrderRefundsViewController: UIViewController, UITableViewDataSource, U
     }
     
     func descriptionForEmptyDataSet(scrollView: UIScrollView!) -> NSAttributedString! {
-        let text: String = "When you add a delivery option, you'll see it here."
+        var text: String = ""
+        let shoppable_type: String = (defaults.objectForKey("userData")!.objectForKey("shoppable_type") as! String).componentsSeparatedByString("\\").last!
+        
+        switch shoppable_type {
+        case "Shopper":
+                text = "When you make a request for refund, you'll see it here."
+            
+        case "Shop":
+                text = "When your customers make a request for refund, you'll see it here."
+            
+        default:
+            break
+        }
         
         var paragraph: NSMutableParagraphStyle = NSMutableParagraphStyle.new()
         paragraph.lineBreakMode = NSLineBreakMode.ByWordWrapping

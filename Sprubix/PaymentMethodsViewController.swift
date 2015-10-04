@@ -9,6 +9,7 @@
 import UIKit
 import DZNEmptyDataSet
 import AFNetworking
+import TSMessages
 
 class PaymentMethodsViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, DZNEmptyDataSetSource, DZNEmptyDataSetDelegate {
 
@@ -147,9 +148,6 @@ class PaymentMethodsViewController: UIViewController, UITableViewDataSource, UIT
                 
                 cell.makeDefaultButton.enabled = false
                 cell.makeDefaultButton.setTitleColor(UIColor.lightGrayColor(), forState: UIControlState.Normal)
-                cell.makeDefaultPaymentMethodAction = { Void in
-                    return
-                }
                 
                 cell.selectionStyle = UITableViewCellSelectionStyle.None
                 
@@ -190,6 +188,9 @@ class PaymentMethodsViewController: UIViewController, UITableViewDataSource, UIT
             }
             
             cell.makeDefaultPaymentMethodAction = { Void in
+                
+                self.updatePaymentMethod(paymentMethodId)
+                
                 return
             }
             
@@ -294,7 +295,71 @@ class PaymentMethodsViewController: UIViewController, UITableViewDataSource, UIT
     }
     
     func deletePaymentMethod(paymentMethodId: Int) {
+        let userId:Int? = defaults.objectForKey("userId") as? Int
         
+        if userId != nil {
+            // REST call to server to delete user shipping address
+            manager.DELETE(SprubixConfig.URL.api + "/billing/payment/\(paymentMethodId)",
+                parameters: [
+                    "owner_id": userId!
+                ],
+                success: { (operation: AFHTTPRequestOperation!, responseObject:
+                    AnyObject!) in
+                    
+                    var status = responseObject["status"] as! String
+                    var automatic: NSTimeInterval = 0
+                    
+                    if status == "200" {
+                        // success
+                        TSMessage.showNotificationInViewController(                        TSMessage.defaultViewController(), title: "Success!", subtitle: "Payment method deleted", image: UIImage(named: "filter-check"), type: TSMessageNotificationType.Success, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: true)
+                        
+                        self.retrievePaymentMethods()
+                    } else {
+                        // error exception
+                        TSMessage.showNotificationInViewController(                        TSMessage.defaultViewController(), title: "Error", subtitle: "Something went wrong.\nPlease try again.", image: UIImage(named: "filter-cross"), type: TSMessageNotificationType.Error, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: true)
+                    }
+                },
+                failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                    println("Error: " + error.localizedDescription)
+            })
+        } else {
+            println("userId not found, please login or create an account")
+        }
+    }
+    
+    func updatePaymentMethod(paymentMethodId: Int) {
+        let userId:Int? = defaults.objectForKey("userId") as? Int
+        let makeDefault: Bool = true
+        
+        if userId != nil {
+            // REST call to server to update user shipping address
+            manager.POST(SprubixConfig.URL.api + "/billing/payment/edit/\(paymentMethodId)",
+                parameters: [
+                    "owner_id": userId!,
+                    "is_default": makeDefault
+                ],
+                success: { (operation: AFHTTPRequestOperation!, responseObject:
+                    AnyObject!) in
+                    
+                    var status = responseObject["status"] as! String
+                    var automatic: NSTimeInterval = 0
+                    
+                    if status == "200" {
+                        // success
+                        TSMessage.showNotificationInViewController(                        TSMessage.defaultViewController(), title: "Success!", subtitle: "Payment method updated", image: UIImage(named: "filter-check"), type: TSMessageNotificationType.Success, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: true)
+                        
+                        self.retrievePaymentMethods()
+                    } else {
+                        // error exception
+                        TSMessage.showNotificationInViewController(                        TSMessage.defaultViewController(), title: "Error", subtitle: "Something went wrong.\nPlease try again.", image: UIImage(named: "filter-cross"), type: TSMessageNotificationType.Error, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: true)
+                    }
+                },
+                failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                    println("Error: " + error.localizedDescription)
+            })
+        } else {
+            println("userId not found, please login or create an account")
+        }
     }
     
     // nav bar button callbacks

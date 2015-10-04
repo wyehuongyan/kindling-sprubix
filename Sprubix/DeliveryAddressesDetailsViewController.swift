@@ -56,6 +56,8 @@ class DeliveryAddressesDetailsViewController: UIViewController, UITableViewDataS
     // countries
     var codeForCountryDictionary: NSDictionary!
     var sortedCountryArray: [String] = []
+    var defaultCountry = "Singapore"
+    var defaultCountryIndex: Int!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -158,6 +160,7 @@ class DeliveryAddressesDetailsViewController: UIViewController, UITableViewDataS
         codeForCountryDictionary = NSDictionary(objects: countryArray, forKeys: unsortedCountryArray)
         
         sortedCountryArray = sorted(unsortedCountryArray, <)
+        defaultCountryIndex = getCountryIndex(defaultCountry)
     }
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -396,7 +399,15 @@ class DeliveryAddressesDetailsViewController: UIViewController, UITableViewDataS
     }
     
     private func showCountryPicker() {
-        let picker: ActionSheetStringPicker = ActionSheetStringPicker(title: "Country", rows: sortedCountryArray as [String], initialSelection: 191,
+        var initialCountryIndex = 0
+        
+        if countryText.text == "" {
+            initialCountryIndex = defaultCountryIndex
+        } else {
+            initialCountryIndex = getCountryIndex(countryText.text)
+        }
+        
+        let picker: ActionSheetStringPicker = ActionSheetStringPicker(title: "Country", rows: sortedCountryArray as [String], initialSelection: initialCountryIndex,
         doneBlock: { actionSheetPicker, selectedIndex, selectedValue in
             
             self.countryText.text = selectedValue as! String
@@ -424,6 +435,10 @@ class DeliveryAddressesDetailsViewController: UIViewController, UITableViewDataS
         
         picker.showActionSheetPicker()
 
+    }
+    
+    private func getCountryIndex(country: String) -> Int {
+        return find(sortedCountryArray, country)!
     }
     
     // nav bar button callbacks

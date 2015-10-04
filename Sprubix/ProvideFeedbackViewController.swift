@@ -255,7 +255,7 @@ class ProvideFeedbackViewController: UIViewController, UITableViewDataSource, UI
         var valid: Bool = true
         var message: String = ""
         
-        if contentText.text == "" {
+        if count(contentText.text.stringByReplacingOccurrencesOfString(" ", withString: "")) == 0 {
             message = "Please enter something\n"
             valid = false
         }

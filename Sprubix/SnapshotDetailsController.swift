@@ -84,6 +84,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
     var itemDetailsSizeButton: UIButton!
     var itemDetailsQuantity: UITextField!
     var itemDetailsPrice: UITextField!
+    var itemDetailsPriceNumber: CGFloat = 0.00
     var itemIsDress: Bool = false
     var itemSpecHeightTotal: CGFloat = 220
     
@@ -217,6 +218,9 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
         
         // 6. add the nav bar to the main view
         self.view.addSubview(newNavBar)
+        
+        // reset keyboard
+        makeKeyboardVisible = true
     }
     
     override func viewWillDisappear(animated: Bool) {
@@ -341,6 +345,8 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
                 
                 itemThumbnailsCell.addSubview(thumbnailView)
             }
+            
+            itemThumbnailsCell.selectionStyle = UITableViewCellSelectionStyle.None
             
             return itemThumbnailsCell
             
@@ -726,6 +732,34 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
     }
     
     func itemDetailsDoneTapped(sender: UIButton) {
+        // format price
+        if newNavBar.items[0].title == "Item Price" {
+            if contains(itemDetailsPrice.text, ".") {
+                let priceArray = itemDetailsPrice.text.componentsSeparatedByString(".")
+                var digit = priceArray[0] as String
+                var decimal = priceArray[1] as String
+                
+                // if .XX , make it 0.XX
+                if digit == "" {
+                    digit = "0"
+                }
+                
+                // truncate decimal
+                if count(decimal) == 0 {
+                    decimal = "00"
+                } else if count(decimal) == 1 {
+                    decimal = "\(decimal)0"
+                } else {
+                    decimal = decimal.substringWithRange(Range(start: decimal.startIndex, end: advance(decimal.startIndex, 2)))
+                }
+                
+                itemDetailsPrice.text = "\(digit).\(decimal)"
+                
+            } else {
+                itemDetailsPrice.text = "\(itemDetailsPrice.text).00"
+            }
+        }
+        
         makeKeyboardVisible = false
         
         self.view.endEditing(true)
@@ -819,6 +853,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
                 itemDetailsPrice.leftViewMode = UITextFieldViewMode.Always
                 
                 itemDetailsPrice.placeholder = ""
+                itemDetailsPrice.text = ""
             }
             
         default:
@@ -1388,6 +1423,49 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
                 canBeDismissedByUser: true)
         }
     }
+    
+    func textField(textField: UITextField, shouldChangeCharactersInRange range: NSRange, replacementString string: String) -> Bool {
+        
+        if textField == itemDetailsPrice {
+            // Prevent double decimal point
+            if string == "." && contains(itemDetailsPrice.text, ".") {
+                return false
+            }
+        }
+        
+        return true
+    }
+    /*
+    func priceAdd(newString: String) {
+        //let newValue = newString.floatValue + ((count(itemDetailsPriceNumber) * 10.0) as Float)
+        itemDetailsPriceNumber = (itemDetailsPriceNumber + CGFloat((newString as NSString).floatValue)) / 100
+        
+        //var priceInFloat = itemDetailsPrice.text.floatValue
+        //itemDetailsPrice.text = (priceInFloat * 10).description
+        let numberFormatter = NSNumberFormatter()
+        numberFormatter.minimumIntegerDigits = 1
+        numberFormatter.minimumFractionDigits = 2
+        numberFormatter.maximumFractionDigits = 2
+        //itemDetailsPriceNumber = numberFormatter.stringFromNumber(itemDetailsPriceNumber)
+        
+        itemDetailsPrice.text = String(format: "%0.2f", itemDetailsPriceNumber)
+        println(itemDetailsPrice.text)
+    }
+    
+    func priceDeduct() {
+        //let newValue = newString.floatValue + ((count(itemDetailsPriceNumber) * 10.0) as Float)
+        itemDetailsPriceNumber = itemDetailsPriceNumber / 10
+        
+        //var priceInFloat = itemDetailsPrice.text.floatValue
+        //itemDetailsPrice.text = (priceInFloat * 10).description
+        let numberFormatter = NSNumberFormatter()
+        numberFormatter.minimumIntegerDigits = 1
+        numberFormatter.minimumFractionDigits = 2
+        numberFormatter.maximumFractionDigits = 2
+        
+        itemDetailsPrice.text = String(format: "%0.2f", itemDetailsPriceNumber)
+        println(itemDetailsPrice.text)
+    }*/
     
     // check if category, price and quantity (if shop) is present
     // there must be at least one image

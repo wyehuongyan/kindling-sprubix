@@ -440,11 +440,13 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
             }
             
             // add to bag CTA button
-            if purchasable {
-                let userData: NSDictionary? = defaults.dictionaryForKey("userData")
-                let userType = userData!["shoppable_type"] as! String
+            let userData: NSDictionary? = defaults.dictionaryForKey("userData")
+            let userType = userData!["shoppable_type"] as! String
+            
+            // Shopper: Spruce button, Buy button (if purchasable)
+            if userType.lowercaseString.rangeOfString("shopper") != nil {
                 
-                if userType.lowercaseString.rangeOfString("shopper") != nil {
+                if purchasable {
                     addToBagButton = UIButton(frame: CGRect(x: screenWidth / 3, y: screenHeight - navigationHeight, width: 2 * screenWidth / 3, height: navigationHeight))
                     addToBagButton.backgroundColor = sprubixColor
                     
@@ -483,8 +485,29 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
                     darkenedOverlay?.alpha = 0
                     
                     contentView.addSubview(darkenedOverlay!)
+                    
+                } else {
+                    // spruce button
+                    spruceButton = UIButton(frame: CGRect(x: 0, y: screenHeight - navigationHeight, width: screenWidth, height: navigationHeight))
+                    spruceButton.backgroundColor = sprubixGray
+                    
+                    var image: UIImage = UIImage(named: "profile-mycloset")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
+                    
+                    spruceButton.setImage(image, forState: UIControlState.Normal)
+                    spruceButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+                    spruceButton.imageView?.tintColor = UIColor.grayColor()
+                    spruceButton.imageEdgeInsets = UIEdgeInsetsMake(8, 0, 12, 0)
+                    spruceButton.titleLabel?.font = UIFont.boldSystemFontOfSize(16.0)
+                    
+                    spruceButton.setTitleColor(UIColor.grayColor(), forState: UIControlState.Normal)
+                    spruceButton.setTitle("Spruce Outfit", forState: UIControlState.Normal)
+                    spruceButton.addTarget(self, action: "spruceButtonPressed:", forControlEvents: UIControlEvents.TouchUpInside)
+                    
+                    contentView.addSubview(spruceButton)
                 }
-            } else {
+            }
+            // Shop: Only Spruce button
+            else {
                 // spruce button
                 spruceButton = UIButton(frame: CGRect(x: 0, y: screenHeight - navigationHeight, width: screenWidth, height: navigationHeight))
                 spruceButton.backgroundColor = sprubixGray
@@ -761,22 +784,41 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
             tooltipManager.addTooltip(swipeTooltip)
             defaults.setBool(true, forKey: "onboardedOutfitDetails")
         }
-
-        if purchasable {
-            // tooltip: 2 buttons
-            if onboardedOutfitDetails2CTA == false {
-                let spruceText = "Dislike something here?\nEdit the outfit!"
-                let buyText = "Like everything here?\nBuy them now!"
+        
+        // add to bag CTA button
+        let userData: NSDictionary? = defaults.dictionaryForKey("userData")
+        let userType = userData!["shoppable_type"] as! String
+        
+        // Shopper: Spruce button, Buy button (if purchasable)
+        if userType.lowercaseString.rangeOfString("shopper") != nil {
+            if purchasable {
+                // tooltip: 2 buttons
+                if onboardedOutfitDetails2CTA == false {
+                    let spruceText = "Dislike something here?\nEdit the outfit!"
+                    let buyText = "Like everything here?\nBuy them now!"
+                    
+                    let spruceTooltip: JDFTooltipView = JDFTooltipView(targetView: spruceButton, hostView: self.contentView, tooltipText: spruceText, arrowDirection: JDFTooltipViewArrowDirection.Down, width: tooltipWidth)
+                    let buyTooltip: JDFTooltipView = JDFTooltipView(targetView: addToBagButton, hostView: self.contentView, tooltipText: buyText, arrowDirection: JDFTooltipViewArrowDirection.Down, width: tooltipWidth)
+                    
+                    tooltipManager.addTooltip(spruceTooltip)
+                    tooltipManager.addTooltip(buyTooltip)
+                    defaults.setBool(true, forKey: "onboardedOutfitDetails2CTA")
+                }
                 
-                let spruceTooltip: JDFTooltipView = JDFTooltipView(targetView: spruceButton, hostView: self.contentView, tooltipText: spruceText, arrowDirection: JDFTooltipViewArrowDirection.Down, width: tooltipWidth)
-                let buyTooltip: JDFTooltipView = JDFTooltipView(targetView: addToBagButton, hostView: self.contentView, tooltipText: buyText, arrowDirection: JDFTooltipViewArrowDirection.Down, width: tooltipWidth)
-                
-                tooltipManager.addTooltip(spruceTooltip)
-                tooltipManager.addTooltip(buyTooltip)
-                defaults.setBool(true, forKey: "onboardedOutfitDetails2CTA")
+            } else {
+                // tooltip: 1 button
+                if onboardedOutfitDetails1CTA == false {
+                    let spruceText = "Like the outfit but\ndislike a certain item?\nEdit the outfit now!"
+                    let sprucePoint: CGPoint = CGPoint(x: screenWidth/2 - 40, y: spruceButton.frame.origin.y)
+                    let spruceTooltip: JDFTooltipView = JDFTooltipView(targetPoint: sprucePoint, hostView: self.contentView, tooltipText: spruceText, arrowDirection: JDFTooltipViewArrowDirection.Down, width: screenWidth*2/3)
+                    
+                    tooltipManager.addTooltip(spruceTooltip)
+                    defaults.setBool(true, forKey: "onboardedOutfitDetails1CTA")
+                }
             }
-            
-        } else {
+        }
+        // Shop: Only Spruce button
+        else {
             // tooltip: 1 button
             if onboardedOutfitDetails1CTA == false {
                 let spruceText = "Like the outfit but\ndislike a certain item?\nEdit the outfit now!"
@@ -786,6 +828,9 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
                 tooltipManager.addTooltip(spruceTooltip)
                 defaults.setBool(true, forKey: "onboardedOutfitDetails1CTA")
             }
+            
+            // no 2CTA buttons, just set to true
+            defaults.setBool(true, forKey: "onboardedOutfitDetails2CTA")
         }
         
         if onboardedOutfitDetails == false || onboardedOutfitDetails1CTA == false || onboardedOutfitDetails2CTA == false {
