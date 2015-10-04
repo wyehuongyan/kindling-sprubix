@@ -124,7 +124,6 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
                     }
                     
                     self.navigationController?.pushViewController(dashboardViewController!, animated: false)
-                    freshLogin = false
                 }
             }
         }
@@ -588,6 +587,13 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
             let cellRect: CGRect = attributes.frame
 
             initTooltipOnboarding(cellRect)
+            
+            // if shop, (just popped dashboard)
+            if freshLogin == false {
+                Delay.delay(1.0) {
+                    self.startTooltipOnboarding()
+                }
+            }
         }
         
         return cell
