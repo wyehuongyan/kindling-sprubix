@@ -116,6 +116,7 @@ class DashboardViewController: UIViewController, UITableViewDataSource, ChartVie
         dashboardOverlay.showFooter()
         
         self.navigationController?.popViewControllerAnimated(true)
+        freshLogin = false
     }
     
     func monthSwitchTapped(sender: UIBarButtonItem) {

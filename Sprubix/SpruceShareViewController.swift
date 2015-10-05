@@ -11,6 +11,7 @@ import AFNetworking
 import MRProgress
 import FBSDKShareKit
 import FBSDKLoginKit
+import TSMessages
 
 class SpruceShareViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UITextViewDelegate, FBSDKSharingDelegate {
     
@@ -387,158 +388,198 @@ class SpruceShareViewController: UIViewController, UITableViewDelegate, UITableV
     }
 
     func spruceConfirmed(sender: UIButton) {
-        println("spruce confirmed")
+        let validateResult = self.validateInputs()
+        let delay: NSTimeInterval = 3
         
-        // sprubix outfit dictionary with each piece id
-        // new outfit will be created but pieces will be reused
-        
-        // what we need
-        // 1. piece ids
-        // 2. outfit image
-        // 3. outfit description
-        // 4. outfit from (immediate prev person)
-        // 5. current user's id (this will be the new posted by)
-        
-        // create SprubixOutfit
-        let userData:NSDictionary! = defaults.dictionaryForKey("userData")
-        
-        var realHeight: CGFloat = outfitImageView.image!.scale * outfitImageView.image!.size.height
-        
-        var realWidth: CGFloat = outfitImageView.image!.scale * outfitImageView.image!.size.width
-        var finalWidth: CGFloat = 750.0
-        var ratio = realWidth / finalWidth
-        
-        var finalHeight = realHeight / ratio
-        
-        var spruceOutfitDict: NSMutableDictionary = [
-            "num_pieces": numPieces,
-            "description": descriptionText.text,
-            "created_by": userData["id"] as! Int,
-            "from": userIdFrom,
-            "height": finalHeight,
-            "width": finalWidth,
-        ]
-        
-        var pieceArr: [Int] = [Int]()
-        for piece in pieces {
-            pieceArr.append(piece["id"] as! Int)
-        }
-        
-        spruceOutfitDict.setObject(pieceArr, forKey: "pieces")
-        
-        // Mixpanel - Create Outfit Image Upload, Timer
-        mixpanel.timeEvent("Create Outfit Image Upload")
-        // Mixpanel - End
-        
-        // upload
-        var outfitImageData: NSData = UIImageJPEGRepresentation(outfitImageView.image, 0.5);
-        
-        var requestOperation: AFHTTPRequestOperation = manager.POST(SprubixConfig.URL.api + "/upload/outfit/spruce", parameters: spruceOutfitDict, constructingBodyWithBlock: { formData in
-            let data: AFMultipartFormData = formData
+        if validateResult.valid {
+            // sprubix outfit dictionary with each piece id
+            // new outfit will be created but pieces will be reused
             
-            // append outfit image
-            data.appendPartWithFileData(outfitImageData, name: "outfit", fileName: "outfit.jpg", mimeType: "image/jpeg")
-        }, success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
-            // success block
-            //println("Upload Success")
+            // what we need
+            // 1. piece ids
+            // 2. outfit image
+            // 3. outfit description
+            // 4. outfit from (immediate prev person)
+            // 5. current user's id (this will be the new posted by)
+            
+            // create SprubixOutfit
+            let userData:NSDictionary! = defaults.dictionaryForKey("userData")
+            
+            var realHeight: CGFloat = outfitImageView.image!.scale * outfitImageView.image!.size.height
+            
+            var realWidth: CGFloat = outfitImageView.image!.scale * outfitImageView.image!.size.width
+            var finalWidth: CGFloat = 750.0
+            var ratio = realWidth / finalWidth
+            
+            var finalHeight = realHeight / ratio
+            
+            var spruceOutfitDict: NSMutableDictionary = [
+                "num_pieces": numPieces,
+                "description": descriptionText.text,
+                "created_by": userData["id"] as! Int,
+                "from": userIdFrom,
+                "height": finalHeight,
+                "width": finalWidth,
+            ]
+            
+            var pieceArr: [Int] = [Int]()
+            for piece in pieces {
+                pieceArr.append(piece["id"] as! Int)
+            }
+            
+            spruceOutfitDict.setObject(pieceArr, forKey: "pieces")
+            
+            // Mixpanel - Create Outfit Image Upload, Timer
+            mixpanel.timeEvent("Create Outfit Image Upload")
+            // Mixpanel - End
+            
+            // upload
+            var outfitImageData: NSData = UIImageJPEGRepresentation(outfitImageView.image, 0.5);
+            
+            var requestOperation: AFHTTPRequestOperation = manager.POST(SprubixConfig.URL.api + "/upload/outfit/spruce", parameters: spruceOutfitDict, constructingBodyWithBlock: { formData in
+                let data: AFMultipartFormData = formData
+                
+                // append outfit image
+                data.appendPartWithFileData(outfitImageData, name: "outfit", fileName: "outfit.jpg", mimeType: "image/jpeg")
+            }, success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                // success block
+                //println("Upload Success")
 
-            var response = responseObject as! NSDictionary
-            var status = response["status"] as! String
-            
-            if status == "200" {
-                var outfit = response["outfit"] as! NSDictionary
-                var pieces = outfit["pieces"] as! [NSDictionary]
+                var response = responseObject as! NSDictionary
+                var status = response["status"] as! String
                 
-                // outfit notification
-                let outfitId = outfit["id"] as! Int
-                let itemIdentifier = "outfit_\(outfitId)"
-                
-                var outfitImagesString = outfit["images"] as! NSString
-                var outfitImagesData:NSData = outfitImagesString.dataUsingEncoding(NSUTF8StringEncoding)!
-                
-                var outfitImagesDict: NSDictionary = NSJSONSerialization.JSONObjectWithData(outfitImagesData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSDictionary
-                var outfitImageDict: NSDictionary = outfitImagesDict["images"] as! NSDictionary
-                
-                let thumbnailURLString = outfitImageDict["thumbnail"] as! String
-                let receiverUsername: String = self.usernameFrom
-                
-                self.sendNotification(itemIdentifier, thumbnailURLString: thumbnailURLString, receiverUsername: receiverUsername, poutfitType: "outfit")
-                
-                // unique piece owners dictionary
-                var uniquePieceOwners = NSMutableDictionary()
-                
-                // send notification to each piece owner
-                for piece in pieces {
-                    let pieceOwner = piece["user"] as! NSDictionary
-                    let pieceOwnerUsername = pieceOwner["username"] as! String
+                if status == "200" {
+                    var outfit = response["outfit"] as! NSDictionary
+                    var pieces = outfit["pieces"] as! [NSDictionary]
                     
-                    // pieceOwner has not been sent notification yet
-                    // this is to prevent spamming of multiple pieces to same owner
-                    if uniquePieceOwners.objectForKey(pieceOwnerUsername) == nil {
-                        self.sendNotification(itemIdentifier, thumbnailURLString: thumbnailURLString, receiverUsername: pieceOwnerUsername, poutfitType: "piece")
+                    // outfit notification
+                    let outfitId = outfit["id"] as! Int
+                    let itemIdentifier = "outfit_\(outfitId)"
+                    
+                    var outfitImagesString = outfit["images"] as! NSString
+                    var outfitImagesData:NSData = outfitImagesString.dataUsingEncoding(NSUTF8StringEncoding)!
+                    
+                    var outfitImagesDict: NSDictionary = NSJSONSerialization.JSONObjectWithData(outfitImagesData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSDictionary
+                    var outfitImageDict: NSDictionary = outfitImagesDict["images"] as! NSDictionary
+                    
+                    let thumbnailURLString = outfitImageDict["thumbnail"] as! String
+                    let receiverUsername: String = self.usernameFrom
+                    
+                    self.sendNotification(itemIdentifier, thumbnailURLString: thumbnailURLString, receiverUsername: receiverUsername, poutfitType: "outfit")
+                    
+                    // unique piece owners dictionary
+                    var uniquePieceOwners = NSMutableDictionary()
+                    
+                    // send notification to each piece owner
+                    for piece in pieces {
+                        let pieceOwner = piece["user"] as! NSDictionary
+                        let pieceOwnerUsername = pieceOwner["username"] as! String
                         
-                        uniquePieceOwners.setObject(true, forKey: pieceOwnerUsername)
+                        // pieceOwner has not been sent notification yet
+                        // this is to prevent spamming of multiple pieces to same owner
+                        if uniquePieceOwners.objectForKey(pieceOwnerUsername) == nil {
+                            self.sendNotification(itemIdentifier, thumbnailURLString: thumbnailURLString, receiverUsername: pieceOwnerUsername, poutfitType: "piece")
+                            
+                            uniquePieceOwners.setObject(true, forKey: pieceOwnerUsername)
+                        }
                     }
-                }
-                
-                // Mixpanel - Create Outfit Image Upload, Success
-                mixpanel.track("Create Outfit Image Upload", properties: [
-                    "Method": "Closet",
-                    "Type": "Outfit",
-                    "Status": "Success"
+                    
+                    // Mixpanel - Create Outfit Image Upload, Success
+                    mixpanel.track("Create Outfit Image Upload", properties: [
+                        "Method": "Closet",
+                        "Type": "Outfit",
+                        "Status": "Success"
                     ])
-                mixpanel.people.increment("Outfits Created", by: 1)
-                mixpanel.people.increment("Pieces Created", by: self.numPieces)
-                // Mixpanel - End
+                    mixpanel.people.increment("Outfits Created", by: 1)
+                    mixpanel.people.increment("Pieces Created", by: self.numPieces)
+                    // Mixpanel - End
+                    
+                    self.returnToMainFeed()
+                    
+                } else if status == "400" {
+                    // error exception
+                    TSMessage.showNotificationInViewController(
+                        TSMessage.defaultViewController(),
+                        title: "Error",
+                        subtitle: "Something went wrong.\nPlease try again.",
+                        image: UIImage(named: "filter-cross"),
+                        type: TSMessageNotificationType.Error,
+                        duration: delay,
+                        callback: nil,
+                        buttonTitle: nil,
+                        buttonCallback: nil,
+                        atPosition: TSMessageNotificationPosition.Bottom,
+                        canBeDismissedByUser: true)
+                    
+                    // Print reply from server
+                    var data = response["data"] as! NSDictionary
+                    var message = response["message"] as! String
+                    
+                    println(message + " " + status)
+                    println(data)
+                    
+                } else if status == "500" {
+                    // Mixpanel - Create Outfit Image Upload, Fail
+                    mixpanel.track("Create Outfit Image Upload", properties: [
+                        "Method": "Closet",
+                        "Type": "Outfit",
+                        "Status": "Fail"
+                    ])
+                    // Mixpanel - End
+                }
+
+            }, failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                // failure block
+                //println("Upload Fail")
                 
-                self.returnToMainFeed()
-                
-            } else if status == "500" {
                 // Mixpanel - Create Outfit Image Upload, Fail
                 mixpanel.track("Create Outfit Image Upload", properties: [
                     "Method": "Closet",
                     "Type": "Outfit",
                     "Status": "Fail"
-                    ])
+                ])
+                // Mixpanel - End
+            })
+            
+            // upload progress
+            requestOperation.setUploadProgressBlock { (bytesWritten: UInt, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) -> Void in
+                var percentDone: Double = Double(totalBytesWritten) / Double(totalBytesExpectedToWrite)
+                
+                println("percentage done: \(percentDone)")
+            }
+            
+            // overlay indicator
+            var overlayView: MRProgressOverlayView = MRProgressOverlayView.showOverlayAddedTo(self.view, animated: true)
+            overlayView.setModeAndProgressWithStateOfOperation(requestOperation)
+            
+            overlayView.tintColor = sprubixColor
+            
+            // Share to Facebook
+            if shareToFacebook {
+                sharePhotoToFacebook(outfitImageView.image!)
+
+                // Mixpanel - Share, Facebook
+                mixpanel.track("Share", properties: [
+                    "Type": "Outfit",
+                    "Platform": "Facebook"
+                ])
                 // Mixpanel - End
             }
-
-        }, failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
-            // failure block
-            //println("Upload Fail")
-            
-            // Mixpanel - Create Outfit Image Upload, Fail
-            mixpanel.track("Create Outfit Image Upload", properties: [
-                "Method": "Closet",
-                "Type": "Outfit",
-                "Status": "Fail"
-            ])
-            // Mixpanel - End
-        })
-        
-        // upload progress
-        requestOperation.setUploadProgressBlock { (bytesWritten: UInt, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) -> Void in
-            var percentDone: Double = Double(totalBytesWritten) / Double(totalBytesExpectedToWrite)
-            
-            println("percentage done: \(percentDone)")
-        }
-        
-        // overlay indicator
-        var overlayView: MRProgressOverlayView = MRProgressOverlayView.showOverlayAddedTo(self.view, animated: true)
-        overlayView.setModeAndProgressWithStateOfOperation(requestOperation)
-        
-        overlayView.tintColor = sprubixColor
-        
-        // Share to Facebook
-        if shareToFacebook {
-            sharePhotoToFacebook(outfitImageView.image!)
-
-            // Mixpanel - Share, Facebook
-            mixpanel.track("Share", properties: [
-                "Type": "Outfit",
-                "Platform": "Facebook"
-            ])
-            // Mixpanel - End
+                
+        } else {
+            // Validation failed
+            TSMessage.showNotificationInViewController(
+                self,
+                title: "Error",
+                subtitle: validateResult.message,
+                image: UIImage(named: "filter-cross"),
+                type: TSMessageNotificationType.Error,
+                duration: delay,
+                callback: nil,
+                buttonTitle: nil,
+                buttonCallback: nil,
+                atPosition: TSMessageNotificationPosition.Bottom,
+                canBeDismissedByUser: true)
         }
     }
     
@@ -709,5 +750,22 @@ class SpruceShareViewController: UIViewController, UITableViewDelegate, UITableV
     
     func sharerDidCancel(sharer: FBSDKSharing!) {
         println("FBSDKSharing Photo Sharing Cancelled")
+    }
+    
+    func validateInputs() -> (valid: Bool, message: String) {
+        var valid: Bool = true
+        var message: String = ""
+        
+        // If description is placeholder text, remove it
+        if descriptionText.text == placeholderText {
+            descriptionText.text = ""
+        }
+        
+        if count(descriptionText.text) > 255 {
+            message += "The description is too long\n"
+            valid = false
+        }
+        
+        return (valid, message)
     }
 }
