@@ -538,10 +538,11 @@ class ShopOrderDetailsViewController: UIViewController, UITableViewDataSource, U
             
             let sellerDeliveryMethod = shopOrder["delivery_option"] as! NSDictionary
             let sellerDeliveryMethodName = sellerDeliveryMethod["name"] as! String
+            let sellerDeliveryMethodEstimatedTime = sellerDeliveryMethod["estimated_time"] as! Int
             let itemsPrice = shopOrder["items_price"] as! String
             let shippingRate = shopOrder["shipping_rate"] as! String
             
-            cell.deliveryMethod.setTitle(sellerDeliveryMethodName, forState: UIControlState.Normal)
+            cell.deliveryMethod.setTitle("\(sellerDeliveryMethodName) (\(sellerDeliveryMethodEstimatedTime) days)", forState: UIControlState.Normal)
             cell.subtotal.text = "$\(itemsPrice)"
             cell.shippingRate.text = "$\(shippingRate)"
             

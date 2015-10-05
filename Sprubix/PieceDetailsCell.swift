@@ -1215,8 +1215,9 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
             let deliveryOptionName = deliveryOption["name"] as! String
             let deliveryOptionPrice = deliveryOption["price"] as! String
             let deliveryOptionId = deliveryOption["id"] as! Int
+            let deliveryOptionEstimatedTime = deliveryOption["estimated_time"] as! Int
             
-            deliveryArray.append("\(deliveryOptionName) ($\(deliveryOptionPrice))")
+            deliveryArray.append("$\(deliveryOptionPrice) \(deliveryOptionEstimatedTime) days (\(deliveryOptionName))")
             deliveryIdsArray.append(deliveryOptionId)
         }
         
