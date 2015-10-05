@@ -16,9 +16,11 @@ class DeliveryOptionsDetailsViewController: UIViewController, UITableViewDataSou
     var deliveryOptionTable: UITableView!
     var deliveryNameCell: UITableViewCell = UITableViewCell()
     var deliveryPriceCell: UITableViewCell = UITableViewCell()
+    var deliveryEstimatedTimeCell: UITableViewCell = UITableViewCell()
     
     var deliveryNameText: UITextField!
     var deliveryPriceText: UITextField!
+    var deliveryEstimatedTimeText: UITextField!
     
     let deliveryNamePlaceholderText = "What is this delivery option called?"
     
@@ -140,7 +142,7 @@ class DeliveryOptionsDetailsViewController: UIViewController, UITableViewDataSou
             
             return deliveryNameCell
         case 1:
-            deliveryPriceText = UITextField(frame: CGRectInset(deliveryPriceCell.contentView.bounds, 20, 0))
+            deliveryPriceText = UITextField(frame: CGRectInset(deliveryPriceCell.contentView.bounds, 15, 0))
             
             deliveryPriceText.returnKeyType = UIReturnKeyType.Next
             deliveryPriceText.placeholder = "How much does it cost?"
@@ -154,13 +156,28 @@ class DeliveryOptionsDetailsViewController: UIViewController, UITableViewDataSou
             }
             
             return deliveryPriceCell
+        case 2:
+            deliveryEstimatedTimeText = UITextField(frame: CGRectInset(deliveryEstimatedTimeCell.contentView.bounds, 15, 0))
+            
+            deliveryEstimatedTimeText.returnKeyType = UIReturnKeyType.Next
+            deliveryEstimatedTimeText.placeholder = "Estimated duration (days)"
+            deliveryEstimatedTimeText.keyboardType = UIKeyboardType.NumberPad
+            deliveryEstimatedTimeText.delegate = self
+            deliveryEstimatedTimeCell.addSubview(deliveryEstimatedTimeText)
+            
+            if deliveryOption != nil {
+                deliveryEstimatedTimeText.text = deliveryOption!["estimated_time"] as? String
+            }
+            
+            return deliveryEstimatedTimeCell
+            
         default:
             fatalError("Unknown row returned")
         }
     }
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 2
+        return 3
     }
     
     // TextFieldViewDelegate
@@ -172,7 +189,7 @@ class DeliveryOptionsDetailsViewController: UIViewController, UITableViewDataSou
     }
     
     private func addTextLeftView() {
-        var dollarLabel: UILabel = UILabel(frame: CGRectMake(0, -0.5, 10, deliveryPriceText.frame.height))
+        var dollarLabel: UILabel = UILabel(frame: CGRectMake(0, -1.0, 10, deliveryPriceText.frame.height))
         dollarLabel.text = "$"
         dollarLabel.textColor = UIColor.lightGrayColor()
         dollarLabel.textAlignment = NSTextAlignment.Left
@@ -197,7 +214,7 @@ class DeliveryOptionsDetailsViewController: UIViewController, UITableViewDataSou
     // nav bar button callbacks
     func saveTapped(sender: UIBarButtonItem) {
         // validate
-        if deliveryPriceText.text != "" && deliveryNameText.text != "" {
+        if deliveryPriceText.text != "" && deliveryNameText.text != "" && deliveryEstimatedTimeText.text != "" {
             
             if deliveryOption != nil {
                 let deliveryOptionId = deliveryOption!["id"] as! Int
@@ -205,7 +222,8 @@ class DeliveryOptionsDetailsViewController: UIViewController, UITableViewDataSou
                 manager.POST(SprubixConfig.URL.api + "/delivery/option/edit/\(deliveryOptionId)",
                     parameters: [
                         "name": deliveryNameText.text,
-                        "price": deliveryPriceText.text
+                        "price": deliveryPriceText.text,
+                        "estimated_time": deliveryEstimatedTimeText.text
                     ],
                     success: { (operation: AFHTTPRequestOperation!, responseObject:
                         AnyObject!) in
@@ -224,6 +242,7 @@ class DeliveryOptionsDetailsViewController: UIViewController, UITableViewDataSou
                         parameters: [
                             "name": deliveryNameText.text,
                             "price": deliveryPriceText.text,
+                            "estimated_time": deliveryEstimatedTimeText.text,
                             "user_id": userId!
                         ],
                         success: { (operation: AFHTTPRequestOperation!, responseObject:

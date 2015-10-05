@@ -454,6 +454,8 @@ class CartViewController: UIViewController, UITableViewDataSource, UITableViewDe
             for (seller, cartItems) in sellerCartItemDictionary {
                 sellers.append(seller as! NSDictionary)
                 
+                var highestDeliveryOptionName: String = ""
+                var highestDeliveryOptionEstimatedTime: Int!
                 var highestDeliveryOption: String = ""
                 var highestDeliveryOptionId: Int!
                 var highestDeliveryOptionCost: Float = 0
@@ -468,7 +470,9 @@ class CartViewController: UIViewController, UITableViewDataSource, UITableViewDe
                     
                     if currentDeliveryOptionCost > highestDeliveryOptionCost {
                         highestDeliveryOptionCost = currentDeliveryOptionCost
-                        highestDeliveryOption = deliveryOption["name"] as! String
+                        highestDeliveryOptionName = deliveryOption["name"] as! String
+                        highestDeliveryOptionEstimatedTime = deliveryOption["estimated_time"] as! Int
+                        highestDeliveryOption = "\(highestDeliveryOptionName) (\(highestDeliveryOptionEstimatedTime) days)"
                         highestDeliveryOptionId = deliveryOption["id"] as! Int
                     }
                     

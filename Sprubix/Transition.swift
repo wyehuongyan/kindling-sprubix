@@ -8,7 +8,7 @@
 
 import UIKit
 
-let animationDuration = 0.35
+let animationDuration = 0.3
 //let animationScale = screenWidth/(gridWidth) // screenWidth / the width of waterfall collection view's grid
 
 class Transition: NSObject, UIViewControllerAnimatedTransitioning {

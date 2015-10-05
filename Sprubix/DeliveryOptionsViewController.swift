@@ -175,7 +175,15 @@ class DeliveryOptionsViewController: UIViewController, UITableViewDataSource, UI
         let option = options[indexPath.row] as NSDictionary
         
         var price = option["price"] as! String
-        cell.deliveryOptionName.text = option["name"] as? String
+        var estimatedTime = option["estimated_time"] as! Int
+        var name = option["name"] as! String
+        var title = "\(name) (\(estimatedTime) day)"
+        
+        if estimatedTime > 1 {
+            title = "\(name) (\(estimatedTime) days)"
+        }
+        
+        cell.deliveryOptionName.text = title
         cell.deliveryOptionPrice.text = "$\(price)"
         
         cell.editDeliveryAction = { Void in
