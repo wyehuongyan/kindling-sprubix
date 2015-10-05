@@ -16,6 +16,7 @@ import TSMessages
 
 class SprubixItemThumbnail: UIButton {
     var hasThumbnail: Bool = false
+    var imageURL: NSURL!
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -106,6 +107,8 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        println(sprubixPiece.type)
+        
         let userData: NSDictionary? = defaults.dictionaryForKey("userData")
         let shoppableType: String? = userData!["shoppable_type"] as? String
         
@@ -151,7 +154,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
     private func retrieveItemCategories() {
         if itemCategories.count <= 0 {
             // REST call to retrieve piece categories
-            manager.GET(SprubixConfig.URL.api + "/piece/categories",
+            manager.GET(SprubixConfig.URL.api + "/piece/categories?piece_type=\(sprubixPiece.type)",
                 parameters: nil,
                 success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
                     var categories = responseObject as? [NSDictionary]
@@ -316,11 +319,21 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
                     thumbnailView.hasThumbnail = true
                     selectedThumbnail = thumbnailView
                 } else {
+                    // coming from inventory
                     if sprubixPiece.imageURLs.count > i {
                         thumbnailView.setImage(UIImage(data: NSData(contentsOfURL: sprubixPiece.imageURLs[i])!), forState: UIControlState.Normal)
                         
                         thumbnailView.hasThumbnail = true
                         
+                    } else {
+                        thumbnailView.setImage(UIImage(named: "details-thumbnail-add"), forState: UIControlState.Normal)
+                    }
+                    
+                    // coming from create outfit
+                    if sprubixPiece.images.count > i {
+                        thumbnailView.setImage(sprubixPiece.images[i], forState: UIControlState.Normal)
+                        
+                        thumbnailView.hasThumbnail = true
                     } else {
                         thumbnailView.setImage(UIImage(named: "details-thumbnail-add"), forState: UIControlState.Normal)
                     }
@@ -446,7 +459,9 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
                 if pieceSizesArray != nil {
                     itemDetailsSize.text = pieceSizesArray.componentsJoinedByString("/")
                 } else {
-                    pieceSizesArray = NSArray(array: [pieceSizesString])
+                    // pieceSizesString is not a json string
+                    // split it the usual way
+                    pieceSizesArray = split(pieceSizesString) {$0 == "/"}
                     
                     itemDetailsSize.text = pieceSizesString
                 }
@@ -970,7 +985,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
     }
     
     func itemDetailsCategoryPressed(sender: UIButton) {
-        let picker: ActionSheetStringPicker = ActionSheetStringPicker(title: "Choose a category", rows: itemCategories, initialSelection: 2,
+        let picker: ActionSheetStringPicker = ActionSheetStringPicker(title: "Choose a category", rows: itemCategories, initialSelection: 0,
             doneBlock: { actionSheetPicker, selectedIndex, selectedValue in
                 
                 if selectedIndex as Int == 3 && selectedValue as! String == "Dress" {
@@ -1250,11 +1265,13 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
             sprubixPiece.price = itemDetailsPrice != nil ? itemDetailsPrice.text : ""
             sprubixPiece.desc = (descriptionText != nil && descriptionText.text != placeholderText) ? descriptionText.text : ""
             sprubixPiece.isDress = itemIsDress
+
+            println(sprubixPiece.size)
             
             if fromInventoryView == false {
                 delegate?.setSprubixPiece(sprubixPiece, position: pos)
                 
-                println(sprubixPiece)
+                println(sprubixPiece.size)
                 
                 self.navigationController?.popViewControllerAnimated(true)
             } else {

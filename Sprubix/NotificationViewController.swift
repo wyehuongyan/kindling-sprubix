@@ -332,6 +332,9 @@ class NotificationViewController: UIViewController, DZNEmptyDataSetSource, DZNEm
         let createdAt = notification["created_at"] as! String
         let duration = calculateDuration(createdAt)
         
+        // user image view
+        cell.userImageView.setImageWithURL(senderImageURL)
+        cell.senderUsername = senderUsername
         cell.selectionStyle = UITableViewCellSelectionStyle.None
         
         var notificationMessage: String?
@@ -353,6 +356,17 @@ class NotificationViewController: UIViewController, DZNEmptyDataSetSource, DZNEm
             let commentBody = comment["body"] as! String
             
             notificationMessage = "@\(senderUsername) mentioned you in a comment: \(commentBody) \(duration)"
+        case "points_received":
+            let pointsAwarded = notification["awarded_points"] as! Int
+            
+            let pointsImage: UIImage = UIImage(named: "shop-points")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
+            
+            cell.userImageView.image = pointsImage
+            cell.userImageView.tintColor = sprubixColor
+            cell.userImageView.backgroundColor = UIColor.whiteColor()
+            cell.userImageView.layer.borderWidth = 0.0
+            
+            notificationMessage = "\(pointsAwarded) points received for contributing to a purchased outfit."
         case "order_alert":
             let orderAlert = notification["order_alert"] as! NSDictionary
             let shopOrder = orderAlert["shop_order"] as! NSDictionary
@@ -437,10 +451,6 @@ class NotificationViewController: UIViewController, DZNEmptyDataSetSource, DZNEm
                 }
             }
         }
-        
-        // user image view
-        cell.userImageView.setImageWithURL(senderImageURL)
-        cell.senderUsername = senderUsername
         
         let goToUserProfileGestureRecognizer: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: "goToUserProfile:")
         goToUserProfileGestureRecognizer.cancelsTouchesInView = true

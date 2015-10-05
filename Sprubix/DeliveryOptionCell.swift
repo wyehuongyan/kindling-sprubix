@@ -35,10 +35,13 @@ class DeliveryOptionCell: UITableViewCell {
         editDeliveryOptionButton.imageEdgeInsets = UIEdgeInsetsMake(3, 9, 6, 0)
         Glow.addGlow(editDeliveryOptionButton)
 
+        // hide edit button
+        editDeliveryOptionButton.alpha = 0.0
+
         deleteDeliveryOptionButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
         // top, left, bottom, right
-        deleteDeliveryOptionButton.imageEdgeInsets = UIEdgeInsetsMake(9, 15, 8, 2)
-        //deleteDeliveryOptionButton.imageEdgeInsets = UIEdgeInsetsMake(9, 8, 7, 8)
+        //deleteDeliveryOptionButton.imageEdgeInsets = UIEdgeInsetsMake(9, 15, 8, 2)
+        deleteDeliveryOptionButton.imageEdgeInsets = UIEdgeInsetsMake(9, 2, 8, 15)
         Glow.addGlow(deleteDeliveryOptionButton)
     }
 }

@@ -17,6 +17,7 @@ class CheckoutOrderViewController: UIViewController, UITableViewDataSource, UITa
     
     var userOrderId: Int!
     var userOrder: NSDictionary!
+    var contributionArray: [NSDictionary]!
     
     var checkoutOrderTableView: UITableView!
     
@@ -42,6 +43,7 @@ class CheckoutOrderViewController: UIViewController, UITableViewDataSource, UITa
         view.addSubview(checkoutOrderTableView)
         
         retrieveUserOrder()
+        sendContributorNotifications()
     }
     
     override func viewWillAppear(animated: Bool) {
@@ -83,6 +85,32 @@ class CheckoutOrderViewController: UIViewController, UITableViewDataSource, UITa
         
         // 5. add the nav bar to the main view
         self.view.addSubview(newNavBar)
+    }
+    
+    func sendContributorNotifications() {
+        println(contributionArray)
+        
+        for contribution in contributionArray {
+            let contributor = contribution["contributor"] as! NSDictionary
+            let pointsAwarded = contribution["awarded_points"] as! Float
+            let outfit = contribution["outfit"] as! NSDictionary
+            
+            let outfitId = outfit["id"] as! Int
+            let itemIdentifier = "outfit_\(outfitId)"
+            
+            var outfitImagesString = outfit["images"] as! NSString
+            var outfitImagesData:NSData = outfitImagesString.dataUsingEncoding(NSUTF8StringEncoding)!
+            
+            var outfitImagesDict: NSDictionary = NSJSONSerialization.JSONObjectWithData(outfitImagesData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSDictionary
+            var outfitImageDict: NSDictionary = outfitImagesDict["images"] as! NSDictionary
+            
+            let thumbnailURLString = outfitImageDict["thumbnail"] as! String
+            let receiverUsername = contributor["username"] as! String
+            
+            println("sending notification to \(receiverUsername)...")
+            
+            sendNotification(itemIdentifier, thumbnailURLString: thumbnailURLString, receiverUsername: receiverUsername, poutfitType: "outfit", pointsAwarded: pointsAwarded)
+        }
     }
     
     func retrieveUserOrder() {
@@ -348,6 +376,69 @@ class CheckoutOrderViewController: UIViewController, UITableViewDataSource, UITa
                     }
                 }
             })
+        }
+    }
+    
+    private func sendNotification(itemIdentifier: String, thumbnailURLString: String, receiverUsername: String, poutfitType: String, pointsAwarded: Float) {
+        let userData: NSDictionary? = defaults.dictionaryForKey("userData")
+        
+        if userData != nil {
+            // firebase collections: users and notifications
+            let notificationsRef = firebaseRef.childByAppendingPath("notifications")
+            
+            let senderUsername = userData!["username"] as! String
+            let senderImage = userData!["image"] as! String
+            
+            if senderUsername != receiverUsername {
+                
+                let createdAt = timestamp
+                let shoppableType: String? = userData!["shoppable_type"] as? String
+                
+                let receiverUserNotificationsRef = firebaseRef.childByAppendingPath("users/\(receiverUsername)/notifications")
+                
+                // push new notifications
+                let notificationRef = notificationsRef.childByAutoId()
+                
+                let notification = [
+                    "poutfit": [
+                        "key": itemIdentifier,
+                        "image": thumbnailURLString
+                    ],
+                    "created_at": createdAt,
+                    "sender": [
+                        "username": senderUsername, // yourself
+                        "image": senderImage
+                    ],
+                    "receiver": receiverUsername,
+                    "awarded_points": pointsAwarded,
+                    "type": "points_received",
+                    "unread": true
+                ]
+                
+                notificationRef.setValue(notification, withCompletionBlock: {
+                    
+                    (error:NSError?, ref:Firebase!) in
+                    
+                    if (error != nil) {
+                        println("Error: Notification could not be added.")
+                    } else {
+                        // update target user notifications
+                        let receiverUserNotificationRef = receiverUserNotificationsRef.childByAppendingPath(notificationRef.key)
+                        
+                        receiverUserNotificationRef.updateChildValues([
+                            "created_at": createdAt,
+                            "unread": true
+                            ], withCompletionBlock: {
+                                
+                                (error:NSError?, ref:Firebase!) in
+                                
+                                if (error != nil) {
+                                    println("Error: Notification Key could not be added to Users.")
+                                }
+                        })
+                    }
+                })
+            }
         }
     }
     

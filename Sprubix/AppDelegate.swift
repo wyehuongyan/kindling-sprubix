@@ -15,20 +15,21 @@ import Fabric
 import Crashlytics
 import JLRoutes
 import FBSDKCoreKit
+import TSMessages
 
 struct SprubixConfig {
     struct URL {
         //static let api: String = "http://192.168.1.1/~shion/kindling-core/public/index.php"
         //static let api: String = "http://sprubix-ch.ngrok.io/~shion/kindling-core/public/index.php"
-        //static let api: String = "http://sprubix-wh.ngrok.io/~wyehuongyan/kindling-core/public/index.php"
-        //static let firebase: String = "https://sprubixtest.firebaseio.com/"
+        static let api: String = "http://sprubix-wh.ngrok.io/~wyehuongyan/kindling-core/public/index.php"
+        static let firebase: String = "https://sprubixtest.firebaseio.com/"
         
-        static let api: String = "https://api.sprbx.com"
-        static let firebase: String = "https://sprubix.firebaseio.com/"
+        //static let api: String = "https://api.sprbx.com"
+        //static let firebase: String = "https://sprubix.firebaseio.com/"
     }
     struct Token {
-        //static let mixpanel = ""
-        static let mixpanel = "7b1423643b7e52dad5680f5fdc390a88" // live
+        static let mixpanel = ""
+        //static let mixpanel = "7b1423643b7e52dad5680f5fdc390a88" // live
     }
 }
 
@@ -336,6 +337,46 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 },
                 failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                     println("Error: " + error.localizedDescription)
+            })
+            
+            return true
+        })
+        
+        // route for user email verification
+        JLRoutes.addRoute("/auth/:userId/verify/:verificationCode", handler: {
+            parameters in
+        
+            // get user id
+            let userId = parameters["userId"] as! String
+            let verificationCode = parameters["verificationCode"] as! String
+            
+            // REST call to server to retrieve shop orders
+            manager.POST(SprubixConfig.URL.api + "/auth/email/verify",
+                parameters: [
+                    "user_id": userId,
+                    "verification_code": verificationCode
+                ],
+                success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                    
+                    var status = responseObject["status"] as! String
+                    var automatic: NSTimeInterval = 0
+                    
+                    if status == "200" {
+                        // success
+                        TSMessage.showNotificationInViewController(                        TSMessage.defaultViewController(), title: "Success!", subtitle: "Account verified. Thank you!", image: UIImage(named: "filter-check"), type: TSMessageNotificationType.Success, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: true)
+                        
+                    } else {
+                        // error exception
+                        TSMessage.showNotificationInViewController(                        TSMessage.defaultViewController(), title: "Error", subtitle: "Verification code did not match. Account not verified.", image: UIImage(named: "filter-cross"), type: TSMessageNotificationType.Error, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: true)
+                    }
+                },
+                failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                    println("Error: " + error.localizedDescription)
+                    
+                    var automatic: NSTimeInterval = 0
+                    
+                    // error exception
+                    TSMessage.showNotificationInViewController(                        TSMessage.defaultViewController(), title: "Error", subtitle: "Something went wrong.\nPlease try again.", image: UIImage(named: "filter-cross"), type: TSMessageNotificationType.Error, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: true)
             })
             
             return true

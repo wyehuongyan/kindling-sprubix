@@ -55,7 +55,7 @@ class EditSnapshotViewController: UIViewController {
     var oldBoxSizes: [CGSize] = [CGSize]()
     var imageCopies: [UIImage] = [UIImage]()
     var brightnessValues: [Float] = [0, 0, 0, 0]
-    var contrastValues: [Float] = [25, 25, 25, 25]
+    var contrastValues: [Float] = [0, 0, 0, 0]
     var sharpnessValues: [Float] = [0, 0, 0, 0]
     var sliderCurrentValue: Float!
     
@@ -813,6 +813,49 @@ class EditSnapshotViewController: UIViewController {
             }, completion: nil)
     }
     
+    func applyOtherFilters() {
+        switch (selectedEditingMode) {
+        case .Brightness:
+            
+            gpuImageFilter = GPUImageContrastFilter()
+            (gpuImageFilter as! GPUImageContrastFilter).contrast = CGFloat((contrastValues[selectedImagePos] + 25) / 100 * 4)
+            
+            quickFilteredImage = (gpuImageFilter as! GPUImageContrastFilter).imageByFilteringImage(imageCopies[selectedImagePos])
+            
+            gpuImageFilter = GPUImageSharpenFilter()
+            (gpuImageFilter as! GPUImageSharpenFilter).sharpness = CGFloat(sharpnessValues[selectedImagePos] / 100 * 4)
+            
+            quickFilteredImage = (gpuImageFilter as! GPUImageSharpenFilter).imageByFilteringImage(quickFilteredImage)
+            
+        case .Contrast:
+            
+            gpuImageFilter = GPUImageBrightnessFilter()
+            (gpuImageFilter as! GPUImageBrightnessFilter).brightness = CGFloat(brightnessValues[selectedImagePos] / 100)
+            
+            quickFilteredImage = (gpuImageFilter as! GPUImageBrightnessFilter).imageByFilteringImage(imageCopies[selectedImagePos])
+            
+            gpuImageFilter = GPUImageSharpenFilter()
+            (gpuImageFilter as! GPUImageSharpenFilter).sharpness = CGFloat(sharpnessValues[selectedImagePos] / 100 * 4)
+            
+            quickFilteredImage = (gpuImageFilter as! GPUImageSharpenFilter).imageByFilteringImage(quickFilteredImage)
+            
+        case .Sharpness:
+            
+            gpuImageFilter = GPUImageBrightnessFilter()
+            (gpuImageFilter as! GPUImageBrightnessFilter).brightness = CGFloat(brightnessValues[selectedImagePos] / 100)
+            
+            quickFilteredImage = (gpuImageFilter as! GPUImageBrightnessFilter).imageByFilteringImage(imageCopies[selectedImagePos])
+            
+            gpuImageFilter = GPUImageContrastFilter()
+            (gpuImageFilter as! GPUImageContrastFilter).contrast = CGFloat((contrastValues[selectedImagePos] + 25) / 100 * 4)
+            
+            quickFilteredImage = (gpuImageFilter as! GPUImageContrastFilter).imageByFilteringImage(quickFilteredImage)
+            
+        default:
+            fatalError("Unknown editing mode selected")
+        }
+    }
+    
     func editSliderValueChanged(sender: UISlider) {
         var trackRect: CGRect = sender.trackRectForBounds(sender.bounds)
         var thumbRect: CGRect = sender.thumbRectForBounds(sender.bounds, trackRect: trackRect, value: sender.value)
@@ -821,28 +864,71 @@ class EditSnapshotViewController: UIViewController {
         editSliderLabel.text = "\(Int(sender.value))"
         editSliderLabel.center = CGPointMake(thumbRect.origin.x + thumbRect.width / 2 + 0.1 * screenWidth,  sender.center.y - editSliderLabel.frame.size.height / 2);
         
+        // add filters of non selected filter values
+        //applyOtherFilters()
+        
         switch (selectedEditingMode) {
         case .Brightness:
+            
+            // contrast
+            gpuImageFilter = GPUImageContrastFilter()
+            (gpuImageFilter as! GPUImageContrastFilter).contrast = CGFloat((contrastValues[selectedImagePos] + 25) / 100 * 4)
+            
+            quickFilteredImage = (gpuImageFilter as! GPUImageContrastFilter).imageByFilteringImage(imageCopies[selectedImagePos])
+            
+            // sharpness
+            gpuImageFilter = GPUImageSharpenFilter()
+            (gpuImageFilter as! GPUImageSharpenFilter).sharpness = CGFloat(sharpnessValues[selectedImagePos] / 100 * 4)
+            
+            quickFilteredImage = (gpuImageFilter as! GPUImageSharpenFilter).imageByFilteringImage(quickFilteredImage)
+            
             // set brightness
+            gpuImageFilter = GPUImageBrightnessFilter()
             (gpuImageFilter as! GPUImageBrightnessFilter).brightness = CGFloat(sender.value / 100)
             
-            quickFilteredImage = (gpuImageFilter as! GPUImageBrightnessFilter).imageByFilteringImage(imageCopies[selectedImagePos])
-                
+            quickFilteredImage = (gpuImageFilter as! GPUImageBrightnessFilter).imageByFilteringImage(quickFilteredImage)
+            
             selectedImageView.image = quickFilteredImage
             
         case .Contrast:
             // set contrast
-            (gpuImageFilter as! GPUImageContrastFilter).contrast = CGFloat(sender.value / 100 * 4)
+            gpuImageFilter = GPUImageContrastFilter()
+            (gpuImageFilter as! GPUImageContrastFilter).contrast = CGFloat((sender.value + 25.0) / 100 * 4)
             
             quickFilteredImage = (gpuImageFilter as! GPUImageContrastFilter).imageByFilteringImage(imageCopies[selectedImagePos])
+            
+            // sharpness
+            gpuImageFilter = GPUImageSharpenFilter()
+            (gpuImageFilter as! GPUImageSharpenFilter).sharpness = CGFloat(sharpnessValues[selectedImagePos] / 100 * 4)
+            
+            quickFilteredImage = (gpuImageFilter as! GPUImageSharpenFilter).imageByFilteringImage(quickFilteredImage)
+            
+            // brightness
+            gpuImageFilter = GPUImageBrightnessFilter()
+            (gpuImageFilter as! GPUImageBrightnessFilter).brightness = CGFloat(brightnessValues[selectedImagePos] / 100)
+            
+            quickFilteredImage = (gpuImageFilter as! GPUImageBrightnessFilter).imageByFilteringImage(quickFilteredImage)
             
             selectedImageView.image = quickFilteredImage
             
         case .Sharpness:
+            // contrast
+            gpuImageFilter = GPUImageContrastFilter()
+            (gpuImageFilter as! GPUImageContrastFilter).contrast = CGFloat((contrastValues[selectedImagePos] + 25) / 100 * 4)
+            
+            quickFilteredImage = (gpuImageFilter as! GPUImageContrastFilter).imageByFilteringImage(imageCopies[selectedImagePos])
+            
             // set sharpness
+            gpuImageFilter = GPUImageSharpenFilter()
             (gpuImageFilter as! GPUImageSharpenFilter).sharpness = CGFloat(sender.value / 100 * 4)
-        
-            quickFilteredImage = (gpuImageFilter as! GPUImageSharpenFilter).imageByFilteringImage(imageCopies[selectedImagePos])
+            
+            quickFilteredImage = (gpuImageFilter as! GPUImageSharpenFilter).imageByFilteringImage(quickFilteredImage)
+            
+            // brightness
+            gpuImageFilter = GPUImageBrightnessFilter()
+            (gpuImageFilter as! GPUImageBrightnessFilter).brightness = CGFloat(brightnessValues[selectedImagePos] / 100)
+            
+            quickFilteredImage = (gpuImageFilter as! GPUImageBrightnessFilter).imageByFilteringImage(quickFilteredImage)
             
             selectedImageView.image = quickFilteredImage
             
@@ -861,7 +947,27 @@ class EditSnapshotViewController: UIViewController {
     }
     
     func restoreOriginalImages() {
-        selectedImageView.image = imageCopies[selectedImagePos]
+        // reset to last known settings
+        // contrast
+        gpuImageFilter = GPUImageContrastFilter()
+        (gpuImageFilter as! GPUImageContrastFilter).contrast = CGFloat((contrastValues[selectedImagePos] + 25) / 100 * 4)
+        
+        quickFilteredImage = (gpuImageFilter as! GPUImageContrastFilter).imageByFilteringImage(imageCopies[selectedImagePos])
+        
+        // set sharpness
+        gpuImageFilter = GPUImageSharpenFilter()
+        (gpuImageFilter as! GPUImageSharpenFilter).sharpness = CGFloat(sharpnessValues[selectedImagePos] / 100 * 4)
+        
+        quickFilteredImage = (gpuImageFilter as! GPUImageSharpenFilter).imageByFilteringImage(quickFilteredImage)
+        
+        // brightness
+        gpuImageFilter = GPUImageBrightnessFilter()
+        (gpuImageFilter as! GPUImageBrightnessFilter).brightness = CGFloat(brightnessValues[selectedImagePos] / 100)
+        
+        quickFilteredImage = (gpuImageFilter as! GPUImageBrightnessFilter).imageByFilteringImage(quickFilteredImage)
+        
+        selectedImageView.image = quickFilteredImage
+        //selectedImageView.image = imageCopies[selectedImagePos]
     }
     
     func editBtnConfirmed(sender: UIButton) {
@@ -878,7 +984,7 @@ class EditSnapshotViewController: UIViewController {
                 fatalError("Unknown editing mode selected")
             }
             
-            imageCopies[selectedImagePos] = selectedImageView.image!
+            //imageCopies[selectedImagePos] = selectedImageView.image!
             
         case crossBtn:
             restoreOriginalImages()
@@ -963,7 +1069,7 @@ class EditSnapshotViewController: UIViewController {
         imageCopies.removeAll()
         
         brightnessValues = [0, 0, 0, 0]
-        contrastValues = [25, 25, 25, 25]
+        contrastValues = [0, 0, 0, 0]
         sharpnessValues = [0, 0, 0, 0]
         
         scale = 1.0

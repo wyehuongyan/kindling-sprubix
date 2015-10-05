@@ -121,14 +121,17 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
 
         editSnapshotViewController = nil
         
-        cameraPscope.show(authChange: { (finished, results) -> Void in
-            //println("got results \(results)")
-            self.initializeCamera()
-            self.establishVideoPreviewArea()
-            }, cancelled: { (results) -> Void in
-                //println("thing was cancelled")
-                
-                self.closeCreateOutfit(UIButton())
+        dispatch_async(dispatch_get_main_queue(), {
+            // code here
+            self.cameraPscope.show(authChange: { (finished, results) -> Void in
+                //println("got results \(results)")
+                self.initializeCamera()
+                self.establishVideoPreviewArea()
+                }, cancelled: { (results) -> Void in
+                    //println("thing was cancelled")
+                    
+                    self.closeCreateOutfit(UIButton())
+            })
         })
     }
     

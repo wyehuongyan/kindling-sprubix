@@ -457,6 +457,8 @@ class FirebaseAuth {
                     parameters: nil,
                     success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
                         
+                        println(responseObject)
+                        
                         var data = responseObject as! NSDictionary
                         let token = data["token"] as! String
                         

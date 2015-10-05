@@ -33,9 +33,12 @@ class DeliveryAddressCell: UITableViewCell {
         editDeliveryAddressButton.imageEdgeInsets = UIEdgeInsetsMake(3, 9, 6, 0)
         Glow.addGlow(editDeliveryAddressButton)
         
+        // hide edit button
+        editDeliveryAddressButton.alpha = 0.0
+        
         deleteDeliveryAddressButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
         // top, left, bottom, right
-        deleteDeliveryAddressButton.imageEdgeInsets = UIEdgeInsetsMake(9, 15, 8, 2)
+        deleteDeliveryAddressButton.imageEdgeInsets = UIEdgeInsetsMake(9, 2, 8, 15)
         //deleteDeliveryAddressButton = UIEdgeInsetsMake(9, 8, 7, 8)
         Glow.addGlow(deleteDeliveryAddressButton)
     }

@@ -402,13 +402,21 @@ class SpruceShareViewController: UIViewController, UITableViewDelegate, UITableV
         // create SprubixOutfit
         let userData:NSDictionary! = defaults.dictionaryForKey("userData")
         
+        var realHeight: CGFloat = outfitImageView.image!.scale * outfitImageView.image!.size.height
+        
+        var realWidth: CGFloat = outfitImageView.image!.scale * outfitImageView.image!.size.width
+        var finalWidth: CGFloat = 750.0
+        var ratio = realWidth / finalWidth
+        
+        var finalHeight = realHeight / ratio
+        
         var spruceOutfitDict: NSMutableDictionary = [
             "num_pieces": numPieces,
             "description": descriptionText.text,
             "created_by": userData["id"] as! Int,
             "from": userIdFrom,
-            "height": outfitImageView.image!.scale * outfitImageView.image!.size.height,
-            "width": outfitImageView.image!.scale * outfitImageView.image!.size.width,
+            "height": finalHeight,
+            "width": finalWidth,
         ]
         
         var pieceArr: [Int] = [Int]()

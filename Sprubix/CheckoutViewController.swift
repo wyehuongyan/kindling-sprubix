@@ -848,11 +848,15 @@ class CheckoutViewController: UIViewController, UITableViewDataSource, UITableVi
                 
                 if status == "200" {
                     var userOrderId = responseObject["user_order_id"] as! Int
+                    var contributionArray = responseObject["contributions"] as! [NSDictionary]
+                    
+                    println(responseObject)
                     
                     // bring user to CheckoutOrderViewController
                     let checkoutOrderViewController = CheckoutOrderViewController()
                     
                     checkoutOrderViewController.userOrderId = userOrderId
+                    checkoutOrderViewController.contributionArray = contributionArray
                     
                     self.navigationController?.pushViewController(checkoutOrderViewController, animated: true)
                 

@@ -11,6 +11,7 @@ import CoreData
 import AFNetworking
 import TSMessages
 import FBSDKLoginKit
+import SSKeychain
 
 class SignUpViewController: UIViewController, FBSDKLoginButtonDelegate, UIScrollViewDelegate {
     
@@ -177,6 +178,28 @@ class SignUpViewController: UIViewController, FBSDKLoginButtonDelegate, UIScroll
     
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
+        
+        let userData: NSDictionary? = defaults.dictionaryForKey("userData")
+        
+        if userData != nil {
+            let username = userData!["username"] as! String
+            SSKeychain.deletePasswordForService("firebase", account: username)
+        }
+        
+        firebaseRef.unauth()
+        defaults.removeObjectForKey("userData")
+        defaults.removeObjectForKey("userId")
+        
+        // clear mixpanel cache, reset distinctID
+        MixpanelService.reset()
+        // exposed outfits, reset counter
+        exposedOutfits.removeAll()
+        // make next login a fresh login
+        freshLogin = true
+        // Log out FB if exist
+        if FBSDKAccessToken.currentAccessToken() != nil {
+            FBSDKLoginManager().logOut()
+        }
         
         self.navigationController?.navigationBarHidden = true
     }
