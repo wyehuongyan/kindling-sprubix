@@ -447,7 +447,14 @@ class DeliveryAddressesDetailsViewController: UIViewController, UITableViewDataS
     }
     
     func saveTapped(sender: UIBarButtonItem) {
-        if validateShippingAddressInfo() {
+        // hide keyboard
+        makeKeyboardVisible = false
+        self.view.endEditing(true)
+        
+        let validateResult = self.validateInputs()
+        let delay: NSTimeInterval = 3
+        
+        if validateResult.valid {
             let shippingAddressInfo: NSMutableDictionary = NSMutableDictionary()
             
             shippingAddressInfo.setObject(firstNameText.text, forKey: "first_name")
@@ -477,10 +484,6 @@ class DeliveryAddressesDetailsViewController: UIViewController, UITableViewDataS
                 shippingAddressInfo.setObject(true, forKey: "is_current")
             }
             
-            // hide keyboard
-            makeKeyboardVisible = false
-            self.view.endEditing(true)
-            
             if deliveryAddress == nil {
                 // create new
                 // REST call to server to create user shipping address
@@ -489,7 +492,9 @@ class DeliveryAddressesDetailsViewController: UIViewController, UITableViewDataS
                     success: { (operation: AFHTTPRequestOperation!, responseObject:
                         AnyObject!) in
                         
-                        var status = responseObject["status"] as! String
+                        var response = responseObject as! NSDictionary
+                        var status = response["status"] as! String
+                        var data = response["data"] as! NSDictionary
                         var automatic: NSTimeInterval = 0
                         
                         if status == "200" {
@@ -500,6 +505,8 @@ class DeliveryAddressesDetailsViewController: UIViewController, UITableViewDataS
                         } else {
                             // error exception
                             TSMessage.showNotificationInViewController(                        TSMessage.defaultViewController(), title: "Error", subtitle: "Something went wrong.\nPlease try again.", image: UIImage(named: "filter-cross"), type: TSMessageNotificationType.Error, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: true)
+                            
+                            println(data)
                         }
                     },
                     failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
@@ -534,74 +541,112 @@ class DeliveryAddressesDetailsViewController: UIViewController, UITableViewDataS
                         println("Error: " + error.localizedDescription)
                 })
             }
+        } else {
+            // Validation failed
+            TSMessage.showNotificationInViewController(
+                self,
+                title: "Error",
+                subtitle: validateResult.message,
+                image: UIImage(named: "filter-cross"),
+                type: TSMessageNotificationType.Error,
+                duration: delay,
+                callback: nil,
+                buttonTitle: nil,
+                buttonCallback: nil,
+                atPosition: TSMessageNotificationPosition.Bottom,
+                canBeDismissedByUser: true)
         }
     }
     
-    private func validateShippingAddressInfo() -> Bool {
-        var errorMessage: String = "Please fill up the required field(s):\n"
-        var noError = true
+    func validateInputs() -> (valid: Bool, message: String) {
+        var valid: Bool = true
+        var message: String = ""
         
-        // check if all fields except the optional ones are filled
+        // check if all compulsory fields
         if firstNameText.text == "" {
-            errorMessage += "\nFirst Name"
-            
-            noError = false
+            message += "Please enter a first name\n"
+            valid = false
+        }
+        else if count(firstNameText.text) > 255 {
+            message += "The first name is too long\n"
+            valid = false
         }
         
         if lastNameText.text == "" {
-            errorMessage += "\nLast Name"
-            
-            noError = false
+            message += "Please enter a last name\n"
+            valid = false
+        }
+        else if count(lastNameText.text) > 255 {
+            message += "The last name is too long\n"
+            valid = false
         }
 
         if contactText.text == "" {
-            errorMessage += "\nContact Number"
-            
-            noError = false
+            message += "Please enter a contact number\n"
+            valid = false
+        }
+        else if count(contactText.text) > 255 {
+            message += "The contact number is too long\n"
+            valid = false
         }
         
         if address1Text.text == "" {
-            errorMessage += "\nAddress Line 1"
-            
-            noError = false
+            message += "Please enter an address for address line 1\n"
+            valid = false
+        }
+        else if count(address1Text.text) > 255 {
+            message += "The address for address line 1 is too long\n"
+            valid = false
         }
         
         if postalCodeText.text == "" {
-            errorMessage += "\nPostal Code"
-            
-            noError = false
+            message += "Please enter a postal code\n"
+            valid = false
+        }
+        else if count(postalCodeText.text) > 255 {
+            message += "The postal code is too long\n"
+            valid = false
         }
         
         if cityText.text == "" {
-            errorMessage += "\nCity"
-            
-            noError = false
+            message += "Please enter a city name\n"
+            valid = false
+        }
+        else if count(cityText.text) > 255 {
+            message += "The city name is too long\n"
+            valid = false
         }
         
         if stateText.text == "" {
-            errorMessage += "\nState"
-            
-            noError = false
+            message += "Please enter a state name\n"
+            valid = false
+        }
+        else if count(stateText.text) > 255 {
+            message += "The state name is too long\n"
+            valid = false
         }
         
         if countryText.text == "" {
-            errorMessage += "\nCountry"
-            
-            noError = false
+            message += "Please enter a country name\n"
+            valid = false
+        }
+        else if count(countryText.text) > 255 {
+            message += "The country name is too long\n"
+            valid = false
         }
         
-        // pop up an alert view if there's an error
-        if noError == false {
-            let alert = UIAlertController(title: "Oops!", message: errorMessage, preferredStyle: UIAlertControllerStyle.Alert)
-            alert.view.tintColor = sprubixColor
-            
-            // Ok
-            alert.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Cancel, handler: nil))
-            
-            self.presentViewController(alert, animated: true, completion: nil)
+        // optionals
+        if count(companyText.text) > 255 {
+            message += "The company name is too long\n"
+            valid = false
         }
         
-        return noError
+        if count(address2Text.text) > 255 {
+            message += "The address for address line 2 is too long\n"
+            valid = false
+        }
+        
+        return (valid, message)
     }
     
     func keyboardWillChange(notification: NSNotification) {

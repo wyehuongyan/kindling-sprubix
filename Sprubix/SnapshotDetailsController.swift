@@ -749,30 +749,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
     func itemDetailsDoneTapped(sender: UIButton) {
         // format price
         if newNavBar.items[0].title == "Item Price" {
-            if contains(itemDetailsPrice.text, ".") {
-                let priceArray = itemDetailsPrice.text.componentsSeparatedByString(".")
-                var digit = priceArray[0] as String
-                var decimal = priceArray[1] as String
-                
-                // if .XX , make it 0.XX
-                if digit == "" {
-                    digit = "0"
-                }
-                
-                // truncate decimal
-                if count(decimal) == 0 {
-                    decimal = "00"
-                } else if count(decimal) == 1 {
-                    decimal = "\(decimal)0"
-                } else {
-                    decimal = decimal.substringWithRange(Range(start: decimal.startIndex, end: advance(decimal.startIndex, 2)))
-                }
-                
-                itemDetailsPrice.text = "\(digit).\(decimal)"
-                
-            } else {
-                itemDetailsPrice.text = "\(itemDetailsPrice.text).00"
-            }
+            formatPrice()
         }
         
         makeKeyboardVisible = false
@@ -1452,37 +1429,6 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
         
         return true
     }
-    /*
-    func priceAdd(newString: String) {
-        //let newValue = newString.floatValue + ((count(itemDetailsPriceNumber) * 10.0) as Float)
-        itemDetailsPriceNumber = (itemDetailsPriceNumber + CGFloat((newString as NSString).floatValue)) / 100
-        
-        //var priceInFloat = itemDetailsPrice.text.floatValue
-        //itemDetailsPrice.text = (priceInFloat * 10).description
-        let numberFormatter = NSNumberFormatter()
-        numberFormatter.minimumIntegerDigits = 1
-        numberFormatter.minimumFractionDigits = 2
-        numberFormatter.maximumFractionDigits = 2
-        //itemDetailsPriceNumber = numberFormatter.stringFromNumber(itemDetailsPriceNumber)
-        
-        itemDetailsPrice.text = String(format: "%0.2f", itemDetailsPriceNumber)
-        println(itemDetailsPrice.text)
-    }
-    
-    func priceDeduct() {
-        //let newValue = newString.floatValue + ((count(itemDetailsPriceNumber) * 10.0) as Float)
-        itemDetailsPriceNumber = itemDetailsPriceNumber / 10
-        
-        //var priceInFloat = itemDetailsPrice.text.floatValue
-        //itemDetailsPrice.text = (priceInFloat * 10).description
-        let numberFormatter = NSNumberFormatter()
-        numberFormatter.minimumIntegerDigits = 1
-        numberFormatter.minimumFractionDigits = 2
-        numberFormatter.maximumFractionDigits = 2
-        
-        itemDetailsPrice.text = String(format: "%0.2f", itemDetailsPriceNumber)
-        println(itemDetailsPrice.text)
-    }*/
     
     // check if category, price and quantity (if shop) is present
     // there must be at least one image
@@ -1557,8 +1503,8 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
                 message += "Please enter the item price\n"
                 valid = false
             }
-            else if itemDetailsPrice.text.floatValue < 10 {
-                message += "The item price cannot be lower than $10\n"
+            else if itemDetailsPrice.text.floatValue < 15 {
+                message += "The item price must be at least $15\n"
                 valid = false
             }
         }
@@ -1602,5 +1548,32 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
         UIGraphicsEndImageContext()
         
         return finalImage
+    }
+    
+    func formatPrice() {
+        if contains(itemDetailsPrice.text, ".") {
+            let priceArray = itemDetailsPrice.text.componentsSeparatedByString(".")
+            var digit = priceArray[0] as String
+            var decimal = priceArray[1] as String
+            
+            // if .XX , make it 0.XX
+            if digit == "" {
+                digit = "0"
+            }
+            
+            // truncate decimal
+            if count(decimal) == 0 {
+                decimal = "00"
+            } else if count(decimal) == 1 {
+                decimal = "\(decimal)0"
+            } else {
+                decimal = decimal.substringWithRange(Range(start: decimal.startIndex, end: advance(decimal.startIndex, 2)))
+            }
+            
+            itemDetailsPrice.text = "\(digit).\(decimal)"
+            
+        } else if itemDetailsPrice.text != "" {
+            itemDetailsPrice.text = "\(itemDetailsPrice.text).00"
+        }
     }
 }

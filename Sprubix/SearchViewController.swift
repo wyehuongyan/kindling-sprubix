@@ -20,6 +20,10 @@ class SearchViewController: UIViewController, UISearchBarDelegate {
     
     var scopeButtonTitles = ["Outfits", "Items", "People"]
     var currentScope = 0
+    
+    let searchOutfitPlaceholderText = "Search Outfits"
+    let searchPiecePlaceholderText = "Search Items"
+    let searchPeoplePlaceholderText = "Search People"
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -67,6 +71,7 @@ class SearchViewController: UIViewController, UISearchBarDelegate {
         searchBar?.showsScopeBar = true
         searchBar?.selectedScopeButtonIndex = currentScope
         searchBar?.showsCancelButton = true
+        searchBar?.placeholder = searchOutfitPlaceholderText
 
         searchBar?.becomeFirstResponder()
         searchBar?.sizeToFit()
@@ -114,6 +119,20 @@ class SearchViewController: UIViewController, UISearchBarDelegate {
     func searchBar(searchBar: UISearchBar, selectedScopeButtonIndexDidChange selectedScope: Int) {
 
         currentScope = selectedScope
+        
+        switch currentScope {
+        case 0:
+            // Outfits
+            searchBar.placeholder = searchOutfitPlaceholderText
+        case 1:
+            // Pieces
+            searchBar.placeholder = searchPiecePlaceholderText
+        case 2:
+            // Users
+            searchBar.placeholder = searchPeoplePlaceholderText
+        default:
+            fatalError("Unknown scope in SearchViewController")
+        }
     }
     
     func searchBarCancelButtonClicked(searchBar: UISearchBar) {

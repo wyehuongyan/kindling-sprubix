@@ -8,8 +8,9 @@
 
 import UIKit
 import AFNetworking
+import DZNEmptyDataSet
 
-class SearchResultsUsersViewController: UIViewController, UISearchBarDelegate, UITableViewDataSource, UITableViewDelegate {
+class SearchResultsUsersViewController: UIViewController, UISearchBarDelegate, UITableViewDataSource, UITableViewDelegate, DZNEmptyDataSetSource, DZNEmptyDataSetDelegate {
 
     let resultUserCellIdentifier = "UserFollowListCell"
     let resultUserUNCellIdentifier = "UserFollowListUNCell"
@@ -36,6 +37,10 @@ class SearchResultsUsersViewController: UIViewController, UISearchBarDelegate, U
         
         // get rid of line seperator for empty cells
         resultsTableView.tableFooterView = UIView(frame: CGRectZero)
+        
+        // empty dataset
+        resultsTableView.emptyDataSetSource = self
+        resultsTableView.emptyDataSetDelegate = self
     }
     
     override func viewWillAppear(animated: Bool) {
@@ -235,5 +240,57 @@ class SearchResultsUsersViewController: UIViewController, UISearchBarDelegate, U
         UIView.transitionWithView(self.navigationController!.view, duration: 0.3, options: UIViewAnimationOptions.TransitionCrossDissolve, animations: {
             self.navigationController?.popToViewController(feedChild as! UIViewController, animated: false)
             }, completion: nil)
+    }
+    
+    // DZNEmptyDataSetSource
+    func titleForEmptyDataSet(scrollView: UIScrollView!) -> NSAttributedString! {
+        var text: String = "No users found"
+        
+        let attributes: NSDictionary = [
+            NSFontAttributeName: UIFont.boldSystemFontOfSize(18.0),
+            NSForegroundColorAttributeName: UIColor.darkGrayColor()
+        ]
+        
+        let attributedString: NSAttributedString = NSAttributedString(string: text, attributes: attributes as [NSObject : AnyObject])
+        
+        return attributedString
+    }
+    
+    func descriptionForEmptyDataSet(scrollView: UIScrollView!) -> NSAttributedString! {
+        var text: String = "\nSuggestions to find more users:\n\n- Check if the spelling is correct\n- Use different keywords\n- Try general keywords"
+        
+        var paragraph: NSMutableParagraphStyle = NSMutableParagraphStyle.new()
+        paragraph.lineBreakMode = NSLineBreakMode.ByWordWrapping
+        paragraph.alignment = NSTextAlignment.Left
+        
+        let attributes: NSDictionary = [
+            NSFontAttributeName: UIFont.boldSystemFontOfSize(14.0),
+            NSForegroundColorAttributeName: UIColor.lightGrayColor(),
+            NSParagraphStyleAttributeName: paragraph
+        ]
+        
+        let attributedString: NSAttributedString = NSAttributedString(string: text, attributes: attributes as [NSObject : AnyObject])
+        
+        return attributedString
+    }
+    
+    /*func buttonTitleForEmptyDataSet(scrollView: UIScrollView!, forState state: UIControlState) -> NSAttributedString! {
+    let text: String = "Button Title"
+    
+    let attributes: NSDictionary = [
+    NSFontAttributeName: UIFont.boldSystemFontOfSize(17.0)
+    ]
+    
+    let attributedString: NSAttributedString = NSAttributedString(string: text, attributes: attributes as [NSObject : AnyObject])
+    
+    return attributedString
+    }*/
+    
+    func imageForEmptyDataSet(scrollView: UIScrollView!) -> UIImage! {
+        return UIImage(named: "emptyset-search-results")
+    }
+    
+    func backgroundColorForEmptyDataSet(scrollView: UIScrollView!) -> UIColor! {
+        return UIColor.whiteColor()
     }
 }

@@ -9,8 +9,9 @@
 import UIKit
 import CHTCollectionViewWaterfallLayout
 import AFNetworking
+import DZNEmptyDataSet
 
-class SearchResultsViewController: UIViewController, UISearchBarDelegate, UICollectionViewDataSource, UICollectionViewDelegate, CHTCollectionViewDelegateWaterfallLayout, TransitionProtocol, CategoryFilterProtocol {
+class SearchResultsViewController: UIViewController, UISearchBarDelegate, UICollectionViewDataSource, UICollectionViewDelegate, CHTCollectionViewDelegateWaterfallLayout, TransitionProtocol, CategoryFilterProtocol, DZNEmptyDataSetSource, DZNEmptyDataSetDelegate {
     
     var results: [NSDictionary] = [NSDictionary]()
     let resultsPieceCellIdentifier = "ProfilePieceCell"
@@ -55,6 +56,10 @@ class SearchResultsViewController: UIViewController, UISearchBarDelegate, UIColl
         resultsCollectionViewY = navigationHeaderAndStatusbarHeight + filterButtonHeight
         
         initCollectionView()
+        
+        // empty dataset
+        resultsCollectionView.emptyDataSetSource = self
+        resultsCollectionView.emptyDataSetDelegate = self
     }
     
     override func viewWillAppear(animated: Bool) {
@@ -468,5 +473,79 @@ class SearchResultsViewController: UIViewController, UISearchBarDelegate, UIColl
         UIView.transitionWithView(self.navigationController!.view, duration: 0.3, options: UIViewAnimationOptions.TransitionCrossDissolve, animations: {
             self.navigationController?.popToViewController(feedChild as! UIViewController, animated: false)
             }, completion: nil)
+    }
+    
+    // DZNEmptyDataSetSource
+    func titleForEmptyDataSet(scrollView: UIScrollView!) -> NSAttributedString! {
+        var text: String = ""
+        
+        switch currentScope {
+        case 0:
+            // outfit
+            text = "No outfits found"
+        case 1:
+            // piece
+            text = "No items found"
+        default:
+            fatalError("Unknown scope in SearchResultsViewController")
+        }
+        
+        let attributes: NSDictionary = [
+            NSFontAttributeName: UIFont.boldSystemFontOfSize(18.0),
+            NSForegroundColorAttributeName: UIColor.darkGrayColor()
+        ]
+        
+        let attributedString: NSAttributedString = NSAttributedString(string: text, attributes: attributes as [NSObject : AnyObject])
+        
+        return attributedString
+    }
+    
+    func descriptionForEmptyDataSet(scrollView: UIScrollView!) -> NSAttributedString! {
+        var text: String = ""
+        
+        switch currentScope {
+        case 0:
+            // outfit
+            text = "\nSuggestions to find more outfits:\n\n- Check if the spelling is correct\n- Use different keywords\n- Try general keywords"
+        case 1:
+            // piece
+            text = "\nSuggestions to find more items:\n\n- Check if the spelling is correct\n- Use different keywords\n- Try general keywords"
+        default:
+            fatalError("Unknown scope in SearchResultsViewController")
+        }
+        
+        var paragraph: NSMutableParagraphStyle = NSMutableParagraphStyle.new()
+        paragraph.lineBreakMode = NSLineBreakMode.ByWordWrapping
+        paragraph.alignment = NSTextAlignment.Left
+        
+        let attributes: NSDictionary = [
+            NSFontAttributeName: UIFont.boldSystemFontOfSize(14.0),
+            NSForegroundColorAttributeName: UIColor.lightGrayColor(),
+            NSParagraphStyleAttributeName: paragraph
+        ]
+        
+        let attributedString: NSAttributedString = NSAttributedString(string: text, attributes: attributes as [NSObject : AnyObject])
+        
+        return attributedString
+    }
+    
+    /*func buttonTitleForEmptyDataSet(scrollView: UIScrollView!, forState state: UIControlState) -> NSAttributedString! {
+    let text: String = "Button Title"
+    
+    let attributes: NSDictionary = [
+    NSFontAttributeName: UIFont.boldSystemFontOfSize(17.0)
+    ]
+    
+    let attributedString: NSAttributedString = NSAttributedString(string: text, attributes: attributes as [NSObject : AnyObject])
+    
+    return attributedString
+    }*/
+    
+    func imageForEmptyDataSet(scrollView: UIScrollView!) -> UIImage! {
+        return UIImage(named: "emptyset-search-results")
+    }
+    
+    func backgroundColorForEmptyDataSet(scrollView: UIScrollView!) -> UIColor! {
+        return sprubixGray
     }
 }
