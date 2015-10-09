@@ -131,11 +131,15 @@ class InventoryOptionsViewController: UIViewController, UITableViewDataSource, U
     }
     
     func saveTapped(sender: UIBarButtonItem) {
-        if lowStockLimitText.text != "" {
+        
+        self.view.endEditing(true)
+        
+        let validateResult = self.validateInputs()
+        let delay: NSTimeInterval = 3
+        
+        if validateResult.valid {
             let delay: NSTimeInterval = 2
             let userId:Int? = defaults.objectForKey("userId") as? Int
-            
-            self.view.endEditing(true)
             
             if userId != nil {
                 // REST call to update user shoppable's stock limit property
@@ -146,35 +150,55 @@ class InventoryOptionsViewController: UIViewController, UITableViewDataSource, U
                     success: { (operation: AFHTTPRequestOperation!, responseObject:
                         AnyObject!) in
                         
-                        var data = responseObject as! NSDictionary
+                        var response = responseObject as! NSDictionary
+                        var status = response["status"] as! String
+                        var data = response["data"] as! NSDictionary
                         
                         println(data)
                         
-                        // add notification for success
-                        let viewDelay: Double = 2.0
-                        
                         // success
-                        TSMessage.showNotificationInViewController(
-                            TSMessage.defaultViewController(),
-                            title: "Success!",
-                            subtitle: "Limit updated",
-                            image: UIImage(named: "filter-check"),
-                            type: TSMessageNotificationType.Success,
-                            duration: delay,
-                            callback: nil,
-                            buttonTitle: nil,
-                            buttonCallback: nil,
-                            atPosition: TSMessageNotificationPosition.Bottom,
-                            canBeDismissedByUser: true)
-                        
-                        // update cache
-                        var cleanData = self.cleanDictionary(data as! NSMutableDictionary)
-                        defaults.setObject(cleanData["id"], forKey: "userId")
-                        defaults.setObject(cleanData, forKey: "userData")
-                        defaults.synchronize()
-                        
-                        Delay.delay(viewDelay) {
-                            self.navigationController?.popViewControllerAnimated(true)
+                        if status == "200" {
+                            // add notification for success
+                            let viewDelay: Double = 2.0
+                            
+                            // success
+                            TSMessage.showNotificationInViewController(
+                                TSMessage.defaultViewController(),
+                                title: "Success!",
+                                subtitle: "Low stock limit updated",
+                                image: UIImage(named: "filter-check"),
+                                type: TSMessageNotificationType.Success,
+                                duration: delay,
+                                callback: nil,
+                                buttonTitle: nil,
+                                buttonCallback: nil,
+                                atPosition: TSMessageNotificationPosition.Bottom,
+                                canBeDismissedByUser: true)
+                            
+                            // update cache
+                            var cleanData = self.cleanDictionary(data as! NSMutableDictionary)
+                            defaults.setObject(cleanData["id"], forKey: "userId")
+                            defaults.setObject(cleanData, forKey: "userData")
+                            defaults.synchronize()
+                            
+                            Delay.delay(viewDelay) {
+                                self.navigationController?.popViewControllerAnimated(true)
+                            }
+                            
+                        } else {
+                            // error exception
+                            TSMessage.showNotificationInViewController(
+                                TSMessage.defaultViewController(),
+                                title: "Error",
+                                subtitle: "Something went wrong.\nPlease try again.",
+                                image: UIImage(named: "filter-cross"),
+                                type: TSMessageNotificationType.Error,
+                                duration: delay,
+                                callback: nil,
+                                buttonTitle: nil,
+                                buttonCallback: nil,
+                                atPosition: TSMessageNotificationPosition.Bottom,
+                                canBeDismissedByUser: true)
                         }
                         
                     },
@@ -198,7 +222,19 @@ class InventoryOptionsViewController: UIViewController, UITableViewDataSource, U
                 })
             }
         } else {
-            // alert
+            // Validation failed
+            TSMessage.showNotificationInViewController(
+                self,
+                title: "Error",
+                subtitle: validateResult.message,
+                image: UIImage(named: "filter-cross"),
+                type: TSMessageNotificationType.Error,
+                duration: delay,
+                callback: nil,
+                buttonTitle: nil,
+                buttonCallback: nil,
+                atPosition: TSMessageNotificationPosition.Bottom,
+                canBeDismissedByUser: true)
         }
     }
     
@@ -212,5 +248,22 @@ class InventoryOptionsViewController: UIViewController, UITableViewDataSource, U
             }
         }
         return mutableDict
+    }
+    
+    func validateInputs() -> (valid: Bool, message: String) {
+        var valid: Bool = true
+        var message: String = ""
+        
+        if lowStockLimitText.text == "" {
+            message += "Please enter the low stock limit\n"
+            valid = false
+        } else if lowStockLimitText.text.toInt() < 1 {
+            lowStockLimitText.text = ""
+            
+            message += "The low stock limit must be at least 1\n"
+            valid = false
+        }
+        
+        return (valid, message)
     }
 }

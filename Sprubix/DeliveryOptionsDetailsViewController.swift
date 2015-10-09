@@ -8,6 +8,7 @@
 
 import UIKit
 import AFNetworking
+import TSMessages
 
 class DeliveryOptionsDetailsViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UITextFieldDelegate {
     
@@ -23,6 +24,8 @@ class DeliveryOptionsDetailsViewController: UIViewController, UITableViewDataSou
     var deliveryEstimatedTimeText: UITextField!
     
     let deliveryNamePlaceholderText = "What is this delivery option called?"
+    let deliveryPricePlaceholderText = "How much does it cost?"
+    let deliveryEstimatedTimePlaceholderText = "Estimated duration (days)"
     
     // custom nav bar
     var newNavBar: UINavigationBar!
@@ -145,7 +148,7 @@ class DeliveryOptionsDetailsViewController: UIViewController, UITableViewDataSou
             deliveryPriceText = UITextField(frame: CGRectInset(deliveryPriceCell.contentView.bounds, 15, 0))
             
             deliveryPriceText.returnKeyType = UIReturnKeyType.Next
-            deliveryPriceText.placeholder = "How much does it cost?"
+            deliveryPriceText.placeholder = deliveryPricePlaceholderText
             deliveryPriceText.keyboardType = UIKeyboardType.DecimalPad
             deliveryPriceText.delegate = self
             deliveryPriceCell.addSubview(deliveryPriceText)
@@ -160,7 +163,7 @@ class DeliveryOptionsDetailsViewController: UIViewController, UITableViewDataSou
             deliveryEstimatedTimeText = UITextField(frame: CGRectInset(deliveryEstimatedTimeCell.contentView.bounds, 15, 0))
             
             deliveryEstimatedTimeText.returnKeyType = UIReturnKeyType.Next
-            deliveryEstimatedTimeText.placeholder = "Estimated duration (days)"
+            deliveryEstimatedTimeText.placeholder = deliveryEstimatedTimePlaceholderText
             deliveryEstimatedTimeText.keyboardType = UIKeyboardType.NumberPad
             deliveryEstimatedTimeText.delegate = self
             deliveryEstimatedTimeCell.addSubview(deliveryEstimatedTimeText)
@@ -204,17 +207,39 @@ class DeliveryOptionsDetailsViewController: UIViewController, UITableViewDataSou
     }
     
     func textFieldDidEndEditing(textField: UITextField) {
-        if textField == deliveryPriceText && deliveryPriceText.text == "" {
-            deliveryPriceText.leftView = nil
-            deliveryPriceText.placeholder = deliveryNamePlaceholderText
-            deliveryPriceText.leftViewMode = UITextFieldViewMode.Never
+        if textField == deliveryPriceText {
+            if deliveryPriceText.text != "" {
+                formatPrice()
+            } else {
+                deliveryPriceText.leftView = nil
+                deliveryPriceText.placeholder = deliveryPricePlaceholderText
+                deliveryPriceText.leftViewMode = UITextFieldViewMode.Never
+            }
         }
+    }
+    
+    func textField(textField: UITextField, shouldChangeCharactersInRange range: NSRange, replacementString string: String) -> Bool {
+        
+        if textField == deliveryPriceText {
+            // Prevent double decimal point
+            if string == "." && contains(deliveryPriceText.text, ".") {
+                return false
+            }
+        }
+        
+        return true
     }
     
     // nav bar button callbacks
     func saveTapped(sender: UIBarButtonItem) {
+        
+        self.view.endEditing(true)
+        
+        let validateResult = self.validateInputs()
+        let delay: NSTimeInterval = 3
+        
         // validate
-        if deliveryPriceText.text != "" && deliveryNameText.text != "" && deliveryEstimatedTimeText.text != "" {
+        if validateResult.valid {
             
             if deliveryOption != nil {
                 let deliveryOptionId = deliveryOption!["id"] as! Int
@@ -248,20 +273,146 @@ class DeliveryOptionsDetailsViewController: UIViewController, UITableViewDataSou
                         success: { (operation: AFHTTPRequestOperation!, responseObject:
                             AnyObject!) in
                             
-                            // add notification for success
-                            self.navigationController?.popViewControllerAnimated(true)
+                            var response = responseObject as! NSDictionary
+                            var status = response["status"] as! String
+                            var data = response["data"] as! NSDictionary
+                            
+                            // success
+                            if status == "200" {
+                                // add notification for success
+                                let viewDelay: Double = 2.0
+                                
+                                // success
+                                TSMessage.showNotificationInViewController(
+                                    TSMessage.defaultViewController(),
+                                    title: "Success!",
+                                    subtitle: "Delivery option added",
+                                    image: UIImage(named: "filter-check"),
+                                    type: TSMessageNotificationType.Success,
+                                    duration: delay,
+                                    callback: nil,
+                                    buttonTitle: nil,
+                                    buttonCallback: nil,
+                                    atPosition: TSMessageNotificationPosition.Bottom,
+                                    canBeDismissedByUser: true)
+                                
+                                Delay.delay(viewDelay) {
+                                    // add notification for success
+                                    self.navigationController?.popViewControllerAnimated(true)
+                                }
+                                
+                            } else {
+                                // error exception
+                                TSMessage.showNotificationInViewController(
+                                    TSMessage.defaultViewController(),
+                                    title: "Error",
+                                    subtitle: "Something went wrong.\nPlease try again.",
+                                    image: UIImage(named: "filter-cross"),
+                                    type: TSMessageNotificationType.Error,
+                                    duration: delay,
+                                    callback: nil,
+                                    buttonTitle: nil,
+                                    buttonCallback: nil,
+                                    atPosition: TSMessageNotificationPosition.Bottom,
+                                    canBeDismissedByUser: true)
+                                
+                                println(data)
+                            }
+                            
                         },
                         failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                             println("Error: " + error.localizedDescription)
+                            
+                            // error exception
+                            TSMessage.showNotificationInViewController(
+                                TSMessage.defaultViewController(),
+                                title: "Error",
+                                subtitle: "Something went wrong.\nPlease try again.",
+                                image: UIImage(named: "filter-cross"),
+                                type: TSMessageNotificationType.Error,
+                                duration: delay,
+                                callback: nil,
+                                buttonTitle: nil,
+                                buttonCallback: nil,
+                                atPosition: TSMessageNotificationPosition.Bottom,
+                                canBeDismissedByUser: true)
                     })
                 } else {
                     println("userId not found, please login or create an account")
                 }
             }
+        } else {
+            // Validation failed
+            TSMessage.showNotificationInViewController(
+                self,
+                title: "Error",
+                subtitle: validateResult.message,
+                image: UIImage(named: "filter-cross"),
+                type: TSMessageNotificationType.Error,
+                duration: delay,
+                callback: nil,
+                buttonTitle: nil,
+                buttonCallback: nil,
+                atPosition: TSMessageNotificationPosition.Bottom,
+                canBeDismissedByUser: true)
         }
     }
     
     func backTapped(sender: UIBarButtonItem) {
         self.navigationController?.popViewControllerAnimated(true)
+    }
+    
+    func validateInputs() -> (valid: Bool, message: String) {
+        var valid: Bool = true
+        var message: String = ""
+        
+        formatPrice()
+        
+        if deliveryNameText.text == "" {
+            message += "Please enter a delivery option name\n"
+            valid = false
+        } else if count(deliveryNameText.text) > 255 {
+            message += "The delivery option name is too long\n"
+            valid = false
+        }
+        
+        if deliveryPriceText.text == "" {
+            message += "Please enter the delivery option price\n"
+            valid = false
+        }
+        
+        if deliveryEstimatedTimeText.text == "" {
+            message += "Please enter the estimated duration for the delivery option\n"
+            valid = false
+        }
+        
+        return (valid, message)
+    }
+    
+    func formatPrice() {
+        if contains(deliveryPriceText.text, ".") {
+            let priceArray = deliveryPriceText.text.componentsSeparatedByString(".")
+            var digit = priceArray[0] as String
+            var decimal = priceArray[1] as String
+            
+            // if .XX , make it 0.XX
+            if digit == "" {
+                digit = "0"
+            }
+            
+            // truncate decimal
+            if count(decimal) == 0 {
+                decimal = "00"
+            } else if count(decimal) == 1 {
+                decimal = "\(decimal)0"
+            } else {
+                decimal = decimal.substringWithRange(Range(start: decimal.startIndex, end: advance(decimal.startIndex, 2)))
+            }
+            
+            deliveryPriceText.text = "\(digit).\(decimal)"
+            
+        } else if deliveryPriceText.text != "" {
+            deliveryPriceText.text = "\(deliveryPriceText.text).00"
+        }
     }
 }

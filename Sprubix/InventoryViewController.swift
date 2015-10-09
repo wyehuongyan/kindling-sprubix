@@ -257,6 +257,8 @@ class InventoryViewController: UIViewController, UITableViewDataSource, UITableV
                 failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                     println("Error: " + error.localizedDescription)
             })
+        } else {
+            inventoryTableView.reloadData()
         }
     }
     
@@ -698,6 +700,9 @@ class InventoryViewController: UIViewController, UITableViewDataSource, UITableV
     }
     
     func inventoryOptionsTapped(sender: UIBarButtonItem) {
+        // reset selected piece
+        selectedPiece = nil
+        
         let inventoryOptionsViewController = InventoryOptionsViewController()
         
         self.navigationController?.pushViewController(inventoryOptionsViewController, animated: true)
