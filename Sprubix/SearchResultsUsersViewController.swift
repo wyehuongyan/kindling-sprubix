@@ -261,7 +261,7 @@ class SearchResultsUsersViewController: UIViewController, UISearchBarDelegate, U
         
         var paragraph: NSMutableParagraphStyle = NSMutableParagraphStyle.new()
         paragraph.lineBreakMode = NSLineBreakMode.ByWordWrapping
-        paragraph.alignment = NSTextAlignment.Left
+        paragraph.alignment = NSTextAlignment.Center
         
         let attributes: NSDictionary = [
             NSFontAttributeName: UIFont.boldSystemFontOfSize(14.0),
