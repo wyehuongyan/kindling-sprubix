@@ -621,7 +621,7 @@ class SnapshotShareController: UIViewController, UITableViewDelegate, UITableVie
             
             var sprubixOutfitDict: NSMutableDictionary = [
                 "num_pieces": sprubixPieces.count,
-                "description": descriptionText.text,
+                "description": descriptionText.text == placeholderText ? "" : descriptionText.text,
                 "created_by": userData["username"] as! String,
                 "from": userData["username"] as! String,
                 "user_id": userData["id"] as! Int,
@@ -932,11 +932,6 @@ class SnapshotShareController: UIViewController, UITableViewDelegate, UITableVie
         if allHaveCategory == false {
             message += "Please choose a category for all the items\n"
             valid = false
-        }
-        
-        // If description is placeholder text, remove it
-        if descriptionText.text == placeholderText {
-            descriptionText.text = ""
         }
         
         if count(descriptionText.text) > 255 {

@@ -415,7 +415,7 @@ class SpruceShareViewController: UIViewController, UITableViewDelegate, UITableV
             
             var spruceOutfitDict: NSMutableDictionary = [
                 "num_pieces": numPieces,
-                "description": descriptionText.text,
+                "description": descriptionText.text == placeholderText ? "" : descriptionText.text,
                 "created_by": userData["id"] as! Int,
                 "from": userIdFrom,
                 "height": finalHeight,
@@ -755,11 +755,6 @@ class SpruceShareViewController: UIViewController, UITableViewDelegate, UITableV
     func validateInputs() -> (valid: Bool, message: String) {
         var valid: Bool = true
         var message: String = ""
-        
-        // If description is placeholder text, remove it
-        if descriptionText.text == placeholderText {
-            descriptionText.text = ""
-        }
         
         if count(descriptionText.text) > 255 {
             message += "The description is too long\n"
