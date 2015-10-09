@@ -346,30 +346,35 @@ class CartViewController: UIViewController, UITableViewDataSource, UITableViewDe
         
         cell.tappedOnImageAction = { Void in
             
-            println("Piece \(pieceId)'s item image tapped")
-            
             manager.POST(SprubixConfig.URL.api + "/pieces",
                 parameters: [
                     "id": pieceId
                 ],
                 success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
                     
-                    var piece = (responseObject["data"] as! NSArray)[0] as! NSDictionary
-                    
-                    let pieceDetailsViewController = PieceDetailsViewController(collectionViewLayout: self.detailsViewControllerLayout(), currentIndexPath: NSIndexPath(forRow: 0, inSection: 0))
-                    
-                    pieceDetailsViewController.pieces = [piece]
-                    pieceDetailsViewController.user = piece["user"] as! NSDictionary
-                    
-                    // push outfitDetailsViewController onto navigation stack
-                    let transition = CATransition()
-                    transition.duration = 0.3
-                    transition.type = kCATransitionMoveIn
-                    transition.subtype = kCATransitionFromTop
-                    transition.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
-                    
-                    self.navigationController?.view.layer.addAnimation(transition, forKey: kCATransition)
-                    self.navigationController!.pushViewController(pieceDetailsViewController, animated: false)
+                    if (responseObject["data"] as! NSArray).count > 0 {
+                        var piece = (responseObject["data"] as! NSArray)[0] as! NSDictionary
+                        
+                        let pieceDetailsViewController = PieceDetailsViewController(collectionViewLayout: self.detailsViewControllerLayout(), currentIndexPath: NSIndexPath(forRow: 0, inSection: 0))
+                        
+                        pieceDetailsViewController.pieces = [piece]
+                        pieceDetailsViewController.user = piece["user"] as! NSDictionary
+                        
+                        // push outfitDetailsViewController onto navigation stack
+                        let transition = CATransition()
+                        transition.duration = 0.3
+                        transition.type = kCATransitionMoveIn
+                        transition.subtype = kCATransitionFromTop
+                        transition.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
+                        
+                        self.navigationController?.view.layer.addAnimation(transition, forKey: kCATransition)
+                        self.navigationController!.pushViewController(pieceDetailsViewController, animated: false)
+                    } else {
+                        var automatic: NSTimeInterval = 0
+                        
+                        // warning message
+                        TSMessage.showNotificationInViewController(TSMessage.defaultViewController(), title: "Oops!", subtitle: "This item is no longer available.", image: nil, type: TSMessageNotificationType.Warning, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: true)
+                    }
                 },
                 failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                     println("Error: " + error.localizedDescription)
@@ -856,6 +861,7 @@ class CartViewController: UIViewController, UITableViewDataSource, UITableViewDe
             var quantityArray: [Int] = [Int]()
             
             if !currentEditPiece["quantity"]!.isKindOfClass(NSNull) {
+                
                 var pieceQuantityString = currentEditPiece["quantity"] as! String
                 var pieceQuantityData:NSData = pieceQuantityString.dataUsingEncoding(NSUTF8StringEncoding)!
                 
@@ -864,37 +870,43 @@ class CartViewController: UIViewController, UITableViewDataSource, UITableViewDe
                 for var i = 1; i <= (pieceQuantityDict[selectedSize!] as! String).toInt(); i++ {
                     quantityArray.append(i)
                 }
-        
-                let picker: ActionSheetStringPicker = ActionSheetStringPicker(title: "Quantity", rows: quantityArray, initialSelection: 0,
-                    doneBlock: { actionSheetPicker, selectedIndex, selectedValue in
-                        
-                        // add info to buyPieceInfo
-                        self.buyPieceInfo?.setObject(selectedValue, forKey: "quantity")
-                        
-                        self.itemBuyQuantityLabel.text = "\(selectedValue)"
-                        self.itemBuyQuantityLabel.textColor = UIColor.blackColor()
-                        
-                    }, cancelBlock: nil, origin: sender)
-                
-                // custom done button
-                let doneButton = UIBarButtonItem(title: "done", style: UIBarButtonItemStyle.Plain, target: nil, action: nil)
-                
-                doneButton.setTitleTextAttributes([
-                    NSForegroundColorAttributeName: sprubixColor,
-                    ], forState: UIControlState.Normal)
-                
-                picker.setDoneButton(doneButton)
-                
-                // custom cancel button
-                var cancelButton:UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
-                
-                cancelButton.setTitle("X", forState: UIControlState.Normal)
-                cancelButton.setTitleColor(sprubixColor, forState: UIControlState.Normal)
-                cancelButton.frame = CGRect(x: 0, y: 0, width: 20, height: 20)
-                
-                picker.setCancelButton(UIBarButtonItem(customView: cancelButton))
-                
-                picker.showActionSheetPicker()
+            
+                if quantityArray.count > 0 {
+                    let picker: ActionSheetStringPicker = ActionSheetStringPicker(title: "Quantity", rows: quantityArray, initialSelection: 0,
+                        doneBlock: { actionSheetPicker, selectedIndex, selectedValue in
+                            
+                            // add info to buyPieceInfo
+                            self.buyPieceInfo?.setObject(selectedValue, forKey: "quantity")
+                            
+                            self.itemBuyQuantityLabel.text = "\(selectedValue)"
+                            self.itemBuyQuantityLabel.textColor = UIColor.blackColor()
+                            
+                        }, cancelBlock: nil, origin: sender)
+                    
+                    // custom done button
+                    let doneButton = UIBarButtonItem(title: "done", style: UIBarButtonItemStyle.Plain, target: nil, action: nil)
+                    
+                    doneButton.setTitleTextAttributes([
+                        NSForegroundColorAttributeName: sprubixColor,
+                        ], forState: UIControlState.Normal)
+                    
+                    picker.setDoneButton(doneButton)
+                    
+                    // custom cancel button
+                    var cancelButton:UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+                    
+                    cancelButton.setTitle("X", forState: UIControlState.Normal)
+                    cancelButton.setTitleColor(sprubixColor, forState: UIControlState.Normal)
+                    cancelButton.frame = CGRect(x: 0, y: 0, width: 20, height: 20)
+                    
+                    picker.setCancelButton(UIBarButtonItem(customView: cancelButton))
+                    
+                    picker.showActionSheetPicker()
+                } else {
+                    var automatic: NSTimeInterval = 0
+                    
+                    TSMessage.showNotificationInViewController(TSMessage.defaultViewController(), title: "Oops!", subtitle: "This item is out of stock.", image: nil, type: TSMessageNotificationType.Warning, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: true)
+                }
             }
         } else {
             println("Please select size first")

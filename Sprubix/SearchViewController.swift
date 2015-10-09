@@ -15,11 +15,13 @@ class SearchViewController: UIViewController, UISearchBarDelegate {
     var newNavBar: UINavigationBar!
     var newNavItem: UINavigationItem!
     var searchBar: UISearchBar?
+    var searchString: String = ""
     
     var activityView: UIActivityIndicatorView!
     
     var scopeButtonTitles = ["Outfits", "Items", "People"]
     var currentScope = 0
+    var fromRecommendSimilar = false
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -34,12 +36,15 @@ class SearchViewController: UIViewController, UISearchBarDelegate {
         self.setNeedsStatusBarAppearanceUpdate()
         
         initNavBar()
+        
+        if fromRecommendSimilar {
+            searchBar?.userInteractionEnabled = false
+            searchBarSearchButtonClicked(searchBar!)
+        }
 	}
 
 	override func viewDidAppear(animated: Bool) {
 		super.viewDidAppear(animated)
-        
-        println(self.navigationController?.childViewControllers)
 	}
     
     func initNavBar() {
@@ -63,6 +68,7 @@ class SearchViewController: UIViewController, UISearchBarDelegate {
         searchBar?.setBackgroundImage(UIImage(), forBarPosition: UIBarPosition.Any, barMetrics: UIBarMetrics.Default)
         searchBar?.delegate = self
 
+        searchBar?.text = searchString
         searchBar?.scopeButtonTitles = scopeButtonTitles
         searchBar?.showsScopeBar = true
         searchBar?.selectedScopeButtonIndex = currentScope
@@ -121,7 +127,7 @@ class SearchViewController: UIViewController, UISearchBarDelegate {
 	}
     
     func searchBarSearchButtonClicked(searchBar: UISearchBar) {
-        var searchString = searchBar.text
+        searchString = searchBar.text
         
         var searchURL: String!
         var params: NSMutableDictionary = NSMutableDictionary()
@@ -152,11 +158,13 @@ class SearchViewController: UIViewController, UISearchBarDelegate {
                 
                 self.activityView.stopAnimating()
                 
+                println(responseObject)
+                
                 if self.currentScope != 2 {
                     // instantiate results view controller
                     let searchResultsViewController = SearchResultsViewController()
                     
-                    searchResultsViewController.searchString = searchString
+                    searchResultsViewController.searchString = self.searchString
                     searchResultsViewController.searchURL = searchURL
                     searchResultsViewController.currentScope = self.currentScope
                     searchResultsViewController.results = responseObject["data"] as! [NSDictionary]
@@ -169,7 +177,7 @@ class SearchViewController: UIViewController, UISearchBarDelegate {
                     // instantiate users results view controller
                     let searchResultsUsersViewController = UIStoryboard.searchResultsUsersViewController()
                     
-                    searchResultsUsersViewController!.searchString = searchString
+                    searchResultsUsersViewController!.searchString = self.searchString
                     searchResultsUsersViewController!.searchURL = searchURL
                     searchResultsUsersViewController!.results = responseObject["data"] as! [NSDictionary]
                     searchResultsUsersViewController!.currentPage = responseObject["current_page"] as? Int
@@ -178,6 +186,9 @@ class SearchViewController: UIViewController, UISearchBarDelegate {
                     self.navigationController?.delegate = nil
                     self.navigationController?.pushViewController(searchResultsUsersViewController!, animated: true)
                 }
+                
+                self.searchBar?.userInteractionEnabled = true
+                self.fromRecommendSimilar = false
                 
             },
             failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in

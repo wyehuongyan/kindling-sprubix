@@ -29,6 +29,7 @@ class EditSnapshotViewController: UIViewController {
     var newNavItem:UINavigationItem!
     
     var fromAddDetails: Bool!
+    var topIsDress: Bool = false
     
     var handleBarView: UIView = UIView()
     var boundingBoxView: UIView = UIView()
@@ -1122,6 +1123,7 @@ class EditSnapshotViewController: UIViewController {
                 
                 snapshotShareController.selectedPiecesOrdered = self.selectedPiecesOrdered
                 snapshotShareController.totalHeight = totalHeight
+                snapshotShareController.topIsDress = topIsDress
                 
                 self.navigationController?.pushViewController(snapshotShareController, animated: true)
                 
@@ -1132,7 +1134,7 @@ class EditSnapshotViewController: UIViewController {
                 ])
                 // Mixpanel - End
             } else {
-                println("Only one piece, not qualified to be outfit")
+                //println("Only one piece, not qualified to be outfit")
                 
                 var snapshotDetailsController = SnapshotDetailsController()
                 
@@ -1151,6 +1153,17 @@ class EditSnapshotViewController: UIViewController {
                     var sprubixPiece = SprubixPiece()
                     sprubixPiece.images.append(quickFilteredImage)
                     sprubixPiece.type = selectedPiecesOrdered[i]
+                    
+                    if sprubixPiece.type.lowercaseString == "top" {
+                        sprubixPiece.isDress = topIsDress
+                        
+                        if sprubixPiece.isDress {
+                            snapshotDetailsController.itemIsDress = sprubixPiece.isDress
+                            sprubixPiece.category = "Dress"
+                        } else {
+                            sprubixPiece.category = "Top"
+                        }
+                    }
                     
                     snapshotDetailsController.sprubixPiece = sprubixPiece
                 }

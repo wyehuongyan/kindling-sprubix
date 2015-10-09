@@ -108,8 +108,6 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        println(sprubixPiece.type)
-        
         let userData: NSDictionary? = defaults.dictionaryForKey("userData")
         let shoppableType: String? = userData!["shoppable_type"] as? String
         
@@ -223,7 +221,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
         self.view.addSubview(newNavBar)
         
         // reset keyboard
-        makeKeyboardVisible = true
+        //makeKeyboardVisible = true
     }
     
     override func viewWillDisappear(animated: Bool) {
@@ -410,7 +408,22 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
             itemDetailsCategoryButton.addTarget(self, action: "itemDetailsCategoryPressed:", forControlEvents: UIControlEvents.TouchUpInside)
             
             if sprubixPiece.category != nil {
+                
                 itemDetailsCategory.text = sprubixPiece.category
+                
+            } else {
+                if sprubixPiece.type.lowercaseString == "top" {
+                    if itemIsDress {
+                        // already set as dress when entering
+                        itemDetailsCategory.text = "Dress"
+                    } else {
+                        itemDetailsCategory.text = "Top"
+                    }
+                    
+                    // disable the category selection
+                    itemDetailsCategoryButton.enabled = false
+                    
+                }
             }
             
             // brand
@@ -510,6 +523,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
                 
                 if sprubixPiece.quantity != nil {
                     if pieceSizesArray != nil && pieceSizesArray.count > 0 {
+                        pieceQuantityDict.removeAllObjects()
                         pieceQuantityDict.setObject(itemDetailsQuantity.text, forKey: pieceSizesArray[0] as! String)
                         
                         var itemQuantity = sprubixPiece.quantity[pieceSizesArray[0] as! String] as! String
@@ -941,7 +955,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
                 moreQuantityTextField.removeFromSuperview()
             }
             
-            if sizes.count > 1 {
+            if sizes.count > 0 {
                 let heightIncrease = (CGFloat(sizes.count) * itemSpecHeight) - itemSpecHeight
                 
                 // add size leftview on first quantity textfield
@@ -1011,7 +1025,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
     }
     
     func deleteImage(sender: UIButton) {
-        println(selectedThumbnail)
+        //println(selectedThumbnail)
         
         selectedThumbnail.setImage(UIImage(named: "details-thumbnail-add"), forState: UIControlState.Normal)
         selectedThumbnail.hasThumbnail = false
@@ -1023,7 +1037,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
         let picker: ActionSheetStringPicker = ActionSheetStringPicker(title: "Choose a category", rows: itemCategories, initialSelection: 0,
             doneBlock: { actionSheetPicker, selectedIndex, selectedValue in
                 
-                if selectedIndex as Int == 3 && selectedValue as! String == "Dress" {
+                if selectedValue as! String == "Dress" {
                     self.itemIsDress = true
                 } else {
                     self.itemIsDress = false
@@ -1087,6 +1101,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
             
             if isShop {
                 if pieceSizesArray != nil && pieceSizesArray.count > 0 {
+                    pieceQuantityDict.removeAllObjects()
                     pieceQuantityDict.setObject(itemDetailsQuantity.text, forKey: pieceSizesArray[0] as! String)
                 }
                 
@@ -1279,6 +1294,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
             
             if isShop {
                 if pieceSizesArray != nil && pieceSizesArray.count > 0 {
+                    pieceQuantityDict.removeAllObjects()
                     pieceQuantityDict.setObject(itemDetailsQuantity.text, forKey: pieceSizesArray[0] as! String)
                 }
                     
@@ -1300,13 +1316,11 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
             sprubixPiece.price = itemDetailsPrice != nil ? itemDetailsPrice.text : ""
             sprubixPiece.desc = (descriptionText != nil && descriptionText.text != placeholderText) ? descriptionText.text : ""
             sprubixPiece.isDress = itemIsDress
-
-            println(sprubixPiece.size)
             
             if fromInventoryView == false {
                 delegate?.setSprubixPiece(sprubixPiece, position: pos)
                 
-                println(sprubixPiece.size)
+                //println(sprubixPiece.size)
                 
                 self.navigationController?.popViewControllerAnimated(true)
             } else {
@@ -1341,7 +1355,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
                 
                 sprubixDict.setObject(pieces, forKey: "pieces")
                 
-                println(sprubixDict)
+                //println(sprubixDict)
                 
                 // upload piece data
                 var requestOperation: AFHTTPRequestOperation = manager.POST(SprubixConfig.URL.api + "/upload/piece/update", parameters: sprubixDict, constructingBodyWithBlock: { formData in
@@ -1443,7 +1457,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
     
     func textField(textField: UITextField, shouldChangeCharactersInRange range: NSRange, replacementString string: String) -> Bool {
         
-        if textField == itemDetailsPrice {
+        if itemDetailsPrice != nil && textField == itemDetailsPrice {
             // Prevent double decimal point
             if string == "." && contains(itemDetailsPrice.text, ".") {
                 return false

@@ -21,15 +21,15 @@ struct SprubixConfig {
     struct URL {
         //static let api: String = "http://192.168.1.1/~shion/kindling-core/public/index.php"
         //static let api: String = "http://sprubix-ch.ngrok.io/~shion/kindling-core/public/index.php"
-        //static let api: String = "http://sprubix-wh.ngrok.io/~wyehuongyan/kindling-core/public/index.php"
-        //static let firebase: String = "https://sprubixtest.firebaseio.com/"
+        static let api: String = "http://sprubix-wh.ngrok.io/~wyehuongyan/kindling-core/public/index.php"
+        static let firebase: String = "https://sprubixtest.firebaseio.com/"
         
-        static let api: String = "https://api.sprbx.com"
-        static let firebase: String = "https://sprubix.firebaseio.com/"
+        //static let api: String = "https://api.sprbx.com"
+        //static let firebase: String = "https://sprubix.firebaseio.com/"
     }
     struct Token {
-        //static let mixpanel = ""
-        static let mixpanel = "7b1423643b7e52dad5680f5fdc390a88" // live
+        static let mixpanel = ""
+        //static let mixpanel = "7b1423643b7e52dad5680f5fdc390a88" // live
     }
 }
 
@@ -47,7 +47,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
         // Override point for customization after application launch.
-        //AFNetworkActivityLogger.sharedLogger().startLogging()
+        AFNetworkActivityLogger.sharedLogger().startLogging()
 
         window = UIWindow(frame: UIScreen.mainScreen().bounds)
         window!.rootViewController = containerViewController
@@ -351,11 +351,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             let verificationCode = parameters["verificationCode"] as! String
             
             // REST call to server to retrieve shop orders
-            manager.POST(SprubixConfig.URL.api + "/auth/email/verify",
-                parameters: [
-                    "user_id": userId,
-                    "verification_code": verificationCode
-                ],
+            manager.GET(SprubixConfig.URL.api + "/auth/email/verify?id=\(userId)&vc=\(verificationCode)",
+                parameters: nil,
                 success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
                     
                     var status = responseObject["status"] as! String

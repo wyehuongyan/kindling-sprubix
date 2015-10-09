@@ -500,6 +500,13 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
                     self.editSnapshotViewController.previewStillImages = self.previewStillImages
                     self.editSnapshotViewController.fromAddDetails = self.fromAddDetails
                     
+                    // check if top is dress
+                    if self.dressButton.selected {
+                        self.editSnapshotViewController.topIsDress = true
+                    } else {
+                        self.editSnapshotViewController.topIsDress = false
+                    }
+                    
                     if self.fromAddDetails == true {
                         let prevViewController = self.navigationController!.viewControllers[self.navigationController!.viewControllers.count - 2] as! SnapshotDetailsController
                         

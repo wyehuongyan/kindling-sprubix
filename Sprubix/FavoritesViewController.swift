@@ -254,6 +254,8 @@ class FavoritesViewController: UIViewController, DZNEmptyDataSetSource, DZNEmpty
                     
                     if self.likedOutfitIds.count > 0 {
                         self.likedOutfitsPressed(self.button1)
+                    } else {
+                        self.activityView?.stopAnimating()
                     }
                 }
             })

@@ -77,6 +77,9 @@ class OutfitDetailsViewController: UICollectionViewController, UICollectionViewD
         }
         
         self.navigationController?.navigationBarHidden = true
+        
+        containerViewController.statusBarHidden = true
+        self.setNeedsStatusBarAppearanceUpdate()
     }
     
     override func scrollViewDidEndDecelerating(scrollView: UIScrollView) {

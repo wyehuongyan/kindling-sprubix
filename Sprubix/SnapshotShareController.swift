@@ -24,6 +24,7 @@ class SnapshotShareController: UIViewController, UITableViewDelegate, UITableVie
     var heightPercentages = [CGFloat]()
     let outfitViewHeight = screenWidth / 0.75
     var totalHeight: CGFloat = 0
+    var topIsDress: Bool = false
     
     // custom nav bar
     var newNavBar:UINavigationBar!
@@ -159,6 +160,16 @@ class SnapshotShareController: UIViewController, UITableViewDelegate, UITableVie
             var sprubixPiece = SprubixPiece()
             sprubixPiece.images.append(images[i])
             sprubixPiece.type = type
+            
+            if sprubixPiece.type.lowercaseString == "top" {
+                sprubixPiece.isDress = topIsDress
+                
+                if sprubixPiece.isDress {
+                    sprubixPiece.category = "Dress"
+                } else {
+                    sprubixPiece.category = "Top"
+                }
+            }
             
             sprubixPieces.append(sprubixPiece)
         }
@@ -426,7 +437,15 @@ class SnapshotShareController: UIViewController, UITableViewDelegate, UITableVie
             snapshotDetailsController.itemCoverImageView.image = (gesture.view as! UIImageView).image!
             snapshotDetailsController.delegate = self
             snapshotDetailsController.pos = pos
-            snapshotDetailsController.sprubixPiece = sprubixPieces[pos!]
+            
+            let sprubixPiece = sprubixPieces[pos!]
+            snapshotDetailsController.sprubixPiece = sprubixPiece
+            
+            if sprubixPiece.type.lowercaseString == "top" {
+                if sprubixPiece.isDress {
+                    snapshotDetailsController.itemIsDress = sprubixPieces[pos!].isDress
+                }
+            }
             
             self.navigationController?.pushViewController(snapshotDetailsController, animated: true)
             
@@ -568,7 +587,7 @@ class SnapshotShareController: UIViewController, UITableViewDelegate, UITableVie
         
         if validateResult.valid {
             
-            var width: CGFloat = screenWidth
+            var width: CGFloat = 750.0
             var totalHeight: CGFloat = 0
             
             // calculate totalHeight
@@ -606,8 +625,8 @@ class SnapshotShareController: UIViewController, UITableViewDelegate, UITableVie
                 "created_by": userData["username"] as! String,
                 "from": userData["username"] as! String,
                 "user_id": userData["id"] as! Int,
-                "height": outfitImage.scale * outfitImage.size.height,
-                "width": outfitImage.scale * outfitImage.size.width
+                "height": outfitImage.size.height,
+                "width": outfitImage.size.width
             ]
             
             var pieces: NSMutableDictionary = NSMutableDictionary()
@@ -621,8 +640,15 @@ class SnapshotShareController: UIViewController, UITableViewDelegate, UITableVie
                 pieceDict.setObject(sprubixPiece.brand != nil ? sprubixPiece.brand : "", forKey: "brand")
                 pieceDict.setObject(sprubixPiece.price != nil ? sprubixPiece.price : "", forKey: "price")
                 pieceDict.setObject(sprubixPiece.desc != nil ? sprubixPiece.desc : "", forKey: "description")
-                pieceDict.setObject(sprubixPiece.images[0].scale * sprubixPiece.images[0].size.height, forKey: "height")
-                pieceDict.setObject(sprubixPiece.images[0].scale * sprubixPiece.images[0].size.width, forKey: "width")
+                
+                var realHeight: CGFloat = sprubixPiece.images[0].scale * sprubixPiece.images[0].size.height
+                var realWidth: CGFloat = sprubixPiece.images[0].scale * sprubixPiece.images[0].size.width
+                var finalWidth: CGFloat = 750.0
+                var ratio = realWidth / finalWidth
+                var finalHeight = realHeight / ratio
+                
+                pieceDict.setObject(finalHeight, forKey: "height")
+                pieceDict.setObject(finalWidth, forKey: "width")
                 pieceDict.setObject(sprubixPiece.size != nil ? sprubixPiece.size : "", forKey: "size")
                 
                 if sprubixPiece.quantity != nil {

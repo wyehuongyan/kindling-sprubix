@@ -40,6 +40,7 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
     var outfit: NSDictionary!
     var pieces: [NSDictionary]!
     var buyPieces: [NSDictionary] = [NSDictionary]()
+    var deletedPieces: [NSDictionary] = [NSDictionary]()
     var piecesLiked: NSMutableDictionary = NSMutableDictionary()
     var user: NSDictionary!
     var inspiredBy: NSDictionary!
@@ -63,6 +64,7 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
     var likeButtonsDict: NSMutableDictionary = NSMutableDictionary()
     var commentsButton: UIButton!
     var commentsButtons: [UIButton] = [UIButton]()
+    var findSimilarButtons: [UIButton] = [UIButton]()
     
     var purchasable: Bool = false
     var addToBagButton: UIButton!
@@ -426,6 +428,8 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
                     findSimilar.addTarget(self, action: "findSimilar:", forControlEvents: UIControlEvents.TouchUpInside)
                     findSimilar.alpha = 0.0
                     pieceImageView.addSubview(findSimilar)
+                    findSimilarButtons.append(findSimilar)
+                    deletedPieces.append(piece)
                     
                     UIView.animateWithDuration(0.6, delay: 0.3, usingSpringWithDamping: 0.9 , initialSpringVelocity: 0, options: .CurveEaseInOut, animations: {
                             deletedOverlay.alpha = 1.0
@@ -1384,7 +1388,19 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
     }
     
     func findSimilar(sender: UIButton) {
-        println("search")
+        var pos: Int? = find(findSimilarButtons, sender)
+        
+        if pos != nil {
+            let piece = deletedPieces[pos!]
+            let category = piece["category"] as! NSDictionary
+            let searchViewController = SearchViewController()
+            
+            searchViewController.currentScope = 1
+            searchViewController.searchString = (category["name"] as! String).lowercaseString
+            searchViewController.fromRecommendSimilar = true
+            
+            navController?.pushViewController(searchViewController, animated: false)
+        }
     }
     
     // UIGestureRecognizerDelegate
@@ -1491,7 +1507,7 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
             let piece = pieces[i] as NSDictionary
             
             if piece["price"] as! String != "0.00" {
-                if !piece["quantity"]!.isKindOfClass(NSNull) {
+                if !piece["quantity"]!.isKindOfClass(NSNull) && piece["deleted_at"]!.isKindOfClass(NSNull) {
                     
                     let buyPieceView: UIView = UIView(frame: CGRectMake(popupWidth * CGFloat(sellablePieces), 0, popupWidth, popupHeight))
                     
@@ -1922,7 +1938,7 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
             var automatic: NSTimeInterval = 0
             
             // warning message
-            TSMessage.showNotificationInViewController(                        TSMessage.defaultViewController(), title: "Oops!", subtitle: "Please complete all fields before adding to cart.", image: nil, type: TSMessageNotificationType.Warning, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: true)
+            TSMessage.showNotificationInViewController(TSMessage.defaultViewController(), title: "Oops!", subtitle: "Please complete all fields before adding to cart.", image: nil, type: TSMessageNotificationType.Warning, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: true)
         }
     }
     

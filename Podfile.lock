@@ -63,11 +63,11 @@ PODS:
     - Braintree/API
   - Charts (2.1.2)
   - CHTCollectionViewWaterfallLayout (0.9.1)
-  - Crashlytics (3.2.0)
+  - Crashlytics (3.3.4)
   - DZNEmptyDataSet (1.5.2)
-  - Fabric (1.4.1):
-    - Fabric/Base (= 1.4.1)
-  - Fabric/Base (1.4.1)
+  - Fabric (1.5.5):
+    - Fabric/Base (= 1.5.5)
+  - Fabric/Base (1.5.5)
   - FBSDKCoreKit (4.5.1):
     - Bolts (~> 1.1)
     - FBSDKCoreKit/arc (= 4.5.1)
@@ -192,9 +192,9 @@ SPEC CHECKSUMS:
   Braintree: 996027dcc8633569f2405bc57dca11f367050c60
   Charts: bedcb1fcb5d2b41119ae14629ffa23ed439233d0
   CHTCollectionViewWaterfallLayout: 1a8da4fc662702cbddda8926ced266036a829f84
-  Crashlytics: a29e4f820aa401482b26043dc5d78adf08ac7573
+  Crashlytics: 41c082440d2e14da444186fff65e79c0b4b35d4c
   DZNEmptyDataSet: 741da409081a4bf707c949c964623a6ad1799772
-  Fabric: 4f718eeca4c02c7d6f6f4e5f0e5f87c63aa38458
+  Fabric: 190bf1a6eb65f7500de1347d027d2e59a7e53db1
   FBSDKCoreKit: f335eaf6865e1e1597dee1debfb533045500da47
   FBSDKLoginKit: 225cc9a388a92916ee3f3bb14422017b6e44b65b
   FBSDKShareKit: 642034ac9f30793dfd897851b724bb4281750266

@@ -73,6 +73,7 @@ class MainFeedCell: UICollectionViewCell, TransitionWaterfallGridViewProtocol {
         imageViewContent.frame = CGRectMake(0, 0, frame.size.width, frame.size.height - cellInfoViewHeight)
         imageViewContent.contentMode = UIViewContentMode.ScaleAspectFit
         imageViewContent.userInteractionEnabled = true
+        imageViewContent.image = nil
         
         contentView.addSubview(imageViewContent)
         
@@ -224,6 +225,7 @@ class MainFeedCell: UICollectionViewCell, TransitionWaterfallGridViewProtocol {
         let imageURL = NSURL(string: imageURLString!)
         
         imageViewContent.frame = CGRectMake(0, 0, frame.size.width, frame.size.height - cellInfoViewHeight)
+        imageViewContent.image = nil
         imageViewContent.setImageWithURL(imageURL)
         
         infoView.frame = CGRectMake(0, imageViewContent.frame.size.height, frame.size.width, cellInfoViewHeight)
