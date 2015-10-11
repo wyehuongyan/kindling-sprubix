@@ -502,8 +502,8 @@ class FirebaseAuth {
                             
                             println("Firebase Login failed!\n\(error.code)\n\(description)")
                             
-                            // if code=9999 expired_token
-                            if (error.code == 9999 && description == "expired_token") {
+                            // if code=9999
+                            if (error.code == 9999) {
                                 // remove token from SSKeychain and retrieve firebase token from server again
                                 SSKeychain.deletePasswordForService("firebase", account: username)
                                 
