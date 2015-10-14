@@ -373,6 +373,8 @@ class SnapshotShareController: UIViewController, UITableViewDelegate, UITableVie
             
             socialCell.addSubview(socialButtonsLineTop)
             
+            setSocialButtons()
+            
             /*
             // Twitter
             var socialButtonTwitter = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
