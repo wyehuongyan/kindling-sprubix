@@ -100,6 +100,7 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         
         initButtons()
         initDropdown()
+        retrieveOutfits()
         
         // fresh login for initial load
         freshLogin = true
@@ -143,7 +144,7 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         commentsViewController = nil
         
         // retrieve following outfits
-        retrieveOutfits()
+        //retrieveOutfits()
         
         // Mixpanel - Viewed Main Feed, Following
         MixpanelService.track("Viewed Main Feed", propertySet: ["Page": "Following"])

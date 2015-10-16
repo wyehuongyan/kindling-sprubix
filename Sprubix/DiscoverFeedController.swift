@@ -60,6 +60,7 @@ class DiscoverFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyD
         initToolbar()
         initCollectionView()
         initDropdown()
+        retrieveOutfits()
         
         // refresh control
         refreshControl = UIRefreshControl()
@@ -88,7 +89,7 @@ class DiscoverFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyD
         spruceViewController?.view.removeFromSuperview()
         spruceViewController = nil
         
-        retrieveOutfits()
+        //retrieveOutfits()
         
         if self.shyNavBarManager.scrollView == nil {
             self.shyNavBarManager.scrollView = self.discoverCollectionView

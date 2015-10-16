@@ -157,6 +157,7 @@ class CartViewController: UIViewController, UITableViewDataSource, UITableViewDe
         checkoutButton.frame = CGRect(x: 0, y: 0, width: 80, height: 20)
         checkoutButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
         checkoutButton.addTarget(self, action: "checkout:", forControlEvents: UIControlEvents.TouchUpInside)
+        checkoutButton.enabled = false
         
         var checkoutBarButtonItem: UIBarButtonItem = UIBarButtonItem(customView: checkoutButton)
         newNavItem.rightBarButtonItem = checkoutBarButtonItem
@@ -1035,9 +1036,15 @@ class CartViewController: UIViewController, UITableViewDataSource, UITableViewDe
             parameters: nil,
             success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
                 
-                var insufficientStocks = responseObject["insufficient_stocks"] as? [NSDictionary]
+                var status = responseObject["status"] as! String
                 
-                completionHandler(insufficient: insufficientStocks)
+                if status == "200" {
+                    var insufficientStocks = responseObject["insufficient_stocks"] as? [NSDictionary]
+                    
+                    completionHandler(insufficient: insufficientStocks)
+                } else if status == "500" {
+                    // cart does not exist
+                }
             },
             failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                 println("Error: " + error.localizedDescription)
