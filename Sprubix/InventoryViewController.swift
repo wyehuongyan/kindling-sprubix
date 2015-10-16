@@ -34,9 +34,11 @@ class InventoryViewController: UIViewController, UITableViewDataSource, UITableV
     var buttonLine: UIView!
     var currentChoice: UIButton!
     
+    let inventoryCellIdentifier: String = "InventoryCell"
+    let inventorySKUCellIdentifier: String = "InventorySKUCell"
+    
     // table view
     var pieces: [NSDictionary] = [NSDictionary]()
-    let inventoryCellIdentifier: String = "InventoryCell"
     @IBOutlet var inventoryTableView: UITableView!
     
     var currentPage: Int = 0
@@ -418,60 +420,119 @@ class InventoryViewController: UIViewController, UITableViewDataSource, UITableV
         
         switch currentInventoryState {
         case .All:
-            let cell = tableView.dequeueReusableCellWithIdentifier(inventoryCellIdentifier, forIndexPath: indexPath) as! InventoryCell
+            var cell: UITableViewCell!
             
             let piece = pieces[indexPath.row] as NSDictionary
             var piecePrice = piece["price"] as! String
+            var pieceSKU = piece["sku"] as? String
             
-            if !piece["quantity"]!.isKindOfClass(NSNull) {
-                var pieceQuantityString = piece["quantity"] as! String
-                var pieceQuantityData:NSData = pieceQuantityString.dataUsingEncoding(NSUTF8StringEncoding)!
+            if pieceSKU != nil {
+                cell = tableView.dequeueReusableCellWithIdentifier(inventorySKUCellIdentifier, forIndexPath: indexPath) as! InventorySKUCell
                 
-                var pieceQuantityDict = NSJSONSerialization.JSONObjectWithData(pieceQuantityData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSDictionary
-                
-                // get low stock limit
-                let userData: NSDictionary! = defaults.dictionaryForKey("userData")
-                let shoppable = userData["shoppable"] as! NSDictionary
-                let lowStockLimit = shoppable["low_stock_limit"] as! Int
-                
-                var total = 0
-                var lowSizes = NSMutableArray()
-                
-                for (size, pieceQuantity) in pieceQuantityDict {
-                    var stock = (pieceQuantity as! String).toInt()!
-                    total += stock
+                if !piece["quantity"]!.isKindOfClass(NSNull) {
+                    var pieceQuantityString = piece["quantity"] as! String
+                    var pieceQuantityData:NSData = pieceQuantityString.dataUsingEncoding(NSUTF8StringEncoding)!
                     
-                    // check if there's low stock for size here
-                    if stock <= lowStockLimit {
-                        lowSizes.addObject(size)
+                    var pieceQuantityDict = NSJSONSerialization.JSONObjectWithData(pieceQuantityData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSDictionary
+                    
+                    // get low stock limit
+                    let userData: NSDictionary! = defaults.dictionaryForKey("userData")
+                    let shoppable = userData["shoppable"] as! NSDictionary
+                    let lowStockLimit = shoppable["low_stock_limit"] as! Int
+                    
+                    var total = 0
+                    var lowSizes = NSMutableArray()
+                    
+                    for (size, pieceQuantity) in pieceQuantityDict {
+                        var stock = (pieceQuantity as! String).toInt()!
+                        total += stock
+                        
+                        // check if there's low stock for size here
+                        if stock <= lowStockLimit {
+                            lowSizes.addObject(size)
+                        }
+                    }
+                    
+                    if lowSizes.count > 0 {
+                        let lowSizesText = lowSizes.componentsJoinedByString(", ")
+                        
+                        (cell as! InventorySKUCell).inventoryQuantity.text = "Low: \(lowSizesText)"
+                        (cell as! InventorySKUCell).inventoryQuantity.textColor = UIColor.redColor()
+                        (cell as! InventorySKUCell).backgroundColor = sprubixYellow
+                    } else {
+                        (cell as! InventorySKUCell).inventoryQuantity.text = "\(total) left in stock"
+                        (cell as! InventorySKUCell).inventoryQuantity.textColor = UIColor.darkGrayColor()
+                        (cell as! InventorySKUCell).backgroundColor = UIColor.whiteColor()
                     }
                 }
                 
-                if lowSizes.count > 0 {
-                    let lowSizesText = lowSizes.componentsJoinedByString(", ")
+                (cell as! InventorySKUCell).inventoryName.text = piece["name"] as? String
+                (cell as! InventorySKUCell).inventoryPrice.text = "$\(piecePrice)"
+                (cell as! InventorySKUCell).SKU.text = "SKU: \(pieceSKU!)"
+                
+                let pieceImagesString = piece["images"] as! NSString
+                let pieceImagesData:NSData = pieceImagesString.dataUsingEncoding(NSUTF8StringEncoding)!
+                
+                let pieceImagesDict: NSDictionary = NSJSONSerialization.JSONObjectWithData(pieceImagesData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSDictionary
+                
+                let imageURL = NSURL(string: pieceImagesDict["cover"] as! String)
+                
+                (cell as! InventorySKUCell).inventoryImage.setImageWithURL(imageURL)
+                
+            } else {
+                cell = tableView.dequeueReusableCellWithIdentifier(inventoryCellIdentifier, forIndexPath: indexPath) as! InventoryCell
+            
+                
+                if !piece["quantity"]!.isKindOfClass(NSNull) {
+                    var pieceQuantityString = piece["quantity"] as! String
+                    var pieceQuantityData:NSData = pieceQuantityString.dataUsingEncoding(NSUTF8StringEncoding)!
                     
-                    cell.inventoryQuantity.text = "Low: \(lowSizesText)"
-                    cell.inventoryQuantity.textColor = UIColor.redColor()
-                    cell.backgroundColor = sprubixYellow
-                } else {
-                    cell.inventoryQuantity.text = "\(total) left in stock"
-                    cell.inventoryQuantity.textColor = UIColor.darkGrayColor()
-                    cell.backgroundColor = UIColor.whiteColor()
+                    var pieceQuantityDict = NSJSONSerialization.JSONObjectWithData(pieceQuantityData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSDictionary
+                    
+                    // get low stock limit
+                    let userData: NSDictionary! = defaults.dictionaryForKey("userData")
+                    let shoppable = userData["shoppable"] as! NSDictionary
+                    let lowStockLimit = shoppable["low_stock_limit"] as! Int
+                    
+                    var total = 0
+                    var lowSizes = NSMutableArray()
+                    
+                    for (size, pieceQuantity) in pieceQuantityDict {
+                        var stock = (pieceQuantity as! String).toInt()!
+                        total += stock
+                        
+                        // check if there's low stock for size here
+                        if stock <= lowStockLimit {
+                            lowSizes.addObject(size)
+                        }
+                    }
+                    
+                    if lowSizes.count > 0 {
+                        let lowSizesText = lowSizes.componentsJoinedByString(", ")
+                        
+                        (cell as! InventoryCell).inventoryQuantity.text = "Low: \(lowSizesText)"
+                        (cell as! InventoryCell).inventoryQuantity.textColor = UIColor.redColor()
+                        (cell as! InventoryCell).backgroundColor = sprubixYellow
+                    } else {
+                        (cell as! InventoryCell).inventoryQuantity.text = "\(total) left in stock"
+                        (cell as! InventoryCell).inventoryQuantity.textColor = UIColor.darkGrayColor()
+                        (cell as! InventoryCell).backgroundColor = UIColor.whiteColor()
+                    }
                 }
+                
+                (cell as! InventoryCell).inventoryName.text = piece["name"] as? String
+                (cell as! InventoryCell).inventoryPrice.text = "$\(piecePrice)"
+                
+                let pieceImagesString = piece["images"] as! NSString
+                let pieceImagesData:NSData = pieceImagesString.dataUsingEncoding(NSUTF8StringEncoding)!
+                
+                let pieceImagesDict: NSDictionary = NSJSONSerialization.JSONObjectWithData(pieceImagesData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSDictionary
+                
+                let imageURL = NSURL(string: pieceImagesDict["cover"] as! String)
+                
+                (cell as! InventoryCell).inventoryImage.setImageWithURL(imageURL)
             }
-            
-            cell.inventoryName.text = piece["name"] as? String
-            cell.inventoryPrice.text = "$\(piecePrice)"
-            
-            let pieceImagesString = piece["images"] as! NSString
-            let pieceImagesData:NSData = pieceImagesString.dataUsingEncoding(NSUTF8StringEncoding)!
-            
-            let pieceImagesDict: NSDictionary = NSJSONSerialization.JSONObjectWithData(pieceImagesData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSDictionary
-            
-            let imageURL = NSURL(string: pieceImagesDict["cover"] as! String)
-            
-            cell.inventoryImage.setImageWithURL(imageURL)
-        
+                
             return cell
         case .LowStock:
             let cell = tableView.dequeueReusableCellWithIdentifier(inventoryCellIdentifier, forIndexPath: indexPath) as! InventoryCell
@@ -555,7 +616,15 @@ class InventoryViewController: UIViewController, UITableViewDataSource, UITableV
     
     // MARK: UITableViewDelegate
     func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
-        return 100.0
+        
+        let piece = pieces[indexPath.row] as NSDictionary
+        var pieceSKU = piece["sku"] as? String
+        
+        if pieceSKU != nil {
+            return 128.0
+        } else {
+            return 100.0
+        }
     }
     
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
@@ -609,6 +678,7 @@ class InventoryViewController: UIViewController, UITableViewDataSource, UITableV
         }
         
         sprubixPiece.price = piece["price"] as? String
+        sprubixPiece.sku = piece["sku"] as? String
         sprubixPiece.desc = piece["description"] as? String
         sprubixPiece.isDress = piece["is_dress"] as! Bool
         sprubixPiece.type = piece["type"] as? String

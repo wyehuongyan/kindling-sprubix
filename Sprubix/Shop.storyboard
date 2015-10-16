@@ -1058,7 +1058,7 @@
                                             <outlet property="inventoryQuantity" destination="zy4-iS-XGW" id="7j6-KK-TDH"/>
                                         </connections>
                                     </tableViewCell>
-                                    <tableViewCell contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="InventoryCell" rowHeight="100" id="FhL-RF-ox5" customClass="InventoryCell" customModule="Sprubix" customModuleProvider="target">
+                                    <tableViewCell contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="InventorySKUCell" rowHeight="128" id="FhL-RF-ox5" customClass="InventorySKUCell" customModule="Sprubix" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="250" width="600" height="100"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="FhL-RF-ox5" id="VPQ-1O-OZb">
@@ -1091,7 +1091,13 @@
                                                     </constraints>
                                                 </imageView>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Quantity" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="o3f-Zh-MCL">
-                                                    <rect key="frame" x="100" y="68" width="432" height="20"/>
+                                                    <rect key="frame" x="100" y="69" width="432" height="20"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                                                    <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Stock Keeping Unit" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="5PV-wE-Tat">
+                                                    <rect key="frame" x="100" y="96" width="490" height="20"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="16"/>
                                                     <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
                                                     <nil key="highlightedColor"/>
@@ -1099,22 +1105,36 @@
                                             </subviews>
                                             <constraints>
                                                 <constraint firstAttribute="centerY" secondItem="bZQ-er-rSl" secondAttribute="centerY" id="2Ws-CI-Poi"/>
+                                                <constraint firstAttribute="trailing" secondItem="bZQ-er-rSl" secondAttribute="trailing" constant="8" id="5Ts-ez-7lz"/>
                                                 <constraint firstAttribute="centerY" secondItem="Gcb-oj-b6Q" secondAttribute="centerY" id="CM5-AU-C36"/>
                                                 <constraint firstItem="bZQ-er-rSl" firstAttribute="leading" secondItem="y4r-JA-UWm" secondAttribute="trailing" constant="10" id="For-Oq-202"/>
                                                 <constraint firstItem="o3f-Zh-MCL" firstAttribute="leading" secondItem="Gcb-oj-b6Q" secondAttribute="trailing" constant="10" id="GjG-Yj-BVQ"/>
-                                                <constraint firstAttribute="bottom" secondItem="o3f-Zh-MCL" secondAttribute="bottom" constant="12" id="JfW-TG-YZW"/>
+                                                <constraint firstItem="5PV-wE-Tat" firstAttribute="top" secondItem="Gcb-oj-b6Q" secondAttribute="bottom" constant="6" id="H3r-zY-x0h"/>
+                                                <constraint firstItem="5PV-wE-Tat" firstAttribute="top" secondItem="o3f-Zh-MCL" secondAttribute="bottom" constant="8" id="Phx-qB-F2y"/>
                                                 <constraint firstItem="bZQ-er-rSl" firstAttribute="trailing" secondItem="VPQ-1O-OZb" secondAttribute="trailingMargin" id="QQm-Nk-4dq"/>
                                                 <constraint firstItem="SSH-of-Hjq" firstAttribute="top" secondItem="y4r-JA-UWm" secondAttribute="bottom" constant="8" id="SXf-Yu-r4O"/>
                                                 <constraint firstItem="bZQ-er-rSl" firstAttribute="leading" secondItem="o3f-Zh-MCL" secondAttribute="trailing" constant="10" id="YJd-9w-BJF"/>
                                                 <constraint firstItem="y4r-JA-UWm" firstAttribute="top" secondItem="VPQ-1O-OZb" secondAttribute="top" constant="12" id="bQ3-27-0cu"/>
+                                                <constraint firstItem="bZQ-er-rSl" firstAttribute="top" secondItem="VPQ-1O-OZb" secondAttribute="top" constant="25" id="bfj-tX-NhZ"/>
+                                                <constraint firstItem="5PV-wE-Tat" firstAttribute="leading" secondItem="VPQ-1O-OZb" secondAttribute="leading" constant="100" id="h2J-mF-4dp"/>
+                                                <constraint firstItem="Gcb-oj-b6Q" firstAttribute="top" secondItem="VPQ-1O-OZb" secondAttribute="top" constant="10" id="iAi-sO-yJe"/>
                                                 <constraint firstItem="SSH-of-Hjq" firstAttribute="leading" secondItem="Gcb-oj-b6Q" secondAttribute="trailing" constant="10" id="iwM-nn-ftn"/>
                                                 <constraint firstItem="y4r-JA-UWm" firstAttribute="leading" secondItem="Gcb-oj-b6Q" secondAttribute="trailing" constant="10" id="k5j-MH-r0T"/>
+                                                <constraint firstAttribute="bottom" secondItem="5PV-wE-Tat" secondAttribute="bottom" constant="12" id="kWv-xh-xdf"/>
                                                 <constraint firstItem="bZQ-er-rSl" firstAttribute="leading" secondItem="SSH-of-Hjq" secondAttribute="trailing" constant="10" id="kxx-tF-3dO"/>
                                                 <constraint firstItem="Gcb-oj-b6Q" firstAttribute="leading" secondItem="VPQ-1O-OZb" secondAttribute="leading" constant="10" id="nIB-6g-9Zq"/>
                                                 <constraint firstItem="o3f-Zh-MCL" firstAttribute="top" secondItem="SSH-of-Hjq" secondAttribute="bottom" constant="8" id="rUg-JB-594"/>
+                                                <constraint firstAttribute="trailing" secondItem="5PV-wE-Tat" secondAttribute="trailing" constant="10" id="ugD-gb-kKy"/>
                                             </constraints>
+                                            <variation key="default">
+                                                <mask key="constraints">
+                                                    <exclude reference="CM5-AU-C36"/>
+                                                    <exclude reference="2Ws-CI-Poi"/>
+                                                </mask>
+                                            </variation>
                                         </tableViewCellContentView>
                                         <connections>
+                                            <outlet property="SKU" destination="5PV-wE-Tat" id="QhS-qN-ucj"/>
                                             <outlet property="accessoryImage" destination="bZQ-er-rSl" id="1Ih-uM-fTB"/>
                                             <outlet property="inventoryImage" destination="Gcb-oj-b6Q" id="50y-Fr-Oh5"/>
                                             <outlet property="inventoryName" destination="y4r-JA-UWm" id="Hie-2c-V02"/>

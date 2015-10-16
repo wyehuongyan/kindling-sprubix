@@ -639,6 +639,7 @@ class SnapshotShareController: UIViewController, UITableViewDelegate, UITableVie
                 pieceDict.setObject(sprubixPiece.isDress, forKey: "is_dress")
                 pieceDict.setObject(sprubixPiece.brand != nil ? sprubixPiece.brand : "", forKey: "brand")
                 pieceDict.setObject(sprubixPiece.price != nil ? sprubixPiece.price : "", forKey: "price")
+                pieceDict.setObject(sprubixPiece.sku != nil ? sprubixPiece.sku : "", forKey: "sku")
                 pieceDict.setObject(sprubixPiece.desc != nil ? sprubixPiece.desc : "", forKey: "description")
                 
                 var realHeight: CGFloat = sprubixPiece.images[0].scale * sprubixPiece.images[0].size.height

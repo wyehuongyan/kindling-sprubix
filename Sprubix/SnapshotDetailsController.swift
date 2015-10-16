@@ -86,6 +86,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
     var itemDetailsQuantity: UITextField!
     var itemDetailsPrice: UITextField!
     var itemDetailsPriceNumber: CGFloat = 0.00
+    var itemDetailsSKU: UITextField!
     var itemIsDress: Bool = false
     var itemSpecHeightTotal: CGFloat = 220
     
@@ -94,6 +95,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
     
     // to be pushed downwards when quantity increases in rows
     var itemPriceImage: UIButton!
+    var itemSKUImage: UIButton!
     var moreQuantityTextFields: [UITextField] = [UITextField]()
     
     var isShop: Bool = false
@@ -363,7 +365,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
             
         case 2:
             // init piece specifications
-            itemSpecHeightTotal = isShop != true ? itemSpecHeight * 4 : itemSpecHeight * 6
+            itemSpecHeightTotal = isShop != true ? itemSpecHeight * 4 : itemSpecHeight * 7
             
             pieceSpecsView = UIView(frame: CGRect(x: 0, y: 10, width: screenWidth, height: itemSpecHeightTotal))
             pieceSpecsView.backgroundColor = UIColor.whiteColor()
@@ -522,12 +524,12 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
                 
                 if sprubixPiece.quantity != nil {
                     if pieceSizesArray != nil && pieceSizesArray.count > 0 {
-                        pieceQuantityDict.removeAllObjects()
-                        pieceQuantityDict.setObject(itemDetailsQuantity.text, forKey: pieceSizesArray[0] as! String)
-                        
                         var itemQuantity = sprubixPiece.quantity[pieceSizesArray[0] as! String] as! String
                         
                         itemDetailsQuantity.text = "\(itemQuantity)"
+                        
+                        pieceQuantityDict.removeAllObjects()
+                        pieceQuantityDict.setObject(itemDetailsQuantity.text, forKey: pieceSizesArray[0] as! String)
                     }
                 }
                 
@@ -562,11 +564,34 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
                     itemDetailsPrice.leftViewMode = UITextFieldViewMode.Always
                 }
                 
+                // sku
+                itemSKUImage = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+                itemSKUImage.setImage(UIImage(named: "view-item-brand"), forState: UIControlState.Normal)
+                itemSKUImage.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+                itemSKUImage.frame = CGRect(x: 0, y: itemSpecHeight * 6, width: itemImageViewWidth, height: itemSpecHeight)
+                itemSKUImage.imageEdgeInsets = UIEdgeInsetsMake(10, 10, 10, 0)
+                
+                Glow.addGlow(itemSKUImage)
+                
+                itemDetailsSKU = UITextField(frame: CGRectMake(itemImageViewWidth, itemSpecHeight * 6, screenWidth - itemImageViewWidth, itemSpecHeight))
+                itemDetailsSKU.tintColor = sprubixColor
+                itemDetailsSKU.placeholder = "SKU (Optional)"
+                itemDetailsSKU.keyboardType = UIKeyboardType.Default
+                itemDetailsSKU.returnKeyType = UIReturnKeyType.Done
+                itemDetailsSKU.delegate = self
+                
+                if sprubixPiece.sku != nil {
+                    itemDetailsSKU.text = sprubixPiece.sku
+                }
+                
                 pieceSpecsView.addSubview(itemQuantityImage)
                 pieceSpecsView.addSubview(itemDetailsQuantity)
                 
                 pieceSpecsView.addSubview(itemPriceImage)
                 pieceSpecsView.addSubview(itemDetailsPrice)
+                
+                pieceSpecsView.addSubview(itemSKUImage)
+                pieceSpecsView.addSubview(itemDetailsSKU)
             }
             
             pieceSpecsView.addSubview(itemNameImage)
@@ -597,6 +622,8 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
                 itemDetailsQuantity.leftView = sizeLabel
                 itemDetailsQuantity.leftViewMode = UITextFieldViewMode.Always
                 
+                pieceQuantityDict.setObject(itemDetailsQuantity.text, forKey: pieceSizesArray[0] as! String)
+                
                 // add more rows to quantity
                 let numNewRows = pieceSizesArray.count - 1
                 
@@ -624,14 +651,20 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
                         var itemQuantity = sprubixPiece.quantity[sizeLabel.text!] as! String
                         
                         itemDetailsMoreQuantity.text = "\(itemQuantity)"
+                        
+                        pieceQuantityDict.setObject(itemDetailsQuantity.text, forKey: sizeLabel.text!)
                     }
                     
                     pieceSpecsView.addSubview(itemDetailsMoreQuantity)
                     moreQuantityTextFields.append(itemDetailsMoreQuantity)
                 }
                 
+                // shift the cells that are below quantity cell
                 itemPriceImage.frame.origin.y += heightIncrease
                 itemDetailsPrice.frame.origin.y += heightIncrease
+                
+                itemSKUImage.frame.origin.y += heightIncrease
+                itemDetailsSKU.frame.origin.y += heightIncrease
                 
                 itemSpecHeightTotal = itemSpecHeightTotal + heightIncrease
                 
@@ -925,7 +958,10 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
             itemPriceImage.frame.origin.y = itemSpecHeight * 5
             itemDetailsPrice.frame.origin.y = itemSpecHeight * 5
             
-            itemSpecHeightTotal = isShop != true ? itemSpecHeight * 4 : itemSpecHeight * 6
+            itemSKUImage.frame.origin.y = itemSpecHeight * 6
+            itemDetailsSKU.frame.origin.y = itemSpecHeight * 6
+            
+            itemSpecHeightTotal = isShop != true ? itemSpecHeight * 4 : itemSpecHeight * 7
             
             for moreQuantityTextField in moreQuantityTextFields {
                 moreQuantityTextField.removeFromSuperview()
@@ -943,6 +979,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
                 
                 itemDetailsQuantity.leftView = sizeLabel
                 itemDetailsQuantity.leftViewMode = UITextFieldViewMode.Always
+                itemDetailsQuantity.text = pieceQuantityDict.objectForKey(sizeLabel.text!) as! String
                 
                 // add more rows to quantity
                 let numNewRows = sizes.count - 1
@@ -966,13 +1003,18 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
                     
                     itemDetailsMoreQuantity.leftView = sizeLabel
                     itemDetailsMoreQuantity.leftViewMode = UITextFieldViewMode.Always
+                    itemDetailsMoreQuantity.text = pieceQuantityDict.objectForKey(sizeLabel.text!) as! String
                     
                     pieceSpecsView.addSubview(itemDetailsMoreQuantity)
                     moreQuantityTextFields.append(itemDetailsMoreQuantity)
                 }
                 
+                // shift the cells that are below quantity cell
                 itemPriceImage.frame.origin.y += heightIncrease
                 itemDetailsPrice.frame.origin.y += heightIncrease
+                
+                itemSKUImage.frame.origin.y += heightIncrease
+                itemDetailsSKU.frame.origin.y += heightIncrease
                 
                 itemSpecHeightTotal = itemSpecHeightTotal + heightIncrease
                 
@@ -983,6 +1025,9 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
             
             itemPriceImage.setNeedsLayout()
             itemDetailsPrice.setNeedsLayout()
+            
+            itemSKUImage.setNeedsLayout()
+            itemDetailsSKU.setNeedsLayout()
             
             itemTableView.reloadRowsAtIndexPaths([NSIndexPath(forRow: 3, inSection: 0)], withRowAnimation: UITableViewRowAnimation.None)
         }
@@ -1096,6 +1141,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
             sprubixPiece.size = (itemDetailsSize != nil) ? itemDetailsSize.text : ""
             sprubixPiece.quantity = pieceQuantityDict
             sprubixPiece.price = itemDetailsPrice != nil ? itemDetailsPrice.text : ""
+            sprubixPiece.sku = itemDetailsSKU != nil ? itemDetailsSKU.text : ""
             sprubixPiece.desc = (descriptionText != nil && descriptionText.text != placeholderText) ? descriptionText.text : ""
             sprubixPiece.isDress = itemIsDress
             
@@ -1117,6 +1163,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
             pieceDict.setObject(sprubixPiece.isDress, forKey: "is_dress")
             pieceDict.setObject(sprubixPiece.brand != nil ? sprubixPiece.brand : "", forKey: "brand")
             pieceDict.setObject(sprubixPiece.price != nil ? sprubixPiece.price : "", forKey: "price")
+            pieceDict.setObject(sprubixPiece.sku != nil ? sprubixPiece.sku : "", forKey: "sku")
             pieceDict.setObject(sprubixPiece.desc != nil ? sprubixPiece.desc : "", forKey: "description")
             pieceDict.setObject(sprubixPiece.images[0].scale * sprubixPiece.images[0].size.height, forKey: "height")
             pieceDict.setObject(sprubixPiece.images[0].scale * sprubixPiece.images[0].size.width, forKey: "width")
@@ -1290,13 +1337,12 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
             sprubixPiece.size = (itemDetailsSize != nil) ? itemDetailsSize.text : ""
             sprubixPiece.quantity = pieceQuantityDict
             sprubixPiece.price = itemDetailsPrice != nil ? itemDetailsPrice.text : ""
+            sprubixPiece.sku = itemDetailsSKU != nil ? itemDetailsSKU.text : ""
             sprubixPiece.desc = (descriptionText != nil && descriptionText.text != placeholderText) ? descriptionText.text : ""
             sprubixPiece.isDress = itemIsDress
             
             if fromInventoryView == false {
                 delegate?.setSprubixPiece(sprubixPiece, position: pos)
-                
-                //println(sprubixPiece.size)
                 
                 self.navigationController?.popViewControllerAnimated(true)
             } else {
@@ -1321,6 +1367,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
                 pieceDict.setObject(sprubixPiece.isDress, forKey: "is_dress")
                 pieceDict.setObject(sprubixPiece.brand != nil ? sprubixPiece.brand : "", forKey: "brand")
                 pieceDict.setObject(sprubixPiece.price != nil ? sprubixPiece.price : "", forKey: "price")
+                pieceDict.setObject(sprubixPiece.sku != nil ? sprubixPiece.sku : "", forKey: "sku")
                 pieceDict.setObject(sprubixPiece.desc != nil ? sprubixPiece.desc : "", forKey: "description")
                 pieceDict.setObject(sprubixPiece.images[0].scale * sprubixPiece.images[0].size.height, forKey: "height")
                 pieceDict.setObject(sprubixPiece.images[0].scale * sprubixPiece.images[0].size.width, forKey: "width")

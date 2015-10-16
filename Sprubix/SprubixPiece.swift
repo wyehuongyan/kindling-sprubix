@@ -20,6 +20,7 @@ class SprubixPiece: NSObject {
     var brand: String!
     var size: String!
     var desc: String!
+    var sku: String!
     
     // if shop
     var quantity: NSDictionary!

@@ -125,6 +125,7 @@
 		84EB844D1B995EA000F042F1 /* SearchResultsFilterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84EB844C1B995EA000F042F1 /* SearchResultsFilterViewController.swift */; };
 		84EBF05C1B306176008D2306 /* SpruceSearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84EBF05B1B306176008D2306 /* SpruceSearchViewController.swift */; };
 		84EBF05E1B30619B008D2306 /* MyClosetViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84EBF05D1B30619B008D2306 /* MyClosetViewController.swift */; };
+		84ECCD171BD0D60500D0CEFB /* InventorySKUCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84ECCD161BD0D60500D0CEFB /* InventorySKUCell.swift */; };
 		84FDB9601B1595FA00E8D720 /* NotificationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FDB95F1B1595FA00E8D720 /* NotificationCell.swift */; };
 		84FDB9631B15A63700E8D720 /* NotificationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FDB9621B15A63700E8D720 /* NotificationViewController.swift */; };
 /* End PBXBuildFile section */
@@ -264,6 +265,7 @@
 		84EB844C1B995EA000F042F1 /* SearchResultsFilterViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchResultsFilterViewController.swift; sourceTree = "<group>"; };
 		84EBF05B1B306176008D2306 /* SpruceSearchViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpruceSearchViewController.swift; sourceTree = "<group>"; };
 		84EBF05D1B30619B008D2306 /* MyClosetViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MyClosetViewController.swift; sourceTree = "<group>"; };
+		84ECCD161BD0D60500D0CEFB /* InventorySKUCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InventorySKUCell.swift; sourceTree = "<group>"; };
 		84FDB95F1B1595FA00E8D720 /* NotificationCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotificationCell.swift; sourceTree = "<group>"; };
 		84FDB9621B15A63700E8D720 /* NotificationViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotificationViewController.swift; sourceTree = "<group>"; };
 		9C19E471A8B7AC341F31C03D /* Pods-Sprubix.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Sprubix.release.xcconfig"; path = "Pods/Target Support Files/Pods-Sprubix/Pods-Sprubix.release.xcconfig"; sourceTree = "<group>"; };
@@ -508,6 +510,7 @@
 			children = (
 				8405D0411B54D87D00B42752 /* Shop.storyboard */,
 				8488717E1B369CBA001D60A1 /* InventoryCell.swift */,
+				84ECCD161BD0D60500D0CEFB /* InventorySKUCell.swift */,
 				84C6648F1B3AD7EB00E18FF7 /* DeliveryOptionCell.swift */,
 				05BE68881B75D5690098FDCF /* DashboardOverlay.swift */,
 				058609E31B76221B009AAA93 /* DashboardItemCell.swift */,
@@ -964,6 +967,7 @@
 				8486D4161B04774800ED31BA /* SprubixPiece.swift in Sources */,
 				846C979D1ABD68A80050D0BC /* SprucePieceFeedController.swift in Sources */,
 				845834D51B766B29007C6F6B /* UserFollowListCell.swift in Sources */,
+				84ECCD171BD0D60500D0CEFB /* InventorySKUCell.swift in Sources */,
 				8482B86B1B490F930017CEEF /* DeliveryAddressesViewController.swift in Sources */,
 				84B335321AAF095900B9707D /* SprubixStretchyHeader.swift in Sources */,
 				843B81A31AFDF22200FA2DD2 /* SnapshotDetailsController.swift in Sources */,
