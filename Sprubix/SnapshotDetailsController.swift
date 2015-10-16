@@ -410,8 +410,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
             if sprubixPiece.category != nil {
                 
                 itemDetailsCategory.text = sprubixPiece.category
-                
-            } else {
+
                 if sprubixPiece.type.lowercaseString == "top" {
                     if itemIsDress {
                         // already set as dress when entering
@@ -422,8 +421,8 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
                     
                     // disable the category selection
                     itemDetailsCategoryButton.enabled = false
-                    
                 }
+                
             }
             
             // brand

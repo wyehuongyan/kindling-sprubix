@@ -8,8 +8,13 @@
 
 import UIKit
 import AFNetworking
+import MRProgress
 
 class OutfitDetailsViewController: UICollectionViewController, UICollectionViewDelegateFlowLayout, TransitionProtocol, HorizontalPageViewControllerProtocol, DetailsCellActions {
+    
+    // loading overlay
+    var overlay: MRProgressOverlayView!
+    
     let outfitDetailsCellIdentifier = "OutfitDetailsCell"
     
     var outfits: [NSDictionary] = [NSDictionary]()
@@ -209,8 +214,49 @@ class OutfitDetailsViewController: UICollectionViewController, UICollectionViewD
         // actions
         let reportAction = UIAlertAction(title: "Report inappropriate", style: UIAlertActionStyle.Default, handler: {
             action in
-            // handler
-            println("report")
+
+            // init overlay
+            self.overlay = MRProgressOverlayView.showOverlayAddedTo(self.view, title: "Submitting...", mode: MRProgressOverlayViewMode.Indeterminate, animated: true)
+            
+            self.overlay.tintColor = sprubixColor
+
+            // REST call to server to report inappropriate
+            manager.POST(SprubixConfig.URL.api + "/mail/report",
+                parameters: [
+                    "poutfit_type": "Outfit",
+                    "poutfit_id": targetId
+                ],
+                success: { (operation: AFHTTPRequestOperation!, responseObject:
+                    AnyObject!) in
+                    
+                    self.overlay.dismiss(true)
+                    
+                    var result = responseObject as! NSDictionary
+                    
+                    if result["status"] as! String == "200" {
+                        // reported successfully
+                        // // go back one state
+                        var alert = UIAlertController(title: "Report Submitted", message: "Thank you. We will be looking into this shortly.", preferredStyle: UIAlertControllerStyle.Alert)
+                        alert.view.tintColor = sprubixColor
+                        
+                        // Yes
+                        alert.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Cancel, handler: { action in
+                            
+                            //self.returnToPrevious()
+                        }))
+                        
+                        self.presentViewController(alert, animated: true, completion: nil)
+                        
+                    } else {
+                        // failed to report
+                        // // notify user
+                    }
+                },
+                failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                    println("Error: " + error.localizedDescription)
+
+                    self.overlay.dismiss(true)
+            })
         })
         
         let userId:Int? = defaults.objectForKey("userId") as? Int

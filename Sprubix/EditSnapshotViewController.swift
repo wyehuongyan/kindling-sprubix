@@ -49,6 +49,7 @@ class EditSnapshotViewController: UIViewController {
     
     var sprubixHandleBars: [SprubixHandleBarSeperator] = [SprubixHandleBarSeperator]()
     var sprubixBoundingBoxes: [UIView] = [UIView]()
+    var sprubixBoundingBoxesOriginal: [UIView] = [UIView]()
     var sprubixImageViews: [UIImageView] = [UIImageView]()
     var selectedImageView: UIImageView!
     var selectedPiecesOrdered: [String] = [String]()
@@ -266,30 +267,54 @@ class EditSnapshotViewController: UIViewController {
         sprubixHandleBars.append(sprubixHandleBarSeperatorTop)
         handleBarView.addSubview(sprubixHandleBarSeperatorTop)
         
+        var sprubixHandleBarYPos: CGFloat = 0
+        
         // create new handle bar based on no. of previewStillImages
-        for var i = 1; i < previewStillImages.count; i++ {
-            var sprubixHandleBarSeperator = SprubixHandleBarSeperator(frame: CGRectMake(0, CGFloat(i) * screenWidth, screenWidth, sprubixHandleBarSeperatorHeight), handleWidth: 80.0, lineStroke: 2)
+        for var i = 0; i < previewStillImages.count; i++ {
+            var previewStillImage = previewStillImages[i]
+            var fixedImage = fixOrientation(previewStillImage.image!)
             
-            sprubixHandleBars.append(sprubixHandleBarSeperator)
-            handleBarView.addSubview(sprubixHandleBarSeperator)
+            var cropWidth = fixedImage.size.width
+            var cropHeight = fixedImage.size.height
+            
+            var finalWidth = screenWidth
+            var finalHeight = cropHeight / cropWidth * finalWidth
+            
+            if finalHeight > screenWidth {
+                sprubixHandleBarYPos += screenWidth
+            } else {
+                sprubixHandleBarYPos += finalHeight
+            }
+            
+            if i == previewStillImages.count - 1 {
+                // last one
+                sprubixHandleBarSeperatorBottom = SprubixHandleBarSeperator(frame: CGRectMake(0, sprubixHandleBarYPos, screenWidth, sprubixHandleBarSeperatorHeight), handleWidth: 80.0, lineStroke: 2)
+                
+                sprubixHandleBars.append(sprubixHandleBarSeperatorBottom)
+                handleBarView.addSubview(sprubixHandleBarSeperatorBottom)
+            } else {
+                var sprubixHandleBarSeperator = SprubixHandleBarSeperator(frame: CGRectMake(0, sprubixHandleBarYPos, screenWidth, sprubixHandleBarSeperatorHeight), handleWidth: 80.0, lineStroke: 2)
+                
+                sprubixHandleBars.append(sprubixHandleBarSeperator)
+                handleBarView.addSubview(sprubixHandleBarSeperator)
+            }
         }
         
-        // handlebar bottom
-        sprubixHandleBarSeperatorBottom = SprubixHandleBarSeperator(frame: CGRectMake(0, CGFloat(previewStillImages.count) * screenWidth, screenWidth, sprubixHandleBarSeperatorHeight), handleWidth: 80.0, lineStroke: 2)
-        
-        sprubixHandleBars.append(sprubixHandleBarSeperatorBottom)
-        handleBarView.addSubview(sprubixHandleBarSeperatorBottom)
+        var currentBoundingBoxYPos: CGFloat = 0
         
         // bounding boxes
         for var i = 0; i < sprubixHandleBars.count - 1; i++ {
             let boundingBoxHeight: CGFloat = sprubixHandleBars[i + 1].frame.origin.y - sprubixHandleBars[i].frame.origin.y
             
-            var boundingBox = UIView(frame: CGRectMake(0, CGFloat(i) * screenWidth, screenWidth, boundingBoxHeight))
+            var boundingBox = UIView(frame: CGRectMake(0, currentBoundingBoxYPos, screenWidth, boundingBoxHeight))
             
             oldBoxSizes.append(boundingBox.frame.size)
             
             sprubixBoundingBoxes.append(boundingBox)
+            sprubixBoundingBoxesOriginal.append(boundingBox)
             boundingBoxView.addSubview(boundingBox)
+            
+            currentBoundingBoxYPos += boundingBoxHeight
         }
         
         // gesture recognizers
@@ -339,22 +364,6 @@ class EditSnapshotViewController: UIViewController {
         }
     }
     
-    func resetHandleBarSeperators() {
-        for var i = 0; i < sprubixHandleBars.count; i++ {
-            sprubixHandleBars[i].frame.origin.y = CGFloat(i) * screenWidth
-        }
-    }
-    
-    func resetBoundingBoxes() {
-        for var i = 0; i < sprubixHandleBars.count - 1; i++ {
-            let boundingBoxHeight: CGFloat = sprubixHandleBars[i + 1].frame.origin.y - sprubixHandleBars[i].frame.origin.y
-        
-            sprubixBoundingBoxes[i].frame.origin.y = CGFloat(i) * screenWidth
-            sprubixBoundingBoxes[i].frame.size.height = boundingBoxHeight
-            sprubixBoundingBoxes[i].setNeedsDisplay()
-        }
-    }
-    
     func handlePinch(gesture: UIPinchGestureRecognizer) {
         // impt: there should be one 'scale' property per image, currently it's shared. hence zoom in max to img1, img2 cant zoom
         firstTouchPoint = gesture.locationInView(boundingBoxView)
@@ -378,25 +387,26 @@ class EditSnapshotViewController: UIViewController {
                     gesture.state == UIGestureRecognizerState.Failed {
             
                         if pinchedBox != nil {
+                            var pos = find(sprubixBoundingBoxes, pinchedBox!)
+                            var originalBox = sprubixBoundingBoxesOriginal[pos!]
+                            
                             // if trying to scale smaller than current bounding box's frame
-                            if  gesture.scale * scale < pinchedBox!.frame.size.height / screenWidth || gesture.scale * scale < 1.0 { // screenWidth is original height of bounding box
+                            if  gesture.scale * scale < pinchedBox!.frame.size.height / originalBox.frame.size.height || gesture.scale * scale < 1.0 { // originalBox is original height of bounding box
                                 //underscaled
-                                
-                                if gesture.scale * scale < pinchedBox!.frame.size.height / screenWidth {
-                                    currentScale = pinchedBox!.frame.size.height / screenWidth
+                                if gesture.scale * scale < pinchedBox!.frame.size.height / originalBox.frame.size.height {
+                                    currentScale = pinchedBox!.frame.size.height / originalBox.frame.size.height
                                 } else {
                                     currentScale = 1.0
                                 }
                                 
-                                var pos = find(sprubixBoundingBoxes, pinchedBox!)
-                                
                                 UIView.animateWithDuration(0.2, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .CurveEaseInOut, animations: {
                                     
                                     // 2 * self.pinchedBox!.frame.size.height / 3 is the expected width, based on current height
-                                    if 2 * self.pinchedBox!.frame.size.height / 3 >= screenWidth / 0.75 {
+                                    if 2 * self.pinchedBox!.frame.size.height / 3 >= originalBox.frame.size.height {
                                         self.sprubixImageViews[pos!].frame.size = CGSizeMake(2 * self.pinchedBox!.frame.size.height / 3, self.pinchedBox!.frame.size.height)
+                                        
                                     } else {
-                                        self.sprubixImageViews[pos!].frame.size = CGSizeMake(screenWidth, screenWidth / 0.75)
+                                        self.sprubixImageViews[pos!].frame.size = CGSizeMake(screenWidth, originalBox.frame.size.height)
                                     }
                                     
                                     // center image
@@ -604,6 +614,7 @@ class EditSnapshotViewController: UIViewController {
                     pinchGestureRecognizer.enabled = false
                     
                     imageView.frame.origin.x = boundingBox.frame.origin.x + boundingBox.frame.size.width - imageView.frame.size.width
+                    
                     }, completion: { finished in
                         pinchGestureRecognizer.enabled = true
                 })
@@ -615,6 +626,7 @@ class EditSnapshotViewController: UIViewController {
                     pinchGestureRecognizer.enabled = false
                     
                     imageView.frame.origin.y = boundingBox.frame.size.height - imageView.frame.size.height
+                    
                     }, completion: { finished in
                         pinchGestureRecognizer.enabled = true
                 })
@@ -677,6 +689,7 @@ class EditSnapshotViewController: UIViewController {
         default:
             
             if (draggedHandle as! SprubixHandleBarSeperator).draggable != false {
+                
                 // boundingBox above current handlebar
                 if draggedHandle.frame.origin.y < sprubixHandleBars[pos + 1].frame.origin.y - sprubixImageViews[pos].frame.height { // dragging up
                     draggedHandle.frame.origin.y = sprubixHandleBars[pos + 1].frame.origin.y - sprubixImageViews[pos].frame.height
@@ -1107,9 +1120,8 @@ class EditSnapshotViewController: UIViewController {
                 
                 // GPUImageCropFilter on each sprubixImageView
                 for var i = 0; i < sprubixImageViews.count; i++ {
-                    
                     // normalize boundingBox on each sprubixImageView first
-                    var normalizedCropRegion: CGRect = CGRectMake(abs(sprubixImageViews[i].frame.origin.x)/sprubixImageViews[i].frame.size.width, abs(sprubixImageViews[i].frame.origin.y)/sprubixImageViews[i].frame.size.height, sprubixBoundingBoxes[i].frame.size.width/sprubixImageViews[i].frame.size.width, sprubixBoundingBoxes[i].frame.size.height/sprubixImageViews[i].frame.size.height)
+                    var normalizedCropRegion: CGRect = CGRectMake(roundToPlaces(abs(sprubixImageViews[i].frame.origin.x/sprubixImageViews[i].frame.size.width), places: 1), roundToPlaces(abs(sprubixImageViews[i].frame.origin.y/sprubixImageViews[i].frame.size.height), places: 1), roundToPlaces(sprubixBoundingBoxes[i].frame.size.width/sprubixImageViews[i].frame.size.width, places: 1), roundToPlaces(sprubixBoundingBoxes[i].frame.size.height/sprubixImageViews[i].frame.size.height, places: 1))
                     
                     gpuImageFilter = GPUImageCropFilter(cropRegion: normalizedCropRegion)
                     (gpuImageFilter as! GPUImageCropFilter).forceProcessingAtSizeRespectingAspectRatio(CGSizeMake(screenWidth, resizedHeight))
@@ -1140,7 +1152,7 @@ class EditSnapshotViewController: UIViewController {
                 
                 for var i = 0; i < sprubixImageViews.count; i++ {
                     // normalize boundingBox on each sprubixImageView first
-                    var normalizedCropRegion: CGRect = CGRectMake(abs(sprubixImageViews[i].frame.origin.x)/sprubixImageViews[i].frame.size.width, abs(sprubixImageViews[i].frame.origin.y)/sprubixImageViews[i].frame.size.height, sprubixBoundingBoxes[i].frame.size.width/sprubixImageViews[i].frame.size.width, sprubixBoundingBoxes[i].frame.size.height/sprubixImageViews[i].frame.size.height)
+                    var normalizedCropRegion: CGRect = CGRectMake(roundToPlaces(abs(sprubixImageViews[i].frame.origin.x/sprubixImageViews[i].frame.size.width), places: 1), roundToPlaces(abs(sprubixImageViews[i].frame.origin.y/sprubixImageViews[i].frame.size.height), places: 1), roundToPlaces(sprubixBoundingBoxes[i].frame.size.width/sprubixImageViews[i].frame.size.width, places: 1), roundToPlaces(sprubixBoundingBoxes[i].frame.size.height/sprubixImageViews[i].frame.size.height, places: 1))
                     
                     gpuImageFilter = GPUImageCropFilter(cropRegion: normalizedCropRegion)
                     (gpuImageFilter as! GPUImageCropFilter).forceProcessingAtSizeRespectingAspectRatio(CGSizeMake(screenWidth, resizedHeight))
@@ -1186,7 +1198,7 @@ class EditSnapshotViewController: UIViewController {
             // send this image back to AddDetails view
             for var i = 0; i < sprubixImageViews.count; i++ { // will only run once
                 // normalize boundingBox on each sprubixImageView first
-                var normalizedCropRegion: CGRect = CGRectMake(abs(sprubixImageViews[i].frame.origin.x)/sprubixImageViews[i].frame.size.width, abs(sprubixImageViews[i].frame.origin.y)/sprubixImageViews[i].frame.size.height, sprubixBoundingBoxes[i].frame.size.width/sprubixImageViews[i].frame.size.width, sprubixBoundingBoxes[i].frame.size.height/sprubixImageViews[i].frame.size.height)
+                var normalizedCropRegion: CGRect = CGRectMake(roundToPlaces(abs(sprubixImageViews[i].frame.origin.x/sprubixImageViews[i].frame.size.width), places: 1), roundToPlaces(abs(sprubixImageViews[i].frame.origin.y/sprubixImageViews[i].frame.size.height), places: 1), roundToPlaces(sprubixBoundingBoxes[i].frame.size.width/sprubixImageViews[i].frame.size.width, places: 1), roundToPlaces(sprubixBoundingBoxes[i].frame.size.height/sprubixImageViews[i].frame.size.height, places: 1))
                 
                 gpuImageFilter = GPUImageCropFilter(cropRegion: normalizedCropRegion)
                 (gpuImageFilter as! GPUImageCropFilter).forceProcessingAtSizeRespectingAspectRatio(CGSizeMake(screenWidth, resizedHeight))
@@ -1205,5 +1217,10 @@ class EditSnapshotViewController: UIViewController {
                 self.navigationController!.popToViewController(self.navigationController!.viewControllers[self.navigationController!.viewControllers.count - 3] as! UIViewController, animated: false)
             }
         }
+    }
+    
+    func roundToPlaces(value:CGFloat, places:Int) -> CGFloat {
+        let divisor = pow(10.0, CGFloat(places))
+        return round(value * divisor) / divisor
     }
 }

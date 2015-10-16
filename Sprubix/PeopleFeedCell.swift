@@ -145,9 +145,9 @@ class PeopleFeedCell: UITableViewCell {
                 
                 itemPreviewImageView.contentMode = UIViewContentMode.ScaleAspectFill
                 itemPreviewImageView.layer.cornerRadius = 10.0
-                itemPreviewImageView.layer.borderWidth = 1.0
+                itemPreviewImageView.layer.borderWidth = 0.0
                 itemPreviewImageView.layer.borderColor = UIColor.lightGrayColor().CGColor
-                itemPreviewImageView.backgroundColor = UIColor.whiteColor()
+                itemPreviewImageView.backgroundColor = sprubixLightGray
                 itemPreviewImageView.clipsToBounds = true
                 
                 itemPreviewContainer.addSubview(itemPreviewImageView)
@@ -167,6 +167,8 @@ class PeopleFeedCell: UITableViewCell {
             
             var imageURLString = pieceImagesDict["cover"] as! String
 
+            itemPreviewImageView.layer.borderWidth = 1.0
+            itemPreviewImageView.backgroundColor = UIColor.whiteColor()
             itemPreviewImageView.setImageWithURL(NSURL(string: imageURLString))
             itemPreviewImageView.userInteractionEnabled = true
             

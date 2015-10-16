@@ -19,6 +19,7 @@ class PeopleFeedViewController: UIViewController, DZNEmptyDataSetSource, DZNEmpt
     
     let peopleFeedCellIdentifier: String = "PeopleFeedCell"
     var people: [NSDictionary] = [NSDictionary]()
+    var followedPeople: NSMutableDictionary = NSMutableDictionary()
     var peopleTableView: UITableView!
     
     var refreshControl: UIRefreshControl!
@@ -280,6 +281,16 @@ class PeopleFeedViewController: UIViewController, DZNEmptyDataSetSource, DZNEmpt
                 self.peopleTableView.reloadData()
                 self.activityView.stopAnimating()
                 self.refreshControl.endRefreshing()
+                
+                // set followedPeople
+                self.followedPeople.removeAllObjects()
+                
+                for person in self.people {
+                    let id = person["id"] as! Int
+                    let followed = person["followed"] as! Bool
+                    
+                    self.followedPeople.setObject(followed, forKey: id)
+                }
             },
             failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                 println("Error: " + error.localizedDescription)
@@ -302,13 +313,14 @@ class PeopleFeedViewController: UIViewController, DZNEmptyDataSetSource, DZNEmpt
         let person = people[indexPath.row] as NSDictionary
         
         let userImageString = person["image"] as! String
+        let id = person["id"] as! Int
         let username = person["username"] as? String
         let name = person["name"] as? String
         let pieces = person["pieces"] as! [NSDictionary]
         
         cell.userImageView.setImageWithURL(NSURL(string: userImageString))
         cell.user = person
-        cell.followed = person["followed"] as! Bool
+        cell.followed = followedPeople.objectForKey(id) as? Bool
 
         cell.delegate = self
         
@@ -363,6 +375,8 @@ class PeopleFeedViewController: UIViewController, DZNEmptyDataSetSource, DZNEmpt
                 
                 if status == "200" {
                     //println("followed")
+                    let userId = user["id"] as! Int
+                    self.followedPeople.setObject(true, forKey: userId)
                     
                 } else if status == "500" {
                     //println("error in following user")
@@ -390,6 +404,8 @@ class PeopleFeedViewController: UIViewController, DZNEmptyDataSetSource, DZNEmpt
                 
                 if status == "200" {
                     //println("unfollowed")
+                    let userId = user["id"] as! Int
+                    self.followedPeople.setObject(false, forKey: userId)
                     
                 } else if status == "500" {
                     //println("error in unfollowing user")
