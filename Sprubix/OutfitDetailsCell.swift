@@ -2094,7 +2094,7 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
         let content : FBSDKShareLinkContent = FBSDKShareLinkContent()
         content.contentURL = NSURL(string: "http://www.sprubix.com/")
         content.contentTitle = outfit["description"] as! String
-        content.contentDescription = "Check out the outfit I've created! Download the Sprubix app now."
+        content.contentDescription = "Check this outfit out! Download the Sprubix app now."
         content.imageURL = NSURL(string: outfitThumbnailUrl)
         
         let button : FBSDKShareButton = FBSDKShareButton()

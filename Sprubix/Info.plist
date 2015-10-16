@@ -23,7 +23,7 @@
 		<dict>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>fb1620380954907212</string>
+				<string>fb1620379594907348</string>
 			</array>
 		</dict>
 		<dict>
@@ -54,9 +54,9 @@
 		</array>
 	</dict>
 	<key>FacebookAppID</key>
-	<string>1620380954907212</string>
+	<string>1620379594907348</string>
 	<key>FacebookDisplayName</key>
-	<string>Sprubix - Test</string>
+	<string>Sprubix</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>

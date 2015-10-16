@@ -252,6 +252,8 @@ class SpruceShareViewController: UIViewController, UITableViewDelegate, UITableV
             
             socialCell.addSubview(socialButtonsLineTop)
             
+            setSocialButtons()
+            
             /*
             // Twitter
             var socialButtonTwitter = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton

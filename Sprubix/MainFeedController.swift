@@ -582,7 +582,7 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         // tooltip
         let onboarded = defaults.boolForKey("onboardedMainFeed")
         
-        if onboarded == false && indexPath.row == 0 {
+        if onboarded == false && outfits.count > 0 && indexPath.row == 0 {
             let attributes: UICollectionViewLayoutAttributes = collectionView.layoutAttributesForItemAtIndexPath(indexPath)!
             let cellRect: CGRect = attributes.frame
 
