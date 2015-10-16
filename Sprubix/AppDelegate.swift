@@ -27,7 +27,7 @@ struct SprubixConfig {
         
         /* staging */
         //static let api: String = "https://api.sprubix.com"
-        //static let firebase: String = "https://sprubix.firebaseio.com/"
+        //static let firebase: String = "https://sprubixstaging.firebaseio.com/"
         
         /* production */
         static let api: String = "https://api.sprbx.com"
