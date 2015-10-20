@@ -163,7 +163,7 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
         
         // label
         pieceSelectorlabel = UILabel(frame: CGRectMake(0, previewStillScrollView.frame.origin.y - navigationHeight, screenWidth, navigationHeight))
-        pieceSelectorlabel.text = "I'm snapping my..."
+        pieceSelectorlabel.text = "Lay the item flat and snap!"
         pieceSelectorlabel.textColor = UIColor.lightGrayColor()
         pieceSelectorlabel.textAlignment = NSTextAlignment.Center
         
