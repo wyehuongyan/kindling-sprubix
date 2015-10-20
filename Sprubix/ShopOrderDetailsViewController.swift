@@ -11,7 +11,7 @@ import AFNetworking
 import TSMessages
 import MRProgress
 
-class ShopOrderDetailsViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
+class ShopOrderDetailsViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, ShopOrderUpdateProtocol {
 
     var shopOrder: NSMutableDictionary!
     var orderNum: String!
@@ -390,9 +390,7 @@ class ShopOrderDetailsViewController: UIViewController, UITableViewDataSource, U
                 // refund
                 let cell = tableView.dequeueReusableCellWithIdentifier(orderDetailsRefundCellIdentifier, forIndexPath: indexPath) as! OrderDetailsRefundCell
                 
-                if existingRefunds == nil {
-                    existingRefunds = shopOrder["shop_order_refunds"] as? [NSDictionary]
-                }
+                existingRefunds = shopOrder["shop_order_refunds"] as? [NSDictionary]
                 
                 if existingRefunds != nil && existingRefunds!.count > 0 {
                     // there's an existing refund
@@ -658,6 +656,7 @@ class ShopOrderDetailsViewController: UIViewController, UITableViewDataSource, U
             // show RefundRequestViewController and select items to refund
             let shopOrderRefundDetailsViewController = UIStoryboard.shopOrderRefundDetailsViewController()
             shopOrderRefundDetailsViewController?.shopOrder = self.shopOrder
+            shopOrderRefundDetailsViewController?.updateDelegate = self
             
             self.navigationController?.pushViewController(shopOrderRefundDetailsViewController!, animated: true)
         }))
@@ -811,6 +810,11 @@ class ShopOrderDetailsViewController: UIViewController, UITableViewDataSource, U
                 }
             })
         }
+    }
+    
+    // ShopOrderRefundProtocol
+    func updateShopOrder(shopOrder: NSMutableDictionary) {
+        self.shopOrder = shopOrder
     }
     
     // nav bar button callbacks

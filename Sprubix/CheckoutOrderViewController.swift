@@ -88,7 +88,7 @@ class CheckoutOrderViewController: UIViewController, UITableViewDataSource, UITa
     }
     
     func sendContributorNotifications() {
-        println(contributionArray)
+        //println(contributionArray)
         
         for contribution in contributionArray {
             let contributor = contribution["contributor"] as! NSDictionary
@@ -107,7 +107,7 @@ class CheckoutOrderViewController: UIViewController, UITableViewDataSource, UITa
             let thumbnailURLString = outfitImageDict["thumbnail"] as! String
             let receiverUsername = contributor["username"] as! String
             
-            println("sending notification to \(receiverUsername)...")
+            //println("sending notification to \(receiverUsername)...")
             
             sendNotification(itemIdentifier, thumbnailURLString: thumbnailURLString, receiverUsername: receiverUsername, poutfitType: "outfit", pointsAwarded: pointsAwarded)
         }

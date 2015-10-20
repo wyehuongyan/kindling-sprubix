@@ -16,9 +16,14 @@ protocol ShopOrderRefundProtocol {
     func setRequestable(newRefundRequestable: Bool)
 }
 
+protocol ShopOrderUpdateProtocol {
+    func updateShopOrder(shopOrder: NSMutableDictionary)
+}
+
 class ShopOrderRefundDetailsViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UITextViewDelegate {
     
     var delegate: ShopOrderRefundProtocol?
+    var updateDelegate: ShopOrderUpdateProtocol?
     
     var shopOrder: NSMutableDictionary!
     var existingRefund: NSDictionary?
@@ -762,7 +767,29 @@ class ShopOrderRefundDetailsViewController: UIViewController, UITableViewDataSou
     }
     
     func backTapped(sender: UIBarButtonItem) {
-        self.navigationController?.popViewControllerAnimated(true)
+        if fromRefundView {
+            self.navigationController?.popViewControllerAnimated(true)
+        } else {
+            // from shop order details view
+            // reload shop order
+            
+            // REST call to server to retrieve shop orders
+            manager.POST(SprubixConfig.URL.api + "/orders/shop",
+                parameters: [
+                    "shop_order_ids": [shopOrder["id"] as! Int]
+                ],
+                success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                    
+                    var shopOrder = (responseObject["data"] as! [NSDictionary])[0].mutableCopy() as! NSMutableDictionary
+                    
+                    self.updateDelegate?.updateShopOrder(shopOrder)
+                    
+                    self.navigationController?.popViewControllerAnimated(true)
+                },
+                failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                    println("Error: " + error.localizedDescription)
+            })
+        }
     }
 }
 
