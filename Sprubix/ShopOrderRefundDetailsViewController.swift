@@ -284,24 +284,12 @@ class ShopOrderRefundDetailsViewController: UIViewController, UITableViewDataSou
             cell.shippingRate.text = "$\(shippingRate)"
             cell.totalAmountRefundable.text = "$\(totalRefundableAmount)"
             cell.refundReason.delegate = self
-            
-            if existingRefund != nil {
-                let existingRefundReason = existingRefund!["refund_reason"] as! String
-                
-                cell.refundReason.text = existingRefundReason != "" ? existingRefundReason : reasonPlaceholderText
-                cell.refundReason.userInteractionEnabled = false
-            }
-            
             cell.refundPoints.enabled = false
+            cell.refundAmount.enabled = false
             cell.selectionStyle = UITableViewCellSelectionStyle.None
             
             let userData: NSDictionary? = defaults.dictionaryForKey("userData")
             let shoppableType: String? = userData!["shoppable_type"] as? String
-            
-            if shoppableType?.lowercaseString.rangeOfString("shopper") != nil {
-                // shopper
-                cell.refundAmount.enabled = false
-            }
             
             let cartItems = shopOrder["cart_items"] as! [NSDictionary]
             var totalReturnRefundAmount: Float = 0
@@ -369,6 +357,18 @@ class ShopOrderRefundDetailsViewController: UIViewController, UITableViewDataSou
                 cell.refundPoints.text = ""
                 
                 hideRefundButton()
+            }
+            
+            // however if there is already an existing refund, fill it up
+            if existingRefund != nil {
+                let existingRefundReason = existingRefund!["refund_reason"] as! String
+                let existingRefundAmount = existingRefund!["refund_amount"] as! String
+                let existingRefundPoints = existingRefund!["refund_points"] as! String
+                
+                cell.refundReason.text = existingRefundReason != "" ? existingRefundReason : reasonPlaceholderText
+                cell.refundAmount.text = existingRefundAmount
+                cell.refundPoints.text = existingRefundPoints
+                cell.refundReason.userInteractionEnabled = false
             }
             
             return cell
