@@ -163,7 +163,11 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
         
         // label
         pieceSelectorlabel = UILabel(frame: CGRectMake(0, previewStillScrollView.frame.origin.y - navigationHeight, screenWidth, navigationHeight))
-        pieceSelectorlabel.text = "Lay the item flat and snap!"
+        if !fromAddDetails {
+            pieceSelectorlabel.text = "Lay the item flat and snap!"
+        } else {
+            pieceSelectorlabel.text = "Snap additional images!"
+        }
         pieceSelectorlabel.textColor = UIColor.lightGrayColor()
         pieceSelectorlabel.textAlignment = NSTextAlignment.Center
         
@@ -259,7 +263,13 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
         cameraCapture.alpha = 1.0
         pieceSelectorView.alpha = 1.0
         cameraCapture.alpha = 0.0
-        pieceSelectorlabel.text = "I'm snapping my..."
+        
+        if !fromAddDetails {
+            pieceSelectorlabel.text = "Lay the item flat and snap!"
+        } else {
+            pieceSelectorlabel.text = "Snap additional images!"
+        }
+        
         pieceSelectorlabel.alpha = 1.0
         snappedCount = 0.0
         selectedCount = 0.0
@@ -713,7 +723,6 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
         if selectedCount > 0 {
             okButton.alpha = 0.0
             pieceSelectorView.alpha = 0.0
-            pieceSelectorlabel.alpha = 0.0
             cameraCapture.alpha = 1.0
             
             for var i = 0; i < self.pieceTypes.count; i++ {
