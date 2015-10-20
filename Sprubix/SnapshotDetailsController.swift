@@ -979,7 +979,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
                 
                 itemDetailsQuantity.leftView = sizeLabel
                 itemDetailsQuantity.leftViewMode = UITextFieldViewMode.Always
-                itemDetailsQuantity.text = pieceQuantityDict.objectForKey(sizeLabel.text!) as! String
+                itemDetailsQuantity.text = pieceQuantityDict.objectForKey(sizeLabel.text!) as? String
                 
                 // add more rows to quantity
                 let numNewRows = sizes.count - 1
@@ -1003,7 +1003,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
                     
                     itemDetailsMoreQuantity.leftView = sizeLabel
                     itemDetailsMoreQuantity.leftViewMode = UITextFieldViewMode.Always
-                    itemDetailsMoreQuantity.text = pieceQuantityDict.objectForKey(sizeLabel.text!) as! String
+                    itemDetailsMoreQuantity.text = pieceQuantityDict.objectForKey(sizeLabel.text!) as? String
                     
                     pieceSpecsView.addSubview(itemDetailsMoreQuantity)
                     moreQuantityTextFields.append(itemDetailsMoreQuantity)
