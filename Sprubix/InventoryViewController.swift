@@ -426,7 +426,7 @@ class InventoryViewController: UIViewController, UITableViewDataSource, UITableV
             var piecePrice = piece["price"] as! String
             var pieceSKU = piece["sku"] as? String
             
-            if pieceSKU != nil {
+            if pieceSKU != nil && pieceSKU != "" {
                 cell = tableView.dequeueReusableCellWithIdentifier(inventorySKUCellIdentifier, forIndexPath: indexPath) as! InventorySKUCell
                 
                 if !piece["quantity"]!.isKindOfClass(NSNull) {
@@ -620,7 +620,7 @@ class InventoryViewController: UIViewController, UITableViewDataSource, UITableV
         let piece = pieces[indexPath.row] as NSDictionary
         var pieceSKU = piece["sku"] as? String
         
-        if pieceSKU != nil {
+        if pieceSKU != nil && pieceSKU != "" {
             return 128.0
         } else {
             return 100.0
