@@ -43,8 +43,9 @@ class DashboardViewController: UIViewController, UITableViewDataSource, ChartVie
     var dashboardMonth: DashboardMonth = .Current
     var popularPieces: [NSDictionary] = [NSDictionary]()
     
-    var piecesCount: Int = 0
-    var deliveryOptionsCount: Int = 0
+    var hasPieces: Bool = false
+    var hasDeliveryOptions: Bool = false
+    var hasVerified: Bool = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -151,12 +152,12 @@ class DashboardViewController: UIViewController, UITableViewDataSource, ChartVie
                 
                 var data = responseObject["data"] as! NSDictionary
                 
-                self.piecesCount = data["piecesCount"] as! Int
-                self.deliveryOptionsCount = data["deliveryOptionsCount"] as! Int
-                
+                self.hasVerified = data["has_verified"] as! Bool
+                self.hasPieces = data["has_pieces"] as! Bool
+                self.hasDeliveryOptions = data["has_delivery_options"] as! Bool
                 let onboarded = defaults.boolForKey("onboardedInventory")
                 
-                if self.piecesCount == 0 || self.deliveryOptionsCount == 0 || onboarded == false{
+                if self.hasVerified == true || self.hasPieces == true || self.hasDeliveryOptions == true || onboarded == false {
                     self.dashboardOverlay.changeTitle("Let's Get Started!")
                 } else {
                     self.dashboardOverlay.changeTitle("Popular Items")
@@ -277,8 +278,8 @@ class DashboardViewController: UIViewController, UITableViewDataSource, ChartVie
         // Onboarding needed
         let onboarded = defaults.boolForKey("onboardedInventory")
         
-        if piecesCount == 0 || deliveryOptionsCount == 0 || onboarded == false {
-            return 3
+        if hasVerified == false || hasPieces == false || hasDeliveryOptions == false || onboarded == false {
+            return 4
         }
         
         // No onboarding
@@ -291,13 +292,32 @@ class DashboardViewController: UIViewController, UITableViewDataSource, ChartVie
         // Onboarding needed, show guidlines
         let onboarded = defaults.boolForKey("onboardedInventory")
         
-        if piecesCount == 0 || deliveryOptionsCount == 0 || onboarded == false {
+        if hasVerified == false || hasPieces == false || hasDeliveryOptions == false || onboarded == false {
             switch indexPath.row {
             case 0:
-                let header: String = "1. List an Item"
+                let header: String = "1. Verify your Email Address"
+                let text: String = "Check your mailbox and click on the link"
+                
+                if hasVerified == true {
+                    let attributedHeader = NSAttributedString(string: header, attributes: [NSStrikethroughStyleAttributeName: 1, NSForegroundColorAttributeName: sprubixColor])
+                    let attributedText = NSAttributedString(string: text, attributes: [NSStrikethroughStyleAttributeName: 1])
+                    
+                    cell.itemName.attributedText = attributedHeader
+                    cell.itemSold.attributedText = attributedText
+                    
+                } else {
+                    cell.itemName.text = header
+                    cell.itemName.textColor = sprubixColor
+                    cell.itemSold.text = text
+                }
+                
+                cell.itemImageView.image = UIImage(named: "others-mailbox")
+                
+            case 1:
+                let header: String = "2. List an Item"
                 let text: String = "Create an outfit to start selling"
                 
-                if piecesCount > 0 {
+                if hasPieces == true {
                     let attributedHeader = NSAttributedString(string: header, attributes: [NSStrikethroughStyleAttributeName: 1, NSForegroundColorAttributeName: sprubixColor])
                     let attributedText = NSAttributedString(string: text, attributes: [NSStrikethroughStyleAttributeName: 1])
                     
@@ -312,8 +332,8 @@ class DashboardViewController: UIViewController, UITableViewDataSource, ChartVie
                 
                 cell.itemImageView.image = UIImage(named: "sidemenu-create")
                 
-            case 1:
-                let header: String = "2. Check out the Inventory"
+            case 2:
+                let header: String = "3. Check out the Inventory"
                 let text: String = "Verify that everything is correct"
                 
                 if onboarded == true {
@@ -331,11 +351,11 @@ class DashboardViewController: UIViewController, UITableViewDataSource, ChartVie
                 
                 cell.itemImageView.image = UIImage(named: "sidemenu-inventory")
                 
-            case 2:
-                let header: String = "3. Add a Delivery Option"
+            case 3:
+                let header: String = "4. Add a Delivery Option"
                 let text: String = "Decide on a shipping method"
                 
-                if deliveryOptionsCount > 0 {
+                if hasDeliveryOptions == true {
                     let attributedHeader = NSAttributedString(string: header, attributes: [NSStrikethroughStyleAttributeName: 1, NSForegroundColorAttributeName: sprubixColor])
                     let attributedText = NSAttributedString(string: text, attributes: [NSStrikethroughStyleAttributeName: 1])
                     

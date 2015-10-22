@@ -566,7 +566,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
                 
                 // sku
                 itemSKUImage = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
-                itemSKUImage.setImage(UIImage(named: "view-item-brand"), forState: UIControlState.Normal)
+                itemSKUImage.setImage(UIImage(named: "view-item-sku"), forState: UIControlState.Normal)
                 itemSKUImage.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
                 itemSKUImage.frame = CGRect(x: 0, y: itemSpecHeight * 6, width: itemImageViewWidth, height: itemSpecHeight)
                 itemSKUImage.imageEdgeInsets = UIEdgeInsetsMake(10, 10, 10, 0)
@@ -1303,6 +1303,9 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
     }
 
     func doneTapped(sender: UIBarButtonItem) {
+        
+        formatPrice()
+        
         let validateResult = self.validateInputs()
         let delay: NSTimeInterval = 3
         
@@ -1567,6 +1570,12 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
                 message += "The item price must be at least $15\n"
                 valid = false
             }*/
+            
+            // Sku is optional
+            if count(itemDetailsSKU.text) > 255 {
+                message += "The SKU code is too long\n"
+                valid = false
+            }
         }
         else {
             // if non-shop, name and brand are optional

@@ -28,6 +28,7 @@ class CheckoutViewController: UIViewController, UITableViewDataSource, UITableVi
     let checkoutDeliveryPaymentCellIdentifier = "CheckoutDeliveryPaymentCell"
     let cartItemSectionHeaderIdentifier = "CartItemSectionHeader"
     let cartItemSectionFooterIdentifier = "CartItemSectionFooter"
+    let guaranteeIdentifier = "GuaranteeCell"
     
     // custom nav bar
     var newNavBar: UINavigationBar!
@@ -73,6 +74,7 @@ class CheckoutViewController: UIViewController, UITableViewDataSource, UITableVi
         
         checkoutTableView.backgroundColor = sprubixGray
         checkoutTableView.tableFooterView = UIView(frame: CGRectZero)
+        checkoutTableView.registerClass(GuaranteeCell.self, forCellReuseIdentifier: guaranteeIdentifier)
         
         // set up place order CTA button
         // add to bag CTA button
@@ -263,13 +265,15 @@ class CheckoutViewController: UIViewController, UITableViewDataSource, UITableVi
     
     // MARK: UITableViewDataSource
     func numberOfSectionsInTableView(tableView: UITableView) -> Int {
-        return sellers.count + 1 // last section is for Delivery Address and Payment Method
+        return sellers.count + 2 // 2nd last section is for Delivery Address and Payment Method, last for Sprubix Guarantee
     }
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
         if section == sellers.count {
             return 2 // 1 for Delivery Address, 1 for Payment Method
+        } else if section == sellers.count + 1 {
+            return 1
         } else {
             let seller = sellers[section] as NSDictionary
         
@@ -362,7 +366,10 @@ class CheckoutViewController: UIViewController, UITableViewDataSource, UITableVi
                 if imageString != nil {
                     cell.deliveryPaymentImage.setImageWithURL(NSURL(string: imageString!))
                 } else {
-                    cell.deliveryPaymentImage.image = UIImage(named: "sidemenu-orders")
+                    let cardImage: UIImage = UIImage(named: "shop-credit-card")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
+                    
+                    cell.deliveryPaymentImage.image = cardImage
+                    cell.deliveryPaymentImage.tintColor = UIColor(red: 164/255, green: 168/255, blue: 171/255, alpha: 1)
                 }
                 
                 cell.accessoryType = UITableViewCellAccessoryType.DisclosureIndicator
@@ -371,6 +378,11 @@ class CheckoutViewController: UIViewController, UITableViewDataSource, UITableVi
             default:
                 fatalError("Unknown row in last section of CheckoutViewController")
             }
+            
+        case sellers.count + 1:
+            let cell = tableView.dequeueReusableCellWithIdentifier(guaranteeIdentifier, forIndexPath: indexPath) as! GuaranteeCell
+            
+            return cell
             
         default:
             let cell = tableView.dequeueReusableCellWithIdentifier(checkoutItemPointsCellIdentifier, forIndexPath: indexPath) as! CheckoutItemPointsCell
@@ -421,6 +433,8 @@ class CheckoutViewController: UIViewController, UITableViewDataSource, UITableVi
     func tableView(tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         if section == sellers.count {
             return orderHeaderView
+        } else if section == sellers.count + 1 {
+            return nil
         } else {
             let cell = tableView.dequeueReusableCellWithIdentifier(cartItemSectionHeaderIdentifier) as! CartItemSectionHeader
             
@@ -441,7 +455,7 @@ class CheckoutViewController: UIViewController, UITableViewDataSource, UITableVi
     }
     
     func tableView(tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
-        if section == sellers.count {
+        if section == sellers.count || section == sellers.count + 1 {
             return nil
         } else {
             let cell = tableView.dequeueReusableCellWithIdentifier(cartItemSectionFooterIdentifier) as! CartItemSectionFooter
@@ -460,6 +474,8 @@ class CheckoutViewController: UIViewController, UITableViewDataSource, UITableVi
     func tableView(tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
         if section == sellers.count {
             return 0
+        } else if section == sellers.count + 1 {
+            return 20.0
         } else {
             return 86.0
         }
@@ -468,6 +484,8 @@ class CheckoutViewController: UIViewController, UITableViewDataSource, UITableVi
     func tableView(tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         if section == sellers.count {
             return navigationHeaderAndStatusbarHeight + 64
+        } else if section == sellers.count + 1 {
+            return 20.0
         } else {
             return navigationHeight
         }
@@ -485,6 +503,8 @@ class CheckoutViewController: UIViewController, UITableViewDataSource, UITableVi
             default:
                 fatalError("Unknown row returned for heightForRowAtIndexPath in CheckOutViewController")
             }
+        } else if indexPath.section == sellers.count + 1 {
+            return 130.0
         } else {
             return 140.0
         }

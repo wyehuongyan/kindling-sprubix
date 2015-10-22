@@ -582,14 +582,26 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         let onboarded = defaults.boolForKey("onboardedMainFeed")
         
         if onboarded == false && outfits.count > 0 && indexPath.row == 0 {
-            let attributes: UICollectionViewLayoutAttributes = collectionView.layoutAttributesForItemAtIndexPath(indexPath)!
-            let cellRect: CGRect = attributes.frame
-
-            initTooltipOnboarding(cellRect)
             
-            // if shop, (just popped dashboard)
-            if freshLogin == false {
+            let userData: NSDictionary? = defaults.dictionaryForKey("userData")
+            let shoppableType: String? = userData!["shoppable_type"] as? String
+            
+            // if shopper, show tooltip
+            if shoppableType!.lowercaseString.rangeOfString("shopper") != nil {
+                let attributes: UICollectionViewLayoutAttributes = collectionView.layoutAttributesForItemAtIndexPath(indexPath)!
+                let cellRect: CGRect = attributes.frame
+                
+                initTooltipOnboarding(cellRect)
+                startTooltipOnboarding()
+            }
+            // if shop, show after popping from dashboard
+            else if shoppableType!.lowercaseString.rangeOfString("shopper") == nil && freshLogin == false {
+                // Need to delay abit before of the VC popping delay
                 Delay.delay(1.0) {
+                    let attributes: UICollectionViewLayoutAttributes = collectionView.layoutAttributesForItemAtIndexPath(indexPath)!
+                    let cellRect: CGRect = attributes.frame
+                    
+                    self.initTooltipOnboarding(cellRect)
                     self.startTooltipOnboarding()
                 }
             }
