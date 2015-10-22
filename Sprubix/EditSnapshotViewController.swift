@@ -397,7 +397,10 @@ class EditSnapshotViewController: UIViewController {
                             if  gesture.scale * scale < pinchedBox!.frame.size.height / originalBox.frame.size.height || gesture.scale * scale < 1.0 { // originalBox is original height of bounding box
                                 //underscaled
                                 if gesture.scale * scale < pinchedBox!.frame.size.height / originalBox.frame.size.height {
+                                    
                                     currentScale = pinchedBox!.frame.size.height / originalBox.frame.size.height
+                                    
+                                    println(currentScale)
                                 } else {
                                     currentScale = 1.0
                                 }
@@ -405,7 +408,7 @@ class EditSnapshotViewController: UIViewController {
                                 self.sprubixImageViews[pos!].frame.size = CGSizeMake(screenWidth, self.sprubixImageViewsOriginalHeights[pos!])
                                 
                                 // center image
-                                self.sprubixImageViews[pos!].center.y = self.pinchedBox!.frame.size.height / 2
+                                //self.sprubixImageViews[pos!].center.y = self.pinchedBox!.frame.size.height / 2
                             }
                         }
 
@@ -1087,7 +1090,19 @@ class EditSnapshotViewController: UIViewController {
                 // GPUImageCropFilter on each sprubixImageView
                 for var i = 0; i < sprubixImageViews.count; i++ {
                     // normalize boundingBox on each sprubixImageView first
-                    var normalizedCropRegion: CGRect = CGRectMake(abs(sprubixImageViews[i].frame.origin.x)/sprubixImageViews[i].frame.size.width, abs(sprubixImageViews[i].frame.origin.y)/sprubixImageViews[i].frame.size.height, sprubixBoundingBoxes[i].frame.size.width/sprubixImageViews[i].frame.size.width, sprubixBoundingBoxes[i].frame.size.height/sprubixImageViews[i].frame.size.height)
+                    //var normalizedCropRegion: CGRect = CGRectMake(abs(sprubixImageViews[i].frame.origin.x)/sprubixImageViews[i].frame.size.width, abs(sprubixImageViews[i].frame.origin.y)/sprubixImageViews[i].frame.size.height, sprubixBoundingBoxes[i].frame.size.width/sprubixImageViews[i].frame.size.width, sprubixBoundingBoxes[i].frame.size.height/sprubixImageViews[i].frame.size.height)
+                    
+                    var nX = abs(sprubixImageViews[i].frame.origin.x)/sprubixImageViews[i].frame.size.width
+                    var nY = abs(sprubixImageViews[i].frame.origin.y)/sprubixImageViews[i].frame.size.height
+                    var nW = sprubixBoundingBoxes[i].frame.size.width/sprubixImageViews[i].frame.size.width
+                    var nH = sprubixBoundingBoxes[i].frame.size.height/sprubixImageViews[i].frame.size.height
+                    
+                    nX = CGFloat(String(format: "%.3f", nX).floatValue)
+                    nY = CGFloat(String(format: "%.3f", nY).floatValue)
+                    nW = CGFloat(String(format: "%.3f", nW).floatValue)
+                    nH = CGFloat(String(format: "%.3f", nH).floatValue)
+                    
+                    var normalizedCropRegion: CGRect = CGRectMake(nX, nY, nW, nH)
                     
                     gpuImageFilter = GPUImageCropFilter(cropRegion: normalizedCropRegion)
                     (gpuImageFilter as! GPUImageCropFilter).forceProcessingAtSizeRespectingAspectRatio(CGSizeMake(screenWidth, resizedHeight))
@@ -1118,8 +1133,17 @@ class EditSnapshotViewController: UIViewController {
                 
                 for var i = 0; i < sprubixImageViews.count; i++ {
                     // normalize boundingBox on each sprubixImageView first
-                    var normalizedCropRegion: CGRect = CGRectMake(abs(sprubixImageViews[i].frame.origin.x)/sprubixImageViews[i].frame.size.width, abs(sprubixImageViews[i].frame.origin.y)/sprubixImageViews[i].frame.size.height, sprubixBoundingBoxes[i].frame.size.width/sprubixImageViews[i].frame.size.width, sprubixBoundingBoxes[i].frame.size.height/sprubixImageViews[i].frame.size.height)
+                    var nX = abs(sprubixImageViews[i].frame.origin.x)/sprubixImageViews[i].frame.size.width
+                    var nY = abs(sprubixImageViews[i].frame.origin.y)/sprubixImageViews[i].frame.size.height
+                    var nW = sprubixBoundingBoxes[i].frame.size.width/sprubixImageViews[i].frame.size.width
+                    var nH = sprubixBoundingBoxes[i].frame.size.height/sprubixImageViews[i].frame.size.height
                     
+                    nX = CGFloat(String(format: "%.3f", nX).floatValue)
+                    nY = CGFloat(String(format: "%.3f", nY).floatValue)
+                    nW = CGFloat(String(format: "%.3f", nW).floatValue)
+                    nH = CGFloat(String(format: "%.3f", nH).floatValue)
+                    
+                    var normalizedCropRegion: CGRect = CGRectMake(nX, nY, nW, nH)
                     gpuImageFilter = GPUImageCropFilter(cropRegion: normalizedCropRegion)
                     (gpuImageFilter as! GPUImageCropFilter).forceProcessingAtSizeRespectingAspectRatio(CGSizeMake(screenWidth, resizedHeight))
                     quickFilteredImage = (gpuImageFilter as! GPUImageCropFilter).imageByFilteringImage(sprubixImageViews[i].image)
@@ -1164,7 +1188,17 @@ class EditSnapshotViewController: UIViewController {
             // send this image back to AddDetails view
             for var i = 0; i < sprubixImageViews.count; i++ { // will only run once
                 // normalize boundingBox on each sprubixImageView first
-                var normalizedCropRegion: CGRect = CGRectMake(abs(sprubixImageViews[i].frame.origin.x)/sprubixImageViews[i].frame.size.width, abs(sprubixImageViews[i].frame.origin.y)/sprubixImageViews[i].frame.size.height, sprubixBoundingBoxes[i].frame.size.width/sprubixImageViews[i].frame.size.width, sprubixBoundingBoxes[i].frame.size.height/sprubixImageViews[i].frame.size.height)
+                var nX = abs(sprubixImageViews[i].frame.origin.x)/sprubixImageViews[i].frame.size.width
+                var nY = abs(sprubixImageViews[i].frame.origin.y)/sprubixImageViews[i].frame.size.height
+                var nW = sprubixBoundingBoxes[i].frame.size.width/sprubixImageViews[i].frame.size.width
+                var nH = sprubixBoundingBoxes[i].frame.size.height/sprubixImageViews[i].frame.size.height
+                
+                nX = CGFloat(String(format: "%.3f", nX).floatValue)
+                nY = CGFloat(String(format: "%.3f", nY).floatValue)
+                nW = CGFloat(String(format: "%.3f", nW).floatValue)
+                nH = CGFloat(String(format: "%.3f", nH).floatValue)
+                
+                var normalizedCropRegion: CGRect = CGRectMake(nX, nY, nW, nH)
                 
                 gpuImageFilter = GPUImageCropFilter(cropRegion: normalizedCropRegion)
                 (gpuImageFilter as! GPUImageCropFilter).forceProcessingAtSizeRespectingAspectRatio(CGSizeMake(screenWidth, resizedHeight))

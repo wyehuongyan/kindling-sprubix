@@ -78,13 +78,14 @@ class CheckoutViewController: UIViewController, UITableViewDataSource, UITableVi
         
         // set up place order CTA button
         // add to bag CTA button
-        placeOrderButton = UIButton(frame: CGRect(x: 0, y: screenHeight - navigationHeight, width: screenWidth, height: navigationHeight))
+        placeOrderButton = UIButton(frame: CGRect(x: 0, y: 0, width: screenWidth, height: navigationHeight))
         placeOrderButton.backgroundColor = sprubixColor
         placeOrderButton.titleLabel?.font = UIFont.boldSystemFontOfSize(18.0)
         placeOrderButton.setTitle("Place Order", forState: UIControlState.Normal)
         placeOrderButton.addTarget(self, action: "placeOrderButtonPressed:", forControlEvents: UIControlEvents.TouchUpInside)
         
-        view.addSubview(placeOrderButton)
+        //view.addSubview(placeOrderButton)
+        checkoutTableView.tableFooterView = placeOrderButton
         
         retrieveBTClientToken()
     }
