@@ -449,7 +449,7 @@ class FirebaseAuth {
             let firebaseToken: String? = SSKeychain.passwordForService("firebase", account: username)
             
             if firebaseToken != nil {
-                authenticateFirebase()
+                authenticateFirebase(firebaseToken!)
             } else {
                 // retrieving token from kindling core
                 println("Retrieving Firebase token from server...")
@@ -464,7 +464,7 @@ class FirebaseAuth {
                         
                         SSKeychain.setPassword(token, forService: "firebase", account: username)
                         
-                        self.authenticateFirebase()
+                        self.authenticateFirebase(token)
                     },
                     failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                         println("Error: " + error.localizedDescription)
@@ -476,7 +476,7 @@ class FirebaseAuth {
         }
     }
 
-    class func authenticateFirebase() {
+    class func authenticateFirebase(firebaseToken: String) {
         // handle token expiration gracefully
         let handle = firebaseRef.observeAuthEventWithBlock { authData in
             if authData != nil {
@@ -493,7 +493,7 @@ class FirebaseAuth {
                 // user is logged in
                 if userData != nil {
                     let username = userData!["username"] as! String
-                    let firebaseToken: String? = SSKeychain.passwordForService("firebase", account: username)
+                    //let firebaseToken: String? = SSKeychain.passwordForService("firebase", account: username)
                     
                     println("firebaseToken: \(firebaseToken)")
                     
