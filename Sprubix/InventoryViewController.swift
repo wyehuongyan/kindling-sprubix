@@ -404,7 +404,14 @@ class InventoryViewController: UIViewController, UITableViewDataSource, UITableV
     }*/
     
     func imageForEmptyDataSet(scrollView: UIScrollView!) -> UIImage! {
-        return UIImage(named: "emptyset-inventory-instock")
+        switch currentInventoryState {
+        case .All:
+            return UIImage(named: "emptyset-inventory-instock")
+        case .LowStock:
+            return UIImage(named: "emptyset-inventory-lowstock")
+        default:
+            fatalError("Unknown inventory state in InventoryViewController")
+        }
     }
     
     func backgroundColorForEmptyDataSet(scrollView: UIScrollView!) -> UIColor! {
