@@ -449,7 +449,7 @@ class FirebaseAuth {
             let firebaseToken: String? = SSKeychain.passwordForService("firebase", account: username)
             
             if firebaseToken != nil {
-                authenticateFirebase()
+                authenticateFirebase(firebaseToken!)
             } else {
                 // retrieving token from kindling core
                 println("Retrieving Firebase token from server...")
@@ -464,7 +464,7 @@ class FirebaseAuth {
                         
                         SSKeychain.setPassword(token, forService: "firebase", account: username)
                         
-                        self.authenticateFirebase()
+                        self.authenticateFirebase(token)
                     },
                     failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                         println("Error: " + error.localizedDescription)
@@ -476,7 +476,7 @@ class FirebaseAuth {
         }
     }
 
-    class func authenticateFirebase() {
+    class func authenticateFirebase(firebaseToken: String) {
         // handle token expiration gracefully
         let handle = firebaseRef.observeAuthEventWithBlock { authData in
             if authData != nil {
@@ -493,7 +493,9 @@ class FirebaseAuth {
                 // user is logged in
                 if userData != nil {
                     let username = userData!["username"] as! String
-                    let firebaseToken: String? = SSKeychain.passwordForService("firebase", account: username)
+                    //let firebaseToken: String? = SSKeychain.passwordForService("firebase", account: username)
+                    
+                    println("firebaseToken: \(firebaseToken)")
                     
                     // auth with firebase
                     firebaseRef.authWithCustomToken(firebaseToken, withCompletionBlock: { error, authData in
@@ -502,13 +504,10 @@ class FirebaseAuth {
                             
                             println("Firebase Login failed!\n\(error.code)\n\(description)")
                             
-                            // if code=9999
-                            if (error.code == 9999) {
-                                // remove token from SSKeychain and retrieve firebase token from server again
-                                SSKeychain.deletePasswordForService("firebase", account: username)
-                                
-                                self.retrieveFirebaseToken()
-                            }
+                            // remove token from SSKeychain and retrieve firebase token from server again
+                            SSKeychain.deletePasswordForService("firebase", account: username)
+                            
+                            self.retrieveFirebaseToken()
                             
                         } else {
                             println("Firebase Login succeeded! \(authData)")

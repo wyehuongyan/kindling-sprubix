@@ -57,8 +57,6 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
         initCollectionViewLayout()
         initCollectionView()
         
-        //Crashlytics.sharedInstance().crash()
-        
         // sprubix title
         let logoImageWidth:CGFloat = 80
         let logoImageHeight:CGFloat = 30
@@ -124,10 +122,16 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
                     }
                     
                     self.navigationController?.pushViewController(dashboardViewController!, animated: false)
+                    
+                } else {
+                    freshLogin = false
                 }
+                
+                // remove all cells and retrieve outfits
+                outfits.removeAll()
+                mainCollectionView.reloadData()
+                retrieveOutfits()
             }
-            
-            retrieveOutfits()
         }
         
         // other stuff

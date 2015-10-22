@@ -198,10 +198,24 @@ class ShopOrderRefundsViewController: UIViewController, UITableViewDataSource, U
         let refundCreatedAt = refund["created_at"] as! String
         let refundAmount = refund["refund_amount"] as! String
         let refundStatusId = refund["refund_status_id"] as! Int
-        let seller = refund["user"] as! NSDictionary
-        let sellerUsername = seller["username"] as! String
         
-        cell.username.text = sellerUsername
+        let userData: NSDictionary? = defaults.dictionaryForKey("userData")
+        let shoppableType: String? = userData!["shoppable_type"] as? String
+        
+        if shoppableType?.lowercaseString.rangeOfString("shopper") != nil {
+            // shopper
+            let seller = refund["user"] as! NSDictionary
+            let sellerUsername = seller["username"] as! String
+            
+            cell.username.text = sellerUsername
+        } else {
+            // shop
+            let buyer = refund["buyer"] as! NSDictionary
+            let buyerUsername = buyer["username"] as! String
+            
+            cell.username.text = buyerUsername
+        }
+        
         cell.orderNumber.text = "#\(refundUID)"
         cell.dateTime.text = refundCreatedAt
         cell.price.text = "$\(refundAmount)"

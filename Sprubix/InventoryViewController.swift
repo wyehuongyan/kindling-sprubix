@@ -426,7 +426,7 @@ class InventoryViewController: UIViewController, UITableViewDataSource, UITableV
             var piecePrice = piece["price"] as! String
             var pieceSKU = piece["sku"] as? String
             
-            if pieceSKU != nil {
+            if pieceSKU != nil && pieceSKU != "" {
                 cell = tableView.dequeueReusableCellWithIdentifier(inventorySKUCellIdentifier, forIndexPath: indexPath) as! InventorySKUCell
                 
                 if !piece["quantity"]!.isKindOfClass(NSNull) {
@@ -477,6 +477,7 @@ class InventoryViewController: UIViewController, UITableViewDataSource, UITableV
                 
                 let imageURL = NSURL(string: pieceImagesDict["cover"] as! String)
                 
+                (cell as! InventorySKUCell).inventoryImage.image = nil
                 (cell as! InventorySKUCell).inventoryImage.setImageWithURL(imageURL)
                 
             } else {
@@ -530,6 +531,7 @@ class InventoryViewController: UIViewController, UITableViewDataSource, UITableV
                 
                 let imageURL = NSURL(string: pieceImagesDict["cover"] as! String)
                 
+                (cell as! InventoryCell).inventoryImage.image = nil
                 (cell as! InventoryCell).inventoryImage.setImageWithURL(imageURL)
             }
                 
@@ -620,7 +622,7 @@ class InventoryViewController: UIViewController, UITableViewDataSource, UITableV
         let piece = pieces[indexPath.row] as NSDictionary
         var pieceSKU = piece["sku"] as? String
         
-        if pieceSKU != nil {
+        if pieceSKU != nil && pieceSKU != "" {
             return 128.0
         } else {
             return 100.0

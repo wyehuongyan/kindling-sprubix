@@ -15,6 +15,7 @@ import MLPAutoCompleteTextField
 import TSMessages
 
 class SprubixItemThumbnail: UIButton {
+    var isCover: Bool = true
     var hasThumbnail: Bool = false
     var imageURL: NSURL!
     
@@ -241,6 +242,8 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
         if image != nil {
             self.selectedThumbnail.setImage(image, forState: UIControlState.Normal)
             self.selectedThumbnail.hasThumbnail = true
+            self.selectedThumbnail.isCover = false
+            self.trashButton.alpha = 1.0
             self.itemCoverImageView.image = image
             self.itemCoverImageView.alpha = 1.0
             
@@ -305,6 +308,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
                 trashButton.imageEdgeInsets = UIEdgeInsetsMake(5, 5, 5, 5)
                 trashButton.addTarget(self, action: "deleteImage:", forControlEvents: UIControlEvents.TouchUpInside)
                 trashButton.exclusiveTouch = true
+                trashButton.alpha = 0.0
                 Glow.addGlow(trashButton)
                 
                 itemCoverImageView.addSubview(trashButton)
@@ -321,6 +325,8 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
                     // first one
                     thumbnailView.setImage(itemCoverImageView.image, forState: UIControlState.Normal)
                     thumbnailView.hasThumbnail = true
+                    thumbnailView.isCover = true
+                    
                     selectedThumbnail = thumbnailView
                 } else {
                     // coming from inventory
@@ -328,7 +334,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
                         thumbnailView.setImage(UIImage(data: NSData(contentsOfURL: sprubixPiece.imageURLs[i])!), forState: UIControlState.Normal)
                         
                         thumbnailView.hasThumbnail = true
-                        
+                        thumbnailView.isCover = false
                     } else {
                         thumbnailView.setImage(UIImage(named: "details-thumbnail-add"), forState: UIControlState.Normal)
                     }
@@ -338,6 +344,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
                         thumbnailView.setImage(sprubixPiece.images[i], forState: UIControlState.Normal)
                         
                         thumbnailView.hasThumbnail = true
+                        thumbnailView.isCover = true
                     } else {
                         thumbnailView.setImage(UIImage(named: "details-thumbnail-add"), forState: UIControlState.Normal)
                     }
@@ -728,6 +735,12 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
             
         } else {
             itemCoverImageView.image = selectedThumbnail.imageView?.image
+            
+            if !selectedThumbnail.isCover {
+                trashButton.alpha = 1.0
+            } else {
+                trashButton.alpha = 0.0
+            }
         }
     }
     
