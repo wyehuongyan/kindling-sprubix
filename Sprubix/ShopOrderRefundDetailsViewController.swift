@@ -359,7 +359,7 @@ class ShopOrderRefundDetailsViewController: UIViewController, UITableViewDataSou
                 hideRefundButton()
             }
             
-            // however if there is already an existing refund, fill it up
+            
             if existingRefund != nil {
                 let existingRefundReason = existingRefund!["refund_reason"] as! String
                 let existingRefundAmount = existingRefund!["refund_amount"] as! String
@@ -783,6 +783,8 @@ class ShopOrderRefundDetailsViewController: UIViewController, UITableViewDataSou
                     var shopOrder = (responseObject["data"] as! [NSDictionary])[0].mutableCopy() as! NSMutableDictionary
                     
                     self.updateDelegate?.updateShopOrder(shopOrder)
+                    
+                    println(shopOrder)
                     
                     self.navigationController?.popViewControllerAnimated(true)
                 },

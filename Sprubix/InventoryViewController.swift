@@ -477,6 +477,7 @@ class InventoryViewController: UIViewController, UITableViewDataSource, UITableV
                 
                 let imageURL = NSURL(string: pieceImagesDict["cover"] as! String)
                 
+                (cell as! InventorySKUCell).inventoryImage.image = nil
                 (cell as! InventorySKUCell).inventoryImage.setImageWithURL(imageURL)
                 
             } else {
@@ -530,6 +531,7 @@ class InventoryViewController: UIViewController, UITableViewDataSource, UITableV
                 
                 let imageURL = NSURL(string: pieceImagesDict["cover"] as! String)
                 
+                (cell as! InventoryCell).inventoryImage.image = nil
                 (cell as! InventoryCell).inventoryImage.setImageWithURL(imageURL)
             }
                 

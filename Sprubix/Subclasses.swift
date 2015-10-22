@@ -495,6 +495,8 @@ class FirebaseAuth {
                     let username = userData!["username"] as! String
                     let firebaseToken: String? = SSKeychain.passwordForService("firebase", account: username)
                     
+                    println("firebaseToken: \(firebaseToken)")
+                    
                     // auth with firebase
                     firebaseRef.authWithCustomToken(firebaseToken, withCompletionBlock: { error, authData in
                         if error != nil {
@@ -502,13 +504,10 @@ class FirebaseAuth {
                             
                             println("Firebase Login failed!\n\(error.code)\n\(description)")
                             
-                            // if code=9999
-                            if (error.code == 9999) {
-                                // remove token from SSKeychain and retrieve firebase token from server again
-                                SSKeychain.deletePasswordForService("firebase", account: username)
-                                
-                                self.retrieveFirebaseToken()
-                            }
+                            // remove token from SSKeychain and retrieve firebase token from server again
+                            SSKeychain.deletePasswordForService("firebase", account: username)
+                            
+                            self.retrieveFirebaseToken()
                             
                         } else {
                             println("Firebase Login succeeded! \(authData)")

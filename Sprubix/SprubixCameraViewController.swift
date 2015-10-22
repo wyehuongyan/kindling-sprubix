@@ -9,6 +9,7 @@
 import UIKit
 import AVFoundation
 import PermissionScope
+import MRProgress
 
 class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, SprubixCameraDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
@@ -40,6 +41,9 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
     var selectedPiecesOrdered: [String] = [String]()
     var snappedCount:CGFloat = 0.0
     var selectedCount:CGFloat = 0.0
+    
+    // loading overlay
+    var overlay: MRProgressOverlayView!
     
     //@IBOutlet var cameraPreview: UIView!
     var cameraCapture: UIButton!
@@ -495,9 +499,15 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
             
             self.snappedCount += 1
             
-            // the delay is for the cameraStill to remain on screen for a while before moving away
-            self.delay(0.6) {
-                if self.snappedCount == self.selectedCount {
+            if self.snappedCount == self.selectedCount {
+                
+                // init overlay
+                self.overlay = MRProgressOverlayView.showOverlayAddedTo(self.view, title: "Processing...", mode: MRProgressOverlayViewMode.Indeterminate, animated: true)
+                
+                self.overlay.tintColor = sprubixColor
+                
+                // the delay is for the cameraStill to remain on screen for a while before moving away
+                Delay.delay(0.6, closure: {
                     
                     self.cameraCapture.alpha = 0.0
                     
@@ -529,17 +539,21 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
                         self.resetPieceSelector()
                     }
                     
+                    self.overlay.dismiss(true)
+                    self.cameraCapture.enabled = true
+                    
                     // Mixpanel - Edit Photo
                     mixpanel.track("Edit Photo")
                     // Mixpanel - End
                     
-                } else {
+                })
+            } else {
+                Delay.delay(0.6, closure: {
                     // shift view to cameraPreview
                     self.previewStillScrollView.scrollRectToVisible(self.cameraPreview.frame, animated: true)
                     self.setSnapButtonIcon(self.selectedPiecesOrdered[Int(self.snappedCount)])
-                }
-                
-                self.cameraCapture.enabled = true
+                    self.cameraCapture.enabled = true
+                })
             }
             
         } else {
@@ -739,15 +753,6 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
             // first one
             setSnapButtonIcon(selectedPiecesOrdered[0])
         }
-    }
-    
-    func delay(delay:Double, closure:()->()) {
-        dispatch_after(
-            dispatch_time(
-                DISPATCH_TIME_NOW,
-                Int64(delay * Double(NSEC_PER_SEC))
-            ),
-            dispatch_get_main_queue(), closure)
     }
 }
 

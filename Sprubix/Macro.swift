@@ -24,6 +24,7 @@ let sprubixBlue: UIColor = UIColor(red: 102/255, green: 180/255, blue: 255/255, 
 let sprubixLightBlue: UIColor = UIColor(red: 102/255, green: 220/255, blue: 255/255, alpha: 1)
 let sprubixGreen: UIColor = UIColor(red: 102/255, green: 255/255, blue: 102/255, alpha: 1)
 let sprubixOrange: UIColor = UIColor(red: 255/255, green: 152/255, blue: 102/255, alpha: 1)
+let countriesAvailable = ["SG"]
 
 var timestamp: String {
     get {
