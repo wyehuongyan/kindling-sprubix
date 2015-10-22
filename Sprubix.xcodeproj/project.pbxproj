@@ -18,6 +18,7 @@
 		059E98931B563B85007A5A42 /* EditProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 059E98921B563B85007A5A42 /* EditProfileViewController.swift */; };
 		05BE68871B75C0410098FDCF /* DashboardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05BE68861B75C0410098FDCF /* DashboardViewController.swift */; };
 		05BE68891B75D5690098FDCF /* DashboardOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05BE68881B75D5690098FDCF /* DashboardOverlay.swift */; };
+		05F17BD81BD939F100FF152F /* GuaranteeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05F17BD71BD939F100FF152F /* GuaranteeCell.swift */; };
 		05F7EDE01B58EA0F00CB2665 /* HelpCenterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05F7EDDF1B58EA0F00CB2665 /* HelpCenterViewController.swift */; };
 		05F7EDE21B593EA200CB2665 /* ProvideFeedbackViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05F7EDE11B593EA200CB2665 /* ProvideFeedbackViewController.swift */; };
 		440EEF4B5FE0D5277D1F73A6 /* Pods_Sprubix.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A23433EF8FCD1F1CE7226A6 /* Pods_Sprubix.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
@@ -152,6 +153,7 @@
 		059E98921B563B85007A5A42 /* EditProfileViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EditProfileViewController.swift; sourceTree = "<group>"; };
 		05BE68861B75C0410098FDCF /* DashboardViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DashboardViewController.swift; sourceTree = "<group>"; };
 		05BE68881B75D5690098FDCF /* DashboardOverlay.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DashboardOverlay.swift; sourceTree = "<group>"; };
+		05F17BD71BD939F100FF152F /* GuaranteeCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GuaranteeCell.swift; sourceTree = "<group>"; };
 		05F7EDDF1B58EA0F00CB2665 /* HelpCenterViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HelpCenterViewController.swift; sourceTree = "<group>"; };
 		05F7EDE11B593EA200CB2665 /* ProvideFeedbackViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProvideFeedbackViewController.swift; sourceTree = "<group>"; };
 		1A23433EF8FCD1F1CE7226A6 /* Pods_Sprubix.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Sprubix.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -341,6 +343,7 @@
 				8405D04C1B552CAB00B42752 /* CheckoutPointsSectionHeader.swift */,
 				8405D04E1B552CD300B42752 /* CheckoutPointsSectionFooter.swift */,
 				849CECA01B8EBEE8005D8EA4 /* CheckoutItemPointsCell.swift */,
+				05F17BD71BD939F100FF152F /* GuaranteeCell.swift */,
 			);
 			name = Checkout;
 			sourceTree = "<group>";
@@ -966,6 +969,7 @@
 				84B3354E1AB4520C00B9707D /* PieceDetailsCell.swift in Sources */,
 				8486D4161B04774800ED31BA /* SprubixPiece.swift in Sources */,
 				846C979D1ABD68A80050D0BC /* SprucePieceFeedController.swift in Sources */,
+				05F17BD81BD939F100FF152F /* GuaranteeCell.swift in Sources */,
 				845834D51B766B29007C6F6B /* UserFollowListCell.swift in Sources */,
 				84ECCD171BD0D60500D0CEFB /* InventorySKUCell.swift in Sources */,
 				8482B86B1B490F930017CEEF /* DeliveryAddressesViewController.swift in Sources */,
