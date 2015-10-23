@@ -596,7 +596,6 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
                 let cellRect: CGRect = attributes.frame
                 
                 initTooltipOnboarding(cellRect)
-                startTooltipOnboarding()
             }
             // if shop, show after popping from dashboard
             else if shoppableType!.lowercaseString.rangeOfString("shopper") == nil && freshLogin == false {

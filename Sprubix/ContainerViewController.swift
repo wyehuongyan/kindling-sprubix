@@ -93,7 +93,10 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
                 UIApplication.sharedApplication().registerUserNotificationSettings(settings)
                 UIApplication.sharedApplication().registerForRemoteNotifications()
                 
-                self.mainFeedController?.startTooltipOnboarding()
+                // Show when authorized, won't show when permission denied (because popup will not be dismissed)
+                if results[0].status == PermissionStatus.Authorized {
+                    self.mainFeedController?.startTooltipOnboarding()
+                }
                 
                 }, cancelled: { (results) -> Void in
                     self.mainFeedController?.startTooltipOnboarding()
