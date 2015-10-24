@@ -101,14 +101,13 @@ class CartViewController: UIViewController, UITableViewDataSource, UITableViewDe
         tableFooterView.alpha = 0.0
         
         cartTableView.tableFooterView = tableFooterView
-        
-        retrieveCartItems()
     }
     
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
         
         initNavBar()
+        retrieveCartItems()
         
         if darkenedOverlay == nil {
             // manual dim background because of TSMessage being blocked
@@ -157,7 +156,6 @@ class CartViewController: UIViewController, UITableViewDataSource, UITableViewDe
         checkoutButton.frame = CGRect(x: 0, y: 0, width: 80, height: 20)
         checkoutButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
         checkoutButton.addTarget(self, action: "checkout:", forControlEvents: UIControlEvents.TouchUpInside)
-        checkoutButton.enabled = false
         
         var checkoutBarButtonItem: UIBarButtonItem = UIBarButtonItem(customView: checkoutButton)
         newNavItem.rightBarButtonItem = checkoutBarButtonItem
@@ -166,6 +164,8 @@ class CartViewController: UIViewController, UITableViewDataSource, UITableViewDe
         
         // 6. add the nav bar to the main view
         self.view.addSubview(newNavBar)
+        
+        checkoutButton.enabled = false
     }
     
     // DZNEmptyDataSetSource
@@ -399,9 +399,6 @@ class CartViewController: UIViewController, UITableViewDataSource, UITableViewDe
                 
                 // set checkout button to be disabled
                 self.checkoutButton.enabled = false
-            } else {
-                // OK
-                self.checkoutButton.enabled = true
             }
             
             // REST call to server to create cart item and add to user's cart
@@ -549,15 +546,18 @@ class CartViewController: UIViewController, UITableViewDataSource, UITableViewDe
             grandTotalAmount.text = String(format: "$%.2f", grandTotal)
             tableFooterView.setNeedsLayout()
             tableFooterView.alpha = 1.0
+            checkoutButton.enabled = true
             
             // update cart
             updateCart()
             
         } else {
-            println("Cart is empty")
+            //println("Cart is empty")
+            newNavItem.title = "My Cart"
             
             cartTableView.reloadData()
             tableFooterView.alpha = 0.0
+            checkoutButton.enabled = false
         }
     }
     
@@ -1052,36 +1052,63 @@ class CartViewController: UIViewController, UITableViewDataSource, UITableViewDe
     }
     
     func checkout(sender: UIBarButtonItem) {
-        let cartItemData = cartData["cart_items"] as? [NSDictionary]
-        
-        if cartItemData != nil && cartItemData!.count > 0 {
-            if checkoutPointsViewController == nil {
-                checkoutPointsViewController = UIStoryboard.checkoutPointsViewController()
-            }
-            
-            checkoutPointsViewController?.parentOutfitDict = parentOutfitDict
-            checkoutPointsViewController?.outfits = outfits
-            checkoutPointsViewController?.cartViewController = self
-            
-            self.navigationController?.pushViewController(checkoutPointsViewController!, animated: true)
-            
-            // Mixpanel - Viewed Points Earned
-            mixpanel.track("Viewed Points Earned")
-            // Mixpanel - End
-            
-        } else {
-            TSMessage.showNotificationInViewController(
-                TSMessage.defaultViewController(),
-                title: "Oops!",
-                subtitle: "Your cart is empty. Add something to the cart!",
-                image: nil,
-                type: TSMessageNotificationType.Warning,
-                duration: 3,
-                callback: nil,
-                buttonTitle: nil,
-                buttonCallback: nil,
-                atPosition: TSMessageNotificationPosition.Bottom,
-                canBeDismissedByUser: true)
-        }
+        // check if user is verified
+        manager.GET(SprubixConfig.URL.api + "/user/verified",
+            parameters: nil,
+            success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                var response = responseObject as! NSDictionary
+                var verified: Bool? = response["verified"] as? Bool
+                
+                if verified != nil && verified! {
+                    // user is verified
+                    let cartItemData = self.cartData["cart_items"] as? [NSDictionary]
+                    
+                    if cartItemData != nil && cartItemData!.count > 0 {
+                        if self.checkoutPointsViewController == nil {
+                            self.checkoutPointsViewController = UIStoryboard.checkoutPointsViewController()
+                        }
+                        
+                        self.checkoutPointsViewController?.parentOutfitDict = self.parentOutfitDict
+                        self.checkoutPointsViewController?.outfits = self.outfits
+                        self.checkoutPointsViewController?.cartViewController = self
+                        
+                        self.navigationController?.pushViewController(self.checkoutPointsViewController!, animated: true)
+                        
+                        // Mixpanel - Viewed Points Earned
+                        mixpanel.track("Viewed Points Earned")
+                        // Mixpanel - End
+                        
+                    } else {
+                        TSMessage.showNotificationInViewController(
+                            TSMessage.defaultViewController(),
+                            title: "Oops!",
+                            subtitle: "Your cart is empty. Add something to the cart!",
+                            image: nil,
+                            type: TSMessageNotificationType.Warning,
+                            duration: 3,
+                            callback: nil,
+                            buttonTitle: nil,
+                            buttonCallback: nil,
+                            atPosition: TSMessageNotificationPosition.Bottom,
+                            canBeDismissedByUser: true)
+                    }
+                } else {
+                    TSMessage.showNotificationInViewController(
+                        TSMessage.defaultViewController(),
+                        title: "Please Verify Your Email",
+                        subtitle: "This is to ensure order information is sent to a valid email address.",
+                        image: nil,
+                        type: TSMessageNotificationType.Warning,
+                        duration: 3,
+                        callback: nil,
+                        buttonTitle: nil,
+                        buttonCallback: nil,
+                        atPosition: TSMessageNotificationPosition.Bottom,
+                        canBeDismissedByUser: true)
+                }
+            },
+            failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                println("Error: " + error.localizedDescription)
+        })
     }
 }

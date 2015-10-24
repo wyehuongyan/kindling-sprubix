@@ -9,6 +9,7 @@
 import UIKit
 import DZNEmptyDataSet
 import AFNetworking
+import TSMessages
 
 class DeliveryOptionsViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, DZNEmptyDataSetSource, DZNEmptyDataSetDelegate {
     
@@ -247,9 +248,35 @@ class DeliveryOptionsViewController: UIViewController, UITableViewDataSource, UI
     
     // nav bar button callbacks
     func addDeliveryOptionTapped(sender: UIBarButtonItem) {
-        let deliveryOptionsDetailsViewController = DeliveryOptionsDetailsViewController()
-        
-        self.navigationController?.pushViewController(deliveryOptionsDetailsViewController, animated: true)
+        // check if user is verified
+        manager.GET(SprubixConfig.URL.api + "/user/verified",
+            parameters: nil,
+            success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                var response = responseObject as! NSDictionary
+                var verified: Bool? = response["verified"] as? Bool
+                
+                if verified != nil && verified! {
+                    let deliveryOptionsDetailsViewController = DeliveryOptionsDetailsViewController()
+                    
+                    self.navigationController?.pushViewController(deliveryOptionsDetailsViewController, animated: true)
+                } else {
+                    TSMessage.showNotificationInViewController(
+                        TSMessage.defaultViewController(),
+                        title: "Please Verify Your Email",
+                        subtitle: "This is to ensure order information is sent to a valid email address.",
+                        image: nil,
+                        type: TSMessageNotificationType.Warning,
+                        duration: 3,
+                        callback: nil,
+                        buttonTitle: nil,
+                        buttonCallback: nil,
+                        atPosition: TSMessageNotificationPosition.Bottom,
+                        canBeDismissedByUser: true)
+                }
+            },
+            failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                println("Error: " + error.localizedDescription)
+        })
     }
     
     func backTapped(sender: UIBarButtonItem) {
