@@ -353,6 +353,24 @@ class SprubixButtonIconRight: UIButton {
 }
 
 class SprubixReachability {
+    class func checkIpInfo() {
+        manager.GET("http://ipinfo.io/json",
+            parameters: nil,
+            success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
+                let country: String? = responseObject["country"] as? String
+                
+                if country != nil {
+                    println(responseObject["country"])
+                    defaults.setObject(country, forKey: "userCountry")
+                }
+            },
+            failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                println("Error: " + error.localizedDescription)
+                
+                SprubixReachability.handleError(error.code)
+        })
+    }
+    
     class func isConnectedToNetwork() -> Bool {
         
         var zeroAddress = sockaddr_in(sin_len: 0, sin_family: 0, sin_port: 0, sin_addr: in_addr(s_addr: 0), sin_zero: (0, 0, 0, 0, 0, 0, 0, 0))

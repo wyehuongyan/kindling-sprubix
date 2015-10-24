@@ -337,6 +337,8 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
                         thumbnailView.isCover = false
                     } else {
                         thumbnailView.setImage(UIImage(named: "details-thumbnail-add"), forState: UIControlState.Normal)
+                        thumbnailView.hasThumbnail = false
+                        thumbnailView.isCover = false
                     }
                     
                     // coming from create outfit
@@ -344,9 +346,11 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
                         thumbnailView.setImage(sprubixPiece.images[i], forState: UIControlState.Normal)
                         
                         thumbnailView.hasThumbnail = true
-                        thumbnailView.isCover = true
+                        thumbnailView.isCover = false
                     } else {
                         thumbnailView.setImage(UIImage(named: "details-thumbnail-add"), forState: UIControlState.Normal)
+                        thumbnailView.hasThumbnail = false
+                        thumbnailView.isCover = false
                     }
                 }
                 
@@ -1063,6 +1067,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
         
         selectedThumbnail.setImage(UIImage(named: "details-thumbnail-add"), forState: UIControlState.Normal)
         selectedThumbnail.hasThumbnail = false
+        selectedThumbnail.isCover = false
         
         itemCoverImageView.image = nil
     }

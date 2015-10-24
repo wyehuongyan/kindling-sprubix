@@ -721,6 +721,7 @@ class SignInViewController: UIViewController, UITableViewDataSource, UITableView
                         
                         //self.saveCookies(userId);
                         FirebaseAuth.retrieveFirebaseToken()
+                        SprubixReachability.checkIpInfo()
                         
                         // Mixpanel - Setup
                         MixpanelService.setup()

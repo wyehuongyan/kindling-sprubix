@@ -376,6 +376,7 @@ class SignUpViewController: UIViewController, FBSDKLoginButtonDelegate, UIScroll
                                 
                                 //self.saveCookies(userId);
                                 FirebaseAuth.retrieveFirebaseToken()
+                                SprubixReachability.checkIpInfo()
                                 
                                 // Mixpanel - Setup
                                 MixpanelService.setup()

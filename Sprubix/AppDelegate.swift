@@ -54,7 +54,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
         // Override point for customization after application launch.
-        //AFNetworkActivityLogger.sharedLogger().startLogging()
+        AFNetworkActivityLogger.sharedLogger().startLogging()
 
         window = UIWindow(frame: UIScreen.mainScreen().bounds)
         window!.rootViewController = containerViewController
@@ -63,7 +63,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         window!.tintColor = sprubixColor
         
         configureSecurityPolicy()
-        checkIpInfo()
+        SprubixReachability.checkIpInfo()
         checkLoggedIn()
         
         // handle push notifications when app is not running
@@ -121,7 +121,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         if atSignupScreen == false {
             checkLoggedIn();
-            checkIpInfo()
+            SprubixReachability.checkIpInfo()
         }
     }
     
@@ -134,29 +134,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         securityPolicy.allowInvalidCertificates = true
         securityPolicy.validatesCertificateChain = false
         manager.securityPolicy = securityPolicy
-    }
-    
-    func checkIpInfo() {
-        manager.GET("http://ipinfo.io/json",
-            parameters: nil,
-            success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
-                let country: String? = responseObject["country"] as? String
-
-                if country != nil {
-                    println(responseObject["country"])
-                    let userData: NSDictionary? = self.defaults.dictionaryForKey("userData")
-                    
-                    if userData != nil {
-                        let username = userData!["username"] as! String
-                        SSKeychain.setPassword(country, forService: "ipinfo_country", account: username)
-                    }
-                }
-            },
-            failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
-                println("Error: " + error.localizedDescription)
-                
-                SprubixReachability.handleError(error.code)
-        })
     }
     
     func checkLoggedIn() {

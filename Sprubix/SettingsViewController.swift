@@ -173,6 +173,7 @@ class SettingsViewController: UITableViewController {
                 
                 firebaseRef.unauth()
                 SSKeychain.deletePasswordForService("firebase", account: username)
+                defaults.removeObjectForKey("userCountry")
                 defaults.removeObjectForKey("userData")
                 defaults.removeObjectForKey("userId")
                 

@@ -942,7 +942,7 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         // user is logged in
         if userData != nil {
             let username = userData!["username"] as! String
-            let country: String? = SSKeychain.passwordForService("ipinfo_country", account: username)
+            let country: String? = defaults.objectForKey("userCountry") as? String
             
             if country != nil && contains(countriesAvailable, country!) {
         
