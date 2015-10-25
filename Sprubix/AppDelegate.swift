@@ -35,8 +35,17 @@ struct SprubixConfig {
         static let firebase: String = "https://sprubix.firebaseio.com/"
     }
     struct Token {
+        // disable tracking events from firing
         //static let mixpanel = ""
-        static let mixpanel = "7b1423643b7e52dad5680f5fdc390a88" // live
+        
+        /* development */
+        //static let mixpanel = "124273404c25acfd8a9dbf25758d09f9"
+        
+        /* staging */
+        //static let mixpanel = "3721be8315badb578332870550b03395"
+        
+        /* production */
+        static let mixpanel = "7b1423643b7e52dad5680f5fdc390a88"
     }
 }
 
