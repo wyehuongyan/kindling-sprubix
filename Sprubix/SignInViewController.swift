@@ -11,6 +11,7 @@ import AFNetworking
 import TSMessages
 import FBSDKLoginKit
 import MRProgress
+import Mixpanel
 
 enum CreateAccountState {
     case Signup
@@ -668,6 +669,20 @@ class SignInViewController: UIViewController, UITableViewDataSource, UITableView
             self.overlay = MRProgressOverlayView.showOverlayAddedTo(self.view, title: "Logging in...", mode: MRProgressOverlayViewMode.Indeterminate, animated: true)
             
             self.overlay.tintColor = sprubixColor
+            
+            /*
+            // if a test account is used to log in
+            if contains(testUsernames, usernameString.lowercaseString) || contains(testEmails, emailString.lowercaseString) {
+                
+                // redirect to staging env
+                SprubixConfig.URL.api = "https://api.sprubix.com"
+                SprubixConfig.URL.firebase = "https://sprubixstaging.firebaseio.com/"
+                SprubixConfig.Token.mixpanel = ""
+                
+                firebaseRef = Firebase(url: SprubixConfig.URL.firebase)
+                mixpanel = Mixpanel.sharedInstanceWithToken(SprubixConfig.Token.mixpanel)
+            }
+            */
             
             // authenticate with server
             manager.POST(SprubixConfig.URL.api + "/auth/login",

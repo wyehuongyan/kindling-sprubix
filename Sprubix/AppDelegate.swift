@@ -27,16 +27,16 @@ struct SprubixConfig {
         //static let firebase: String = "https://sprubixtest.firebaseio.com/"
         
         /* staging */
-        //static let api: String = "https://api.sprubix.com"
-        //static let firebase: String = "https://sprubixstaging.firebaseio.com/"
+        //static var api: String = "https://api.sprubix.com"
+        //static var firebase: String = "https://sprubixstaging.firebaseio.com/"
         
         /* production */
-        static let api: String = "https://api.sprbx.com"
-        static let firebase: String = "https://sprubix.firebaseio.com/"
+        static var api: String = "https://api.sprbx.com"
+        static var firebase: String = "https://sprubix.firebaseio.com/"
     }
     struct Token {
         // disable tracking events from firing
-        //static let mixpanel = ""
+        //static var mixpanel = ""
         
         /* development */
         //static let mixpanel = "124273404c25acfd8a9dbf25758d09f9"
@@ -45,15 +45,15 @@ struct SprubixConfig {
         //static let mixpanel = "3721be8315badb578332870550b03395"
         
         /* production */
-        static let mixpanel = "7b1423643b7e52dad5680f5fdc390a88"
+        static var mixpanel = "7b1423643b7e52dad5680f5fdc390a88"
     }
 }
 
 let manager = AFHTTPRequestOperationManager()
 let containerViewController = ContainerViewController()
 let defaults = NSUserDefaults.standardUserDefaults()
-let firebaseRef = Firebase(url: SprubixConfig.URL.firebase)
-let mixpanel = Mixpanel.sharedInstanceWithToken(SprubixConfig.Token.mixpanel)
+var firebaseRef = Firebase(url: SprubixConfig.URL.firebase)
+var mixpanel = Mixpanel.sharedInstanceWithToken(SprubixConfig.Token.mixpanel)
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -64,7 +64,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
         // Override point for customization after application launch.
         AFNetworkActivityLogger.sharedLogger().startLogging()
-
+        
         window = UIWindow(frame: UIScreen.mainScreen().bounds)
         window!.rootViewController = containerViewController
         window!.makeKeyAndVisible()
