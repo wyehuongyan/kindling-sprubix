@@ -21,10 +21,10 @@ import SSKeychain
 struct SprubixConfig {
     struct URL {
         /* development */
-        //static let api: String = "http://192.168.1.1/~shion/kindling-core/public/index.php"
-        //static let api: String = "http://sprubix-ch.ngrok.io/~shion/kindling-core/public/index.php"
-        //static let api: String = "http://sprubix-wh.ngrok.io/~wyehuongyan/kindling-core/public/index.php"
-        //static let firebase: String = "https://sprubixtest.firebaseio.com/"
+        //static var api: String = "http://192.168.1.1/~shion/kindling-core/public/index.php"
+        //static var api: String = "http://sprubix-ch.ngrok.io/~shion/kindling-core/public/index.php"
+        //static var api: String = "http://sprubix-wh.ngrok.io/~wyehuongyan/kindling-core/public/index.php"
+        //static var firebase: String = "https://sprubixtest.firebaseio.com/"
         
         /* staging */
         //static var api: String = "https://api.sprubix.com"
@@ -39,10 +39,10 @@ struct SprubixConfig {
         //static var mixpanel = ""
         
         /* development */
-        //static let mixpanel = "124273404c25acfd8a9dbf25758d09f9"
+        //static var mixpanel = "124273404c25acfd8a9dbf25758d09f9"
         
         /* staging */
-        //static let mixpanel = "3721be8315badb578332870550b03395"
+        //static var mixpanel = "3721be8315badb578332870550b03395"
         
         /* production */
         static var mixpanel = "7b1423643b7e52dad5680f5fdc390a88"
