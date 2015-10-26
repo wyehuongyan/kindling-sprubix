@@ -574,7 +574,7 @@ class MixpanelService {
         let email: String = data["email"] as! String
         let id: Int = data["id"] as! Int
         let idString: String = String(id)
-        let idHex: String = String(id, radix: 16)
+        let idHex: String = String(id, radix: 16).uppercaseString
         let username: String = data["username"] as! String
         let distinctId: String = NSUUID().UUIDString + "-\(idHex)"
         
