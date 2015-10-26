@@ -1322,7 +1322,9 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
 
     func doneTapped(sender: UIBarButtonItem) {
         
-        formatPrice()
+        if isShop {
+            formatPrice()
+        }
         
         let validateResult = self.validateInputs()
         let delay: NSTimeInterval = 3
