@@ -177,7 +177,7 @@ class SearchViewController: UIViewController, UISearchBarDelegate {
                 
                 self.activityView.stopAnimating()
                 
-                println(responseObject)
+                //println(responseObject)
                 
                 if self.currentScope != 2 {
                     // instantiate results view controller

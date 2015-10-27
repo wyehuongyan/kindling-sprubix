@@ -40,7 +40,7 @@
                                                     </variation>
                                                 </imageView>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="751" verticalHuggingPriority="751" horizontalCompressionResistancePriority="751" verticalCompressionResistancePriority="751" placeholderIntrinsicWidth="480" placeholderIntrinsicHeight="17" text="User Name" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="480" translatesAutoresizingMaskIntoConstraints="NO" id="SUs-ho-2Yg">
-                                                    <rect key="frame" x="60" y="10" width="484" height="17"/>
+                                                    <rect key="frame" x="60" y="10" width="461" height="17"/>
                                                     <fontDescription key="fontDescription" type="system" weight="medium" pointSize="15"/>
                                                     <color key="textColor" red="1" green="0.40000000000000002" blue="0.42352941179999998" alpha="1" colorSpace="calibratedRGB"/>
                                                     <nil key="highlightedColor"/>
@@ -60,20 +60,29 @@
                                                         <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                                     </state>
                                                 </button>
+                                                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="main-hamburger" translatesAutoresizingMaskIntoConstraints="NO" id="vq5-R2-k2W">
+                                                    <rect key="frame" x="527" y="10" width="17" height="17"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="width" constant="17" id="iqe-uB-Bo2"/>
+                                                        <constraint firstAttribute="height" constant="17" id="yUs-q4-PZr"/>
+                                                    </constraints>
+                                                </imageView>
                                             </subviews>
                                             <constraints>
                                                 <constraint firstItem="Ssu-Yz-ZGu" firstAttribute="top" secondItem="OMR-NW-jbt" secondAttribute="top" constant="12.5" id="8hb-k0-ZBb"/>
                                                 <constraint firstItem="KuO-t1-kM0" firstAttribute="top" secondItem="SUs-ho-2Yg" secondAttribute="bottom" constant="6" id="9dS-NX-K4k"/>
                                                 <constraint firstItem="SUs-ho-2Yg" firstAttribute="top" secondItem="OMR-NW-jbt" secondAttribute="top" constant="10" id="A8i-oO-nfX"/>
                                                 <constraint firstItem="SUs-ho-2Yg" firstAttribute="leading" secondItem="d5v-1c-fY7" secondAttribute="trailing" constant="10" id="AKI-gN-z2x"/>
+                                                <constraint firstItem="vq5-R2-k2W" firstAttribute="leading" secondItem="SUs-ho-2Yg" secondAttribute="trailing" constant="6" id="Ema-9a-ozD"/>
                                                 <constraint firstItem="KuO-t1-kM0" firstAttribute="leading" secondItem="d5v-1c-fY7" secondAttribute="trailing" constant="10" id="MIA-lh-7xd"/>
                                                 <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="KuO-t1-kM0" secondAttribute="bottom" constant="10" id="PF0-97-c6a"/>
                                                 <constraint firstItem="d5v-1c-fY7" firstAttribute="top" secondItem="OMR-NW-jbt" secondAttribute="top" constant="10" id="bMv-wV-u9c"/>
+                                                <constraint firstItem="vq5-R2-k2W" firstAttribute="top" secondItem="OMR-NW-jbt" secondAttribute="top" constant="10" id="cOO-eE-quq"/>
                                                 <constraint firstItem="Ssu-Yz-ZGu" firstAttribute="leading" secondItem="KuO-t1-kM0" secondAttribute="trailing" constant="10" id="gvc-UN-pZv"/>
                                                 <constraint firstAttribute="bottom" secondItem="Ssu-Yz-ZGu" secondAttribute="bottom" constant="12.5" id="nPU-sI-Zd8"/>
                                                 <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="d5v-1c-fY7" secondAttribute="bottom" priority="999" constant="10" id="uMF-Ee-3tF"/>
-                                                <constraint firstItem="Ssu-Yz-ZGu" firstAttribute="leading" secondItem="SUs-ho-2Yg" secondAttribute="trailing" constant="10" id="v38-BH-OpN"/>
                                                 <constraint firstItem="d5v-1c-fY7" firstAttribute="leading" secondItem="OMR-NW-jbt" secondAttribute="leading" constant="10" id="vaB-vo-sK0"/>
+                                                <constraint firstItem="Ssu-Yz-ZGu" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="vq5-R2-k2W" secondAttribute="trailing" constant="10" id="wgQ-36-EHj"/>
                                                 <constraint firstAttribute="trailing" secondItem="Ssu-Yz-ZGu" secondAttribute="trailing" constant="10" id="yUh-YL-a3U"/>
                                             </constraints>
                                         </tableViewCellContentView>
@@ -82,6 +91,7 @@
                                             <outlet property="realname" destination="KuO-t1-kM0" id="gFX-6A-3jf"/>
                                             <outlet property="userImageView" destination="d5v-1c-fY7" id="ZKm-nl-atW"/>
                                             <outlet property="username" destination="SUs-ho-2Yg" id="wf5-hS-pEQ"/>
+                                            <outlet property="verifiedIcon" destination="vq5-R2-k2W" id="1NG-Ln-Cz3"/>
                                         </connections>
                                     </tableViewCell>
                                     <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="UserFollowListUNCell" rowHeight="61" id="0Kw-e6-MHP" customClass="UserFollowListUNCell" customModule="Sprubix" customModuleProvider="target">
@@ -104,7 +114,7 @@
                                                     </variation>
                                                 </imageView>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="751" verticalHuggingPriority="751" horizontalCompressionResistancePriority="751" verticalCompressionResistancePriority="751" placeholderIntrinsicWidth="480" placeholderIntrinsicHeight="17" text="User Name" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="480" translatesAutoresizingMaskIntoConstraints="NO" id="Eak-WR-C07">
-                                                    <rect key="frame" x="60" y="22" width="484" height="17"/>
+                                                    <rect key="frame" x="60" y="22" width="461" height="17"/>
                                                     <fontDescription key="fontDescription" type="system" weight="medium" pointSize="15"/>
                                                     <color key="textColor" red="1" green="0.40000000000000002" blue="0.42352941179999998" alpha="1" colorSpace="calibratedRGB"/>
                                                     <nil key="highlightedColor"/>
@@ -118,23 +128,35 @@
                                                         <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                                     </state>
                                                 </button>
+                                                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="main-hamburger" translatesAutoresizingMaskIntoConstraints="NO" id="Sd2-wa-Qdh">
+                                                    <rect key="frame" x="527" y="22" width="17" height="17"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="17" id="12d-jy-Xcz"/>
+                                                        <constraint firstAttribute="width" constant="17" id="EV3-UZ-D1H"/>
+                                                        <constraint firstAttribute="height" constant="17" id="SEd-fC-hb8"/>
+                                                        <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="17" id="ihF-Q0-gHo"/>
+                                                    </constraints>
+                                                </imageView>
                                             </subviews>
                                             <constraints>
+                                                <constraint firstAttribute="centerY" secondItem="Sd2-wa-Qdh" secondAttribute="centerY" id="06e-ac-rI3"/>
                                                 <constraint firstAttribute="trailing" secondItem="ZmO-mK-ig0" secondAttribute="trailing" constant="10" id="5Br-AJ-2FL"/>
                                                 <constraint firstItem="7Ia-p4-9ty" firstAttribute="leading" secondItem="D1J-Io-jZX" secondAttribute="leading" constant="10" id="9Zv-rD-0Bq"/>
                                                 <constraint firstAttribute="centerY" secondItem="Eak-WR-C07" secondAttribute="centerY" id="B0s-hQ-DWx"/>
                                                 <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="7Ia-p4-9ty" secondAttribute="bottom" priority="999" constant="10" id="CFb-m6-Yux"/>
                                                 <constraint firstAttribute="bottom" secondItem="ZmO-mK-ig0" secondAttribute="bottom" constant="12.5" id="KC0-8o-YYS"/>
                                                 <constraint firstItem="Eak-WR-C07" firstAttribute="leading" secondItem="7Ia-p4-9ty" secondAttribute="trailing" constant="10" id="NIN-50-g20"/>
+                                                <constraint firstItem="ZmO-mK-ig0" firstAttribute="leading" secondItem="Sd2-wa-Qdh" secondAttribute="trailing" constant="10" id="PHb-BC-SfZ"/>
                                                 <constraint firstItem="7Ia-p4-9ty" firstAttribute="top" secondItem="D1J-Io-jZX" secondAttribute="top" constant="10" id="QLZ-OH-0cZ"/>
                                                 <constraint firstItem="ZmO-mK-ig0" firstAttribute="top" secondItem="D1J-Io-jZX" secondAttribute="top" constant="12.5" id="aQl-rP-MIc"/>
-                                                <constraint firstItem="ZmO-mK-ig0" firstAttribute="leading" secondItem="Eak-WR-C07" secondAttribute="trailing" constant="10" id="dUe-Yd-hUP"/>
+                                                <constraint firstItem="Sd2-wa-Qdh" firstAttribute="leading" secondItem="Eak-WR-C07" secondAttribute="trailing" constant="6" id="pam-Az-UKU"/>
                                             </constraints>
                                         </tableViewCellContentView>
                                         <connections>
                                             <outlet property="followButton" destination="ZmO-mK-ig0" id="VAQ-Se-5jR"/>
                                             <outlet property="userImageView" destination="7Ia-p4-9ty" id="KeG-dP-sz4"/>
                                             <outlet property="username" destination="Eak-WR-C07" id="ngI-zM-95D"/>
+                                            <outlet property="verifiedIcon" destination="Sd2-wa-Qdh" id="sKa-aU-Z6f"/>
                                         </connections>
                                     </tableViewCell>
                                 </prototypes>
@@ -374,4 +396,7 @@
             <point key="canvasLocation" x="2663" y="176"/>
         </scene>
     </scenes>
+    <resources>
+        <image name="main-hamburger" width="40" height="40"/>
+    </resources>
 </document>

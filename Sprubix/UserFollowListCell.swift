@@ -17,7 +17,8 @@ class UserFollowListCell: UITableViewCell {
     @IBOutlet var username: UILabel!
     @IBOutlet var realname: UILabel!
     @IBOutlet var followButton: UIButton!
-    
+    @IBOutlet var verifiedIcon: UIImageView!
+
     var followed: Bool!
     
     override func awakeFromNib() {

@@ -169,6 +169,7 @@ class SearchResultsUsersViewController: UIViewController, UISearchBarDelegate, U
         let username = user["username"] as! String
         let userImageURL = NSURL(string: user["image"] as! String)
         let userId = user["id"] as! Int
+        let shoppableType: String? = user["shoppable_type"] as? String
         
         var cell: UITableViewCell!
         
@@ -179,7 +180,18 @@ class SearchResultsUsersViewController: UIViewController, UISearchBarDelegate, U
             (cell as! UserFollowListCell).user = user
             (cell as! UserFollowListCell).realname.text = name
             (cell as! UserFollowListCell).username.text = username
+            (cell as! UserFollowListCell).userImageView.image = nil
             (cell as! UserFollowListCell).userImageView.setImageWithURL(userImageURL)
+
+            if shoppableType?.lowercaseString.rangeOfString("shopper") == nil {
+                if !user["verified_at"]!.isKindOfClass(NSNull) {
+                    (cell as! UserFollowListCell).verifiedIcon.alpha = 1.0
+                } else {
+                    (cell as! UserFollowListCell).verifiedIcon.alpha = 0.0
+                }
+            } else {
+                (cell as! UserFollowListCell).verifiedIcon.alpha = 0.0
+            }
             
             (cell as! UserFollowListCell).followed = user["followed"] as! Bool
             (cell as! UserFollowListCell).followButton.alpha = 0.0
@@ -190,7 +202,18 @@ class SearchResultsUsersViewController: UIViewController, UISearchBarDelegate, U
             
             (cell as! UserFollowListUNCell).user = user
             (cell as! UserFollowListUNCell).username.text = username
+            (cell as! UserFollowListUNCell).userImageView.image = nil
             (cell as! UserFollowListUNCell).userImageView.setImageWithURL(userImageURL)
+
+            if shoppableType?.lowercaseString.rangeOfString("shopper") == nil {
+                if !user["verified_at"]!.isKindOfClass(NSNull) {
+                    (cell as! UserFollowListCell).verifiedIcon.alpha = 1.0
+                } else {
+                    (cell as! UserFollowListCell).verifiedIcon.alpha = 0.0
+                }
+            } else {
+                (cell as! UserFollowListCell).verifiedIcon.alpha = 0.0
+            }
             
             (cell as! UserFollowListUNCell).followed = user["followed"] as! Bool
             (cell as! UserFollowListUNCell).followButton.alpha = 0.0
