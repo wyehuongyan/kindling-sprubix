@@ -484,7 +484,7 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
                     
                     self.alreadyFollowed = responseObject["already_followed"] as? Bool
                     
-                    println(responseObject)
+                    //println(responseObject)
                     
                     if self.alreadyFollowed != nil {
                         if self.alreadyFollowed == true {

@@ -48,6 +48,7 @@ class UserProfileHeader: UICollectionReusableView, UIScrollViewDelegate {
     var profileImage:UIImageView!
     var profileRealName:UILabel!
     var profileName:UILabel!
+    var verifiedIcon:UIImageView!
     var profileDescription:UILabel!
     
     var numOutfits: UILabel!
@@ -184,7 +185,6 @@ class UserProfileHeader: UICollectionReusableView, UIScrollViewDelegate {
         
         // create username UILabel
         profileName = UILabel()
-        profileName.frame = CGRect(x: (bounds.width / 2) - (profileNameLength / 2), y: profileImage.center.y + 70, width: profileNameLength, height: 20)
         profileName.text = "username"
         profileName.textColor = UIColor.whiteColor()
         profileName.font = UIFont(name: profileName.font.fontName, size: 14)
@@ -195,6 +195,12 @@ class UserProfileHeader: UICollectionReusableView, UIScrollViewDelegate {
         profileName.layer.shadowOffset = CGSizeMake(0.0, 1.0);
         
         userInfoScrollView.addSubview(profileName)
+        
+        // verified tick
+        verifiedIcon = UIImageView()
+        verifiedIcon.image = UIImage(named: "main-hamburger")
+        
+        userInfoScrollView.addSubview(verifiedIcon)
         
         // create outfits, followers, following
         let followInfoViewWidth = screenWidth - 10
@@ -363,12 +369,26 @@ class UserProfileHeader: UICollectionReusableView, UIScrollViewDelegate {
         let userCoverURL = NSURL(string: user!["cover"] as! String)
         let username = user!["username"] as! String!
         let name = user!["name"] as! String!
+        let shoppableType: String? = user!["shoppable_type"] as? String
         
         profileImage.setImageWithURL(userThumbnailURL)
         coverImageContent.setImageWithURL(userCoverURL)
         
         profileRealName.text = name
         profileName.text = "@\(username)"
+
+        profileName.frame = CGRect(x: (bounds.width / 2) - (profileName.intrinsicContentSize().width / 2), y: profileImage.center.y + 70, width: profileName.intrinsicContentSize().width, height: 20)
+        verifiedIcon.frame = CGRectMake(profileName.frame.origin.x + profileName.frame.width + 6, profileName.frame.origin.y + 4, 14, 14)
+        
+        if shoppableType?.lowercaseString.rangeOfString("shopper") == nil {
+            if !user!["verified_at"]!.isKindOfClass(NSNull) {
+                verifiedIcon.alpha = 1.0
+            } else {
+                verifiedIcon.alpha = 0.0
+            }
+        } else {
+            verifiedIcon.alpha = 0.0
+        }
         
         var userDescriptionString = user!["description"] as? String
         
