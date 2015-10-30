@@ -317,6 +317,7 @@ class PeopleFeedViewController: UIViewController, DZNEmptyDataSetSource, DZNEmpt
         let username = person["username"] as? String
         let name = person["name"] as? String
         let pieces = person["pieces"] as! [NSDictionary]
+        let shoppableType: String? = person["shoppable_type"] as? String
         
         cell.userImageView.setImageWithURL(NSURL(string: userImageString))
         cell.user = person
@@ -336,7 +337,7 @@ class PeopleFeedViewController: UIViewController, DZNEmptyDataSetSource, DZNEmpt
             }
         }
         
-        cell.initItemPreview(pieces)
+        cell.initItemPreview(pieces, shoppableType: shoppableType)
         
         cell.selectionStyle = UITableViewCellSelectionStyle.None
         

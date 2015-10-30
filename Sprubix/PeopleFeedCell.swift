@@ -28,10 +28,13 @@ class PeopleFeedCell: UITableViewCell {
     var userImageView: UIImageView!
     var userRealNameLabel: UILabel!
     var userNameLabel: UILabel!
+    var verifiedIcon:UIImageView!
     var followButton: UIButton!
     
     var itemPreviewImageViews: [UIImageView]!
     var itemPreviewContainer: UIView!
+    
+    let userNameLabelHeight: CGFloat = 18.0
     
     required init(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -69,17 +72,23 @@ class PeopleFeedCell: UITableViewCell {
         contentView.addSubview(userImageView)
         
         // create name label
-        let userNameLabelHeight: CGFloat = 18.0
         let followButtonWidth = userNameLabelHeight * 2
         
-        userNameLabel = UILabel(frame: CGRectMake(userImageView.frame.origin.x + userImageViewWidth + 10.0, 21.0, screenWidth - userImageViewWidth - 40.0 - followButtonWidth, userNameLabelHeight))
+        //userNameLabel = UILabel(frame: CGRectMake(userImageView.frame.origin.x + userImageViewWidth + 10.0, 21.0, screenWidth - userImageViewWidth - 40.0 - followButtonWidth, userNameLabelHeight))
+        userNameLabel = UILabel()
         userNameLabel.font = UIFont(name: userNameLabel.font.fontName, size: 16.0)
         userNameLabel.textColor = sprubixColor
         
         contentView.addSubview(userNameLabel)
         
+        // verified tick
+        verifiedIcon = UIImageView()
+        verifiedIcon.image = UIImage(named: "others-verified")
+        
+        contentView.addSubview(verifiedIcon)
+        
         // create username label
-        userRealNameLabel = UILabel(frame: CGRectMake(userImageView.frame.origin.x + userImageViewWidth + 10.0, userNameLabel.frame.origin.y + userNameLabelHeight + 2.0, screenWidth - userImageViewWidth - 40.0 - followButtonWidth, userNameLabelHeight))
+        userRealNameLabel = UILabel(frame: CGRectMake(userImageView.frame.origin.x + userImageViewWidth + 10.0, 21.0 + userNameLabelHeight + 2.0, screenWidth - userImageViewWidth - 40.0 - followButtonWidth, userNameLabelHeight))
         userRealNameLabel.font = UIFont(name: userRealNameLabel.font.fontName, size: 14.0)
         userRealNameLabel.textColor = UIColor.lightGrayColor()
         
@@ -119,7 +128,7 @@ class PeopleFeedCell: UITableViewCell {
         super.layoutSubviews()
     }
     
-    func initItemPreview(pieces: [NSDictionary]) {
+    func initItemPreview(pieces: [NSDictionary], shoppableType: String?) {
         // total of 6 pieces will be shown here.
         // // if there's not enough pieces, placeholder image is shown
         self.pieces = pieces
@@ -198,6 +207,21 @@ class PeopleFeedCell: UITableViewCell {
             followButton.alpha = 1.0
         } else {
             followButton.alpha = 0.0
+        }
+        
+        // set username label width (depends on username text)
+        userNameLabel.frame = CGRectMake(userImageView.frame.origin.x + userImageViewWidth + 10.0, 21.0, userNameLabel.intrinsicContentSize().width, userNameLabelHeight)
+        
+        verifiedIcon.frame = CGRectMake(userNameLabel.frame.origin.x + userNameLabel.frame.width + 6, userNameLabel.frame.origin.y + 2, 17, 17)
+        
+        if shoppableType?.lowercaseString.rangeOfString("shopper") == nil {
+            if !user!["verified_at"]!.isKindOfClass(NSNull) {
+                verifiedIcon.alpha = 1.0
+            } else {
+                verifiedIcon.alpha = 0.0
+            }
+        } else {
+            verifiedIcon.alpha = 0.0
         }
     }
     

@@ -198,7 +198,7 @@ class UserProfileHeader: UICollectionReusableView, UIScrollViewDelegate {
         
         // verified tick
         verifiedIcon = UIImageView()
-        verifiedIcon.image = UIImage(named: "main-hamburger")
+        verifiedIcon.image = UIImage(named: "others-verified")
         
         userInfoScrollView.addSubview(verifiedIcon)
         

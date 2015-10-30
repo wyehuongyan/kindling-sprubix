@@ -60,7 +60,7 @@
                                                         <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                                     </state>
                                                 </button>
-                                                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="main-hamburger" translatesAutoresizingMaskIntoConstraints="NO" id="vq5-R2-k2W">
+                                                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="others-verified" translatesAutoresizingMaskIntoConstraints="NO" id="vq5-R2-k2W">
                                                     <rect key="frame" x="527" y="10" width="17" height="17"/>
                                                     <constraints>
                                                         <constraint firstAttribute="width" constant="17" id="iqe-uB-Bo2"/>
@@ -128,7 +128,7 @@
                                                         <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                                     </state>
                                                 </button>
-                                                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="main-hamburger" translatesAutoresizingMaskIntoConstraints="NO" id="Sd2-wa-Qdh">
+                                                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="others-verified" translatesAutoresizingMaskIntoConstraints="NO" id="Sd2-wa-Qdh">
                                                     <rect key="frame" x="527" y="22" width="17" height="17"/>
                                                     <constraints>
                                                         <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="17" id="12d-jy-Xcz"/>
@@ -397,6 +397,6 @@
         </scene>
     </scenes>
     <resources>
-        <image name="main-hamburger" width="40" height="40"/>
+        <image name="others-verified" width="40" height="40"/>
     </resources>
 </document>
