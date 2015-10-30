@@ -367,6 +367,8 @@ class NotificationViewController: UIViewController, DZNEmptyDataSetSource, DZNEm
             cell.userImageView.layer.borderWidth = 0.0
             
             notificationMessage = "\(pointsAwarded) points received for contributing to a purchased outfit."
+        case "follow":
+            notificationMessage = "@\(senderUsername) started following you. \(duration)"
         case "order_alert":
             let orderAlert = notification["order_alert"] as! NSDictionary
             let shopOrder = orderAlert["shop_order"] as! NSDictionary
@@ -458,6 +460,7 @@ class NotificationViewController: UIViewController, DZNEmptyDataSetSource, DZNEm
         cell.userImageView.addGestureRecognizer(goToUserProfileGestureRecognizer)
         cell.userImageView.userInteractionEnabled = true
         
+        // setting the image on the right of the cell
         if poutfit != nil {
             // item image view
             var poutfitImageURL = NSURL(string: poutfit!["image"] as! String)
@@ -489,6 +492,11 @@ class NotificationViewController: UIViewController, DZNEmptyDataSetSource, DZNEm
                 
                 cell.itemImageView.addGestureRecognizer(goToShopOrderDetailsGestureRecognizer)
                 cell.itemImageView.userInteractionEnabled = true
+            case "follow":
+                cell.itemImageView.image = nil
+                cell.itemImageView.backgroundColor = UIColor.whiteColor()
+                cell.itemImageView.layer.borderWidth = 0.0
+                cell.itemImageView.userInteractionEnabled = false
                 
             default:
                 fatalError("Error: Unknown notification type")

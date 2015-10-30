@@ -10,6 +10,7 @@ import UIKit
 import DZNEmptyDataSet
 import AFNetworking
 import TSMessages
+import MRProgress
 
 class PaymentMethodsViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, DZNEmptyDataSetSource, DZNEmptyDataSetDelegate {
 
@@ -21,6 +22,9 @@ class PaymentMethodsViewController: UIViewController, UITableViewDataSource, UIT
     // custom nav bar
     var newNavBar: UINavigationBar!
     var newNavItem: UINavigationItem!
+    
+    // loading overlay
+    var overlay: MRProgressOverlayView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -298,6 +302,11 @@ class PaymentMethodsViewController: UIViewController, UITableViewDataSource, UIT
         let userId:Int? = defaults.objectForKey("userId") as? Int
         
         if userId != nil {
+            // init overlay
+            self.overlay = MRProgressOverlayView.showOverlayAddedTo(self.view, title: "Deleting...", mode: MRProgressOverlayViewMode.Indeterminate, animated: true)
+            
+            self.overlay.tintColor = sprubixColor
+            
             // REST call to server to delete user shipping address
             manager.DELETE(SprubixConfig.URL.api + "/billing/payment/\(paymentMethodId)",
                 parameters: [
@@ -308,6 +317,8 @@ class PaymentMethodsViewController: UIViewController, UITableViewDataSource, UIT
                     
                     var status = responseObject["status"] as! String
                     var automatic: NSTimeInterval = 0
+                    
+                    self.overlay.dismiss(true)
                     
                     if status == "200" {
                         // success
@@ -321,6 +332,7 @@ class PaymentMethodsViewController: UIViewController, UITableViewDataSource, UIT
                 },
                 failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                     println("Error: " + error.localizedDescription)
+                    self.overlay.dismiss(true)
             })
         } else {
             println("userId not found, please login or create an account")

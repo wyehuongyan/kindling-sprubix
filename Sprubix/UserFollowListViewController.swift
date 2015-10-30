@@ -270,6 +270,11 @@ class UserFollowListViewController: UIViewController, UITableViewDataSource, UIT
                 
                 if status == "200" {
                     //println("followed")
+                    // send notification to followed user
+                    let receiverUsername = user["username"] as! String
+                    let recipientId = user["id"] as! Int
+                    
+                    self.sendNotification(receiverUsername, recipientId: recipientId)
                     
                 } else if status == "500" {
                     //println("error in following user")
@@ -388,5 +393,68 @@ class UserFollowListViewController: UIViewController, UITableViewDataSource, UIT
     
     func backgroundColorForEmptyDataSet(scrollView: UIScrollView!) -> UIColor! {
         return UIColor.whiteColor()
+    }
+    
+    // send firebase notification for follow
+    private func sendNotification(receiverUsername: String, recipientId: Int) {
+        let userData: NSDictionary? = defaults.dictionaryForKey("userData")
+        
+        if userData != nil {
+            // firebase collections: users and notifications
+            let notificationsRef = firebaseRef.childByAppendingPath("notifications")
+            
+            let senderUsername = userData!["username"] as! String
+            let senderImage = userData!["image"] as! String
+            
+            if senderUsername != receiverUsername {
+                
+                let createdAt = timestamp
+                let shoppableType: String? = userData!["shoppable_type"] as? String
+                
+                let receiverUserNotificationsRef = firebaseRef.childByAppendingPath("users/\(receiverUsername)/notifications")
+                
+                // push new notifications
+                let notificationRef = notificationsRef.childByAutoId()
+                
+                let notification = [
+                    "created_at": createdAt,
+                    "sender": [
+                        "username": senderUsername, // yourself
+                        "image": senderImage
+                    ],
+                    "receiver": receiverUsername,
+                    "type": "follow",
+                    "unread": true
+                ]
+                
+                notificationRef.setValue(notification, withCompletionBlock: {
+                    
+                    (error:NSError?, ref:Firebase!) in
+                    
+                    if (error != nil) {
+                        println("Error: Notification could not be added.")
+                    } else {
+                        // update target user notifications
+                        let receiverUserNotificationRef = receiverUserNotificationsRef.childByAppendingPath(notificationRef.key)
+                        
+                        receiverUserNotificationRef.updateChildValues([
+                            "created_at": createdAt,
+                            "unread": true
+                            ], withCompletionBlock: {
+                                
+                                (error:NSError?, ref:Firebase!) in
+                                
+                                if (error != nil) {
+                                    println("Error: Notification Key could not be added to Users.")
+                                } else {
+                                    let pushMessage = "@\(senderUsername) started following you."
+                                    
+                                    APNS.sendPushNotification(pushMessage, recipientId: recipientId)
+                                }
+                        })
+                    }
+                })
+            }
+        }
     }
 }
