@@ -578,7 +578,7 @@ class MixpanelService {
         let username: String = data["username"] as! String
         let distinctId: String = NSUUID().UUIDString + "-\(idHex)"
         
-        mixpanel.reset()
+        reset()
         mixpanel.createAlias(idString, forDistinctID: distinctId)
         mixpanel.identify(idString)
         
@@ -646,6 +646,9 @@ class MixpanelService {
     
     // Clear cache
     class func reset() {
+        // flush before reset
+        mixpanel.flush()
+        
         // clear cache
         mixpanel.reset()
     }
