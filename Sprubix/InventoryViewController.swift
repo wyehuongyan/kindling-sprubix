@@ -254,6 +254,11 @@ class InventoryViewController: UIViewController, UITableViewDataSource, UITableV
                         self.pieces.removeAtIndex(self.selectedIndexPath.row + 1)
                         
                         self.inventoryTableView.reloadRowsAtIndexPaths([self.selectedIndexPath], withRowAnimation: UITableViewRowAnimation.None)
+                    } else {
+                        // no results, item was deleted
+                        self.pieces.removeAtIndex(self.selectedIndexPath.row)
+                        
+                        self.inventoryTableView.reloadData()
                     }
                 },
                 failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in

@@ -62,6 +62,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
     var itemThumbnailsCell: UITableViewCell = UITableViewCell()
     var itemDetailsCell: UITableViewCell = UITableViewCell()
     var itemDescriptionCell: UITableViewCell = UITableViewCell()
+    var itemDeleteCell: UITableViewCell = UITableViewCell()
     
     // description
     let itemSpecHeight: CGFloat = 55
@@ -122,7 +123,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
             isShop = true
         }
         
-        self.view.backgroundColor = UIColor.whiteColor()
+        self.view.backgroundColor = sprubixGray
         
         // table
         itemTableView = UITableView(frame: CGRectMake(0, navigationHeight, screenWidth, screenHeight - navigationHeight))
@@ -131,6 +132,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
         itemTableView.showsVerticalScrollIndicator = false
         itemTableView.separatorStyle = UITableViewCellSeparatorStyle.None
         itemTableView.userInteractionEnabled = true
+        itemTableView.backgroundColor = sprubixGray
         
         // register method when tapped to hide keyboard
         let tableTapGestureRecognizer:UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: "tableTapped:")
@@ -260,455 +262,515 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
     
     // tableViewDelegate
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 4
+        switch section {
+        case 0:
+            return 4
+        case 1:
+            return 1
+        default:
+            return 4
+        }
+    }
+    
+    func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+        if fromInventoryView {
+            return 2
+        } else {
+            return 1
+        }
+    }
+    
+    func tableView(tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        switch section {
+        case 0:
+            return 0.0
+        case 1:
+            return 20.0
+        default:
+            return 0.0
+        }
     }
     
     func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
         var cellHeight : CGFloat!
         
-        switch(indexPath.row)
-        {
+        switch(indexPath.section) {
         case 0:
-            cellHeight = screenWidth
+            switch(indexPath.row) {
+            case 0:
+                cellHeight = screenWidth
+            case 1:
+                cellHeight = thumbnailViewWidth + 20 // itemThumbnails
+            case 2:
+                cellHeight = itemSpecHeightTotal + 10 // itemDetails
+            case 3:
+                cellHeight = descriptionTextHeight // description
+            default:
+                cellHeight = 300
+            }
         case 1:
-            cellHeight = thumbnailViewWidth + 20 // itemThumbnails
-        case 2:
-            cellHeight = itemSpecHeightTotal + 10 // itemDetails
-        case 3:
-            cellHeight = descriptionTextHeight // description
+            cellHeight = navigationHeight
         default:
             cellHeight = 300
         }
-        
+    
         return cellHeight
     }
 
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        switch(indexPath.row)
-        {
+        
+        switch(indexPath.section) {
+        
         case 0:
-            itemCoverImageView.frame = CGRectMake(0, 0, screenWidth, screenWidth)
-            itemCoverImageView.contentMode = UIViewContentMode.ScaleAspectFit
-            itemCoverImageView.backgroundColor = sprubixGray
-            itemCoverImageView.userInteractionEnabled = true
-            
-            itemImageCell.addSubview(itemCoverImageView)
-            itemImageCell.backgroundColor = sprubixGray
-            
-            if trashButton == nil {
-                // trash button
-                let trashButtonWidth = screenWidth / 10
-                trashButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
-                var image = UIImage(named: "details-thumbnail-trash")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
-                trashButton.setImage(image, forState: UIControlState.Normal)
-                trashButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
-                trashButton.imageView?.tintColor = sprubixGray
-                trashButton.backgroundColor = UIColor.clearColor()
-                trashButton.frame = CGRectMake(9 * trashButtonWidth, screenWidth - trashButtonWidth, trashButtonWidth, trashButtonWidth)
-                trashButton.imageEdgeInsets = UIEdgeInsetsMake(5, 5, 5, 5)
-                trashButton.addTarget(self, action: "deleteImage:", forControlEvents: UIControlEvents.TouchUpInside)
-                trashButton.exclusiveTouch = true
-                trashButton.alpha = 0.0
-                Glow.addGlow(trashButton)
+            switch(indexPath.row)
+            {
+            case 0:
+                itemCoverImageView.frame = CGRectMake(0, 0, screenWidth, screenWidth)
+                itemCoverImageView.contentMode = UIViewContentMode.ScaleAspectFit
+                itemCoverImageView.backgroundColor = sprubixGray
+                itemCoverImageView.userInteractionEnabled = true
                 
-                itemCoverImageView.addSubview(trashButton)
-            }
-            
-            return itemImageCell
-            
-        case 1:
-            
-            for var i = 0; i < 4; i++ {
-                var thumbnailView: SprubixItemThumbnail = SprubixItemThumbnail.buttonWithType(UIButtonType.Custom) as! SprubixItemThumbnail
+                itemImageCell.addSubview(itemCoverImageView)
+                itemImageCell.backgroundColor = sprubixGray
                 
-                if i == 0 {
-                    // first one
-                    thumbnailView.setImage(itemCoverImageView.image, forState: UIControlState.Normal)
-                    thumbnailView.hasThumbnail = true
-                    thumbnailView.isCover = true
+                if trashButton == nil {
+                    // trash button
+                    let trashButtonWidth = screenWidth / 10
+                    trashButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+                    var image = UIImage(named: "details-thumbnail-trash")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
+                    trashButton.setImage(image, forState: UIControlState.Normal)
+                    trashButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+                    trashButton.imageView?.tintColor = sprubixGray
+                    trashButton.backgroundColor = UIColor.clearColor()
+                    trashButton.frame = CGRectMake(9 * trashButtonWidth, screenWidth - trashButtonWidth, trashButtonWidth, trashButtonWidth)
+                    trashButton.imageEdgeInsets = UIEdgeInsetsMake(5, 5, 5, 5)
+                    trashButton.addTarget(self, action: "deleteImage:", forControlEvents: UIControlEvents.TouchUpInside)
+                    trashButton.exclusiveTouch = true
+                    trashButton.alpha = 0.0
+                    Glow.addGlow(trashButton)
                     
-                    selectedThumbnail = thumbnailView
-                } else {
-                    // coming from inventory
-                    if sprubixPiece.imageURLs.count > i {
-                        thumbnailView.setImage(UIImage(data: NSData(contentsOfURL: sprubixPiece.imageURLs[i])!), forState: UIControlState.Normal)
-                        
+                    itemCoverImageView.addSubview(trashButton)
+                }
+                
+                return itemImageCell
+                
+            case 1:
+                
+                for var i = 0; i < 4; i++ {
+                    var thumbnailView: SprubixItemThumbnail = SprubixItemThumbnail.buttonWithType(UIButtonType.Custom) as! SprubixItemThumbnail
+                    
+                    if i == 0 {
+                        // first one
+                        thumbnailView.setImage(itemCoverImageView.image, forState: UIControlState.Normal)
                         thumbnailView.hasThumbnail = true
-                        thumbnailView.isCover = false
-                    } else {
-                        thumbnailView.setImage(UIImage(named: "details-thumbnail-add"), forState: UIControlState.Normal)
-                        thumbnailView.hasThumbnail = false
-                        thumbnailView.isCover = false
-                    }
-                    
-                    // coming from create outfit
-                    if sprubixPiece.images.count > i {
-                        thumbnailView.setImage(sprubixPiece.images[i], forState: UIControlState.Normal)
+                        thumbnailView.isCover = true
                         
-                        thumbnailView.hasThumbnail = true
-                        thumbnailView.isCover = false
+                        selectedThumbnail = thumbnailView
                     } else {
-                        thumbnailView.setImage(UIImage(named: "details-thumbnail-add"), forState: UIControlState.Normal)
-                        thumbnailView.hasThumbnail = false
-                        thumbnailView.isCover = false
+                        // coming from inventory
+                        if sprubixPiece.imageURLs.count > i {
+                            thumbnailView.setImage(UIImage(data: NSData(contentsOfURL: sprubixPiece.imageURLs[i])!), forState: UIControlState.Normal)
+                            
+                            thumbnailView.hasThumbnail = true
+                            thumbnailView.isCover = false
+                        } else {
+                            thumbnailView.setImage(UIImage(named: "details-thumbnail-add"), forState: UIControlState.Normal)
+                            thumbnailView.hasThumbnail = false
+                            thumbnailView.isCover = false
+                        }
+                        
+                        // coming from create outfit
+                        if sprubixPiece.images.count > i {
+                            thumbnailView.setImage(sprubixPiece.images[i], forState: UIControlState.Normal)
+                            
+                            thumbnailView.hasThumbnail = true
+                            thumbnailView.isCover = false
+                        } else {
+                            thumbnailView.setImage(UIImage(named: "details-thumbnail-add"), forState: UIControlState.Normal)
+                            thumbnailView.hasThumbnail = false
+                            thumbnailView.isCover = false
+                        }
                     }
+                    
+                    // tap gesture recognizer
+                    var singleTapGestureRecognizer: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: "handleTap:")
+                    singleTapGestureRecognizer.numberOfTapsRequired = 1
+                    
+                    thumbnailView.addGestureRecognizer(singleTapGestureRecognizer)
+                    
+                    thumbnailView.frame = CGRectMake(20 + CGFloat(i) * (thumbnailViewWidth + 20), 20, thumbnailViewWidth, thumbnailViewWidth)
+
+                    thumbnailView.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+                    thumbnailView.backgroundColor = sprubixGray
+                    
+                    thumbnails.append(thumbnailView)
+                    
+                    itemThumbnailsCell.addSubview(thumbnailView)
                 }
                 
-                // tap gesture recognizer
-                var singleTapGestureRecognizer: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: "handleTap:")
-                singleTapGestureRecognizer.numberOfTapsRequired = 1
+                itemThumbnailsCell.selectionStyle = UITableViewCellSelectionStyle.None
                 
-                thumbnailView.addGestureRecognizer(singleTapGestureRecognizer)
+                return itemThumbnailsCell
                 
-                thumbnailView.frame = CGRectMake(20 + CGFloat(i) * (thumbnailViewWidth + 20), 20, thumbnailViewWidth, thumbnailViewWidth)
+            case 2:
+                // init piece specifications
+                itemSpecHeightTotal = isShop != true ? itemSpecHeight * 4 : itemSpecHeight * 7
+                
+                pieceSpecsView = UIView(frame: CGRect(x: 0, y: 10, width: screenWidth, height: itemSpecHeightTotal))
+                pieceSpecsView.backgroundColor = UIColor.whiteColor()
+                
+                // generate 4 labels with icons
+                let itemImageViewWidth:CGFloat = 0.3 * screenWidth
+                
+                // name
+                var itemNameImage = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+                itemNameImage.setImage(UIImage(named: "view-item-name"), forState: UIControlState.Normal)
+                itemNameImage.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+                itemNameImage.frame = CGRect(x: 0, y: 0, width: itemImageViewWidth, height: itemSpecHeight)
+                itemNameImage.imageEdgeInsets = UIEdgeInsetsMake(10, 10, 10, 0)
+                
+                Glow.addGlow(itemNameImage)
+                
+                itemDetailsName = UITextField(frame: CGRectMake(itemImageViewWidth, 0, screenWidth - itemImageViewWidth, itemSpecHeight))
+                itemDetailsName.tintColor = sprubixColor
+                itemDetailsName.placeholder = "Name of your item?"
+                itemDetailsName.returnKeyType = UIReturnKeyType.Done
+                itemDetailsName.delegate = self
 
-                thumbnailView.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
-                thumbnailView.backgroundColor = sprubixGray
+                if sprubixPiece.name != nil {
+                    itemDetailsName.text = sprubixPiece.name
+                }
                 
-                thumbnails.append(thumbnailView)
+                // category
+                var itemCategoryImage = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+                itemCategoryImage.setImage(UIImage(named: "view-item-cat-top"), forState: UIControlState.Normal)
+                itemCategoryImage.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+                itemCategoryImage.frame = CGRect(x: 0, y: itemSpecHeight, width: itemImageViewWidth, height: itemSpecHeight)
+                itemCategoryImage.imageEdgeInsets = UIEdgeInsetsMake(10, 10, 10, 0)
                 
-                itemThumbnailsCell.addSubview(thumbnailView)
-            }
-            
-            itemThumbnailsCell.selectionStyle = UITableViewCellSelectionStyle.None
-            
-            return itemThumbnailsCell
-            
-        case 2:
-            // init piece specifications
-            itemSpecHeightTotal = isShop != true ? itemSpecHeight * 4 : itemSpecHeight * 7
-            
-            pieceSpecsView = UIView(frame: CGRect(x: 0, y: 10, width: screenWidth, height: itemSpecHeightTotal))
-            pieceSpecsView.backgroundColor = UIColor.whiteColor()
-            
-            // generate 4 labels with icons
-            let itemImageViewWidth:CGFloat = 0.3 * screenWidth
-            
-            // name
-            var itemNameImage = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
-            itemNameImage.setImage(UIImage(named: "view-item-name"), forState: UIControlState.Normal)
-            itemNameImage.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
-            itemNameImage.frame = CGRect(x: 0, y: 0, width: itemImageViewWidth, height: itemSpecHeight)
-            itemNameImage.imageEdgeInsets = UIEdgeInsetsMake(10, 10, 10, 0)
-            
-            Glow.addGlow(itemNameImage)
-            
-            itemDetailsName = UITextField(frame: CGRectMake(itemImageViewWidth, 0, screenWidth - itemImageViewWidth, itemSpecHeight))
-            itemDetailsName.tintColor = sprubixColor
-            itemDetailsName.placeholder = "Name of your item?"
-            itemDetailsName.returnKeyType = UIReturnKeyType.Done
-            itemDetailsName.delegate = self
+                Glow.addGlow(itemCategoryImage)
+                
+                itemDetailsCategoryButton = UIButton(frame: CGRectMake(itemImageViewWidth, itemSpecHeight, screenWidth - itemImageViewWidth, itemSpecHeight))
+                itemDetailsCategory = UITextField(frame: CGRectMake(0, 0, screenWidth - itemImageViewWidth, itemSpecHeight))
+                itemDetailsCategory.tintColor = sprubixColor
+                itemDetailsCategory.placeholder = "Which category is it from?"
+                itemDetailsCategory.enabled = false
+                itemDetailsCategoryButton.addSubview(itemDetailsCategory)
+                itemDetailsCategoryButton.addTarget(self, action: "itemDetailsCategoryPressed:", forControlEvents: UIControlEvents.TouchUpInside)
+                
+                if sprubixPiece.category != nil {
+                    
+                    itemDetailsCategory.text = sprubixPiece.category
 
-            if sprubixPiece.name != nil {
-                itemDetailsName.text = sprubixPiece.name
-            }
-            
-            // category
-            var itemCategoryImage = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
-            itemCategoryImage.setImage(UIImage(named: "view-item-cat-top"), forState: UIControlState.Normal)
-            itemCategoryImage.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
-            itemCategoryImage.frame = CGRect(x: 0, y: itemSpecHeight, width: itemImageViewWidth, height: itemSpecHeight)
-            itemCategoryImage.imageEdgeInsets = UIEdgeInsetsMake(10, 10, 10, 0)
-            
-            Glow.addGlow(itemCategoryImage)
-            
-            itemDetailsCategoryButton = UIButton(frame: CGRectMake(itemImageViewWidth, itemSpecHeight, screenWidth - itemImageViewWidth, itemSpecHeight))
-            itemDetailsCategory = UITextField(frame: CGRectMake(0, 0, screenWidth - itemImageViewWidth, itemSpecHeight))
-            itemDetailsCategory.tintColor = sprubixColor
-            itemDetailsCategory.placeholder = "Which category is it from?"
-            itemDetailsCategory.enabled = false
-            itemDetailsCategoryButton.addSubview(itemDetailsCategory)
-            itemDetailsCategoryButton.addTarget(self, action: "itemDetailsCategoryPressed:", forControlEvents: UIControlEvents.TouchUpInside)
-            
-            if sprubixPiece.category != nil {
+                    if sprubixPiece.type.lowercaseString == "top" {
+                        if itemIsDress {
+                            // already set as dress when entering
+                            itemDetailsCategory.text = "Dress"
+                        } else {
+                            itemDetailsCategory.text = "Top"
+                        }
+                        
+                        // disable the category selection
+                        itemDetailsCategoryButton.enabled = false
+                    }
+                    
+                }
                 
-                itemDetailsCategory.text = sprubixPiece.category
-
-                if sprubixPiece.type.lowercaseString == "top" {
-                    if itemIsDress {
-                        // already set as dress when entering
-                        itemDetailsCategory.text = "Dress"
+                // brand
+                var itemBrandImage = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+                itemBrandImage.setImage(UIImage(named: "view-item-brand"), forState: UIControlState.Normal)
+                itemBrandImage.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+                itemBrandImage.frame = CGRect(x: 0, y: itemSpecHeight * 2, width: itemImageViewWidth, height: itemSpecHeight)
+                itemBrandImage.imageEdgeInsets = UIEdgeInsetsMake(10, 10, 10, 0)
+                
+                Glow.addGlow(itemBrandImage)
+                
+                itemDetailsBrand = MLPAutoCompleteTextField(frame: CGRectMake(itemImageViewWidth, itemSpecHeight * 2, screenWidth - itemImageViewWidth, itemSpecHeight))
+                itemDetailsBrand.tintColor = sprubixColor
+                itemDetailsBrand.placeholder = "What brand is it?"
+                itemDetailsBrand.returnKeyType = UIReturnKeyType.Done
+                itemDetailsBrand.delegate = self
+                
+                // autocomplete
+                itemDetailsBrand.autoCompleteDataSource = self
+                itemDetailsBrand.autoCompleteTableAppearsAsKeyboardAccessory = true
+                itemDetailsBrand.autoCompleteDelegate = self
+                itemDetailsBrand.autoCompleteTableCellTextColor = sprubixColor
+                itemDetailsBrand.autoCompleteTableBorderColor = sprubixLightGray
+                
+                if sprubixPiece.brand != nil {
+                    itemDetailsBrand.text = sprubixPiece.brand
+                }
+                
+                // size
+                var itemSizeImage = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+                itemSizeImage.setImage(UIImage(named: "view-item-size"), forState: UIControlState.Normal)
+                itemSizeImage.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+                itemSizeImage.frame = CGRect(x: 0, y: itemSpecHeight * 3, width: itemImageViewWidth, height: itemSpecHeight)
+                itemSizeImage.imageEdgeInsets = UIEdgeInsetsMake(10, 10, 10, 0)
+                
+                Glow.addGlow(itemSizeImage)
+                
+                itemDetailsSizeButton = UIButton(frame: CGRectMake(itemImageViewWidth, itemSpecHeight * 3, screenWidth - itemImageViewWidth - 20, itemSpecHeight))
+                itemDetailsSize = UITextField(frame: CGRectMake(0, 0, screenWidth - itemImageViewWidth - 20, itemSpecHeight))
+                itemDetailsSize.tintColor = sprubixColor
+                itemDetailsSize.placeholder = "What size is it?"
+                itemDetailsSize.enabled = false
+                itemDetailsSizeButton.addSubview(itemDetailsSize)
+                itemDetailsSizeButton.addTarget(self, action: "addMoreSizesPressed:", forControlEvents: UIControlEvents.TouchUpInside)
+                
+                if sprubixPiece.size != nil {
+                    var pieceSizesString = sprubixPiece.size
+                    var pieceSizesData:NSData = pieceSizesString.dataUsingEncoding(NSUTF8StringEncoding)!
+                    
+                    pieceSizesArray = NSJSONSerialization.JSONObjectWithData(pieceSizesData, options: NSJSONReadingOptions.MutableContainers, error: nil) as? NSArray
+                    
+                    if pieceSizesArray != nil {
+                        itemDetailsSize.text = pieceSizesArray.componentsJoinedByString("/")
                     } else {
-                        itemDetailsCategory.text = "Top"
-                    }
-                    
-                    // disable the category selection
-                    itemDetailsCategoryButton.enabled = false
-                }
-                
-            }
-            
-            // brand
-            var itemBrandImage = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
-            itemBrandImage.setImage(UIImage(named: "view-item-brand"), forState: UIControlState.Normal)
-            itemBrandImage.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
-            itemBrandImage.frame = CGRect(x: 0, y: itemSpecHeight * 2, width: itemImageViewWidth, height: itemSpecHeight)
-            itemBrandImage.imageEdgeInsets = UIEdgeInsetsMake(10, 10, 10, 0)
-            
-            Glow.addGlow(itemBrandImage)
-            
-            itemDetailsBrand = MLPAutoCompleteTextField(frame: CGRectMake(itemImageViewWidth, itemSpecHeight * 2, screenWidth - itemImageViewWidth, itemSpecHeight))
-            itemDetailsBrand.tintColor = sprubixColor
-            itemDetailsBrand.placeholder = "What brand is it?"
-            itemDetailsBrand.returnKeyType = UIReturnKeyType.Done
-            itemDetailsBrand.delegate = self
-            
-            // autocomplete
-            itemDetailsBrand.autoCompleteDataSource = self
-            itemDetailsBrand.autoCompleteTableAppearsAsKeyboardAccessory = true
-            itemDetailsBrand.autoCompleteDelegate = self
-            itemDetailsBrand.autoCompleteTableCellTextColor = sprubixColor
-            itemDetailsBrand.autoCompleteTableBorderColor = sprubixLightGray
-            
-            if sprubixPiece.brand != nil {
-                itemDetailsBrand.text = sprubixPiece.brand
-            }
-            
-            // size
-            var itemSizeImage = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
-            itemSizeImage.setImage(UIImage(named: "view-item-size"), forState: UIControlState.Normal)
-            itemSizeImage.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
-            itemSizeImage.frame = CGRect(x: 0, y: itemSpecHeight * 3, width: itemImageViewWidth, height: itemSpecHeight)
-            itemSizeImage.imageEdgeInsets = UIEdgeInsetsMake(10, 10, 10, 0)
-            
-            Glow.addGlow(itemSizeImage)
-            
-            itemDetailsSizeButton = UIButton(frame: CGRectMake(itemImageViewWidth, itemSpecHeight * 3, screenWidth - itemImageViewWidth - 20, itemSpecHeight))
-            itemDetailsSize = UITextField(frame: CGRectMake(0, 0, screenWidth - itemImageViewWidth - 20, itemSpecHeight))
-            itemDetailsSize.tintColor = sprubixColor
-            itemDetailsSize.placeholder = "What size is it?"
-            itemDetailsSize.enabled = false
-            itemDetailsSizeButton.addSubview(itemDetailsSize)
-            itemDetailsSizeButton.addTarget(self, action: "addMoreSizesPressed:", forControlEvents: UIControlEvents.TouchUpInside)
-            
-            if sprubixPiece.size != nil {
-                var pieceSizesString = sprubixPiece.size
-                var pieceSizesData:NSData = pieceSizesString.dataUsingEncoding(NSUTF8StringEncoding)!
-                
-                pieceSizesArray = NSJSONSerialization.JSONObjectWithData(pieceSizesData, options: NSJSONReadingOptions.MutableContainers, error: nil) as? NSArray
-                
-                if pieceSizesArray != nil {
-                    itemDetailsSize.text = pieceSizesArray.componentsJoinedByString("/")
-                } else {
-                    // pieceSizesString is not a json string
-                    // split it the usual way
-                    pieceSizesArray = split(pieceSizesString) {$0 == "/"}
-                    
-                    itemDetailsSize.text = pieceSizesString
-                }
-            }
-            
-            // add more sizes
-            let addMoreSizesWidth: CGFloat = 25
-            var addMoreSizes = UIButton(frame: CGRectMake(0, -1, addMoreSizesWidth, addMoreSizesWidth))
-            addMoreSizes.setImage(UIImage(named: "main-cta-add"), forState: UIControlState.Normal)
-            addMoreSizes.addTarget(self, action: "addMoreSizesPressed:", forControlEvents: UIControlEvents.TouchUpInside)
-            addMoreSizes.imageView?.layer.cornerRadius = addMoreSizes.imageView!.frame.height / 2
-            addMoreSizes.imageView?.layer.borderColor = sprubixLightGray.CGColor
-            addMoreSizes.imageView?.layer.borderWidth = 2.0
-            addMoreSizes.clipsToBounds = true
-            
-            var offsetView: UIView = UIView(frame: addMoreSizes.bounds)
-            offsetView.addSubview(addMoreSizes)
-            
-            itemDetailsSize.rightView = offsetView
-            itemDetailsSize.rightViewMode = UITextFieldViewMode.Always
-            
-            pieceSpecsView.addSubview(itemDetailsSizeButton)
-            
-            if isShop {
-                // quantity
-                var itemQuantityImage = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
-                itemQuantityImage.setImage(UIImage(named: "view-item-quantity"), forState: UIControlState.Normal)
-                itemQuantityImage.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
-                itemQuantityImage.frame = CGRect(x: 0, y: itemSpecHeight * 4, width: itemImageViewWidth, height: itemSpecHeight)
-                itemQuantityImage.imageEdgeInsets = UIEdgeInsetsMake(10, 10, 10, 0)
-                
-                Glow.addGlow(itemQuantityImage)
-                
-                itemDetailsQuantity = UITextField(frame: CGRectMake(itemImageViewWidth, itemSpecHeight * 4, screenWidth - itemImageViewWidth, itemSpecHeight))
-                itemDetailsQuantity.tintColor = sprubixColor
-                itemDetailsQuantity.placeholder = "How much quantity?"
-                itemDetailsQuantity.keyboardType = UIKeyboardType.NumberPad
-                itemDetailsQuantity.returnKeyType = UIReturnKeyType.Done
-                itemDetailsQuantity.delegate = self
-                
-                if sprubixPiece.quantity != nil {
-                    if pieceSizesArray != nil && pieceSizesArray.count > 0 {
-                        var itemQuantity = sprubixPiece.quantity[pieceSizesArray[0] as! String] as! String
+                        // pieceSizesString is not a json string
+                        // split it the usual way
+                        pieceSizesArray = split(pieceSizesString) {$0 == "/"}
                         
-                        itemDetailsQuantity.text = "\(itemQuantity)"
-                        
-                        pieceQuantityDict.removeAllObjects()
-                        pieceQuantityDict.setObject(itemDetailsQuantity.text, forKey: pieceSizesArray[0] as! String)
+                        itemDetailsSize.text = pieceSizesString
                     }
                 }
                 
-                // price
-                itemPriceImage = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
-                itemPriceImage.setImage(UIImage(named: "view-item-price"), forState: UIControlState.Normal)
-                itemPriceImage.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
-                itemPriceImage.frame = CGRect(x: 0, y: itemSpecHeight * 5, width: itemImageViewWidth, height: itemSpecHeight)
-                itemPriceImage.imageEdgeInsets = UIEdgeInsetsMake(10, 10, 10, 0)
+                // add more sizes
+                let addMoreSizesWidth: CGFloat = 25
+                var addMoreSizes = UIButton(frame: CGRectMake(0, -1, addMoreSizesWidth, addMoreSizesWidth))
+                addMoreSizes.setImage(UIImage(named: "main-cta-add"), forState: UIControlState.Normal)
+                addMoreSizes.addTarget(self, action: "addMoreSizesPressed:", forControlEvents: UIControlEvents.TouchUpInside)
+                addMoreSizes.imageView?.layer.cornerRadius = addMoreSizes.imageView!.frame.height / 2
+                addMoreSizes.imageView?.layer.borderColor = sprubixLightGray.CGColor
+                addMoreSizes.imageView?.layer.borderWidth = 2.0
+                addMoreSizes.clipsToBounds = true
                 
-                Glow.addGlow(itemPriceImage)
+                var offsetView: UIView = UIView(frame: addMoreSizes.bounds)
+                offsetView.addSubview(addMoreSizes)
                 
-                itemDetailsPrice = UITextField(frame: CGRectMake(itemImageViewWidth, itemSpecHeight * 5, screenWidth - itemImageViewWidth, itemSpecHeight))
-                itemDetailsPrice.tintColor = sprubixColor
-                itemDetailsPrice.placeholder = "How much does it cost?"
-                itemDetailsPrice.keyboardType = UIKeyboardType.DecimalPad
-                itemDetailsPrice.returnKeyType = UIReturnKeyType.Done
-                itemDetailsPrice.delegate = self
+                itemDetailsSize.rightView = offsetView
+                itemDetailsSize.rightViewMode = UITextFieldViewMode.Always
                 
-                if sprubixPiece.price != nil {
-                    itemDetailsPrice.text = sprubixPiece.price
+                pieceSpecsView.addSubview(itemDetailsSizeButton)
+                
+                if isShop {
+                    // quantity
+                    var itemQuantityImage = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+                    itemQuantityImage.setImage(UIImage(named: "view-item-quantity"), forState: UIControlState.Normal)
+                    itemQuantityImage.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+                    itemQuantityImage.frame = CGRect(x: 0, y: itemSpecHeight * 4, width: itemImageViewWidth, height: itemSpecHeight)
+                    itemQuantityImage.imageEdgeInsets = UIEdgeInsetsMake(10, 10, 10, 0)
                     
-                    var dollarLabel: UILabel = UILabel(frame: CGRectMake(0, 0, 10, itemDetailsPrice.frame.height))
-                    dollarLabel.text = "$"
-                    dollarLabel.textColor = UIColor.lightGrayColor()
-                    dollarLabel.textAlignment = NSTextAlignment.Left
+                    Glow.addGlow(itemQuantityImage)
                     
-                    var offsetView: UIView = UIView(frame: dollarLabel.bounds)
-                    offsetView.addSubview(dollarLabel)
+                    itemDetailsQuantity = UITextField(frame: CGRectMake(itemImageViewWidth, itemSpecHeight * 4, screenWidth - itemImageViewWidth, itemSpecHeight))
+                    itemDetailsQuantity.tintColor = sprubixColor
+                    itemDetailsQuantity.placeholder = "How much quantity?"
+                    itemDetailsQuantity.keyboardType = UIKeyboardType.NumberPad
+                    itemDetailsQuantity.returnKeyType = UIReturnKeyType.Done
+                    itemDetailsQuantity.delegate = self
                     
-                    itemDetailsPrice.leftView = offsetView
-                    itemDetailsPrice.leftViewMode = UITextFieldViewMode.Always
+                    if sprubixPiece.quantity != nil {
+                        if pieceSizesArray != nil && pieceSizesArray.count > 0 {
+                            var itemQuantity = sprubixPiece.quantity[pieceSizesArray[0] as! String] as! String
+                            
+                            itemDetailsQuantity.text = "\(itemQuantity)"
+                            
+                            pieceQuantityDict.removeAllObjects()
+                            pieceQuantityDict.setObject(itemDetailsQuantity.text, forKey: pieceSizesArray[0] as! String)
+                        }
+                    }
+                    
+                    // price
+                    itemPriceImage = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+                    itemPriceImage.setImage(UIImage(named: "view-item-price"), forState: UIControlState.Normal)
+                    itemPriceImage.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+                    itemPriceImage.frame = CGRect(x: 0, y: itemSpecHeight * 5, width: itemImageViewWidth, height: itemSpecHeight)
+                    itemPriceImage.imageEdgeInsets = UIEdgeInsetsMake(10, 10, 10, 0)
+                    
+                    Glow.addGlow(itemPriceImage)
+                    
+                    itemDetailsPrice = UITextField(frame: CGRectMake(itemImageViewWidth, itemSpecHeight * 5, screenWidth - itemImageViewWidth, itemSpecHeight))
+                    itemDetailsPrice.tintColor = sprubixColor
+                    itemDetailsPrice.placeholder = "How much does it cost?"
+                    itemDetailsPrice.keyboardType = UIKeyboardType.DecimalPad
+                    itemDetailsPrice.returnKeyType = UIReturnKeyType.Done
+                    itemDetailsPrice.delegate = self
+                    
+                    if sprubixPiece.price != nil {
+                        itemDetailsPrice.text = sprubixPiece.price
+                        
+                        var dollarLabel: UILabel = UILabel(frame: CGRectMake(0, 0, 10, itemDetailsPrice.frame.height))
+                        dollarLabel.text = "$"
+                        dollarLabel.textColor = UIColor.lightGrayColor()
+                        dollarLabel.textAlignment = NSTextAlignment.Left
+                        
+                        var offsetView: UIView = UIView(frame: dollarLabel.bounds)
+                        offsetView.addSubview(dollarLabel)
+                        
+                        itemDetailsPrice.leftView = offsetView
+                        itemDetailsPrice.leftViewMode = UITextFieldViewMode.Always
+                    }
+                    
+                    // sku
+                    itemSKUImage = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+                    itemSKUImage.setImage(UIImage(named: "view-item-sku"), forState: UIControlState.Normal)
+                    itemSKUImage.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+                    itemSKUImage.frame = CGRect(x: 0, y: itemSpecHeight * 6, width: itemImageViewWidth, height: itemSpecHeight)
+                    itemSKUImage.imageEdgeInsets = UIEdgeInsetsMake(10, 10, 10, 0)
+                    
+                    Glow.addGlow(itemSKUImage)
+                    
+                    itemDetailsSKU = UITextField(frame: CGRectMake(itemImageViewWidth, itemSpecHeight * 6, screenWidth - itemImageViewWidth, itemSpecHeight))
+                    itemDetailsSKU.tintColor = sprubixColor
+                    itemDetailsSKU.placeholder = "SKU (Optional)"
+                    itemDetailsSKU.keyboardType = UIKeyboardType.Default
+                    itemDetailsSKU.returnKeyType = UIReturnKeyType.Done
+                    itemDetailsSKU.delegate = self
+                    
+                    if sprubixPiece.sku != nil {
+                        itemDetailsSKU.text = sprubixPiece.sku
+                    }
+                    
+                    pieceSpecsView.addSubview(itemQuantityImage)
+                    pieceSpecsView.addSubview(itemDetailsQuantity)
+                    
+                    pieceSpecsView.addSubview(itemPriceImage)
+                    pieceSpecsView.addSubview(itemDetailsPrice)
+                    
+                    pieceSpecsView.addSubview(itemSKUImage)
+                    pieceSpecsView.addSubview(itemDetailsSKU)
                 }
                 
-                // sku
-                itemSKUImage = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
-                itemSKUImage.setImage(UIImage(named: "view-item-sku"), forState: UIControlState.Normal)
-                itemSKUImage.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
-                itemSKUImage.frame = CGRect(x: 0, y: itemSpecHeight * 6, width: itemImageViewWidth, height: itemSpecHeight)
-                itemSKUImage.imageEdgeInsets = UIEdgeInsetsMake(10, 10, 10, 0)
+                pieceSpecsView.addSubview(itemNameImage)
+                pieceSpecsView.addSubview(itemDetailsName)
                 
-                Glow.addGlow(itemSKUImage)
+                pieceSpecsView.addSubview(itemCategoryImage)
+                pieceSpecsView.addSubview(itemDetailsCategoryButton)
                 
-                itemDetailsSKU = UITextField(frame: CGRectMake(itemImageViewWidth, itemSpecHeight * 6, screenWidth - itemImageViewWidth, itemSpecHeight))
-                itemDetailsSKU.tintColor = sprubixColor
-                itemDetailsSKU.placeholder = "SKU (Optional)"
-                itemDetailsSKU.keyboardType = UIKeyboardType.Default
-                itemDetailsSKU.returnKeyType = UIReturnKeyType.Done
-                itemDetailsSKU.delegate = self
+                pieceSpecsView.addSubview(itemBrandImage)
+                pieceSpecsView.addSubview(itemDetailsBrand)
                 
-                if sprubixPiece.sku != nil {
-                    itemDetailsSKU.text = sprubixPiece.sku
-                }
+                pieceSpecsView.addSubview(itemSizeImage)
                 
-                pieceSpecsView.addSubview(itemQuantityImage)
-                pieceSpecsView.addSubview(itemDetailsQuantity)
+                itemDetailsCell.addSubview(pieceSpecsView)
+                itemDetailsCell.selectionStyle = UITableViewCellSelectionStyle.None
                 
-                pieceSpecsView.addSubview(itemPriceImage)
-                pieceSpecsView.addSubview(itemDetailsPrice)
-                
-                pieceSpecsView.addSubview(itemSKUImage)
-                pieceSpecsView.addSubview(itemDetailsSKU)
-            }
-            
-            pieceSpecsView.addSubview(itemNameImage)
-            pieceSpecsView.addSubview(itemDetailsName)
-            
-            pieceSpecsView.addSubview(itemCategoryImage)
-            pieceSpecsView.addSubview(itemDetailsCategoryButton)
-            
-            pieceSpecsView.addSubview(itemBrandImage)
-            pieceSpecsView.addSubview(itemDetailsBrand)
-            
-            pieceSpecsView.addSubview(itemSizeImage)
-            
-            itemDetailsCell.addSubview(pieceSpecsView)
-            itemDetailsCell.selectionStyle = UITableViewCellSelectionStyle.None
-            
-            // if there's more than 1 size there should be more quantity fields
-            if pieceSizesArray != nil && pieceSizesArray.count > 1 {
-                let heightIncrease = (CGFloat(pieceSizesArray.count) * itemSpecHeight) - itemSpecHeight
-                
-                // add size leftview on first quantity textfield
-                var sizeLabel: UILabel = UILabel()
-                sizeLabel.text = pieceSizesArray[0] as? String
-                sizeLabel.frame = CGRectMake(0, 0, sizeLabel.intrinsicContentSize().width + 10, itemDetailsPrice.frame.height)
-                sizeLabel.textColor = UIColor.lightGrayColor()
-                sizeLabel.textAlignment = NSTextAlignment.Left
-                
-                itemDetailsQuantity.leftView = sizeLabel
-                itemDetailsQuantity.leftViewMode = UITextFieldViewMode.Always
-                
-                pieceQuantityDict.setObject(itemDetailsQuantity.text, forKey: pieceSizesArray[0] as! String)
-                
-                // add more rows to quantity
-                let numNewRows = pieceSizesArray.count - 1
-                
-                moreQuantityTextFields.removeAll()
-                
-                for var i = 0; i < numNewRows; i++ {
-                    var itemDetailsMoreQuantity = UITextField(frame: CGRectMake(itemDetailsQuantity.frame.origin.x, itemDetailsPrice.frame.origin.y + (CGFloat(i) * itemSpecHeight), itemDetailsQuantity.frame.size.width, itemDetailsQuantity.frame.size.height))
-                    itemDetailsMoreQuantity.tintColor = sprubixColor
-                    itemDetailsMoreQuantity.placeholder = "How much quantity?"
-                    itemDetailsMoreQuantity.keyboardType = UIKeyboardType.NumberPad
-                    itemDetailsMoreQuantity.returnKeyType = UIReturnKeyType.Done
-                    itemDetailsMoreQuantity.delegate = self
+                // if there's more than 1 size there should be more quantity fields
+                if pieceSizesArray != nil && pieceSizesArray.count > 1 {
+                    let heightIncrease = (CGFloat(pieceSizesArray.count) * itemSpecHeight) - itemSpecHeight
                     
-                    // add leftview
+                    // add size leftview on first quantity textfield
                     var sizeLabel: UILabel = UILabel()
-                    sizeLabel.text = pieceSizesArray[i + 1] as? String
+                    sizeLabel.text = pieceSizesArray[0] as? String
                     sizeLabel.frame = CGRectMake(0, 0, sizeLabel.intrinsicContentSize().width + 10, itemDetailsPrice.frame.height)
                     sizeLabel.textColor = UIColor.lightGrayColor()
                     sizeLabel.textAlignment = NSTextAlignment.Left
                     
-                    itemDetailsMoreQuantity.leftView = sizeLabel
-                    itemDetailsMoreQuantity.leftViewMode = UITextFieldViewMode.Always
+                    itemDetailsQuantity.leftView = sizeLabel
+                    itemDetailsQuantity.leftViewMode = UITextFieldViewMode.Always
                     
-                    if sprubixPiece.quantity != nil {
-                        var itemQuantity = sprubixPiece.quantity[sizeLabel.text!] as! String
+                    pieceQuantityDict.setObject(itemDetailsQuantity.text, forKey: pieceSizesArray[0] as! String)
+                    
+                    // add more rows to quantity
+                    let numNewRows = pieceSizesArray.count - 1
+                    
+                    moreQuantityTextFields.removeAll()
+                    
+                    for var i = 0; i < numNewRows; i++ {
+                        var itemDetailsMoreQuantity = UITextField(frame: CGRectMake(itemDetailsQuantity.frame.origin.x, itemDetailsPrice.frame.origin.y + (CGFloat(i) * itemSpecHeight), itemDetailsQuantity.frame.size.width, itemDetailsQuantity.frame.size.height))
+                        itemDetailsMoreQuantity.tintColor = sprubixColor
+                        itemDetailsMoreQuantity.placeholder = "How much quantity?"
+                        itemDetailsMoreQuantity.keyboardType = UIKeyboardType.NumberPad
+                        itemDetailsMoreQuantity.returnKeyType = UIReturnKeyType.Done
+                        itemDetailsMoreQuantity.delegate = self
                         
-                        itemDetailsMoreQuantity.text = "\(itemQuantity)"
+                        // add leftview
+                        var sizeLabel: UILabel = UILabel()
+                        sizeLabel.text = pieceSizesArray[i + 1] as? String
+                        sizeLabel.frame = CGRectMake(0, 0, sizeLabel.intrinsicContentSize().width + 10, itemDetailsPrice.frame.height)
+                        sizeLabel.textColor = UIColor.lightGrayColor()
+                        sizeLabel.textAlignment = NSTextAlignment.Left
                         
-                        pieceQuantityDict.setObject(itemDetailsQuantity.text, forKey: sizeLabel.text!)
+                        itemDetailsMoreQuantity.leftView = sizeLabel
+                        itemDetailsMoreQuantity.leftViewMode = UITextFieldViewMode.Always
+                        
+                        if sprubixPiece.quantity != nil {
+                            var itemQuantity = sprubixPiece.quantity[sizeLabel.text!] as! String
+                            
+                            itemDetailsMoreQuantity.text = "\(itemQuantity)"
+                            
+                            pieceQuantityDict.setObject(itemDetailsQuantity.text, forKey: sizeLabel.text!)
+                        }
+                        
+                        pieceSpecsView.addSubview(itemDetailsMoreQuantity)
+                        moreQuantityTextFields.append(itemDetailsMoreQuantity)
                     }
                     
-                    pieceSpecsView.addSubview(itemDetailsMoreQuantity)
-                    moreQuantityTextFields.append(itemDetailsMoreQuantity)
+                    // shift the cells that are below quantity cell
+                    itemPriceImage.frame.origin.y += heightIncrease
+                    itemDetailsPrice.frame.origin.y += heightIncrease
+                    
+                    itemSKUImage.frame.origin.y += heightIncrease
+                    itemDetailsSKU.frame.origin.y += heightIncrease
+                    
+                    itemSpecHeightTotal = itemSpecHeightTotal + heightIncrease
+                    
+                    // update new height for pieceSpecsView
+                    pieceSpecsView.frame.size.height = itemSpecHeightTotal
                 }
                 
-                // shift the cells that are below quantity cell
-                itemPriceImage.frame.origin.y += heightIncrease
-                itemDetailsPrice.frame.origin.y += heightIncrease
+                return itemDetailsCell
                 
-                itemSKUImage.frame.origin.y += heightIncrease
-                itemDetailsSKU.frame.origin.y += heightIncrease
+            case 3:
+                if descriptionText == nil {
+                    descriptionText = UITextView(frame: CGRectInset(CGRect(x: 0, y: 0, width: screenWidth, height: descriptionTextHeight), 15, 0))
+                }
                 
-                itemSpecHeightTotal = itemSpecHeightTotal + heightIncrease
+                descriptionText.tintColor = sprubixColor
                 
-                // update new height for pieceSpecsView
-                pieceSpecsView.frame.size.height = itemSpecHeightTotal
+                if sprubixPiece.desc != nil {
+                    descriptionText.text = "\(sprubixPiece.desc)"
+                }
+                
+                if descriptionText.text == "" {
+                    descriptionText.text = placeholderText
+                    descriptionText.textColor = UIColor.lightGrayColor()
+                }
+                
+                descriptionText.font = UIFont(name: descriptionText.font.fontName, size: 17)
+                descriptionText.delegate = self
+                
+                itemDescriptionCell.addSubview(descriptionText)
+                
+                return itemDescriptionCell
+                
+            default: fatalError("Unknown row in section")
             }
-            
-            return itemDetailsCell
-            
-        case 3:
-            if descriptionText == nil {
-                descriptionText = UITextView(frame: CGRectInset(CGRect(x: 0, y: 0, width: screenWidth, height: descriptionTextHeight), 15, 0))
+        case 1:
+            switch indexPath.row {
+            case 0:
+                let deleteButton: UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+                var image = UIImage(named: "details-thumbnail-trash")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
+                
+                deleteButton.setTitle("Delete Item", forState: UIControlState.Normal)
+                deleteButton.setTitleColor(sprubixColor, forState: UIControlState.Normal)
+                deleteButton.frame = CGRectMake(0, 0, screenWidth, navigationHeight)
+                deleteButton.setImage(image, forState: UIControlState.Normal)
+                deleteButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+                deleteButton.imageView?.tintColor = sprubixColor
+                deleteButton.imageEdgeInsets = UIEdgeInsetsMake(10, 0, 10, 0)
+                deleteButton.addTarget(self, action: "deleteItem:", forControlEvents: UIControlEvents.TouchUpInside)
+                
+                itemDeleteCell.addSubview(deleteButton)
+                
+                return itemDeleteCell
+                
+            default: fatalError("Unknown row in section")
             }
-            
-            descriptionText.tintColor = sprubixColor
-            
-            if sprubixPiece.desc != nil {
-                descriptionText.text = "\(sprubixPiece.desc)"
-            }
-            
-            if descriptionText.text == "" {
-                descriptionText.text = placeholderText
-                descriptionText.textColor = UIColor.lightGrayColor()
-            }
-            
-            descriptionText.font = UIFont(name: descriptionText.font.fontName, size: 17)
-            descriptionText.delegate = self
-            
-            itemDescriptionCell.addSubview(descriptionText)
-            
-            return itemDescriptionCell
-            
-        default: fatalError("Unknown row in section")
+        default:
+            fatalError("Unknown section in table")
         }
     }
     
@@ -1620,6 +1682,53 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
         }
 
         return (valid, message)
+    }
+    
+    func deleteItem(sender: UIButton) {
+        let userId: Int? = defaults.objectForKey("userId") as? Int
+        let targetId: Int = sprubixPiece.id
+        
+        
+        // check if you're the owner (i.e. person who posted this outfit)
+        if userId != nil {
+            var alert = UIAlertController(title: "Are you sure?", message: "Deleting this item is permanent!", preferredStyle: UIAlertControllerStyle.Alert)
+            alert.view.tintColor = sprubixColor
+            
+            // Yes
+            alert.addAction(UIAlertAction(title: "Yes, delete it", style: UIAlertActionStyle.Default, handler: { action in
+                
+                // REST call to server to delete outfit id
+                manager.DELETE(SprubixConfig.URL.api + "/piece/\(targetId)",
+                    parameters: [
+                        "owner_id": userId!
+                    ],
+                    success: { (operation: AFHTTPRequestOperation!, responseObject:
+                        AnyObject!) in
+                        
+                        var result = responseObject as! NSDictionary
+                        
+                        if result["status"] as! String == "200" {
+                            // deleted successfully
+                            // // go back one state
+                            println("Notification: Piece deleted successfully!")
+                            self.navigationController?.popViewControllerAnimated(true)
+                        } else {
+                            // failed to delete
+                            // // notify user
+                        }
+                        
+                    },
+                    failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                        println("Error: " + error.localizedDescription)
+                })
+
+            }))
+            
+            // No
+            alert.addAction(UIAlertAction(title: "No", style: UIAlertActionStyle.Cancel, handler: nil))
+            
+            self.presentViewController(alert, animated: true, completion: nil)
+        }
     }
     
     func resizeImage(image: UIImage, width: CGFloat) -> UIImage {
