@@ -90,6 +90,8 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
                             
                             self.sendNotification(receiverUsername, recipientId: recipientId)
                             
+                            self.alreadyFollowed = true
+                            
                         } else if status == "500" {
                             //println("error in following user")
                             
@@ -124,6 +126,7 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
                             
                             if status == "200" {
                                 //println("unfollowed")
+                                self.alreadyFollowed = false
                                 
                             } else if status == "500" {
                                 //println("error in unfollowing user")
