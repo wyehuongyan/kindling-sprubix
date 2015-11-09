@@ -149,6 +149,14 @@ class SignInViewController: UIViewController, UITableViewDataSource, UITableView
         initNavBar()
         self.navigationController?.interactivePopGestureRecognizer.delegate = self;
         
+        // init to production env
+        SprubixConfig.URL.api = "https://api.sprbx.com"
+        SprubixConfig.URL.firebase = "https://sprubix.firebaseio.com/"
+        SprubixConfig.Token.mixpanel = "7b1423643b7e52dad5680f5fdc390a88"
+        
+        firebaseRef = Firebase(url: SprubixConfig.URL.firebase)
+        mixpanel = Mixpanel.sharedInstanceWithToken(SprubixConfig.Token.mixpanel)
+        
         // Set seletected initial tab
         if currentCreateAccountState == CreateAccountState.Signup {
             signupToolbarButton.addSubview(buttonLine)
@@ -670,19 +678,17 @@ class SignInViewController: UIViewController, UITableViewDataSource, UITableView
             
             self.overlay.tintColor = sprubixColor
             
-            /*
             // if a test account is used to log in
             if contains(testUsernames, usernameString.lowercaseString) || contains(testEmails, emailString.lowercaseString) {
                 
                 // redirect to staging env
                 SprubixConfig.URL.api = "https://api.sprubix.com"
                 SprubixConfig.URL.firebase = "https://sprubixstaging.firebaseio.com/"
-                SprubixConfig.Token.mixpanel = ""
+                SprubixConfig.Token.mixpanel = "3721be8315badb578332870550b03395"
                 
                 firebaseRef = Firebase(url: SprubixConfig.URL.firebase)
                 mixpanel = Mixpanel.sharedInstanceWithToken(SprubixConfig.Token.mixpanel)
             }
-            */
             
             // authenticate with server
             manager.POST(SprubixConfig.URL.api + "/auth/login",
