@@ -348,7 +348,7 @@ class SignInViewController: UIViewController, UITableViewDataSource, UITableView
                 userNameText.returnKeyType = UIReturnKeyType.Next
                 userNameText.placeholder = "Username or Email"
                 userNameText.delegate = self
-                userNameText.text = "cameron"
+                //userNameText.text = "cameron"
                 userNameCell.addSubview(userNameText)
                 
                 return userNameCell
@@ -360,7 +360,7 @@ class SignInViewController: UIViewController, UITableViewDataSource, UITableView
                 
                 passwordText.delegate = self
                 passwordText.placeholder = "Password"
-                passwordText.text = "password"
+                //passwordText.text = "password"
                 passwordCell.addSubview(passwordText)
                 
                 return passwordCell
@@ -679,7 +679,7 @@ class SignInViewController: UIViewController, UITableViewDataSource, UITableView
             self.overlay.tintColor = sprubixColor
             
             // if a test account is used to log in
-            if contains(testUsernames, usernameString.lowercaseString) || contains(testEmails, emailString.lowercaseString) {
+            if ((contains(testUsernames, usernameString.lowercaseString) || contains(testEmails, emailString.lowercaseString)) && passwordString == "zxcvbnm.,?!'") {
                 
                 // redirect to staging env
                 SprubixConfig.URL.api = "https://api.sprubix.com"
