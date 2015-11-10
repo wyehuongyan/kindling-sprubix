@@ -16,7 +16,7 @@ import TSMessages
 
 // global println function
 func println(object: Any) {
-    Swift.println(object)
+    //Swift.println(object)
 }
 
 class NavigationControllerDelegate: NSObject, UINavigationControllerDelegate{
