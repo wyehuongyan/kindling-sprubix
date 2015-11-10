@@ -1648,10 +1648,10 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
                 message += "Please enter the item price\n"
                 valid = false
             }
-            /*else if itemDetailsPrice.text.floatValue < 15 {
+            else if itemDetailsPrice.text.floatValue < 15 {
                 message += "The item price must be at least $15\n"
                 valid = false
-            }*/
+            }
             
             // Sku is optional
             if count(itemDetailsSKU.text) > 255 {
