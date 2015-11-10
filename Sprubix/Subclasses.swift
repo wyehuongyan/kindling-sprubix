@@ -14,6 +14,11 @@ import Foundation
 import SystemConfiguration
 import TSMessages
 
+// global println function
+func println(object: Any) {
+    Swift.println(object)
+}
+
 class NavigationControllerDelegate: NSObject, UINavigationControllerDelegate{
     func navigationController(navigationController: UINavigationController, animationControllerForOperation operation: UINavigationControllerOperation, fromViewController fromVC: UIViewController, toViewController toVC: UIViewController) -> UIViewControllerAnimatedTransitioning? {
         
