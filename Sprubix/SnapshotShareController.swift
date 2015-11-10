@@ -716,6 +716,8 @@ class SnapshotShareController: UIViewController, UITableViewDelegate, UITableVie
                             
                             self.navigationController!.view.layer.addAnimation(transition, forKey: kCATransition)
                             self.navigationController?.popToViewController(self.navigationController?.viewControllers.first! as! UIViewController, animated: false)
+                            
+                            containerViewController.mainInstance()?.retrieveOutfits(scrollToTop: true)
                         }
                         
                         // Mixpanel - Create Outfit Image Upload, Success

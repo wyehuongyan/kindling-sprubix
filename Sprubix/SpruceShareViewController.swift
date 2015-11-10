@@ -671,6 +671,8 @@ class SpruceShareViewController: UIViewController, UITableViewDelegate, UITableV
             else {
                 self.navigationController!.popToViewController(self.navigationController!.viewControllers.first as! UIViewController, animated: false)
             }
+            
+            containerViewController.mainInstance()?.retrieveOutfits(scrollToTop: true)
         })
     }
     
