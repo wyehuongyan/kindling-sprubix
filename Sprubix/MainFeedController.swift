@@ -954,17 +954,20 @@ class MainFeedController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataS
                                     // update target user notifications
                                     let receiverUserNotificationRef = receiverUserNotificationsRef.childByAppendingPath(notificationRef.key)
                                     
-                                    receiverUserNotificationRef.updateChildValues([
-                                        "created_at": createdAt,
-                                        "unread": true
-                                        ], withCompletionBlock: {
-                                            
-                                            (error:NSError?, ref:Firebase!) in
-                                            
-                                            if (error != nil) {
-                                                println("Error: Notification Key could not be added to Users.")
-                                            }
-                                    })
+                                    // don't notify yourself
+                                    if receiverUsername != senderUsername {
+                                        receiverUserNotificationRef.updateChildValues([
+                                            "created_at": createdAt,
+                                            "unread": true
+                                            ], withCompletionBlock: {
+                                                
+                                                (error:NSError?, ref:Firebase!) in
+                                                
+                                                if (error != nil) {
+                                                    println("Error: Notification Key could not be added to Users.")
+                                                }
+                                        })
+                                    }
                                     
                                     // update likes with notification key
                                     likeRef.updateChildValues([

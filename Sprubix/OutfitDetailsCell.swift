@@ -1071,27 +1071,29 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
                                     // update target user notifications
                                     let receiverUserNotificationRef = receiverUserNotificationsRef.childByAppendingPath(notificationRef.key)
                                     
-                                    receiverUserNotificationRef.updateChildValues([
-                                        "created_at": createdAt,
-                                        "unread": true
-                                        ], withCompletionBlock: {
-                                            
-                                            (error:NSError?, ref:Firebase!) in
-                                            
-                                            if (error != nil) {
-                                                println("Error: Notification Key could not be added to Users.")
-                                            } else {
-                                                // send APNS
-                                                let recipientId = receiver["id"] as! Int
-                                                let senderId = userData!["id"] as! Int
+                                    if receiverUsername != senderUsername {
+                                        receiverUserNotificationRef.updateChildValues([
+                                            "created_at": createdAt,
+                                            "unread": true
+                                            ], withCompletionBlock: {
                                                 
-                                                if recipientId != senderId {
-                                                    let pushMessage = "\(senderUsername) liked your item."
+                                                (error:NSError?, ref:Firebase!) in
+                                                
+                                                if (error != nil) {
+                                                    println("Error: Notification Key could not be added to Users.")
+                                                } else {
+                                                    // send APNS
+                                                    let recipientId = receiver["id"] as! Int
+                                                    let senderId = userData!["id"] as! Int
                                                     
-                                                    APNS.sendPushNotification(pushMessage, recipientId: recipientId)
+                                                    if recipientId != senderId {
+                                                        let pushMessage = "\(senderUsername) liked your item."
+                                                        
+                                                        APNS.sendPushNotification(pushMessage, recipientId: recipientId)
+                                                    }
                                                 }
-                                            }
-                                    })
+                                        })
+                                    }
                                     
                                     // update likes with notification key
                                     likeRef.updateChildValues([

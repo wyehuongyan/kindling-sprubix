@@ -337,8 +337,20 @@ class EditProfileViewController: UITableViewController, UITextViewDelegate, UIIm
                             self.navigationController?.popViewControllerAnimated(true)
                         }
                         
-                        println(data)
-                        println(userInfo)
+                        // update firebase display pic
+                        let username = cleanData["username"] as! String
+                        let userImageURL = cleanData["image"] as! String
+                        var userRef = firebaseRef.childByAppendingPath("users/\(username)")
+                        
+                        userRef.updateChildValues([
+                            "image": userImageURL
+                            ], withCompletionBlock: {
+                                (error:NSError?, ref:Firebase!) in
+                                
+                                if (error != nil) {
+                                    println("Error: User image for \(username) in Firebase cannot be updated.")
+                                }
+                        })
                         
                     } else if status == "400" {
                         // error exception

@@ -269,17 +269,19 @@ class CommentsViewController: UIViewController, UITextViewDelegate, UITableViewD
                             // update target user notifications
                             let receiverUserNotificationRef = receiverUserNotificationsRef.childByAppendingPath(notificationRef.key)
                             
-                            receiverUserNotificationRef.updateChildValues([
-                                "created_at": createdAt,
-                                "unread": true
-                                ], withCompletionBlock: {
-                                    
-                                    (error:NSError?, ref:Firebase!) in
-                                    
-                                    if (error != nil) {
-                                        println("Error: Notification Key could not be added to Users.")
-                                    }
-                            })
+                            if senderUsername != self.receiverUsername {
+                                receiverUserNotificationRef.updateChildValues([
+                                    "created_at": createdAt,
+                                    "unread": true
+                                    ], withCompletionBlock: {
+                                        
+                                        (error:NSError?, ref:Firebase!) in
+                                        
+                                        if (error != nil) {
+                                            println("Error: Notification Key could not be added to Users.")
+                                        }
+                                })
+                            }
                             
                             // update comments with notification key
                             commentRef.updateChildValues([
