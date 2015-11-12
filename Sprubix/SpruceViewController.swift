@@ -261,6 +261,7 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, SprucePieceF
             
             for piece in pieces {
                 var pieceType: String = piece["type"] as! String
+                var pieceId: Int = piece["id"] as! Int
                 var position = find(actionSheetButtonNames, pieceType)
                 
                 if position != nil {
@@ -272,7 +273,7 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, SprucePieceF
                 // calculate height percentages
                 var pieceHeight: CGFloat = piece["height"] as! CGFloat / totalHeight * outfitHeight
                 
-                let sprucePieceFeedController = SprucePieceFeedController(collectionViewLayout: sprucePieceFeedControllerLayout(itemHeight: pieceHeight), pieceType: pieceType, pieceHeight: pieceHeight, outfit: outfit)
+                let sprucePieceFeedController = SprucePieceFeedController(collectionViewLayout: sprucePieceFeedControllerLayout(itemHeight: pieceHeight), pieceType: pieceType, pieceHeight: pieceHeight, pieceId: pieceId, outfit: outfit)
 
                 if piece["deleted_at"]!.isKindOfClass(NSNull) {
                     sprucePieceFeedController.piece = piece
@@ -576,8 +577,8 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, SprucePieceF
             }
             
             // check if there are still childControllers
-            if childControllers.count > 0 {
-                // as long as there is at least 1
+            if childControllers.count > 1 {
+                // as long as there is at least 2
                 trashPieceButton.enabled = true
             }
         }
@@ -741,6 +742,10 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, SprucePieceF
             deleteChildController.view.removeFromSuperview()
             deleteChildController.view = nil
             deleteChildController.removeFromParentViewController()
+            
+            if childControllers.count <= 1 {
+                trashPieceButton.enabled = false
+            }
         }
     }
     

@@ -27,6 +27,7 @@ class SprucePieceFeedController: UICollectionViewController, UICollectionViewDel
     
     var pieceType: String!
     var pieceHeight: CGFloat!
+    var pieceId: Int?
     var sprucePieces: [NSDictionary] = [NSDictionary]()
     
     var leftArrowButton:UIButton!
@@ -42,11 +43,12 @@ class SprucePieceFeedController: UICollectionViewController, UICollectionViewDel
     
     var startingPieceHeight: CGFloat!
     
-    init(collectionViewLayout layout: UICollectionViewLayout!, pieceType: String, pieceHeight: CGFloat = 0, outfit: NSDictionary? = nil) {
+    init(collectionViewLayout layout: UICollectionViewLayout!, pieceType: String, pieceHeight: CGFloat = 0, pieceId: Int? = nil, outfit: NSDictionary? = nil) {
         super.init(collectionViewLayout:layout)
         
         self.pieceType = pieceType
         self.pieceHeight = pieceHeight
+        self.pieceId = pieceId
         self.outfit = outfit
         
         // store original starting heights
@@ -417,6 +419,7 @@ class SprucePieceFeedController: UICollectionViewController, UICollectionViewDel
         
         if userId != nil {
             if outfit != nil {
+                
                 // get owner ids of each individual piece in the outfit
                 let pieces = outfit!["pieces"] as! [NSDictionary]
                 var ownerIds = [Int]()
@@ -435,7 +438,8 @@ class SprucePieceFeedController: UICollectionViewController, UICollectionViewDel
                 
                 manager.POST(SprubixConfig.URL.api + "/spruce/pieces",
                     parameters: [
-                        "type" : pieceType,
+                        "type": pieceType,
+                        "current_piece_id": pieceId != nil ? pieceId! : 0,
                         "user_ids": ownerIds
                     ],
                     success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in

@@ -368,27 +368,29 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
                         selectedThumbnail = thumbnailView
                     } else {
                         // coming from inventory
-                        if sprubixPiece.imageURLs.count > i {
-                            thumbnailView.setImage(UIImage(data: NSData(contentsOfURL: sprubixPiece.imageURLs[i])!), forState: UIControlState.Normal)
-                            
-                            thumbnailView.hasThumbnail = true
-                            thumbnailView.isCover = false
+                        if fromInventoryView {
+                            if sprubixPiece.imageURLs.count > i {
+                                thumbnailView.setImage(UIImage(data: NSData(contentsOfURL: sprubixPiece.imageURLs[i])!), forState: UIControlState.Normal)
+                                
+                                thumbnailView.hasThumbnail = true
+                                thumbnailView.isCover = false
+                            } else {
+                                thumbnailView.setImage(UIImage(named: "details-thumbnail-add"), forState: UIControlState.Normal)
+                                thumbnailView.hasThumbnail = false
+                                thumbnailView.isCover = false
+                            }
                         } else {
-                            thumbnailView.setImage(UIImage(named: "details-thumbnail-add"), forState: UIControlState.Normal)
-                            thumbnailView.hasThumbnail = false
-                            thumbnailView.isCover = false
-                        }
-                        
-                        // coming from create outfit
-                        if sprubixPiece.images.count > i {
-                            thumbnailView.setImage(sprubixPiece.images[i], forState: UIControlState.Normal)
-                            
-                            thumbnailView.hasThumbnail = true
-                            thumbnailView.isCover = false
-                        } else {
-                            thumbnailView.setImage(UIImage(named: "details-thumbnail-add"), forState: UIControlState.Normal)
-                            thumbnailView.hasThumbnail = false
-                            thumbnailView.isCover = false
+                            // coming from create outfit
+                            if sprubixPiece.images.count > i {
+                                thumbnailView.setImage(sprubixPiece.images[i], forState: UIControlState.Normal)
+                                
+                                thumbnailView.hasThumbnail = true
+                                thumbnailView.isCover = false
+                            } else {
+                                thumbnailView.setImage(UIImage(named: "details-thumbnail-add"), forState: UIControlState.Normal)
+                                thumbnailView.hasThumbnail = false
+                                thumbnailView.isCover = false
+                            }
                         }
                     }
                     
