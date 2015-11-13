@@ -944,167 +944,183 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
             let username = userData!["username"] as! String
             let country: String? = defaults.objectForKey("userCountry") as? String
             
-            if country != nil && contains(countriesAvailable, country!) {
-        
-                let itemSpecHeight:CGFloat = 45
-                let popupWidth: CGFloat = screenWidth - 100
-                let popupHeight: CGFloat = popupWidth + itemSpecHeight * 3 + navigationHeight
-                let itemImageViewWidth:CGFloat = 0.25 * popupWidth
-                
-                let popupContentView: UIView = UIView(frame: CGRectMake(0, 0, popupWidth, popupHeight))
-                popupContentView.backgroundColor = UIColor.whiteColor()
-                popupContentView.layer.cornerRadius = 12.0
-                
-                let buyPieceView: UIView = UIView(frame: popupContentView.bounds)
-                
-                // add content to popupContentView
-                var buyPiecesScrollView = UIScrollView(frame: CGRectMake(0, 0, popupWidth, popupHeight))
-                buyPiecesScrollView.layer.cornerRadius = 12.0
-                buyPiecesScrollView.pagingEnabled = true
-                buyPiecesScrollView.alwaysBounceHorizontal = true
-                
-                var pieceImagesString = piece["images"] as! String
-                var pieceImagesData:NSData = pieceImagesString.dataUsingEncoding(NSUTF8StringEncoding)!
-                
-                var pieceImagesDict: NSDictionary = NSJSONSerialization.JSONObjectWithData(pieceImagesData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSDictionary
-
-                let imageURL = NSURL(string: pieceImagesDict["cover"] as! String)
-                
-                // cover image
-                var buyPieceImage: UIImageView = UIImageView(frame: CGRectMake(0, 0, popupWidth, popupWidth))
-                buyPieceImage.backgroundColor = sprubixGray
-                buyPieceImage.contentMode = UIViewContentMode.ScaleAspectFit
-                buyPieceImage.setImageWithURL(imageURL)
-                
-                // price label
-                let padding: CGFloat = 10
-                let priceLabelHeight: CGFloat = 35
-                var buyPriceLabel = UILabel()
-                buyPriceLabel.textAlignment = NSTextAlignment.Center
-                buyPriceLabel.font = UIFont.boldSystemFontOfSize(18.0)
-                
-                let price = piece["price"] as! String
-                buyPriceLabel.text = "$\(price)"
-                buyPriceLabel.frame = CGRectMake(buyPieceImage.frame.width - (buyPriceLabel.intrinsicContentSize().width + 20.0) - padding, padding, (buyPriceLabel.intrinsicContentSize().width + 20.0), priceLabelHeight)
-                
-                buyPriceLabel.layer.cornerRadius = priceLabelHeight / 2
-                buyPriceLabel.clipsToBounds = true
-                buyPriceLabel.textColor = UIColor.whiteColor()
-                buyPriceLabel.backgroundColor = sprubixColor
-                
-                buyPieceImage.addSubview(buyPriceLabel)
-                
-                buyPieceView.addSubview(buyPieceImage)
-                
-                // size
-                var itemSizeImage = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
-                itemSizeImage.setImage(UIImage(named: "view-item-size"), forState: UIControlState.Normal)
-                itemSizeImage.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
-                itemSizeImage.frame = CGRect(x: 0, y: popupWidth, width: itemImageViewWidth, height: itemSpecHeight)
-                itemSizeImage.imageEdgeInsets = UIEdgeInsetsMake(10, 0, 10, 0)
-                
-                Glow.addGlow(itemSizeImage)
-                
-                var itemSizeButton: UIButton = UIButton(frame: CGRect(x: itemImageViewWidth, y: popupWidth, width: popupWidth - itemImageViewWidth, height: itemSpecHeight))
-                itemBuySizeLabel = UILabel(frame: itemSizeButton.bounds)
-                itemBuySizeLabel.text = "Select size"
-                itemBuySizeLabel.font = UIFont.systemFontOfSize(14.0)
-                itemBuySizeLabel.textColor = UIColor.lightGrayColor()
-                
-                itemSizeButton.addSubview(itemBuySizeLabel)
-                itemSizeButton.addTarget(self, action: "selectBuySize:", forControlEvents: UIControlEvents.TouchUpInside)
-                
-                // quantity
-                var itemQuantityImage = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
-                itemQuantityImage.setImage(UIImage(named: "view-item-quantity"), forState: UIControlState.Normal)
-                itemQuantityImage.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
-                itemQuantityImage.frame = CGRect(x: 0, y: popupWidth + itemSpecHeight, width: itemImageViewWidth, height: itemSpecHeight)
-                itemQuantityImage.imageEdgeInsets = UIEdgeInsetsMake(10, 0, 10, 0)
-                
-                Glow.addGlow(itemQuantityImage)
-                
-                var itemQuantityButton: UIButton = UIButton(frame: CGRect(x: itemImageViewWidth, y: popupWidth + itemSpecHeight, width: popupWidth - itemImageViewWidth, height: itemSpecHeight))
-                itemBuyQuantityLabel = UILabel(frame: itemQuantityButton.bounds)
-                itemBuyQuantityLabel.text = "Select quantity"
-                itemBuyQuantityLabel.font = UIFont.systemFontOfSize(14.0)
-                itemBuyQuantityLabel.textColor = UIColor.lightGrayColor()
-                
-                itemQuantityButton.addSubview(itemBuyQuantityLabel)
-                itemQuantityButton.addTarget(self, action: "selectBuyQuantity:", forControlEvents: UIControlEvents.TouchUpInside)
-                
-                // delivery method
-                var itemDeliveryImage = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
-                var deliveryImage: UIImage = UIImage(named: "sidemenu-fulfilment")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
-                itemDeliveryImage.setImage(deliveryImage, forState: UIControlState.Normal)
-                itemDeliveryImage.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
-                itemDeliveryImage.imageView?.tintColor = UIColor.whiteColor()
-                itemDeliveryImage.frame = CGRect(x: 0, y: popupWidth + itemSpecHeight * 2, width: itemImageViewWidth, height: itemSpecHeight)
-                itemQuantityImage.imageEdgeInsets = UIEdgeInsetsMake(10, 0, 10, 0)
-                
-                Glow.addGlow(itemDeliveryImage)
-                
-                var itemDeliveryButton: UIButton = UIButton(frame: CGRect(x: itemImageViewWidth, y: popupWidth + itemSpecHeight * 2, width: popupWidth - itemImageViewWidth, height: itemSpecHeight))
-                itemBuyDeliveryLabel = UILabel(frame: itemDeliveryButton.bounds)
-                itemBuyDeliveryLabel.text = "Select delivery method"
-                itemBuyDeliveryLabel.font = UIFont.systemFontOfSize(14.0)
-                itemBuyDeliveryLabel.textColor = UIColor.lightGrayColor()
-                
-                itemDeliveryButton.addSubview(itemBuyDeliveryLabel)
-                itemDeliveryButton.addTarget(self, action: "selectBuyDeliveryMethod:", forControlEvents: UIControlEvents.TouchUpInside)
-
-                buyPieceView.addSubview(itemSizeImage)
-                buyPieceView.addSubview(itemSizeButton)
-                
-                buyPieceView.addSubview(itemQuantityImage)
-                buyPieceView.addSubview(itemQuantityButton)
-                
-                buyPieceView.addSubview(itemDeliveryImage)
-                buyPieceView.addSubview(itemDeliveryButton)
-                
-                buyPiecesScrollView.addSubview(buyPieceView)
-                popupContentView.addSubview(buyPiecesScrollView)
-                
-                // add to cart button
-                var addToCart: UIButton = UIButton(frame: CGRectMake(0, popupHeight - navigationHeight, popupWidth, navigationHeight))
-                addToCart.backgroundColor = sprubixColor
-                addToCart.setTitle("Add to Cart", forState: UIControlState.Normal)
-                addToCart.titleLabel?.font = UIFont.boldSystemFontOfSize(addToCart.titleLabel!.font.pointSize)
-                addToCart.addTarget(self, action: "addToCartPressed:", forControlEvents: UIControlEvents.TouchUpInside)
-                
-                buyPieceView.addSubview(addToCart)
-                
-                // load the delivery methods for this piece
-                preloadBuyDeliveryMethod()
-                
-                buyPopup = KLCPopup(contentView: popupContentView, showType: KLCPopupShowType.BounceInFromTop, dismissType: KLCPopupDismissType.BounceOutToTop, maskType: KLCPopupMaskType.Clear, dismissOnBackgroundTouch: true, dismissOnContentTouch: false)
-                
-                // dim background
-                UIView.animateWithDuration(0.5, delay: 0.0, usingSpringWithDamping: 0.9, initialSpringVelocity: 0, options: .CurveEaseInOut, animations: {
-                    darkenedOverlay?.alpha = 0.5
-                    }, completion: nil)
-                
-                buyPopup?.willStartDismissingCompletion = {
-                    // brighten background
-                    UIView.animateWithDuration(0.5, delay: 0.0, usingSpringWithDamping: 0.9, initialSpringVelocity: 0, options: .CurveEaseInOut, animations: {
-                        darkenedOverlay?.alpha = 0.0
-                        }, completion: nil)
+            // check only in production
+            if SprubixConfig.URL.api == "https://api.sprbx.com" {
+                if country != nil && contains(countriesAvailable, country!) {
+                    showBuyPopup()
+                } else {
+                    var alert = UIAlertController(title: "We hear you!", message: "Currently, Sprubix commerce is only available in Singapore.", preferredStyle: UIAlertControllerStyle.Alert)
+                    alert.view.tintColor = sprubixColor
                     
-                    self.selectedSize = nil
-                    self.buyPieceInfo?.removeObjectsForKeys(["size", "quantity", "delivery_option_id"])
+                    // Yes
+                    alert.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Cancel, handler: { action in
+                    }))
+                    
+                    self.navController?.presentViewController(alert, animated: true, completion: nil)
                 }
-                
-                buyPopup?.show()
             } else {
-                var alert = UIAlertController(title: "We hear you!", message: "Currently, Sprubix commerce is only available in Singapore.", preferredStyle: UIAlertControllerStyle.Alert)
-                alert.view.tintColor = sprubixColor
-                
-                // Yes
-                alert.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Cancel, handler: { action in
-                }))
-                
-                self.navController?.presentViewController(alert, animated: true, completion: nil)
+                // staging and dev
+                // just show the popup
+                showBuyPopup()
             }
         }
+    }
+    
+    func showBuyPopup() {
+        let itemSpecHeight:CGFloat = 45
+        let popupWidth: CGFloat = screenWidth - 100
+        let popupHeight: CGFloat = popupWidth + itemSpecHeight * 3 + navigationHeight
+        let itemImageViewWidth:CGFloat = 0.25 * popupWidth
+        
+        let popupContentView: UIView = UIView(frame: CGRectMake(0, 0, popupWidth, popupHeight))
+        popupContentView.backgroundColor = UIColor.whiteColor()
+        popupContentView.layer.cornerRadius = 12.0
+        
+        let buyPieceView: UIView = UIView(frame: popupContentView.bounds)
+        
+        // add content to popupContentView
+        var buyPiecesScrollView = UIScrollView(frame: CGRectMake(0, 0, popupWidth, popupHeight))
+        buyPiecesScrollView.layer.cornerRadius = 12.0
+        buyPiecesScrollView.pagingEnabled = true
+        buyPiecesScrollView.alwaysBounceHorizontal = true
+        
+        var pieceImagesString = piece["images"] as! String
+        var pieceImagesData:NSData = pieceImagesString.dataUsingEncoding(NSUTF8StringEncoding)!
+        
+        var pieceImagesDict: NSDictionary = NSJSONSerialization.JSONObjectWithData(pieceImagesData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSDictionary
+        
+        let imageURL = NSURL(string: pieceImagesDict["cover"] as! String)
+        
+        // cover image
+        var buyPieceImage: UIImageView = UIImageView(frame: CGRectMake(0, 0, popupWidth, popupWidth))
+        buyPieceImage.backgroundColor = sprubixGray
+        buyPieceImage.contentMode = UIViewContentMode.ScaleAspectFit
+        buyPieceImage.setImageWithURL(imageURL)
+        
+        // price label
+        let padding: CGFloat = 10
+        let priceLabelHeight: CGFloat = 35
+        var buyPriceLabel = UILabel()
+        buyPriceLabel.textAlignment = NSTextAlignment.Center
+        buyPriceLabel.font = UIFont.boldSystemFontOfSize(18.0)
+        
+        let price = piece["price"] as! String
+        buyPriceLabel.text = "$\(price)"
+        buyPriceLabel.frame = CGRectMake(buyPieceImage.frame.width - (buyPriceLabel.intrinsicContentSize().width + 20.0) - padding, padding, (buyPriceLabel.intrinsicContentSize().width + 20.0), priceLabelHeight)
+        
+        buyPriceLabel.layer.cornerRadius = priceLabelHeight / 2
+        buyPriceLabel.clipsToBounds = true
+        buyPriceLabel.textColor = UIColor.whiteColor()
+        buyPriceLabel.backgroundColor = sprubixColor
+        
+        buyPieceImage.addSubview(buyPriceLabel)
+        
+        buyPieceView.addSubview(buyPieceImage)
+        
+        // size
+        var itemSizeImage = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+        itemSizeImage.setImage(UIImage(named: "view-item-size"), forState: UIControlState.Normal)
+        itemSizeImage.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+        itemSizeImage.frame = CGRect(x: 0, y: popupWidth, width: itemImageViewWidth, height: itemSpecHeight)
+        itemSizeImage.imageEdgeInsets = UIEdgeInsetsMake(10, 0, 10, 0)
+        
+        Glow.addGlow(itemSizeImage)
+        
+        var itemSizeButton: UIButton = UIButton(frame: CGRect(x: itemImageViewWidth, y: popupWidth, width: popupWidth - itemImageViewWidth, height: itemSpecHeight))
+        itemBuySizeLabel = UILabel(frame: itemSizeButton.bounds)
+        itemBuySizeLabel.text = "Select size"
+        itemBuySizeLabel.font = UIFont.systemFontOfSize(14.0)
+        itemBuySizeLabel.textColor = UIColor.lightGrayColor()
+        
+        itemSizeButton.addSubview(itemBuySizeLabel)
+        itemSizeButton.addTarget(self, action: "selectBuySize:", forControlEvents: UIControlEvents.TouchUpInside)
+        
+        // quantity
+        var itemQuantityImage = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+        itemQuantityImage.setImage(UIImage(named: "view-item-quantity"), forState: UIControlState.Normal)
+        itemQuantityImage.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+        itemQuantityImage.frame = CGRect(x: 0, y: popupWidth + itemSpecHeight, width: itemImageViewWidth, height: itemSpecHeight)
+        itemQuantityImage.imageEdgeInsets = UIEdgeInsetsMake(10, 0, 10, 0)
+        
+        Glow.addGlow(itemQuantityImage)
+        
+        var itemQuantityButton: UIButton = UIButton(frame: CGRect(x: itemImageViewWidth, y: popupWidth + itemSpecHeight, width: popupWidth - itemImageViewWidth, height: itemSpecHeight))
+        itemBuyQuantityLabel = UILabel(frame: itemQuantityButton.bounds)
+        itemBuyQuantityLabel.text = "Select quantity"
+        itemBuyQuantityLabel.font = UIFont.systemFontOfSize(14.0)
+        itemBuyQuantityLabel.textColor = UIColor.lightGrayColor()
+        
+        itemQuantityButton.addSubview(itemBuyQuantityLabel)
+        itemQuantityButton.addTarget(self, action: "selectBuyQuantity:", forControlEvents: UIControlEvents.TouchUpInside)
+        
+        // delivery method
+        var itemDeliveryImage = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+        var deliveryImage: UIImage = UIImage(named: "sidemenu-fulfilment")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
+        itemDeliveryImage.setImage(deliveryImage, forState: UIControlState.Normal)
+        itemDeliveryImage.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+        itemDeliveryImage.imageView?.tintColor = UIColor.whiteColor()
+        itemDeliveryImage.frame = CGRect(x: 0, y: popupWidth + itemSpecHeight * 2, width: itemImageViewWidth, height: itemSpecHeight)
+        itemQuantityImage.imageEdgeInsets = UIEdgeInsetsMake(10, 0, 10, 0)
+        
+        Glow.addGlow(itemDeliveryImage)
+        
+        var itemDeliveryButton: UIButton = UIButton(frame: CGRect(x: itemImageViewWidth, y: popupWidth + itemSpecHeight * 2, width: popupWidth - itemImageViewWidth, height: itemSpecHeight))
+        itemBuyDeliveryLabel = UILabel(frame: itemDeliveryButton.bounds)
+        itemBuyDeliveryLabel.text = "Select delivery method"
+        itemBuyDeliveryLabel.font = UIFont.systemFontOfSize(14.0)
+        itemBuyDeliveryLabel.textColor = UIColor.lightGrayColor()
+        
+        itemDeliveryButton.addSubview(itemBuyDeliveryLabel)
+        itemDeliveryButton.addTarget(self, action: "selectBuyDeliveryMethod:", forControlEvents: UIControlEvents.TouchUpInside)
+        
+        buyPieceView.addSubview(itemSizeImage)
+        buyPieceView.addSubview(itemSizeButton)
+        
+        buyPieceView.addSubview(itemQuantityImage)
+        buyPieceView.addSubview(itemQuantityButton)
+        
+        buyPieceView.addSubview(itemDeliveryImage)
+        buyPieceView.addSubview(itemDeliveryButton)
+        
+        buyPiecesScrollView.addSubview(buyPieceView)
+        popupContentView.addSubview(buyPiecesScrollView)
+        
+        // add to cart button
+        var addToCart: UIButton = UIButton(frame: CGRectMake(0, popupHeight - navigationHeight, popupWidth, navigationHeight))
+        addToCart.backgroundColor = sprubixColor
+        addToCart.setTitle("Add to Cart", forState: UIControlState.Normal)
+        addToCart.titleLabel?.font = UIFont.boldSystemFontOfSize(addToCart.titleLabel!.font.pointSize)
+        addToCart.addTarget(self, action: "addToCartPressed:", forControlEvents: UIControlEvents.TouchUpInside)
+        
+        buyPieceView.addSubview(addToCart)
+        
+        // load the delivery methods for this piece
+        preloadBuyDeliveryMethod()
+        
+        buyPopup = KLCPopup(contentView: popupContentView, showType: KLCPopupShowType.BounceInFromTop, dismissType: KLCPopupDismissType.BounceOutToTop, maskType: KLCPopupMaskType.Clear, dismissOnBackgroundTouch: true, dismissOnContentTouch: false)
+        
+        // dim background
+        UIView.animateWithDuration(0.5, delay: 0.0, usingSpringWithDamping: 0.9, initialSpringVelocity: 0, options: .CurveEaseInOut, animations: {
+            darkenedOverlay?.alpha = 0.5
+            }, completion: nil)
+        
+        buyPopup?.willStartDismissingCompletion = {
+            // brighten background
+            UIView.animateWithDuration(0.5, delay: 0.0, usingSpringWithDamping: 0.9, initialSpringVelocity: 0, options: .CurveEaseInOut, animations: {
+                darkenedOverlay?.alpha = 0.0
+                }, completion: nil)
+            
+            self.selectedSize = nil
+            self.buyPieceInfo?.removeObjectsForKeys(["size", "quantity", "delivery_option_id"])
+        }
+        
+        buyPopup?.show()
+        
+        // Mixpanel - Clicked Buy, Piece View
+        mixpanel.track("Clicked Buy", properties: [
+            "Source": "Piece View",
+            "Piece ID": piece["id"] as! Int
+            ])
     }
     
     func selectBuySize(sender: UIButton) {
