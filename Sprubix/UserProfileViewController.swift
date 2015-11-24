@@ -289,20 +289,28 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
             itemHeight = outfit["height"] as! CGFloat
             itemWidth = outfit["width"] as! CGFloat
         case .Pieces:
-            let piece = pieces[indexPath.row] as NSDictionary
-            itemHeight = piece["height"] as! CGFloat
-            itemWidth = piece["height"] as! CGFloat
+            if pieces.count > 0 {
+                let piece = pieces[indexPath.row] as NSDictionary
+                itemHeight = piece["height"] as! CGFloat
+                itemWidth = piece["height"] as! CGFloat
+            }
         case .Community:
-            let communityOutfit = communityOutfits[indexPath.row] as NSDictionary
-            itemHeight = communityOutfit["height"] as! CGFloat
-            itemWidth = communityOutfit["width"] as! CGFloat
+            if communityOutfits.count > 0 {
+                let communityOutfit = communityOutfits[indexPath.row] as NSDictionary
+                itemHeight = communityOutfit["height"] as! CGFloat
+                itemWidth = communityOutfit["width"] as! CGFloat
+            }
         default:
             break
         }
 
-        let imageHeight = itemHeight * gridWidth/itemWidth
-        
-        return CGSizeMake(gridWidth, imageHeight)
+        if itemWidth != nil {
+            let imageHeight = itemHeight * gridWidth/itemWidth
+            
+            return CGSizeMake(gridWidth, imageHeight)
+        } else {
+            return CGSizeMake(gridWidth, 0)
+        }
     }
     
     // UICollectionViewDataSource
@@ -330,45 +338,51 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
         case .Outfits:
             cell = collectionView.dequeueReusableCellWithReuseIdentifier(profileOutfitCellIdentifier, forIndexPath: indexPath) as! ProfileOutfitCell
             
-            var outfit = outfits[indexPath.row] as NSDictionary
-            var outfitImagesString = outfit["images"] as! NSString
-            var outfitImagesData:NSData = outfitImagesString.dataUsingEncoding(NSUTF8StringEncoding)!
-            
-            var outfitImagesDict: NSDictionary = NSJSONSerialization.JSONObjectWithData(outfitImagesData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSDictionary
-            var outfitImageDict: NSDictionary = outfitImagesDict["images"] as! NSDictionary
-            
-            (cell as! ProfileOutfitCell).imageURLString = outfitImageDict["small"] as! String
+            if outfits.count > 0 {
+                var outfit = outfits[indexPath.row] as NSDictionary
+                var outfitImagesString = outfit["images"] as! NSString
+                var outfitImagesData:NSData = outfitImagesString.dataUsingEncoding(NSUTF8StringEncoding)!
+                
+                var outfitImagesDict: NSDictionary = NSJSONSerialization.JSONObjectWithData(outfitImagesData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSDictionary
+                var outfitImageDict: NSDictionary = outfitImagesDict["images"] as! NSDictionary
+                
+                (cell as! ProfileOutfitCell).imageURLString = outfitImageDict["small"] as! String
+            }
 
         case .Pieces:
             cell = collectionView.dequeueReusableCellWithReuseIdentifier(profilePieceCellIdentifier, forIndexPath: indexPath) as! ProfilePieceCell
             
-            var piece = pieces[indexPath.row] as NSDictionary
-            var pieceImagesString = piece["images"] as! NSString
-            var pieceImagesData:NSData = pieceImagesString.dataUsingEncoding(NSUTF8StringEncoding)!
-            
-            var pieceImagesDict: NSDictionary = NSJSONSerialization.JSONObjectWithData(pieceImagesData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSDictionary
-            
-            (cell as! ProfilePieceCell).imageURLString = pieceImagesDict["cover"] as! String
-            
-            // this part is to calculate the correct dimensions of the ProfilePieceCell.
-            // On the UI it appears as a square but the real dimensions must be recorded for the animation scale to work properly
-            let pieceHeight = piece["height"] as! CGFloat
-            let pieceWidth = piece["width"] as! CGFloat
-            
-            let imageGridHeight = pieceHeight * gridWidth/pieceWidth
-            
-            (cell as! ProfilePieceCell).imageGridSize = CGRect(x: 0, y: 0, width: gridWidth, height: imageGridHeight)
+            if pieces.count > 0 {
+                var piece = pieces[indexPath.row] as NSDictionary
+                var pieceImagesString = piece["images"] as! NSString
+                var pieceImagesData:NSData = pieceImagesString.dataUsingEncoding(NSUTF8StringEncoding)!
+                
+                var pieceImagesDict: NSDictionary = NSJSONSerialization.JSONObjectWithData(pieceImagesData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSDictionary
+                
+                (cell as! ProfilePieceCell).imageURLString = pieceImagesDict["cover"] as! String
+                
+                // this part is to calculate the correct dimensions of the ProfilePieceCell.
+                // On the UI it appears as a square but the real dimensions must be recorded for the animation scale to work properly
+                let pieceHeight = piece["height"] as! CGFloat
+                let pieceWidth = piece["width"] as! CGFloat
+                
+                let imageGridHeight = pieceHeight * gridWidth/pieceWidth
+                
+                (cell as! ProfilePieceCell).imageGridSize = CGRect(x: 0, y: 0, width: gridWidth, height: imageGridHeight)
+            }
         case .Community:
             cell = collectionView.dequeueReusableCellWithReuseIdentifier(profileOutfitCellIdentifier, forIndexPath: indexPath) as! ProfileOutfitCell
             
-            var communityOutfit = communityOutfits[indexPath.row] as NSDictionary
-            var communityImagesString = communityOutfit["images"] as! NSString
-            var communityImagesData:NSData = communityImagesString.dataUsingEncoding(NSUTF8StringEncoding)!
-            
-            var communityImagesDict: NSDictionary = NSJSONSerialization.JSONObjectWithData(communityImagesData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSDictionary
-            var communityImageDict: NSDictionary = communityImagesDict["images"] as! NSDictionary
-            
-            (cell as! ProfileOutfitCell).imageURLString = communityImageDict["small"] as! String
+            if communityOutfits.count > 0 {
+                var communityOutfit = communityOutfits[indexPath.row] as NSDictionary
+                var communityImagesString = communityOutfit["images"] as! NSString
+                var communityImagesData:NSData = communityImagesString.dataUsingEncoding(NSUTF8StringEncoding)!
+                
+                var communityImagesDict: NSDictionary = NSJSONSerialization.JSONObjectWithData(communityImagesData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSDictionary
+                var communityImageDict: NSDictionary = communityImagesDict["images"] as! NSDictionary
+                
+                (cell as! ProfileOutfitCell).imageURLString = communityImageDict["small"] as! String
+            }
         default:
             break
         }

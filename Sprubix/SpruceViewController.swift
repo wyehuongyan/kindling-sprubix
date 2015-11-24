@@ -641,6 +641,11 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, SprucePieceF
                     childController.deleteOverlay.frame.size.height = height
                 }
                 
+                if currentVisibleCell.piece["type"] as! String == "BOTTOM" {
+                    let indexPath: NSIndexPath = NSIndexPath(forItem: childController.index, inSection: 0)
+                    childController.collectionView?.scrollToItemAtIndexPath(indexPath, atScrollPosition: UICollectionViewScrollPosition.CenteredHorizontally, animated: false)
+                }
+                
                 // moving the arrows to their new positions
                 childController.setLeftArrowButtonFrame(height)
                 childController.setRightArrowButtonFrame(height)
