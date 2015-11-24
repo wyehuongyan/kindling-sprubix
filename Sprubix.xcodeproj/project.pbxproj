@@ -18,6 +18,7 @@
 		059E98931B563B85007A5A42 /* EditProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 059E98921B563B85007A5A42 /* EditProfileViewController.swift */; };
 		05BE68871B75C0410098FDCF /* DashboardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05BE68861B75C0410098FDCF /* DashboardViewController.swift */; };
 		05BE68891B75D5690098FDCF /* DashboardOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05BE68881B75D5690098FDCF /* DashboardOverlay.swift */; };
+		05E2AAE21BF6F37A00CFD60F /* SellerAgreementViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05E2AAE11BF6F37A00CFD60F /* SellerAgreementViewController.swift */; };
 		05F17BD81BD939F100FF152F /* GuaranteeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05F17BD71BD939F100FF152F /* GuaranteeCell.swift */; };
 		05F7EDE01B58EA0F00CB2665 /* HelpCenterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05F7EDDF1B58EA0F00CB2665 /* HelpCenterViewController.swift */; };
 		05F7EDE21B593EA200CB2665 /* ProvideFeedbackViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05F7EDE11B593EA200CB2665 /* ProvideFeedbackViewController.swift */; };
@@ -153,6 +154,7 @@
 		059E98921B563B85007A5A42 /* EditProfileViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EditProfileViewController.swift; sourceTree = "<group>"; };
 		05BE68861B75C0410098FDCF /* DashboardViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DashboardViewController.swift; sourceTree = "<group>"; };
 		05BE68881B75D5690098FDCF /* DashboardOverlay.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DashboardOverlay.swift; sourceTree = "<group>"; };
+		05E2AAE11BF6F37A00CFD60F /* SellerAgreementViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SellerAgreementViewController.swift; sourceTree = "<group>"; };
 		05F17BD71BD939F100FF152F /* GuaranteeCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GuaranteeCell.swift; sourceTree = "<group>"; };
 		05F7EDDF1B58EA0F00CB2665 /* HelpCenterViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HelpCenterViewController.swift; sourceTree = "<group>"; };
 		05F7EDE11B593EA200CB2665 /* ProvideFeedbackViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProvideFeedbackViewController.swift; sourceTree = "<group>"; };
@@ -483,6 +485,7 @@
 			children = (
 				8475ECFC1B25D4F80000111A /* SettingsViewController.swift */,
 				8482B86A1B490F930017CEEF /* DeliveryAddressesViewController.swift */,
+				05E2AAE11BF6F37A00CFD60F /* SellerAgreementViewController.swift */,
 				8482B86F1B493B1F0017CEEF /* DeliveryAddressesDetailsViewController.swift */,
 				059E98921B563B85007A5A42 /* EditProfileViewController.swift */,
 				845834BA1B6B2EB0007C6F6B /* EditProfileCropPhotoViewController.swift */,
@@ -1008,6 +1011,7 @@
 				8482B8701B493B1F0017CEEF /* DeliveryAddressesDetailsViewController.swift in Sources */,
 				84B334E81AAB0C7D00B9707D /* SidePanelOption.swift in Sources */,
 				0544BAAB1B8F147D00B058A8 /* TermsOfServiceViewController.swift in Sources */,
+				05E2AAE21BF6F37A00CFD60F /* SellerAgreementViewController.swift in Sources */,
 				8405D02F1B4E8E7A00B42752 /* CheckoutViewController.swift in Sources */,
 				8405D0551B5B539000B42752 /* ShopOrdersViewController.swift in Sources */,
 				845834C91B7486E4007C6F6B /* ShopOrderRefundDetailsViewController.swift in Sources */,

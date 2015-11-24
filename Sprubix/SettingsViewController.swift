@@ -20,6 +20,7 @@ class SettingsViewController: UITableViewController {
     @IBOutlet var provideFeedbackCell: UITableViewCell!
     @IBOutlet var termsOfServiceCell: UITableViewCell!
     @IBOutlet var privacyPolicyCell: UITableViewCell!
+    @IBOutlet var sellerAgreementCell: UITableViewCell!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -34,6 +35,7 @@ class SettingsViewController: UITableViewController {
         provideFeedbackCell.accessoryType = UITableViewCellAccessoryType.DisclosureIndicator
         termsOfServiceCell.accessoryType = UITableViewCellAccessoryType.DisclosureIndicator
         privacyPolicyCell.accessoryType = UITableViewCellAccessoryType.DisclosureIndicator
+        sellerAgreementCell.accessoryType = UITableViewCellAccessoryType.DisclosureIndicator
     }
     
     override func viewWillAppear(animated: Bool) {
@@ -64,6 +66,26 @@ class SettingsViewController: UITableViewController {
         super.viewWillDisappear(animated)
         
         self.navigationController?.setNavigationBarHidden(true, animated: false)
+    }
+    
+    override func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
+        // Show Seller Agreement only to Shop
+        if indexPath.section == 3 && indexPath.row == 2 {
+            let userData: NSDictionary? = defaults.dictionaryForKey("userData")
+            
+            if userData != nil {
+                let userType = userData!["shoppable_type"] as! String
+                
+                // Hide for shopper
+                if userType.lowercaseString.rangeOfString("shopper") != nil {
+                    sellerAgreementCell.accessoryType = UITableViewCellAccessoryType.None
+                    
+                    return 0
+                }
+            }
+        }
+        
+        return 44
     }
     
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
@@ -156,6 +178,16 @@ class SettingsViewController: UITableViewController {
                 
                 // Mixpanel - Viewed Privacy Policy
                 mixpanel.track("Privacy Policy")
+                // Mixpanel - End
+            case 2:
+                //println("Seller Agreement")
+                
+                let sellerAgreementViewController = SellerAgreementViewController()
+                
+                self.navigationController?.pushViewController(sellerAgreementViewController, animated: true)
+                
+                // Mixpanel - Viewed Seller Agreement
+                mixpanel.track("Seller Agreement")
                 // Mixpanel - End
             default:
                 fatalError("Unknown static cell for settings.")
