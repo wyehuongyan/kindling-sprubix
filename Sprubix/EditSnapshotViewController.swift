@@ -272,11 +272,11 @@ class EditSnapshotViewController: UIViewController {
         
         // create new handle bar based on no. of previewStillImages
         for var i = 0; i < previewStillImages.count; i++ {
-            var previewStillImage = previewStillImages[i]
-            var fixedImage = fixOrientation(previewStillImage.image!)
+            var previewStillImage = previewStillImages[i].image
+            //var fixedImage = fixOrientation(previewStillImage.image!)
             
-            var cropWidth = fixedImage.size.width
-            var cropHeight = fixedImage.size.height
+            var cropWidth = previewStillImage!.size.width
+            var cropHeight = previewStillImage!.size.height
             
             var finalWidth = screenWidth
             var finalHeight = cropHeight / cropWidth * finalWidth

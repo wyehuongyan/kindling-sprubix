@@ -451,7 +451,11 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
         // this is the part where image is captured successfully
         self.cameraCapture.enabled = false
         
-        UIView.animateWithDuration(0.225, animations: { () -> Void in
+        self.camera?.captureStillImage({ (image) -> Void in
+            self.setPreviewStillImage(image)
+        })
+        
+        UIView.animateWithDuration(0.2, animations: { () -> Void in
             self.cameraPreview.alpha = 0.0
         })
         
@@ -463,10 +467,6 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
             "Type" : currentPieceType
         ])
         // Mixpanel - End
-        
-        self.camera?.captureStillImage({ (image) -> Void in
-            self.setPreviewStillImage(image)
-        })
     }
     
     func setPreviewStillImage(image: UIImage?) {
@@ -486,6 +486,9 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
             
             var previewStillImageView: UIImageView = UIImageView(frame: CGRectMake(0, totalPrevHeights, previewStillWidth, previewStillHeight))
             previewStillImageView.contentMode = UIViewContentMode.ScaleAspectFit
+            
+            fixOrientation(image!)
+            
             previewStillImageView.image = image
             
             // add this preview still into the storage array
@@ -505,48 +508,43 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
                 self.overlay = MRProgressOverlayView.showOverlayAddedTo(self.view, title: "Processing...", mode: MRProgressOverlayViewMode.Indeterminate, animated: true)
                 
                 self.overlay.tintColor = sprubixColor
+                self.cameraCapture.alpha = 0.0
                 
-                // the delay is for the cameraStill to remain on screen for a while before moving away
-                Delay.delay(0.6, closure: {
+                // go to edit controller
+                if self.editSnapshotViewController == nil {
+                    self.editSnapshotViewController = EditSnapshotViewController()
+                }
+                
+                self.editSnapshotViewController.selectedPiecesOrdered = self.selectedPiecesOrdered
+                self.editSnapshotViewController.previewStillImages = self.previewStillImages
+                self.editSnapshotViewController.fromAddDetails = self.fromAddDetails
+                
+                // check if top is dress
+                if self.dressButton.selected {
+                    self.editSnapshotViewController.topIsDress = true
+                } else {
+                    self.editSnapshotViewController.topIsDress = false
+                }
+                
+                if self.fromAddDetails == true {
+                    let prevViewController = self.navigationController!.viewControllers[self.navigationController!.viewControllers.count - 2] as! SnapshotDetailsController
                     
-                    self.cameraCapture.alpha = 0.0
-                    
-                    // go to edit controller
-                    if self.editSnapshotViewController == nil {
-                        self.editSnapshotViewController = EditSnapshotViewController()
-                    }
-                    
-                    self.editSnapshotViewController.selectedPiecesOrdered = self.selectedPiecesOrdered
-                    self.editSnapshotViewController.previewStillImages = self.previewStillImages
-                    self.editSnapshotViewController.fromAddDetails = self.fromAddDetails
-                    
-                    // check if top is dress
-                    if self.dressButton.selected {
-                        self.editSnapshotViewController.topIsDress = true
-                    } else {
-                        self.editSnapshotViewController.topIsDress = false
-                    }
-                    
-                    if self.fromAddDetails == true {
-                        let prevViewController = self.navigationController!.viewControllers[self.navigationController!.viewControllers.count - 2] as! SnapshotDetailsController
-                        
-                        self.editSnapshotViewController.delegate = prevViewController
-                    }
-                    
+                    self.editSnapshotViewController.delegate = prevViewController
+                }
+                
+                dispatch_async(dispatch_get_main_queue()) {
                     self.navigationController?.delegate = nil
                     self.navigationController?.pushViewController(self.editSnapshotViewController, animated: true) {
                         // Animation done
                         self.resetPieceSelector()
+                        self.overlay.dismiss(true)
+                        self.cameraCapture.enabled = true
                     }
-                    
-                    self.overlay.dismiss(true)
-                    self.cameraCapture.enabled = true
-                    
-                    // Mixpanel - Edit Photo
-                    mixpanel.track("Edit Photo")
-                    // Mixpanel - End
-                    
-                })
+                }
+                
+                // Mixpanel - Edit Photo
+                mixpanel.track("Edit Photo")
+                // Mixpanel - End
             } else {
                 Delay.delay(0.6, closure: {
                     // shift view to cameraPreview
@@ -753,6 +751,23 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
             // first one
             setSnapButtonIcon(selectedPiecesOrdered[0])
         }
+    }
+    
+    // fix image orientation
+    func fixOrientation(img: UIImage) -> UIImage {
+        
+        if (img.imageOrientation == UIImageOrientation.Up) {
+            return img;
+        }
+        
+        UIGraphicsBeginImageContextWithOptions(img.size, false, img.scale);
+        let rect = CGRect(x: 0, y: 0, width: img.size.width, height: img.size.height)
+        img.drawInRect(rect)
+        
+        var normalizedImage : UIImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext();
+        return normalizedImage;
+        
     }
 }
 

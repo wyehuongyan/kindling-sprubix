@@ -13,6 +13,7 @@ import AFNetworking
 import Foundation
 import SystemConfiguration
 import TSMessages
+import Crashlytics
 
 // global println function
 func println(object: Any) {
@@ -426,7 +427,8 @@ class SprubixReachability {
             })
             
         default:
-            fatalError("Unknown error code \(code) returned at MainFeedController")
+            //fatalError("Unknown error code \(code) returned at MainFeedController")
+            CLSLogv("Unknown error code %d returned at MainFeedController", getVaList([code]))
         }
         
         // warning message
