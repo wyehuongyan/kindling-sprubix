@@ -38,6 +38,9 @@ class UserFollowListCell: UITableViewCell {
         
         userImageView.addGestureRecognizer(goToProfileGestureRecognizer)
         
+        username.userInteractionEnabled = true
+        username.addGestureRecognizer(goToProfileGestureRecognizer)
+        
         var image: UIImage = UIImage(named: "people-follow-user")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
         followButton.setImage(image, forState: UIControlState.Normal)
         followButton.setImage(UIImage(named: "filter-check"), forState: UIControlState.Selected)
