@@ -417,6 +417,10 @@ class SprubixReachability {
             errorTitle = "Request Timed Out"
             errorMessage = "The connection to the server has timed out."
             notificationType = TSMessageNotificationType.Warning
+        case -1009:
+            errorTitle = "Internet Connectivity Unavailable"
+            errorMessage = "The internet connection appears to be offline."
+            notificationType = TSMessageNotificationType.Warning
         case  -1011:
             errorTitle = "Logged out"
             errorMessage = "You have been logged out. Please sign in."
@@ -427,12 +431,12 @@ class SprubixReachability {
             })
             
         default:
-            //fatalError("Unknown error code \(code) returned at MainFeedController")
+            println("Unknown error code \(code) returned at MainFeedController")
             CLSLogv("Unknown error code %d returned at MainFeedController", getVaList([code]))
         }
         
         // warning message
-        TSMessage.showNotificationInViewController(                        TSMessage.defaultViewController(), title: errorTitle, subtitle: errorMessage, image: nil, type: notificationType, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: false)
+        TSMessage.showNotificationInViewController(TSMessage.defaultViewController(), title: errorTitle, subtitle: errorMessage, image: nil, type: notificationType, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: false)
     }
     
     class func showSignInVC() {
