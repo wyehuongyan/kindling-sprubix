@@ -399,9 +399,9 @@ class SprubixReachability {
     }
     
     class func handleError(code: Int) {
-        var errorTitle: String!
-        var errorMessage: String!
-        var notificationType: TSMessageNotificationType!
+        var errorTitle: String = "Something's Wrong"
+        var errorMessage: String = "We're unable to load your content right now."
+        var notificationType: TSMessageNotificationType = TSMessageNotificationType.Warning
         var automatic: NSTimeInterval = 2
         
         switch code {
@@ -422,7 +422,7 @@ class SprubixReachability {
             errorMessage = "The internet connection appears to be offline."
             notificationType = TSMessageNotificationType.Warning
         case  -1011:
-            errorTitle = "Logged out"
+            errorTitle = "Logged Out"
             errorMessage = "You have been logged out. Please sign in."
             notificationType = TSMessageNotificationType.Warning
             
