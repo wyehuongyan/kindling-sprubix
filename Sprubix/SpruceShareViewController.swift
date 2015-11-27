@@ -436,7 +436,7 @@ class SpruceShareViewController: UIViewController, UITableViewDelegate, UITableV
             // Mixpanel - End
             
             // upload
-            var outfitImageData: NSData = UIImageJPEGRepresentation(outfitImageView.image, 0.5);
+            var outfitImageData: NSData = UIImageJPEGRepresentation(outfitImageView.image, 0.9);
             
             var requestOperation: AFHTTPRequestOperation = manager.POST(SprubixConfig.URL.api + "/upload/outfit/spruce", parameters: spruceOutfitDict, constructingBodyWithBlock: { formData in
                 let data: AFMultipartFormData = formData
