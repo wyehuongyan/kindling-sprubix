@@ -1266,7 +1266,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
             
                 for var j = 0; j < self.sprubixPiece.images.count; j++ {
                     var pieceImage: UIImage = self.sprubixPiece.images[j]
-                    var pieceImageData: NSData = UIImageJPEGRepresentation(pieceImage, 0.5)
+                    var pieceImageData: NSData = UIImageJPEGRepresentation(pieceImage, 0.9)
                     
                     var pieceImageName = "piece_\(self.sprubixPiece.type.lowercaseString)_\(j)"
                     var pieceImageFileName = pieceImageName + ".jpg"
@@ -1473,7 +1473,7 @@ class SnapshotDetailsController: UIViewController, UITableViewDelegate, UITableV
                     
                     for var j = 0; j < self.sprubixPiece.images.count; j++ {
                         var pieceImage: UIImage = self.sprubixPiece.images[j]
-                        var pieceImageData: NSData = UIImageJPEGRepresentation(pieceImage, 0.5)
+                        var pieceImageData: NSData = UIImageJPEGRepresentation(pieceImage, 0.9)
                         
                         var pieceImageName = "piece_\(self.sprubixPiece.type.lowercaseString)_\(j)"
                         var pieceImageFileName = pieceImageName + ".jpg"

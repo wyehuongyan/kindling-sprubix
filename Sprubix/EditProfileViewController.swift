@@ -279,9 +279,9 @@ class EditProfileViewController: UITableViewController, UITextViewDelegate, UIIm
             }
             
             // convert image into data for upload
-            var profileImageData: NSData? = profileImageDirty ?  UIImageJPEGRepresentation(profileImage.image, 0.5) : nil
+            var profileImageData: NSData? = profileImageDirty ?  UIImageJPEGRepresentation(profileImage.image, 0.9) : nil
             
-            var profileCoverImageData: NSData? = coverImageDirty ?  UIImageJPEGRepresentation(profileCoverImage.image, 0.5) : nil
+            var profileCoverImageData: NSData? = coverImageDirty ?  UIImageJPEGRepresentation(profileCoverImage.image, 0.9) : nil
             
             var requestOperation: AFHTTPRequestOperation = manager.POST(SprubixConfig.URL.api + "/update/profile",
                 parameters: profileInfo,

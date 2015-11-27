@@ -673,7 +673,7 @@ class SnapshotShareController: UIViewController, UITableViewDelegate, UITableVie
             // 3. sprubixOutfit information (parameters)
             // 4. sprubixPiece information (parameters)
             
-            var outfitImageData: NSData = UIImageJPEGRepresentation(outfitImage, 0.5);
+            var outfitImageData: NSData = UIImageJPEGRepresentation(outfitImage, 0.9);
             
             var requestOperation: AFHTTPRequestOperation = manager.POST(SprubixConfig.URL.api + "/upload/outfit/create", parameters: sprubixOutfitDict, constructingBodyWithBlock: { formData in
                 let data: AFMultipartFormData = formData
@@ -687,7 +687,7 @@ class SnapshotShareController: UIViewController, UITableViewDelegate, UITableVie
                     
                     for var j = 0; j < sprubixPiece.images.count; j++ {
                         var pieceImage: UIImage = sprubixPiece.images[j]
-                        var pieceImageData: NSData = UIImageJPEGRepresentation(pieceImage, 0.5)
+                        var pieceImageData: NSData = UIImageJPEGRepresentation(pieceImage, 0.9)
                         
                         var pieceImageName = "piece_\(sprubixPiece.type.lowercaseString)_\(j)"
                         var pieceImageFileName = pieceImageName + ".jpg"
