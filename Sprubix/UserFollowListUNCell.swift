@@ -33,12 +33,14 @@ class UserFollowListUNCell: UITableViewCell {
         userImageView.userInteractionEnabled = true
         
         // gesture recognizer
-        let goToProfileGestureRecognizer: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: "showProfile")
+        let userImageGoToProfileGestureRecognizer: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: "showProfile")
         
-        userImageView.addGestureRecognizer(goToProfileGestureRecognizer)
-
+        userImageView.addGestureRecognizer(userImageGoToProfileGestureRecognizer)
+        
+        let userNameGoToProfileGestureRecognizer: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: "showProfile")
+        
         username.userInteractionEnabled = true
-        username.addGestureRecognizer(goToProfileGestureRecognizer)
+        username.addGestureRecognizer(userNameGoToProfileGestureRecognizer)
         
         var image: UIImage = UIImage(named: "people-follow-user")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
         followButton.setImage(image, forState: UIControlState.Normal)
