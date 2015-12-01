@@ -10,6 +10,7 @@ import UIKit
 import DZNEmptyDataSet
 import STTweetLabel
 import AFNetworking
+import TSMessages
 
 class NotificationViewController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataSetDelegate, UITableViewDataSource, UITableViewDelegate {
 
@@ -565,6 +566,11 @@ class NotificationViewController: UIViewController, DZNEmptyDataSetSource, DZNEm
                         // Mixpanel - End
                     } else {
                         println("Error: User Profile cannot load user: \(notificationCell.senderUsername!)")
+                        
+                        let automatic: NSTimeInterval = 2
+                        
+                        // warning message
+                        TSMessage.showNotificationInViewController(TSMessage.defaultViewController(), title: "Something's Wrong", subtitle: "This user can't be loaded right now.", image: nil, type: TSMessageNotificationType.Warning, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: false)
                     }
                 },
                 failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
@@ -591,30 +597,39 @@ class NotificationViewController: UIViewController, DZNEmptyDataSetSource, DZNEm
                     ],
                     success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
                         
-                        var outfit = (responseObject["data"] as! NSArray)[0] as! NSDictionary
+                        var outfits = responseObject["data"] as? NSArray
                         
-                        let outfitDetailsViewController = OutfitDetailsViewController(collectionViewLayout: self.detailsViewControllerLayout(), currentIndexPath: NSIndexPath(forRow: 0, inSection: 0))
-                        
-                        outfitDetailsViewController.outfits = [outfit]
-                        outfitDetailsViewController.delegate = containerViewController.mainInstance()
-                        
-                        // push outfitDetailsViewController onto navigation stack
-                        let transition = CATransition()
-                        transition.duration = 0.3
-                        transition.type = kCATransitionMoveIn
-                        transition.subtype = kCATransitionFromTop
-                        transition.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
-                        
-                        self.navigationController?.view.layer.addAnimation(transition, forKey: kCATransition)
-                        self.navigationController!.pushViewController(outfitDetailsViewController, animated: false)
-                        
-                        // Mixpanel - Viewed Outfit Details
-                        mixpanel.track("Viewed Outfit Details", properties: [
-                            "Source": "Notification View",
-                            "Outfit ID": [outfit][0].objectForKey("id") as! Int,
-                            "Owner User ID": [outfit][0].objectForKey("user_id") as! Int
-                        ])
-                        // Mixpanel - End
+                        if outfits != nil && outfits!.count > 0 {
+                            var outfit = outfits![0] as! NSDictionary
+                            
+                            let outfitDetailsViewController = OutfitDetailsViewController(collectionViewLayout: self.detailsViewControllerLayout(), currentIndexPath: NSIndexPath(forRow: 0, inSection: 0))
+                            
+                            outfitDetailsViewController.outfits = [outfit]
+                            outfitDetailsViewController.delegate = containerViewController.mainInstance()
+                            
+                            // push outfitDetailsViewController onto navigation stack
+                            let transition = CATransition()
+                            transition.duration = 0.3
+                            transition.type = kCATransitionMoveIn
+                            transition.subtype = kCATransitionFromTop
+                            transition.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
+                            
+                            self.navigationController?.view.layer.addAnimation(transition, forKey: kCATransition)
+                            self.navigationController!.pushViewController(outfitDetailsViewController, animated: false)
+                            
+                            // Mixpanel - Viewed Outfit Details
+                            mixpanel.track("Viewed Outfit Details", properties: [
+                                "Source": "Notification View",
+                                "Outfit ID": [outfit][0].objectForKey("id") as! Int,
+                                "Owner User ID": [outfit][0].objectForKey("user_id") as! Int
+                            ])
+                            // Mixpanel - End
+                        } else {
+                            let automatic: NSTimeInterval = 2
+                            
+                            // warning message
+                            TSMessage.showNotificationInViewController(TSMessage.defaultViewController(), title: "Oops!", subtitle: "This outfit has been deleted by the owner.", image: nil, type: TSMessageNotificationType.Warning, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: false)
+                        }
                     },
                     failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                         println("Error: " + error.localizedDescription)
@@ -628,30 +643,39 @@ class NotificationViewController: UIViewController, DZNEmptyDataSetSource, DZNEm
                     ],
                     success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
                         
-                        var piece = (responseObject["data"] as! NSArray)[0] as! NSDictionary
+                        var pieces = responseObject["data"] as? NSArray
                         
-                        let pieceDetailsViewController = PieceDetailsViewController(collectionViewLayout: self.detailsViewControllerLayout(), currentIndexPath: NSIndexPath(forRow: 0, inSection: 0))
-                        
-                        pieceDetailsViewController.pieces = [piece]
-                        pieceDetailsViewController.user = piece["user"] as! NSDictionary
-                        
-                        // push outfitDetailsViewController onto navigation stack
-                        let transition = CATransition()
-                        transition.duration = 0.3
-                        transition.type = kCATransitionMoveIn
-                        transition.subtype = kCATransitionFromTop
-                        transition.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
-                        
-                        self.navigationController?.view.layer.addAnimation(transition, forKey: kCATransition)
-                        self.navigationController!.pushViewController(pieceDetailsViewController, animated: false)
-                        
-                        // Mixpanel - Viewed Piece Details
-                        mixpanel.track("Viewed Piece Details", properties: [
-                            "Source": "Notification View",
-                            "Piece ID": [piece][0].objectForKey("id") as! Int,
-                            "Owner User ID": [piece][0].objectForKey("user_id") as! Int
-                        ])
-                        // Mixpanel - End
+                        if pieces != nil && pieces!.count > 0 {
+                            var piece = pieces![0] as! NSDictionary
+                            
+                            let pieceDetailsViewController = PieceDetailsViewController(collectionViewLayout: self.detailsViewControllerLayout(), currentIndexPath: NSIndexPath(forRow: 0, inSection: 0))
+                            
+                            pieceDetailsViewController.pieces = [piece]
+                            pieceDetailsViewController.user = piece["user"] as! NSDictionary
+                            
+                            // push outfitDetailsViewController onto navigation stack
+                            let transition = CATransition()
+                            transition.duration = 0.3
+                            transition.type = kCATransitionMoveIn
+                            transition.subtype = kCATransitionFromTop
+                            transition.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
+                            
+                            self.navigationController?.view.layer.addAnimation(transition, forKey: kCATransition)
+                            self.navigationController!.pushViewController(pieceDetailsViewController, animated: false)
+                            
+                            // Mixpanel - Viewed Piece Details
+                            mixpanel.track("Viewed Piece Details", properties: [
+                                "Source": "Notification View",
+                                "Piece ID": [piece][0].objectForKey("id") as! Int,
+                                "Owner User ID": [piece][0].objectForKey("user_id") as! Int
+                            ])
+                            // Mixpanel - End
+                        } else {
+                            let automatic: NSTimeInterval = 2
+                            
+                            // warning message
+                            TSMessage.showNotificationInViewController(TSMessage.defaultViewController(), title: "Oops!", subtitle: "This item has been deleted by the owner.", image: nil, type: TSMessageNotificationType.Warning, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: false)
+                        }
                     },
                     failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                         println("Error: " + error.localizedDescription)
