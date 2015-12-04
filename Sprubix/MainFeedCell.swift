@@ -260,28 +260,33 @@ class MainFeedCell: UICollectionViewCell, TransitionWaterfallGridViewProtocol {
         
         // very first time: check likebutton selected
         let userData: NSDictionary? = defaults.dictionaryForKey("userData")
-        let username = userData!["username"] as! String
         
-        let poutfitLikesUserRef = firebaseRef.childByAppendingPath("poutfits/\(itemIdentifier)/likes/\(username)")
-        
-        if liked != nil {
-            self.likeButton.selected = self.liked!
-        } else {
-            // check if user has already liked this outfit
-            poutfitLikesUserRef.observeSingleEventOfType(.Value, withBlock: {
-                snapshot in
-                
-                if (snapshot.value as? NSNull) != nil {
-                    // not yet liked
-                    self.liked = false
-                } else {
-                    self.liked = true
-                }
-                
+        if userData != nil {
+            let username = userData!["username"] as! String
+            
+            let poutfitLikesUserRef = firebaseRef.childByAppendingPath("poutfits/\(itemIdentifier)/likes/\(username)")
+            
+            if liked != nil {
                 self.likeButton.selected = self.liked!
-                
-                self.delegate?.setOutfitsLiked(self.outfitId, liked: self.liked!)
-            })
+            } else {
+                // check if user has already liked this outfit
+                poutfitLikesUserRef.observeSingleEventOfType(.Value, withBlock: {
+                    snapshot in
+                    
+                    if (snapshot.value as? NSNull) != nil {
+                        // not yet liked
+                        self.liked = false
+                    } else {
+                        self.liked = true
+                    }
+                    
+                    self.likeButton.selected = self.liked!
+                    
+                    self.delegate?.setOutfitsLiked(self.outfitId, liked: self.liked!)
+                })
+            }
+        } else {
+            SprubixReachability.showSignInVC()
         }
     }
     

@@ -755,6 +755,8 @@ class SignInViewController: UIViewController, UITableViewDataSource, UITableView
                     println("Error: " + error.localizedDescription)
 
                     self.overlay.dismiss(true)
+                    
+                    SprubixReachability.handleError(error.code, view: self)
             })
         
         } else {

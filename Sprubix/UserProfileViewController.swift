@@ -595,9 +595,9 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
         case .Outfits:
             text = "When the user creates or spruces an outfit, you'll see it here."
         case .Pieces:
-            text = "When the user uploads an item, you'll see it here"
+            text = "When the user uploads an item, you'll see it here."
         case .Community:
-            text = "When the community creates an outfit for the user, you'll see it here"
+            text = "When the community creates an outfit for the user, you'll see it here."
         }
         
         // Own profile
@@ -607,9 +607,9 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
                 case .Outfits:
                     text = "When you create or spruce an outfit, you'll see it here."
                 case .Pieces:
-                    text = "When you upload an item, you'll see it here"
+                    text = "When you upload an item, you'll see it here."
                 case .Community:
-                    text = "When the community creates an outfit for you, you'll see it here"
+                    text = "When the community creates an outfit for you, you'll see it here."
                 }
             }
         }

@@ -277,6 +277,12 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
                 } else {
                     sidePanelViewController!.sidePanelOptions = SidePanelOption.shopOptions()
                 }
+                
+                println("added SP");
+            } else {
+                println("added blank SP");
+                
+                sidePanelViewController!.sidePanelOptions = SidePanelOption.defaultOptions()
             }
             
             addChildSidePanelController(sidePanelViewController!)
@@ -338,6 +344,8 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
                 if self.sidePanelViewController != nil {
                     self.sidePanelViewController!.view.removeFromSuperview()
                     self.sidePanelViewController = nil
+                    
+                    println("side panel removed")
                 }
             }
             
@@ -410,7 +418,7 @@ class ContainerViewController: UIViewController, SidePanelViewControllerDelegate
                 }
             case .Ended:
                 if (sidePanelViewController != nil) {
-                    // animate the side panel open or closed based on whether the view has moved more or less than halfway
+                    // animate t side panel open or closed based on whether the view has moved more or less than halfway
                     let hasMovedGreaterThanHalfway = self.sidePanelViewController!.view.center.x > 0
                     animateSidePanel(shouldExpand: hasMovedGreaterThanHalfway)
                 }

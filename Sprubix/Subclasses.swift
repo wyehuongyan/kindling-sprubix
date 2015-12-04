@@ -398,7 +398,7 @@ class SprubixReachability {
         return isReachable && !needsConnection
     }
     
-    class func handleError(code: Int) {
+    class func handleError(code: Int, view: UIViewController = TSMessage.defaultViewController()) {
         var errorTitle: String = "Something's Wrong"
         var errorMessage: String = "We're unable to load your content right now."
         var notificationType: TSMessageNotificationType = TSMessageNotificationType.Warning
@@ -436,12 +436,13 @@ class SprubixReachability {
         }
         
         // warning message
-        TSMessage.showNotificationInViewController(TSMessage.defaultViewController(), title: errorTitle, subtitle: errorMessage, image: nil, type: notificationType, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: false)
+        TSMessage.showNotificationInViewController(view, title: errorTitle, subtitle: errorMessage, image: nil, type: notificationType, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: false)
     }
     
     class func showSignInVC() {
         let signInVC = UIStoryboard(name: "Auth", bundle: nil).instantiateViewControllerWithIdentifier("SignInNav") as! UIViewController
         
+        containerViewController.closeSidePanel()
         containerViewController.presentViewController(signInVC, animated: true, completion: nil)
     }
 }

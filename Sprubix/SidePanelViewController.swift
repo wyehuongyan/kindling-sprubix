@@ -133,21 +133,31 @@ class SidePanelViewController: UIViewController, UITableViewDataSource, UITableV
             parameters: nil,
             success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
                 
-                self.userPoints = responseObject as! NSDictionary
+                let userData: NSDictionary? = defaults.dictionaryForKey("userData")
                 
-                var points: Int? = self.userPoints["amount"] as? Int
-                
-                if points != nil {
-                    self.pointsTextView.text = "\(points!) pts"
+                if userData != nil {
+                    self.userPoints = responseObject as! NSDictionary
+                    
+                    var points: Int? = self.userPoints["amount"] as? Int
+                    
+                    if points != nil {
+                        self.pointsTextView.text = "\(points!) pts"
+                    } else {
+                        self.pointsTextView.text = "0 pts"
+                    }
+                    
+                    self.pointsTextView.setNeedsDisplay()
+                    self.view.userInteractionEnabled = true
                 } else {
-                    self.pointsTextView.text = "0 pts"
+                    SprubixReachability.showSignInVC()
                 }
-                
-                self.pointsTextView.setNeedsDisplay()
-                
             },
             failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                 println("Error: " + error.localizedDescription)
+                
+                SprubixReachability.handleError(error.code, view: containerViewController)
+                
+                self.view.userInteractionEnabled = false
         })
     }
     

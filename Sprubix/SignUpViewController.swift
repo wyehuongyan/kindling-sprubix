@@ -397,6 +397,8 @@ class SignUpViewController: UIViewController, FBSDKLoginButtonDelegate, UIScroll
                     },
                     failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                         println("Error: " + error.localizedDescription)
+                        
+                        SprubixReachability.handleError(error.code, view: self)
                 })
             }
         })

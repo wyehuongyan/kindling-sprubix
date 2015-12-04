@@ -200,11 +200,16 @@ class SettingsViewController: UITableViewController {
                 
                 // remove firebase sskeychain
                 // remove userData and userId from defaults
-                let userData: NSDictionary? = defaults.dictionaryForKey("userData")
-                let username = userData!["username"] as! String
-                
                 firebaseRef.unauth()
-                SSKeychain.deletePasswordForService("firebase", account: username)
+                
+                let userData: NSDictionary? = defaults.dictionaryForKey("userData")
+                
+                if userData != nil {
+                    let username = userData!["username"] as! String
+                    
+                    SSKeychain.deletePasswordForService("firebase", account: username)
+                }
+                
                 defaults.removeObjectForKey("userCountry")
                 defaults.removeObjectForKey("userData")
                 defaults.removeObjectForKey("userId")

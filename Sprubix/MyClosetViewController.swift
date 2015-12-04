@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import DZNEmptyDataSet
 import CHTCollectionViewWaterfallLayout
 import AFNetworking
 
@@ -14,7 +15,7 @@ protocol SpruceSelectedPiecesProtocol {
     func insertSelectedClosetPieces(closetPieces: [NSDictionary])
 }
 
-class MyClosetViewController: UIViewController, UICollectionViewDataSource,  CHTCollectionViewDelegateWaterfallLayout {
+class MyClosetViewController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataSetDelegate, UICollectionViewDataSource,  CHTCollectionViewDelegateWaterfallLayout {
     
     var delegate: SpruceSelectedPiecesProtocol?
     
@@ -202,8 +203,12 @@ class MyClosetViewController: UIViewController, UICollectionViewDataSource,  CHT
         resultsCollectionView.alwaysBounceVertical = true
         resultsCollectionView.backgroundColor = sprubixGray
         
-        resultsCollectionView.dataSource = self;
-        resultsCollectionView.delegate = self;
+        // empty dataset
+        resultsCollectionView.emptyDataSetSource = self
+        resultsCollectionView.emptyDataSetDelegate = self
+        
+        resultsCollectionView.dataSource = self
+        resultsCollectionView.delegate = self
         
         view.addSubview(resultsCollectionView)
         
@@ -214,6 +219,76 @@ class MyClosetViewController: UIViewController, UICollectionViewDataSource,  CHT
         activityView.frame = CGRect(x: screenWidth / 2 - activityViewWidth / 2, y: ((screenHeight - navigationHeight - toolBarHeight) / 2 - activityViewWidth / 2), width: activityViewWidth, height: activityViewWidth)
         
         resultsCollectionView.addSubview(activityView)
+    }
+    
+    // DZNEmptyDataSetSource
+    func titleForEmptyDataSet(scrollView: UIScrollView!) -> NSAttributedString! {
+        var text: String = ""
+        
+        if !favoritesView {
+            text = "\nItems in your closet"
+        } else {
+            text = "\nItems that you've liked"
+        }
+        
+        let attributes: NSDictionary = [
+            NSFontAttributeName: UIFont.boldSystemFontOfSize(18.0),
+            NSForegroundColorAttributeName: UIColor.darkGrayColor()
+        ]
+        
+        let attributedString: NSAttributedString = NSAttributedString(string: text, attributes: attributes as [NSObject : AnyObject])
+        
+        return attributedString
+    }
+    
+    func descriptionForEmptyDataSet(scrollView: UIScrollView!) -> NSAttributedString! {
+        var text: String = ""
+        
+        if !favoritesView {
+            text = "When you upload an item, you'll see it here."
+        } else {
+            text = "When you like an item, you'll see it here."
+        }
+        
+        var paragraph: NSMutableParagraphStyle = NSMutableParagraphStyle.new()
+        paragraph.lineBreakMode = NSLineBreakMode.ByWordWrapping
+        paragraph.alignment = NSTextAlignment.Center
+        
+        let attributes: NSDictionary = [
+            NSFontAttributeName: UIFont.boldSystemFontOfSize(14.0),
+            NSForegroundColorAttributeName: UIColor.lightGrayColor(),
+            NSParagraphStyleAttributeName: paragraph
+        ]
+        
+        let attributedString: NSAttributedString = NSAttributedString(string: text, attributes: attributes as [NSObject : AnyObject])
+        
+        return attributedString
+    }
+    
+    /*func buttonTitleForEmptyDataSet(scrollView: UIScrollView!, forState state: UIControlState) -> NSAttributedString! {
+    let text: String = "Button Title"
+    
+    let attributes: NSDictionary = [
+    NSFontAttributeName: UIFont.boldSystemFontOfSize(17.0)
+    ]
+    
+    let attributedString: NSAttributedString = NSAttributedString(string: text, attributes: attributes as [NSObject : AnyObject])
+    
+    return attributedString
+    }*/
+    
+    func imageForEmptyDataSet(scrollView: UIScrollView!) -> UIImage! {
+        var image: UIImage!
+        
+        if favoritesView {
+            image = UIImage(named: "emptyset-favorites-piece")
+        }
+        
+        return image
+    }
+    
+    func backgroundColorForEmptyDataSet(scrollView: UIScrollView!) -> UIColor! {
+        return sprubixGray
     }
     
     // UICollectionViewDataSource

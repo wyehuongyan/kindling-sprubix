@@ -89,6 +89,12 @@ class SidePanelOption {
     }
     
     // create customized option list here
+    class func defaultOptions() -> Array<SidePanelOption> {
+        return [
+            // empty array
+        ]
+    }
+    
     class func userOptions() -> Array<SidePanelOption> {
         return [
             //SidePanelOption(option: Option.Messages, image: UIImage(named: "sidemenu-messages")),
