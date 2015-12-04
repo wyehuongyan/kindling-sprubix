@@ -19,8 +19,9 @@ protocol PieceDetailsOutfitProtocol {
     func relevantOutfitSelected(collectionView: UICollectionView, index: NSIndexPath)
 }
 
-class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UICollectionViewDelegate, CHTCollectionViewDelegateWaterfallLayout, UIScrollViewDelegate {
+class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UICollectionViewDelegate, CHTCollectionViewDelegateWaterfallLayout, UIScrollViewDelegate, UIDocumentInteractionControllerDelegate {
     
+    var documentController:UIDocumentInteractionController!
     var detailsCellActionDelegate: DetailsCellActions?
     var outfits: [NSDictionary] = [NSDictionary]()
     
@@ -70,6 +71,7 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
     var pieceImagesScrollView: UIScrollView!
     var pageControl:UIPageControl!
     var totalHeaderHeight: CGFloat!
+    var pieceCoverURL: NSURL!
     
     let viewAllCommentsHeight:CGFloat = 40
     var commentRowButton: SprubixItemCommentRow!
@@ -203,6 +205,11 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
             var pieceImageView: UIImageView = UIImageView()
             pieceImageView.backgroundColor = sprubixGray
             pieceImageView.setImageWithURL(imageURL)
+
+            if i == 0 {
+                pieceCoverURL = NSURL(string: imageDict["original"] as! String)
+            }
+            
             pieceImageView.frame = CGRect(x: CGFloat(i) * screenWidth, y: 0, width: screenWidth, height: screenWidth)
             pieceImageView.contentMode = UIViewContentMode.ScaleAspectFit
             
@@ -546,10 +553,10 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         
         socialButtonsRow.addSubview(socialLabel)
         
-        // Facebook
         let socialButtonRow1Y: CGFloat = socialLabelY + socialLabelHeight - 3
         var socialButtonRow1: UIView = UIView(frame: CGRect(x: 0, y: socialButtonRow1Y, width: screenWidth, height: 44))
-        
+
+        // Facebook
         var socialImageFacebook = UIImage(named: "spruce-share-fb")
         var socialButtonFacebook: UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
         socialButtonFacebook.setImage(socialImageFacebook, forState: UIControlState.Normal)
@@ -562,10 +569,24 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         socialButtonFacebook.titleEdgeInsets = UIEdgeInsetsMake(10, 30, 10, 0)
         socialButtonFacebook.addTarget(self, action: "facebookTapped:", forControlEvents: UIControlEvents.TouchUpInside)
         
+        // Instagram
+        var socialImageInstagram = UIImage(named: "spruce-share-ig")
+        var socialButtonInstagram: UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+        socialButtonInstagram.setImage(socialImageInstagram, forState: UIControlState.Normal)
+        socialButtonInstagram.setTitle("Instagram", forState: UIControlState.Normal)
+        socialButtonInstagram.setTitleColor(UIColor.darkGrayColor(), forState: UIControlState.Normal)
+        socialButtonInstagram.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+        socialButtonInstagram.frame = CGRect(x: screenWidth/2, y: 10, width: screenWidth/2, height: 44)
+        socialButtonInstagram.contentHorizontalAlignment = UIControlContentHorizontalAlignment.Left
+        socialButtonInstagram.imageEdgeInsets = UIEdgeInsetsMake(3, 20, 3, 0)
+        socialButtonInstagram.titleEdgeInsets = UIEdgeInsetsMake(10, 30, 10, 0)
+        socialButtonInstagram.addTarget(self, action: "instagramTapped:", forControlEvents: UIControlEvents.TouchUpInside)
+        
         var socialButtonsLineTop = UIView(frame: CGRect(x: 0, y: 0, width: screenWidth, height: 2))
         socialButtonsLineTop.backgroundColor = UIColor(red: 244/255, green: 244/255, blue: 244/255, alpha: 1)
         
         socialButtonRow1.addSubview(socialButtonFacebook)
+        socialButtonRow1.addSubview(socialButtonInstagram)
         socialButtonsRow.addSubview(socialButtonRow1)
         socialButtonsRow.addSubview(socialButtonsLineTop)
         
@@ -1345,7 +1366,7 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
             var automatic: NSTimeInterval = 0
             
             // warning message
-            TSMessage.showNotificationInViewController(                        TSMessage.defaultViewController(), title: "Oops!", subtitle: "Please complete all fields before adding to cart.", image: nil, type: TSMessageNotificationType.Warning, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: true)
+            TSMessage.showNotificationInViewController(TSMessage.defaultViewController(), title: "Oops!", subtitle: "Please complete all fields before adding to cart.", image: nil, type: TSMessageNotificationType.Warning, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: true)
         }
     }
 
@@ -1485,6 +1506,72 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
             "Platform": "Facebook"
         ])
         // Mixpanel - End
+    }
+    
+    func instagramTapped(sender: UIButton) {
+        let instagramUrl = NSURL(string: "instagram://app")
+        if(UIApplication.sharedApplication().canOpenURL(instagramUrl!)){
+            
+            // calculate resized image for IG
+            var data = NSData(contentsOfURL: pieceCoverURL)
+            var pieceImage: UIImage = UIImage(data: data!)!
+            
+            var IGFrameWidth: CGFloat = 750.0
+            var IGFrameHeight: CGFloat = 750.0 //(IGFrameWidth / 4) * 5
+            var IGFrameSize: CGSize = CGSizeMake(IGFrameWidth, IGFrameHeight)
+            
+            // outfit height needs to be equal to IGFrameHeight
+            var realWidth: CGFloat = pieceImage.scale * pieceImage.size.width
+            var realHeight: CGFloat = pieceImage.scale * pieceImage.size.height
+            
+            var finalWidth: CGFloat = realWidth
+            var finalHeight: CGFloat = realHeight
+            
+            if realHeight > realWidth {
+                // if item's height is longer than its width
+                // height will be equal to IGFrameHeight
+                
+                finalHeight = IGFrameHeight
+                finalWidth = (realWidth / realHeight) * finalHeight
+            }
+            
+            UIGraphicsBeginImageContextWithOptions(IGFrameSize, false, 0.0) // avoid image quality degrading
+            
+            pieceImage.drawInRect(CGRectMake((IGFrameWidth - finalWidth)/2, (IGFrameHeight - finalHeight)/2, finalWidth, finalHeight))
+            
+            // final image
+            var finalImage: UIImage = UIGraphicsGetImageFromCurrentImageContext()
+            
+            UIGraphicsEndImageContext()
+            
+            //Instagram App avaible
+            let imageData = UIImageJPEGRepresentation(finalImage, 0.9)
+            let captionString = piece["description"] as! String
+            let writePath = NSTemporaryDirectory().stringByAppendingPathComponent("instagram.igo")
+            
+            if(!imageData.writeToFile(writePath, atomically: true)){
+                //Fail to write. Don't post it
+                return
+            } else{
+                //Safe to post
+                
+                let fileURL = NSURL(fileURLWithPath: writePath)
+                self.documentController = UIDocumentInteractionController(URL: fileURL!)
+                self.documentController.delegate = self
+                self.documentController.UTI = "com.instagram.exclusivegram"
+                self.documentController.annotation =  NSDictionary(object: captionString, forKey: "InstagramCaption")
+                
+                var view = navController!.view as UIView
+                
+                self.documentController.presentOpenInMenuFromRect(view.frame, inView: view, animated: true)
+            }
+        } else {
+            //Instagram App NOT avaible...
+            var automatic: NSTimeInterval = 0
+            
+            // warning message
+            TSMessage.showNotificationInViewController(TSMessage.defaultViewController(), title: "Oops!", subtitle: "Please install Instagram before sharing.", image: nil, type: TSMessageNotificationType.Warning, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: true)
+        }
     }
     
 }

@@ -23,7 +23,9 @@ protocol DetailsCellActions {
     optional func unlikedOutfit(outfitId: Int, itemIdentifier: String, receiver: NSDictionary)
 }
 
-class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewDataSource, UIGestureRecognizerDelegate, PieceInteractionProtocol {
+class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewDataSource, UIGestureRecognizerDelegate, PieceInteractionProtocol, UIDocumentInteractionControllerDelegate {
+    
+    var documentController:UIDocumentInteractionController!
     var delegate: DetailsCellActions?
     var selectedPieceDetail: NSDictionary?
     
@@ -111,6 +113,7 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
     
     // social button
     var socialButtonFacebook: UIButton!
+    var socialButtonInstagram: UIButton!
     
     // spruce button
     var spruceButton: UIButton!
@@ -658,10 +661,10 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
             
             socialCell.addSubview(socialLabel)
             
-            // Facebook
             let socialButtonRow1Y: CGFloat = socialLabelY + socialLabelHeight - 3
             var socialButtonRow1: UIView = UIView(frame: CGRect(x: 0, y: socialButtonRow1Y, width: screenWidth, height: 44))
             
+            // Facebook
             var socialImageFacebook = UIImage(named: "spruce-share-fb")
             
             socialButtonFacebook = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
@@ -675,7 +678,22 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
             socialButtonFacebook.titleEdgeInsets = UIEdgeInsetsMake(10, 30, 10, 0)
             socialButtonFacebook.addTarget(self, action: "facebookTapped:", forControlEvents: UIControlEvents.TouchUpInside)
             
+            // Instagram
+            var socialImageInstagram = UIImage(named: "spruce-share-ig")
+            
+            socialButtonInstagram = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+            socialButtonInstagram.setImage(socialImageInstagram, forState: UIControlState.Normal)
+            socialButtonInstagram.setTitle("Instagram", forState: UIControlState.Normal)
+            socialButtonInstagram.setTitleColor(UIColor.darkGrayColor(), forState: UIControlState.Normal)
+            socialButtonInstagram.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+            socialButtonInstagram.frame = CGRect(x: screenWidth/2, y: 10, width: screenWidth/2, height: 44)
+            socialButtonInstagram.contentHorizontalAlignment = UIControlContentHorizontalAlignment.Left
+            socialButtonInstagram.imageEdgeInsets = UIEdgeInsetsMake(3, 20, 3, 0)
+            socialButtonInstagram.titleEdgeInsets = UIEdgeInsetsMake(10, 30, 10, 0)
+            socialButtonInstagram.addTarget(self, action: "instagramTapped:", forControlEvents: UIControlEvents.TouchUpInside)
+            
             socialButtonRow1.addSubview(socialButtonFacebook)
+            socialButtonRow1.addSubview(socialButtonInstagram)
             socialCell.selectionStyle = UITableViewCellSelectionStyle.None
             socialCell.addSubview(socialButtonRow1)
             
@@ -2141,6 +2159,73 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
             "Platform": "Facebook"
         ])
         // Mixpanel - End
+    }
+    
+    func instagramTapped(sender: UIButton) {
+        let instagramUrl = NSURL(string: "instagram://app")
+        if(UIApplication.sharedApplication().canOpenURL(instagramUrl!)){
+            
+            // calculate resized image for IG
+            var outfitImagesString = outfit["images"] as! NSString
+            var outfitImagesData:NSData = outfitImagesString.dataUsingEncoding(NSUTF8StringEncoding)!
+            
+            var outfitImagesDict: NSDictionary = NSJSONSerialization.JSONObjectWithData(outfitImagesData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSDictionary
+            var outfitImageDict: NSDictionary = outfitImagesDict["images"] as! NSDictionary
+            
+            var imageURLString = outfitImageDict["original"] as! String
+            var imageURL = NSURL(string: imageURLString)
+            var data = NSData(contentsOfURL: imageURL!)
+            var outfitImage: UIImage = UIImage(data: data!)!
+            
+            // instagram now allows portrait of aspect ratios between 1.91:1 and 4:5
+            // e.g. width: 750px, height: 937.5px
+            var IGFrameWidth: CGFloat = 750.0
+            var IGFrameHeight: CGFloat = 750.0 //(IGFrameWidth / 4) * 5
+            var IGFrameSize: CGSize = CGSizeMake(IGFrameWidth, IGFrameHeight)
+            
+            // outfit height needs to be equal to IGFrameHeight
+            var realWidth: CGFloat = outfitImage.scale * outfitImage.size.width
+            var realHeight: CGFloat = outfitImage.scale * outfitImage.size.height
+            var finalHeight: CGFloat = IGFrameHeight
+            var finalWidth: CGFloat = (realWidth / realHeight) * finalHeight
+            
+            UIGraphicsBeginImageContextWithOptions(IGFrameSize, false, 0.0) // avoid image quality degrading
+            
+            outfitImage.drawInRect(CGRectMake((IGFrameWidth - finalWidth)/2, 0, finalWidth, finalHeight))
+            
+            // final image
+            var finalImage: UIImage = UIGraphicsGetImageFromCurrentImageContext()
+            
+            UIGraphicsEndImageContext()
+            
+            // Instagram App avaible
+            let imageData = UIImageJPEGRepresentation(finalImage, 0.9)
+            let captionString = outfit["description"] as! String
+            let writePath = NSTemporaryDirectory().stringByAppendingPathComponent("instagram.igo")
+            
+            if(!imageData.writeToFile(writePath, atomically: true)){
+                //Fail to write. Don't post it
+                return
+            } else{
+                //Safe to post
+                
+                let fileURL = NSURL(fileURLWithPath: writePath)
+                self.documentController = UIDocumentInteractionController(URL: fileURL!)
+                self.documentController.delegate = self
+                self.documentController.UTI = "com.instagram.exclusivegram"
+                self.documentController.annotation =  NSDictionary(object: captionString, forKey: "InstagramCaption")
+                
+                var view = navController!.view as UIView
+                
+                self.documentController.presentOpenInMenuFromRect(view.frame, inView: view, animated: true)
+            }
+        } else {
+            //Instagram App NOT avaible...
+            var automatic: NSTimeInterval = 0
+            
+            // warning message
+            TSMessage.showNotificationInViewController(TSMessage.defaultViewController(), title: "Oops!", subtitle: "Please install Instagram before sharing.", image: nil, type: TSMessageNotificationType.Warning, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: true)
+        }
     }
     
     func spruceButtonPressed(sender: UIButton) {
