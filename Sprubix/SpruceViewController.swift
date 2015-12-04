@@ -45,6 +45,8 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, SprucePieceF
     var searchButton: UIButton!
     var closetBarButton: UIBarButtonItem!
     var closetButton: UIButton!
+    var favoritesBarButton: UIBarButtonItem!
+    var favoritesButton: UIButton!
     var addPieceBarButton: UIBarButtonItem!
     var addPieceButton: UIButton!
     
@@ -81,7 +83,6 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, SprucePieceF
     }
     
     func closetSelection(sender: AnyObject) {
-        // SpruceSearchResultsViewController 
         let myClosetViewController = MyClosetViewController()
         myClosetViewController.delegate = self
         
@@ -100,6 +101,29 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, SprucePieceF
         mixpanel.track("Use Closet", properties: [
             "Type": "Spruce"
         ])
+        // Mixpanel - End
+    }
+    
+    func favoritesSelection(sender: AnyObject) {
+        let myClosetViewController = MyClosetViewController()
+        myClosetViewController.delegate = self
+        myClosetViewController.favoritesView = true
+        
+        self.navigationController?.delegate = nil
+        
+        let transition = CATransition()
+        transition.duration = 0.3
+        transition.type = kCATransitionMoveIn
+        transition.subtype = kCATransitionFromTop
+        transition.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
+        
+        self.navigationController?.view.layer.addAnimation(transition, forKey: kCATransition)
+        self.navigationController?.pushViewController(myClosetViewController, animated: false)
+        
+        // Mixpanel - Use Closet, Spruce
+        mixpanel.track("Use Favorites", properties: [
+            "Type": "Spruce"
+            ])
         // Mixpanel - End
     }
     
@@ -212,9 +236,21 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, SprucePieceF
         closetButton.tintColor = UIColor.lightGrayColor()
         closetButton.contentMode = UIViewContentMode.ScaleAspectFit
         closetButton.addTarget(self, action: "closetSelection:", forControlEvents: UIControlEvents.TouchUpInside)
-        closetButton.imageEdgeInsets = UIEdgeInsetsMake(0, -2, 2, 0)
+        closetButton.imageEdgeInsets = UIEdgeInsetsMake(-4, -2, 2, 0)
         
         closetBarButton = UIBarButtonItem(customView: closetButton)
+        
+        // my favorites
+        favoritesButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
+        favoritesButton.frame = CGRect(x: 0, y: 0, width: 35, height: 35)
+        image = UIImage(named: "sidemenu-likes")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
+        favoritesButton.setImage(image, forState: UIControlState.Normal)
+        favoritesButton.tintColor = UIColor.lightGrayColor()
+        favoritesButton.contentMode = UIViewContentMode.ScaleAspectFit
+        favoritesButton.addTarget(self, action: "favoritesSelection:", forControlEvents: UIControlEvents.TouchUpInside)
+        favoritesButton.imageEdgeInsets = UIEdgeInsetsMake(1, 0, 0, 0)
+        
+        favoritesBarButton = UIBarButtonItem(customView: favoritesButton)
         
         // add piece
         addPieceButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
@@ -224,13 +260,14 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, SprucePieceF
         addPieceButton.tintColor = UIColor.lightGrayColor()
         addPieceButton.contentMode = UIViewContentMode.ScaleAspectFit
         addPieceButton.addTarget(self, action: "addPiece:", forControlEvents: UIControlEvents.TouchUpInside)
+        addPieceButton.imageEdgeInsets = UIEdgeInsetsMake(0, 0, 2, 0)
         
         addPieceBarButton = UIBarButtonItem(customView: addPieceButton)
         
         // flexible space
         let flexibleSpace: UIBarButtonItem = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.FlexibleSpace, target: self, action: nil)
         
-        spruceToolbar.setItems([trashPieceBarButton, flexibleSpace, searchBarButton, closetBarButton, addPieceBarButton], animated: true)
+        spruceToolbar.setItems([trashPieceBarButton, flexibleSpace, searchBarButton, closetBarButton, favoritesBarButton,  addPieceBarButton], animated: true)
         
         view.addSubview(spruceToolbar)
         

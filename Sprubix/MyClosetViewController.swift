@@ -34,6 +34,13 @@ class MyClosetViewController: UIViewController, UICollectionViewDataSource,  CHT
     
     var selectedPieces: [NSDictionary] = [NSDictionary]()
     var selectedPieceIds: NSMutableArray = NSMutableArray()
+    var favoritesView: Bool = false
+    
+    // liked
+    var likedOutfits:[NSDictionary] = [NSDictionary]()
+    var likedPieces:[NSDictionary] = [NSDictionary]()
+    var likedOutfitIds: [String]! = [String]()
+    var likedPieceIds: [String]! = [String]()
     
     // custom nav bar
     var newNavBar:UINavigationBar!
@@ -49,8 +56,12 @@ class MyClosetViewController: UIViewController, UICollectionViewDataSource,  CHT
         initToolbar()
         initCollectionView()
         
-        // retrieve user pieces
-        retrieveUserPieces()
+        if !favoritesView {
+            // retrieve user pieces
+            retrieveUserPieces()
+        } else {
+            retrieveFavorites()
+        }
     }
     
     override func viewWillAppear(animated: Bool) {
@@ -64,7 +75,11 @@ class MyClosetViewController: UIViewController, UICollectionViewDataSource,  CHT
         
         // infinite scrolling
         resultsCollectionView.addInfiniteScrollingWithActionHandler({
-            self.insertMorePieces()
+            if !self.favoritesView {
+                self.insertMorePieces()
+            } else {
+                self.insertMoreLikedPieces()
+            }
         })
     }
     
@@ -82,7 +97,7 @@ class MyClosetViewController: UIViewController, UICollectionViewDataSource,  CHT
         
         // 3. add a new navigation item w/title to the new nav bar
         newNavItem = UINavigationItem()
-        newNavItem.title = "My Closet"
+        newNavItem.title = !favoritesView ? "My Closet" : "Favorites"
         
         // 4. create a custom back button
         var backButton:UIButton = UIButton.buttonWithType(UIButtonType.Custom) as! UIButton
@@ -299,7 +314,145 @@ class MyClosetViewController: UIViewController, UICollectionViewDataSource,  CHT
             selectedPieceTypes[pieceType] = false
         }
         
-        retrieveUserPieces()
+        if !favoritesView {
+            retrieveUserPieces()
+        } else {
+            if likedPieceIds.count <= 0 {
+                retrieveFavorites()
+            } else {
+                retrieveLikedPieces()
+            }
+        }
+    }
+    
+    func retrieveFavorites() {
+        // retrieve from poutfit identifiers from firebase first
+        // then retrieve the complete data from kindling
+        let userData: NSDictionary? = defaults.dictionaryForKey("userData")
+        
+        if userData != nil {
+            activityView.startAnimating()
+            
+            let username = userData!["username"] as! String
+            let userLikesRef = firebaseRef.childByAppendingPath("users/\(username)/likes")
+            
+            // oldest at index 0
+            userLikesRef.queryOrderedByChild("created_at").observeSingleEventOfType(.Value, withBlock: { snapshot in
+                if (snapshot.value as? NSNull) != nil {
+                    // does not exist
+                    println("Firebase snapshot for \'users/\(username)/likes\' does not exist")
+                    
+                    self.activityView.stopAnimating()
+                } else {
+                    let likedItems = snapshot.value as! NSDictionary
+                    
+                    for (key, value) in likedItems {
+                        let likedItem = value as! NSDictionary
+                        let poutfitIdentifier = likedItem["poutfit"] as! String
+                        
+                        let poutfitData = split(poutfitIdentifier) {$0 == "_"}
+                        let poutfitType = poutfitData[0]
+                        let poutfitId = poutfitData[1]
+                        
+                        switch poutfitType {
+                        case "outfit":
+                            self.likedOutfitIds.insert(poutfitId, atIndex: 0)
+                        case "piece":
+                            self.likedPieceIds.insert(poutfitId, atIndex: 0)
+                        default:
+                            fatalError("Error: Unknown poutfitType.")
+                        }
+                    }
+                    
+                    self.retrieveLikedPieces()
+                    self.activityView?.stopAnimating()
+                }
+            })
+            
+        } else {
+            println("userData not found, please login or create an account")
+        }
+    }
+    
+    private func retrieveLikedPieces() {
+        var types: [String] = [String]()
+        
+        for (key, value) in selectedPieceTypes {
+            if value == true {
+                types.append(key)
+            }
+        }
+        
+        activityView.startAnimating()
+        
+        manager.POST(SprubixConfig.URL.api + "/pieces/ids",
+            parameters: [
+                "ids": likedPieceIds,
+                "types": types
+            ],
+            success: { (operation: AFHTTPRequestOperation!, responseObject:
+                AnyObject!) in
+                
+                self.results = responseObject["data"] as! [NSDictionary]
+                self.currentPage = responseObject["current_page"] as! Int
+                self.lastPage = responseObject["last_page"] as! Int
+                
+                self.resultsCollectionView.reloadData()
+                self.activityView.stopAnimating()
+            },
+            failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                println("Error: " + error.localizedDescription)
+                
+                self.activityView.stopAnimating()
+        })
+    }
+    
+    func insertMoreLikedPieces() {
+        if currentPage < lastPage {
+            var types: [String] = [String]()
+            
+            for (key, value) in selectedPieceTypes {
+                if value == true {
+                    types.append(key)
+                }
+            }
+            
+            let nextPage = currentPage + 1
+            
+            manager.POST(SprubixConfig.URL.api + "/pieces/ids?page=\(nextPage)",
+                parameters: [
+                    "ids": likedPieceIds,
+                    "types": types
+                ],
+                success: { (operation: AFHTTPRequestOperation!, responseObject:
+                    AnyObject!) in
+                    
+                    let morePieces = responseObject["data"] as! [NSDictionary]
+                    
+                    for morePieces in morePieces {
+                        self.results.append(morePieces)
+                        
+                        self.resultsCollectionView.insertItemsAtIndexPaths([NSIndexPath(forItem: self.results.count - 1, inSection: 0)])
+                    }
+                    
+                    self.currentPage = nextPage
+                    
+                    if self.resultsCollectionView.infiniteScrollingView != nil {
+                        self.resultsCollectionView.infiniteScrollingView.stopAnimating()
+                    }
+                },
+                failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
+                    println("Error: " + error.localizedDescription)
+                    
+                    if self.resultsCollectionView.infiniteScrollingView != nil {
+                        self.resultsCollectionView.infiniteScrollingView.stopAnimating()
+                    }
+            })
+        } else {
+            if self.resultsCollectionView.infiniteScrollingView != nil {
+                self.resultsCollectionView.infiniteScrollingView.stopAnimating()
+            }
+        }
     }
     
     func retrieveUserPieces() {
@@ -334,6 +487,8 @@ class MyClosetViewController: UIViewController, UICollectionViewDataSource,  CHT
                 },
                 failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                     println("Error: " + error.localizedDescription)
+                    
+                    self.activityView.stopAnimating()
             })
         } else {
             println("userId not found, please login or create an account")
@@ -362,10 +517,10 @@ class MyClosetViewController: UIViewController, UICollectionViewDataSource,  CHT
                     ],
                     success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
                         
-                        let moreOutfits = responseObject["data"] as! [NSDictionary]
+                        let morePieces = responseObject["data"] as! [NSDictionary]
                         
-                        for moreOutfit in moreOutfits {
-                            self.results.append(moreOutfit)
+                        for morePieces in morePieces {
+                            self.results.append(morePieces)
                             
                             self.resultsCollectionView.insertItemsAtIndexPaths([NSIndexPath(forItem: self.results.count - 1, inSection: 0)])
                         }
@@ -378,9 +533,17 @@ class MyClosetViewController: UIViewController, UICollectionViewDataSource,  CHT
                     },
                     failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                         println("Error: " + error.localizedDescription)
+                        
+                        if self.resultsCollectionView.infiniteScrollingView != nil {
+                            self.resultsCollectionView.infiniteScrollingView.stopAnimating()
+                        }
                 })
             } else {
                 println("userId not found, please login or create an account")
+                
+                if self.resultsCollectionView.infiniteScrollingView != nil {
+                    self.resultsCollectionView.infiniteScrollingView.stopAnimating()
+                }
             }
         } else {
             if self.resultsCollectionView.infiniteScrollingView != nil {

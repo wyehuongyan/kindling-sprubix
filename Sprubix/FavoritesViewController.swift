@@ -653,7 +653,7 @@ class FavoritesViewController: UIViewController, DZNEmptyDataSetSource, DZNEmpty
                 for morePiece in morePieces {
                     self.likedPieces.append(morePiece)
                     
-                    self.likedCollectionView.insertItemsAtIndexPaths([NSIndexPath(forItem: self.likedOutfits.count - 1, inSection: 0)])
+                    self.likedCollectionView.insertItemsAtIndexPaths([NSIndexPath(forItem: self.likedPieces.count - 1, inSection: 0)])
                 }
                 
                 self.currentPage = nextPage
