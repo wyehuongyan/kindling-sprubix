@@ -9,6 +9,7 @@
 import UIKit
 import QuartzCore
 import JDFTooltips
+import TSMessages
 
 protocol SpruceViewProtocol {
     func dismissSpruceView()
@@ -884,62 +885,78 @@ class SpruceViewController: UIViewController, UIScrollViewDelegate, SprucePieceF
         var totalHeight: CGFloat = 0
         var width: CGFloat = screenWidth
         var sprucedPieces: [NSDictionary] = [NSDictionary]()
+        var error: Bool = false
         
         // calculate totalHeight
         for childController in childControllers {
             let currentVisibleCell = childController.currentVisibleCell as SprucePieceFeedCell
             
             if currentVisibleCell.compressedDueToDress != true {
-                var image = currentVisibleCell.pieceImageView.image!
-                images.append(image)
+                var image = currentVisibleCell.pieceImageView.image
                 
-                var piece = currentVisibleCell.piece
-                sprucedPieces.append(piece)
-                
-                var newImageHeight = image.size.height * width / image.size.width
-                totalHeight += newImageHeight
+                if image != nil {
+                    images.append(image!)
+                    
+                    var piece = currentVisibleCell.piece
+                    sprucedPieces.append(piece)
+                    
+                    var newImageHeight = image!.size.height * width / image!.size.width
+                    totalHeight += newImageHeight
+                } else {
+                    error = true
+                }
             }
         }
         
-        // create the merged image
-        var size:CGSize = CGSizeMake(width, totalHeight)
-        var prevHeight:CGFloat = 0
-        
-        UIGraphicsBeginImageContextWithOptions(size, false, 0.0) // avoid image quality degrading
-        
-        for image in images {
-            var pieceHeight = image.size.height * screenWidth / image.size.width
+        if !error {
+            // create the merged image
+            var size:CGSize = CGSizeMake(width, totalHeight)
+            var prevHeight:CGFloat = 0
             
-            image.drawInRect(CGRectMake(0, prevHeight, size.width, pieceHeight))
+            UIGraphicsBeginImageContextWithOptions(size, false, 0.0) // avoid image quality degrading
             
-            prevHeight += pieceHeight
+            for image in images {
+                var pieceHeight = image.size.height * screenWidth / image.size.width
+                
+                image.drawInRect(CGRectMake(0, prevHeight, size.width, pieceHeight))
+                
+                prevHeight += pieceHeight
+            }
+            
+            // final image
+            var finalImage:UIImage = UIGraphicsGetImageFromCurrentImageContext()
+            
+            UIGraphicsEndImageContext()
+            
+            // set SpruceShareViewController's outfitImageView image to be finalImage
+            let spruceShareViewController = SpruceShareViewController()
+            
+            spruceShareViewController.outfitImageView.frame = CGRect(x: 0, y: 0, width: screenWidth, height: screenWidth / 0.75)
+            spruceShareViewController.outfitImageView.image = finalImage
+            
+            spruceShareViewController.userIdFrom = userIdFrom
+            spruceShareViewController.usernameFrom = usernameFrom
+            spruceShareViewController.userThumbnailFrom = userThumbnailFrom
+            spruceShareViewController.pieces = sprucedPieces
+            spruceShareViewController.numPieces = images.count
+            
+            self.navigationController?.pushViewController(spruceShareViewController, animated: true)
+            
+            // Mixpanel - Create Outfit Share, Closet, Outfit
+            mixpanel.track("Create Outfit Share", properties: [
+                "Method": "Closet",
+                "Type" : "Outfit"
+            ])
+            // Mixpanel - End
+        } else {
+            var errorTitle: String = "Something's Wrong"
+            var errorMessage: String = "We're unable to load your content right now."
+            var notificationType: TSMessageNotificationType = TSMessageNotificationType.Warning
+            var automatic: NSTimeInterval = 2
+            
+            // warning message
+            TSMessage.showNotificationInViewController(TSMessage.defaultViewController(), title: errorTitle, subtitle: errorMessage, image: nil, type: notificationType, duration: automatic, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: TSMessageNotificationPosition.Bottom, canBeDismissedByUser: false)
         }
-        
-        // final image
-        var finalImage:UIImage = UIGraphicsGetImageFromCurrentImageContext()
-        
-        UIGraphicsEndImageContext()
-        
-        // set SpruceShareViewController's outfitImageView image to be finalImage
-        let spruceShareViewController = SpruceShareViewController()
-        
-        spruceShareViewController.outfitImageView.frame = CGRect(x: 0, y: 0, width: screenWidth, height: screenWidth / 0.75)
-        spruceShareViewController.outfitImageView.image = finalImage
-        
-        spruceShareViewController.userIdFrom = userIdFrom
-        spruceShareViewController.usernameFrom = usernameFrom
-        spruceShareViewController.userThumbnailFrom = userThumbnailFrom
-        spruceShareViewController.pieces = sprucedPieces
-        spruceShareViewController.numPieces = images.count
-        
-        self.navigationController?.pushViewController(spruceShareViewController, animated: true)
-        
-        // Mixpanel - Create Outfit Share, Closet, Outfit
-        mixpanel.track("Create Outfit Share", properties: [
-            "Method": "Closet",
-            "Type" : "Outfit"
-        ])
-        // Mixpanel - End
     }
 }
 

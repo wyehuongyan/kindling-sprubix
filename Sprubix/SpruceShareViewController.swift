@@ -541,6 +541,8 @@ class SpruceShareViewController: UIViewController, UITableViewDelegate, UITableV
                     "Status": "Fail"
                 ])
                 // Mixpanel - End
+                
+                SprubixReachability.handleError(error.code)
             })
             
             // upload progress

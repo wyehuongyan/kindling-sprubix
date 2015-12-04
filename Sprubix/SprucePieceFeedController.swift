@@ -477,6 +477,8 @@ class SprucePieceFeedController: UICollectionViewController, UICollectionViewDel
                     },
                     failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                         println("Error: " + error.localizedDescription)
+                        
+                        SprubixReachability.handleError(error.code)
                 })
                 
             } else {
@@ -519,6 +521,8 @@ class SprucePieceFeedController: UICollectionViewController, UICollectionViewDel
                     },
                     failure: { (operation: AFHTTPRequestOperation!, error: NSError!) in
                         println("Error: " + error.localizedDescription)
+                        
+                        SprubixReachability.handleError(error.code)
                 })
             }
         } else {
