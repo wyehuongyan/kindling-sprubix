@@ -2203,21 +2203,32 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
             let captionString = outfit["description"] as! String
             let writePath = NSTemporaryDirectory().stringByAppendingPathComponent("instagram.igo")
             
+            // copy description to clipboard
+            UIPasteboard.generalPasteboard().string = captionString != "" ? captionString + " @sprubix #sprubix" : "@sprubix #sprubix"
+            
             if(!imageData.writeToFile(writePath, atomically: true)){
                 //Fail to write. Don't post it
                 return
             } else{
                 //Safe to post
+                var alert = UIAlertController(title: "Ready for Instagram", message: "The description has been copied to your clipboard!", preferredStyle: UIAlertControllerStyle.Alert)
+                alert.view.tintColor = sprubixColor
                 
-                let fileURL = NSURL(fileURLWithPath: writePath)
-                self.documentController = UIDocumentInteractionController(URL: fileURL!)
-                self.documentController.delegate = self
-                self.documentController.UTI = "com.instagram.exclusivegram"
-                self.documentController.annotation =  NSDictionary(object: captionString, forKey: "InstagramCaption")
+                // Yes
+                alert.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Cancel, handler: { action in
+                    
+                    let fileURL = NSURL(fileURLWithPath: writePath)
+                    self.documentController = UIDocumentInteractionController(URL: fileURL!)
+                    self.documentController.delegate = self
+                    self.documentController.UTI = "com.instagram.exclusivegram"
+                    self.documentController.annotation =  NSDictionary(object: captionString, forKey: "InstagramCaption")
+                    
+                    var view = self.navController!.view as UIView
+                    
+                    self.documentController.presentOpenInMenuFromRect(view.frame, inView: view, animated: true)
+                }))
                 
-                var view = navController!.view as UIView
-                
-                self.documentController.presentOpenInMenuFromRect(view.frame, inView: view, animated: true)
+                self.navController!.presentViewController(alert, animated: true, completion: nil)
             }
         } else {
             //Instagram App NOT avaible...
