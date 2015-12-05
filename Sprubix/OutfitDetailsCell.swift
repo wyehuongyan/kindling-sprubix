@@ -2226,6 +2226,13 @@ class OutfitDetailsCell: UICollectionViewCell, UITableViewDelegate, UITableViewD
                     var view = self.navController!.view as UIView
                     
                     self.documentController.presentOpenInMenuFromRect(view.frame, inView: view, animated: true)
+                    
+                    // Mixpanel - Share, Instagram
+                    mixpanel.track("Share", properties: [
+                        "Type": "Outfit",
+                        "Platform": "Instagram"
+                        ])
+                    // Mixpanel - End
                 }))
                 
                 self.navController!.presentViewController(alert, animated: true, completion: nil)

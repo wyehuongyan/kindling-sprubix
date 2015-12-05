@@ -1572,6 +1572,13 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
                     var view = self.navController!.view as UIView
                     
                     self.documentController.presentOpenInMenuFromRect(view.frame, inView: view, animated: true)
+                    
+                    // Mixpanel - Share, Instagram
+                    mixpanel.track("Share", properties: [
+                        "Type": "Piece",
+                        "Platform": "Instagram"
+                        ])
+                    // Mixpanel - End
                 }))
                 
                 self.navController!.presentViewController(alert, animated: true, completion: nil)
