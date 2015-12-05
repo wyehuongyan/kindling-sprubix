@@ -578,8 +578,8 @@ class PieceDetailsCell: UICollectionViewCell, UICollectionViewDataSource, UIColl
         socialButtonInstagram.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
         socialButtonInstagram.frame = CGRect(x: screenWidth/2, y: 10, width: screenWidth/2, height: 44)
         socialButtonInstagram.contentHorizontalAlignment = UIControlContentHorizontalAlignment.Left
-        socialButtonInstagram.imageEdgeInsets = UIEdgeInsetsMake(3, 20, 3, 0)
-        socialButtonInstagram.titleEdgeInsets = UIEdgeInsetsMake(10, 30, 10, 0)
+        socialButtonInstagram.imageEdgeInsets = UIEdgeInsetsMake(3, 10, 3, 0)
+        socialButtonInstagram.titleEdgeInsets = UIEdgeInsetsMake(10, 20, 10, 0)
         socialButtonInstagram.addTarget(self, action: "instagramTapped:", forControlEvents: UIControlEvents.TouchUpInside)
         
         var socialButtonsLineTop = UIView(frame: CGRect(x: 0, y: 0, width: screenWidth, height: 2))
