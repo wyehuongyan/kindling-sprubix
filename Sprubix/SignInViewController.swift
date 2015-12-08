@@ -822,7 +822,7 @@ class SignInViewController: UIViewController, UITableViewDataSource, UITableView
             valid = false
         }
         else if currentCreateAccountState == CreateAccountState.Signup && !self.isValidUsername(userNameText.text) {
-            message += "Only alphabets, numbers, underscores and periods are allowed (max 30 characters)\n"
+            message += "Only alphabets, numbers and underscores are allowed (max 30 characters)\n"
             valid = false
         }
         
@@ -862,7 +862,7 @@ class SignInViewController: UIViewController, UITableViewDataSource, UITableView
     }
     
     func isValidUsername(testStr:String) -> Bool {
-        let usernameRegEx = "^[A-Z0-9a-z._]{1,30}$"
+        let usernameRegEx = "^[A-Z0-9a-z_]{1,30}$"
         
         let usernameTest = NSPredicate(format:"SELF MATCHES %@", usernameRegEx)
         
