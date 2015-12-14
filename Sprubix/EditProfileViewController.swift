@@ -202,13 +202,15 @@ class EditProfileViewController: UITableViewController, UITextViewDelegate, UIIm
     
     func initPhotoLibrary() {
         // initialized permissions
-        photoPscope.addPermission(PermissionConfig(type: .Photos, demands: .Required, message: "We need this so you can import\r\nawesome pictures of your items!", notificationCategories: .None))
-        
-        photoPscope.tintColor = sprubixColor
-        photoPscope.headerLabel.text = "Hey there,"
-        photoPscope.headerLabel.textColor = UIColor.darkGrayColor()
-        photoPscope.bodyLabel.textColor = UIColor.lightGrayColor()
-        
+        dispatch_async(dispatch_get_main_queue(), {
+            self.photoPscope.addPermission(PermissionConfig(type: .Photos, demands: .Required, message: "We need this so you can import\r\nawesome pictures of your items!", notificationCategories: .None))
+            
+            self.photoPscope.tintColor = sprubixColor
+            self.photoPscope.headerLabel.text = "Hey there,"
+            self.photoPscope.headerLabel.textColor = UIColor.darkGrayColor()
+            self.photoPscope.bodyLabel.textColor = UIColor.lightGrayColor()
+        })
+            
         imagePicker.delegate = self
         imagePicker.navigationBar.translucent = true
         imagePicker.navigationBar.barTintColor = sprubixGray

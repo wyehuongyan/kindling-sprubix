@@ -14,8 +14,9 @@ class SprucePieceFeedCell: UICollectionViewCell {
     var compressedDueToDress: Bool!
     
     var userThumbnail: UIImageView!
-    var userRealNameLabel: UILabel!
-    var usernameLabel: UILabel!
+    //var userRealNameLabel: UILabel!
+    //var usernameLabel: UILabel!
+    var priceLabel: UILabel!
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -50,6 +51,20 @@ class SprucePieceFeedCell: UICollectionViewCell {
         
         contentView.addSubview(userRealNameLabel)
         */
+        
+        // price label
+        let padding: CGFloat = 10
+        let priceLabelHeight: CGFloat = 35
+        priceLabel = UILabel()
+        priceLabel.textAlignment = NSTextAlignment.Center
+        priceLabel.font = UIFont.boldSystemFontOfSize(18.0)
+        priceLabel.layer.cornerRadius = priceLabelHeight / 2
+        priceLabel.clipsToBounds = true
+        priceLabel.textColor = UIColor.whiteColor()
+        priceLabel.backgroundColor = sprubixColor
+        priceLabel.alpha = 0.0
+
+        contentView.addSubview(priceLabel)
     }
 
     required init(coder aDecoder: NSCoder) {

@@ -200,6 +200,7 @@ class UserFollowListViewController: UIViewController, UITableViewDataSource, UIT
         let userImageURL = NSURL(string: user["image"] as! String)
         let userId = user["id"] as! Int
         let shoppableType: String? = user["shoppable_type"] as? String
+        let currentUserId:Int? = defaults.objectForKey("userId") as? Int
         
         var cell: UITableViewCell!
         
@@ -226,6 +227,14 @@ class UserFollowListViewController: UIViewController, UITableViewDataSource, UIT
             (cell as! UserFollowListCell).followed = user["followed"] as! Bool
             (cell as! UserFollowListCell).initFollowButton()
             
+            // users should not be able to unfollow themselves
+            if currentUserId != nil && currentUserId! == userId {
+                // myself
+                (cell as! UserFollowListCell).followButton.alpha = 0.0
+            } else {
+                (cell as! UserFollowListCell).followButton.alpha = 1.0
+            }
+            
             (cell as! UserFollowListCell).delegate = self
             
         } else {
@@ -249,6 +258,14 @@ class UserFollowListViewController: UIViewController, UITableViewDataSource, UIT
             
             (cell as! UserFollowListUNCell).followed = user["followed"] as! Bool
             (cell as! UserFollowListUNCell).initFollowButton()
+            
+            // users should not be able to unfollow themselves
+            if currentUserId != nil && currentUserId! == userId {
+                // myself
+                (cell as! UserFollowListCell).followButton.alpha = 0.0
+            } else {
+                (cell as! UserFollowListCell).followButton.alpha = 1.0
+            }
             
             (cell as! UserFollowListUNCell).delegate = self
         }

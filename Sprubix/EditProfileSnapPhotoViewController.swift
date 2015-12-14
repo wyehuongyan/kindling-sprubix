@@ -38,14 +38,16 @@ class EditProfileSnapPhotoViewController: UIViewController, SprubixCameraDelegat
         
         view.backgroundColor = UIColor.whiteColor()
         
-        // initialized permissions
-        cameraPscope.addPermission(PermissionConfig(type: .Camera, demands: .Required, message: "We need this so you can snap\r\nawesome pictures of your items!", notificationCategories: .None))
-        
-        cameraPscope.tintColor = sprubixColor
-        cameraPscope.headerLabel.text = "Hey there,"
-        cameraPscope.headerLabel.textColor = UIColor.darkGrayColor()
-        cameraPscope.bodyLabel.textColor = UIColor.lightGrayColor()
-        
+        dispatch_async(dispatch_get_main_queue(), {
+            // initialized permissions
+            self.cameraPscope.addPermission(PermissionConfig(type: .Camera, demands: .Required, message: "We need this so you can snap\r\nawesome pictures of your items!", notificationCategories: .None))
+            
+            self.cameraPscope.tintColor = sprubixColor
+            self.cameraPscope.headerLabel.text = "Hey there,"
+            self.cameraPscope.headerLabel.textColor = UIColor.darkGrayColor()
+            self.cameraPscope.bodyLabel.textColor = UIColor.lightGrayColor()
+        })
+            
         initButtons()
     }
     

@@ -87,19 +87,21 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
         view.backgroundColor = UIColor.whiteColor()
         
         // initialized permissions
-        cameraPscope.addPermission(PermissionConfig(type: .Camera, demands: .Required, message: "We need this so you can snap\r\nawesome pictures of your items!", notificationCategories: .None))
-        
-        cameraPscope.tintColor = sprubixColor
-        cameraPscope.headerLabel.text = "Hey there,"
-        cameraPscope.headerLabel.textColor = UIColor.darkGrayColor()
-        cameraPscope.bodyLabel.textColor = UIColor.lightGrayColor()
-        
-        photoPscope.addPermission(PermissionConfig(type: .Photos, demands: .Required, message: "We need this so you can import\r\nawesome pictures of your items!", notificationCategories: .None))
-        
-        photoPscope.tintColor = sprubixColor
-        photoPscope.headerLabel.text = "Hey there,"
-        photoPscope.headerLabel.textColor = UIColor.darkGrayColor()
-        photoPscope.bodyLabel.textColor = UIColor.lightGrayColor()
+        dispatch_async(dispatch_get_main_queue(), {
+            self.cameraPscope.addPermission(PermissionConfig(type: .Camera, demands: .Required, message: "We need this so you can snap\r\nawesome pictures of your items!", notificationCategories: .None))
+            
+            self.cameraPscope.tintColor = sprubixColor
+            self.cameraPscope.headerLabel.text = "Hey there,"
+            self.cameraPscope.headerLabel.textColor = UIColor.darkGrayColor()
+            self.cameraPscope.bodyLabel.textColor = UIColor.lightGrayColor()
+            
+            self.photoPscope.addPermission(PermissionConfig(type: .Photos, demands: .Required, message: "We need this so you can import\r\nawesome pictures of your items!", notificationCategories: .None))
+            
+            self.photoPscope.tintColor = sprubixColor
+            self.photoPscope.headerLabel.text = "Hey there,"
+            self.photoPscope.headerLabel.textColor = UIColor.darkGrayColor()
+            self.photoPscope.bodyLabel.textColor = UIColor.lightGrayColor()
+        })
         
         initPieceSelector()
     }

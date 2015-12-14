@@ -17,7 +17,7 @@ enum ProfileState {
     case Community
 }
 
-class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataSetDelegate, UICollectionViewDataSource, CHTCollectionViewDelegateWaterfallLayout, TransitionProtocol, UserProfileHeaderDelegate, EditProfileProtocol {
+class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmptyDataSetDelegate, UICollectionViewDataSource, CHTCollectionViewDelegateWaterfallLayout, TransitionProtocol, UserProfileHeaderDelegate, EditProfileProtocol, PieceInteractionProtocol {
     
     var user: NSDictionary?
     
@@ -439,6 +439,7 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
             let pieceDetailsViewController = PieceDetailsViewController(collectionViewLayout: detailsViewControllerLayout(), currentIndexPath:indexPath)
             pieceDetailsViewController.pieces = pieces
             pieceDetailsViewController.user = user
+            pieceDetailsViewController.pieceInteractionDelegate = self
             
             collectionView.setToIndexPath(indexPath)
             
@@ -1025,6 +1026,296 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
         case .Community:
             communityLoaded = false
             loadCommunityOutfits()
+        }
+    }
+    
+    // PieceInteractionProtocol
+    func likedPiece(piece: NSDictionary) {
+        // needed:
+        // // pieceId, thumbnailURLString, itemIdentifier, receiver
+        
+        let userData: NSDictionary? = defaults.dictionaryForKey("userData")
+        
+        if userData != nil {
+            let pieceId = piece["id"] as! Int
+            let receiver = piece["user"] as! NSDictionary
+            let pieceImagesString = piece["images"] as! NSString
+            let pieceImagesData:NSData = pieceImagesString.dataUsingEncoding(NSUTF8StringEncoding)!
+            
+            let pieceImagesDict: NSDictionary = NSJSONSerialization.JSONObjectWithData(pieceImagesData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSDictionary
+            let pieceImageDict: NSDictionary = (pieceImagesDict["images"] as! NSArray)[0] as! NSDictionary // position 0 is the cover
+            
+            let thumbnailURLString = pieceImageDict["thumbnail"] as! String
+            let itemIdentifier = "piece_\(pieceId)"
+            
+            // firebase collections: users, likes, poutfits and notifications
+            let likesRef = firebaseRef.childByAppendingPath("likes")
+            let notificationsRef = firebaseRef.childByAppendingPath("notifications")
+            let poutfitsRef = firebaseRef.childByAppendingPath("poutfits")
+            let poutfitLikesRef = poutfitsRef.childByAppendingPath("\(itemIdentifier)/likes")
+            
+            let senderUsername = userData!["username"] as! String
+            let senderImage = userData!["image"] as! String
+            let receiverUsername = receiver["username"] as! String
+            let poutfitRef = firebaseRef.childByAppendingPath("poutfits/\(itemIdentifier)")
+            let poutfitLikesUserRef = poutfitLikesRef.childByAppendingPath(senderUsername)
+            
+            let receiverUserNotificationsRef = firebaseRef.childByAppendingPath("users/\(receiverUsername)/notifications")
+            let senderLikesRef = firebaseRef.childByAppendingPath("users/\(senderUsername)/likes")
+            
+            let createdAt = timestamp
+            
+            // check if user has already liked this piece
+            poutfitLikesUserRef.observeSingleEventOfType(.Value, withBlock: {
+                snapshot in
+                
+                if (snapshot.value as? NSNull) != nil {
+                    // does not exist, add it
+                    let likeRef = likesRef.childByAutoId()
+                    
+                    let like = [
+                        "author": senderUsername, // yourself
+                        "created_at": createdAt,
+                        "poutfit": itemIdentifier
+                    ]
+                    
+                    likeRef.setValue(like, withCompletionBlock: {
+                        (error:NSError?, ref:Firebase!) in
+                        
+                        if (error != nil) {
+                            println("Error: Like could not be added.")
+                        } else {
+                            // like added successfully
+                            
+                            // update poutfitRef num of likes
+                            let poutfitLikeCountRef = poutfitRef.childByAppendingPath("num_likes")
+                            
+                            poutfitLikeCountRef.runTransactionBlock({
+                                (currentData:FMutableData!) in
+                                
+                                var value = currentData.value as? Int
+                                
+                                if value == nil {
+                                    value = 0
+                                }
+                                
+                                currentData.value = value! + 1
+                                
+                                return FTransactionResult.successWithValue(currentData)
+                            })
+                            
+                            // update child values: poutfits
+                            poutfitLikesRef.updateChildValues([
+                                userData!["username"] as! String: likeRef.key
+                                ])
+                            
+                            // update child values: user
+                            let senderLikeRef = senderLikesRef.childByAppendingPath(likeRef.key)
+                            
+                            senderLikeRef.updateChildValues([
+                                "created_at": createdAt,
+                                "poutfit": itemIdentifier
+                                ], withCompletionBlock: {
+                                    
+                                    (error:NSError?, ref:Firebase!) in
+                                    
+                                    if (error != nil) {
+                                        println("Error: Like Key could not be added to User Likes.")
+                                    }
+                            })
+                            
+                            // push new notifications
+                            let notificationRef = notificationsRef.childByAutoId()
+                            
+                            let notification = [
+                                "poutfit": [
+                                    "key": itemIdentifier,
+                                    "image": thumbnailURLString
+                                ],
+                                "created_at": createdAt,
+                                "sender": [
+                                    "username": senderUsername, // yourself
+                                    "image": senderImage
+                                ],
+                                "receiver": receiverUsername,
+                                "type": "like",
+                                "like": likeRef.key,
+                                "unread": true
+                            ]
+                            
+                            notificationRef.setValue(notification, withCompletionBlock: {
+                                
+                                (error:NSError?, ref:Firebase!) in
+                                
+                                if (error != nil) {
+                                    println("Error: Notification could not be added.")
+                                } else {
+                                    // update target user notifications
+                                    let receiverUserNotificationRef = receiverUserNotificationsRef.childByAppendingPath(notificationRef.key)
+                                    
+                                    if receiverUsername != senderUsername {
+                                        receiverUserNotificationRef.updateChildValues([
+                                            "created_at": createdAt,
+                                            "unread": true
+                                            ], withCompletionBlock: {
+                                                
+                                                (error:NSError?, ref:Firebase!) in
+                                                
+                                                if (error != nil) {
+                                                    println("Error: Notification Key could not be added to Users.")
+                                                } else {
+                                                    // send APNS
+                                                    let recipientId = receiver["id"] as! Int
+                                                    let senderId = userData!["id"] as! Int
+                                                    
+                                                    if recipientId != senderId {
+                                                        let pushMessage = "\(senderUsername) liked your item."
+                                                        
+                                                        APNS.sendPushNotification(pushMessage, recipientId: recipientId)
+                                                    }
+                                                }
+                                        })
+                                    }
+                                    
+                                    // update likes with notification key
+                                    likeRef.updateChildValues([
+                                        "notification": notificationRef.key
+                                        ], withCompletionBlock: {
+                                            
+                                            (error:NSError?, ref:Firebase!) in
+                                            
+                                            if (error != nil) {
+                                                println("Error: Notification Key could not be added to Likes.")
+                                                
+                                            } else {
+                                                println("Piece liked successfully!")
+                                            }
+                                    })
+                                }
+                            })
+                            
+                            // Mixpanel - Liked Pieces
+                            mixpanel.track("Liked Pieces", properties: [
+                                "Piece ID": pieceId,
+                                "Owner User ID": receiver["id"] as! Int
+                                ])
+                            mixpanel.people.increment("Pieces Liked", by: 1)
+                            // Mixpanel - End
+                        }
+                    })
+                    
+                } else {
+                    println("You have already liked this piece")
+                }
+            })
+        } else {
+            println("userData not found, please login or create an account")
+        }
+    }
+    
+    func unlikedPiece(piece: NSDictionary) {
+        // needed:
+        // // pieceId, itemIdentifier, receiver
+        
+        let userData: NSDictionary? = defaults.dictionaryForKey("userData")
+        
+        if userData != nil {
+            let pieceId = piece["id"] as! Int
+            let receiver = piece["user"] as! NSDictionary
+            let itemIdentifier = "piece_\(pieceId)"
+            
+            // firebase collections: users, likes, poutfits and notifications
+            let likesRef = firebaseRef.childByAppendingPath("likes")
+            let notificationsRef = firebaseRef.childByAppendingPath("notifications")
+            let poutfitsRef = firebaseRef.childByAppendingPath("poutfits")
+            let poutfitLikesRef = poutfitsRef.childByAppendingPath("\(itemIdentifier)/likes")
+            
+            let senderUsername = userData!["username"] as! String
+            let receiverUsername = receiver["username"] as! String
+            let poutfitRef = firebaseRef.childByAppendingPath("poutfits/\(itemIdentifier)")
+            let poutfitLikesUserRef = poutfitLikesRef.childByAppendingPath(senderUsername) // to be removed
+            
+            let receiverUserNotificationsRef = firebaseRef.childByAppendingPath("users/\(receiverUsername)/notifications")
+            let senderLikesRef = firebaseRef.childByAppendingPath("users/\(senderUsername)/likes")
+            
+            // check if user has already liked this outfit
+            poutfitLikesUserRef.observeSingleEventOfType(.Value, withBlock: {
+                snapshot in
+                
+                if (snapshot.value as? NSNull) != nil {
+                    // does not exist, already unliked
+                    println("You have already unliked this piece")
+                } else {
+                    // was liked, set it to unliked here
+                    poutfitLikesUserRef.observeSingleEventOfType(.Value, withBlock: {
+                        snapshot in
+                        
+                        if (snapshot.value as? NSNull) != nil {
+                            // does not exist
+                            println("Error: Like key in Poutfits could not be found.")
+                        } else {
+                            // exists
+                            var likeRefKey = snapshot.value as! String
+                            
+                            let likeRef = likesRef.childByAppendingPath(likeRefKey) // to be removed
+                            
+                            let likeRefNotificationKey = likeRef.childByAppendingPath("notification")
+                            
+                            likeRefNotificationKey.observeSingleEventOfType(.Value, withBlock: { snapshot in
+                                
+                                if (snapshot.value as? NSNull) != nil {
+                                    // does not exist
+                                    println("Error: Notification key in Likes could not be found.")
+                                } else {
+                                    var notificationRefKey = snapshot.value as! String
+                                    
+                                    let notificationRef = notificationsRef.childByAppendingPath(notificationRefKey) // to be removed
+                                    
+                                    let receiverUserNotificationRef = receiverUserNotificationsRef.childByAppendingPath(notificationRefKey) // to be removed
+                                    
+                                    let senderLikeRef = senderLikesRef.childByAppendingPath(likeRefKey) // to be removed
+                                    
+                                    // remove all values
+                                    senderLikeRef.removeValue()
+                                    notificationRef.removeValue()
+                                    receiverUserNotificationRef.removeValue()
+                                    likeRef.removeValue()
+                                    poutfitLikesUserRef.removeValue()
+                                    
+                                    // update poutfitRef num of likes
+                                    let poutfitLikeCountRef = poutfitRef.childByAppendingPath("num_likes")
+                                    
+                                    poutfitLikeCountRef.runTransactionBlock({
+                                        (currentData:FMutableData!) in
+                                        
+                                        var value = currentData.value as? Int
+                                        
+                                        if value == nil {
+                                            value = 0
+                                        } else {
+                                            if value > 0 {
+                                                value = value! - 1
+                                            }
+                                        }
+                                        
+                                        currentData.value = value!
+                                        
+                                        return FTransactionResult.successWithValue(currentData)
+                                    })
+                                    
+                                    println("Piece unliked successfully!")
+                                }
+                            })
+                            
+                            // Mixpanel - Liked Pieces (decrement)
+                            mixpanel.people.increment("Pieces Liked", by: -1)
+                            // Mixpanel - End
+                        }
+                    })
+                }
+            })
+        } else {
+            println("userData not found, please login or create an account")
         }
     }
     

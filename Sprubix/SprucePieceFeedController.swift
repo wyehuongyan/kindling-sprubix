@@ -290,6 +290,29 @@ class SprucePieceFeedController: UICollectionViewController, UICollectionViewDel
             collectionCell.userThumbnail.setImageWithURL(NSURL(string: userImageURL!))
         }
         
+        collectionCell.priceLabel.alpha = 0.0
+        
+        let shoppable = user["shoppable"] as? NSDictionary
+        
+        if shoppable != nil {
+            let buyable: Bool? = shoppable!["purchasable"] as? Bool
+            
+            if buyable != nil && buyable! != false && piece["price"] as! String != "0.00" {
+                if !piece["quantity"]!.isKindOfClass(NSNull) {
+
+                    let price = piece["price"] as! String
+                    let padding: CGFloat = 10
+                    let priceLabelHeight: CGFloat = 35
+                    
+                    collectionCell.priceLabel.text = "$\(price)"
+                    collectionCell.priceLabel.frame = CGRectMake(screenWidth - (collectionCell.priceLabel.intrinsicContentSize().width + 20.0) - padding, padding, (collectionCell.priceLabel.intrinsicContentSize().width + 20.0), priceLabelHeight)
+                    
+                    collectionCell.priceLabel.alpha = 1.0
+                    
+                }
+            }
+        }
+        
         /*
         collectionCell.usernameLabel.text = username!
         
