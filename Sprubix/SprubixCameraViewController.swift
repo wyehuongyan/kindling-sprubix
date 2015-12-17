@@ -44,6 +44,7 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
     
     // loading overlay
     var overlay: MRProgressOverlayView!
+    var loaded: Bool = false
     
     //@IBOutlet var cameraPreview: UIView!
     var cameraCapture: UIButton!
@@ -104,6 +105,7 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
         })
         
         initPieceSelector()
+        loaded = true
     }
     
     override func viewWillAppear(animated: Bool) {
@@ -127,18 +129,23 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
 
         editSnapshotViewController = nil
         
-        dispatch_async(dispatch_get_main_queue(), {
-            // code here
-            self.cameraPscope.show(authChange: { (finished, results) -> Void in
-                //println("got results \(results)")
-                self.initializeCamera()
-                self.establishVideoPreviewArea()
-                }, cancelled: { (results) -> Void in
-                    //println("thing was cancelled")
+        if loaded {
+            dispatch_async(dispatch_get_main_queue(), {
+                // code here
+                self.cameraPscope.show(authChange: { (finished, results) -> Void in
+                    //println("got results \(results)")
+                    self.initializeCamera()
+                    self.establishVideoPreviewArea()
                     
-                    self.closeCreateOutfit(UIButton())
+                    }, cancelled: { (results) -> Void in
+                        //println("thing was cancelled")
+                        
+                        self.closeCreateOutfit(UIButton())
+                })
             })
-        })
+        } else {
+            loaded = true
+        }
     }
     
     override func viewWillDisappear(animated: Bool) {
@@ -307,6 +314,7 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
         feetButton.backgroundColor = UIColor.lightGrayColor()
         
         camera?.stopCamera()
+        loaded = false
     }
     
     func initPhotoLibrary() {
@@ -534,15 +542,12 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
                     self.editSnapshotViewController.delegate = prevViewController
                 }
                 
-                dispatch_async(dispatch_get_main_queue()) {
-                    self.navigationController?.delegate = nil
-                    self.navigationController?.pushViewController(self.editSnapshotViewController, animated: true) {
-                        // Animation done
-                        self.resetPieceSelector()
-                        self.overlay.dismiss(true)
-                        self.cameraCapture.enabled = true
-                    }
-                }
+                self.resetPieceSelector()
+                self.overlay.dismiss(true)
+                self.cameraCapture.enabled = true
+                
+                self.navigationController?.delegate = nil
+                self.navigationController?.pushViewController(self.editSnapshotViewController, animated: true)
                 
                 // Mixpanel - Edit Photo
                 mixpanel.track("Edit Photo")
