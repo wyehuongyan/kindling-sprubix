@@ -772,7 +772,7 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
         let rect = CGRect(x: 0, y: 0, width: img.size.width, height: img.size.height)
         img.drawInRect(rect)
         
-        var normalizedImage : UIImage = UIGraphicsGetImageFromCurrentImageContext()
+        let normalizedImage : UIImage = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext();
         return normalizedImage;
         
