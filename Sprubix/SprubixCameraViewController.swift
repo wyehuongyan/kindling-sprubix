@@ -525,6 +525,7 @@ class SprubixCameraViewController: UIViewController, UIScrollViewDelegate, Sprub
                     self.editSnapshotViewController = EditSnapshotViewController()
                 }
                 
+                self.editSnapshotViewController.sprubixCameraViewController = self
                 self.editSnapshotViewController.selectedPiecesOrdered = self.selectedPiecesOrdered
                 self.editSnapshotViewController.previewStillImages = self.previewStillImages
                 self.editSnapshotViewController.fromAddDetails = self.fromAddDetails

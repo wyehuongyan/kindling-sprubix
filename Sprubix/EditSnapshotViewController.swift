@@ -23,6 +23,7 @@ protocol SnapshotDetailsProtocol {
 class EditSnapshotViewController: UIViewController {
     var delegate: SnapshotDetailsProtocol?
     var selectedEditingMode: EditMode = .None
+    var sprubixCameraViewController: SprubixCameraViewController?
     
     // custom nav bar
     var newNavBar:UINavigationBar!
@@ -1058,6 +1059,7 @@ class EditSnapshotViewController: UIViewController {
         scale = 1.0
         previousScale = 1.0
         
+        sprubixCameraViewController?.loaded = true
         self.navigationController?.popViewControllerAnimated(false)
     }
     
