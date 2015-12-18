@@ -154,7 +154,7 @@ class EditSnapshotViewController: UIViewController {
         editScrollView.showsVerticalScrollIndicator = false
         editScrollView.backgroundColor = UIColor.grayColor()
         
-        editScrollView.contentSize = CGSizeMake(screenWidth, CGFloat(previewStillImages.count) * screenWidth / 0.75)
+        editScrollView.contentSize = CGSizeMake(screenWidth, CGFloat(previewStillImages.count + 1) * screenWidth / 0.75)
         
         self.view.addSubview(editScrollView)
         
