@@ -14,6 +14,7 @@ import Foundation
 import SystemConfiguration
 import TSMessages
 import Crashlytics
+import Mixpanel
 
 // global println function
 func println(object: Any) {
@@ -581,7 +582,7 @@ class FirebaseAuth {
 class MixpanelService {
     
     // Register user for Mixpanel People
-    class func register(data: NSDictionary) {
+    class func register(data: NSDictionary, signupSource: String) {
         
         let email: String = data["email"] as! String
         let id: Int = data["id"] as! Int
@@ -601,7 +602,8 @@ class MixpanelService {
             "$first_name": username,
             "$last_name": "",
             "$created": NSDate(),
-            "Distinct ID" : distinctId,
+            "Distinct ID": distinctId,
+            "Signup Source": signupSource,
             "Points" : 0,
             "Outfits Exposed": 0,
             "Pieces Exposed": 0,
@@ -627,6 +629,17 @@ class MixpanelService {
         // User logged in
         if let userData = defaults.dictionaryForKey("userData") {
             let id: Int = userData["id"] as! Int
+            
+            // If current env is production, filter off mainand seeded accounts
+            if SprubixConfig.Token.mixpanel == "7b1423643b7e52dad5680f5fdc390a88" {
+                // Don't track for main account and seeded users
+                if id == 1 || 4...15 ~= id {
+                    // Don't track
+                    SprubixConfig.Token.mixpanel = ""
+                    mixpanel = Mixpanel(token: SprubixConfig.Token.mixpanel, andFlushInterval: flushInterval)
+                }
+            }
+            
             let idString: String = String(id)
             let username: String = userData["username"] as! String
             
@@ -658,6 +671,9 @@ class MixpanelService {
     
     // Clear cache
     class func reset() {
+        // set to production before quitting (for switching from seeded to normal account to work)
+        SprubixConfig.Token.mixpanel = "7b1423643b7e52dad5680f5fdc390a88"
+        
         // flush before reset
         mixpanel.flush()
         

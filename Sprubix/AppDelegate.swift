@@ -36,16 +36,16 @@ struct SprubixConfig {
     }
     struct Token {
         // disable tracking events from firing
-        //static var mixpanel = ""
+        //static var mixpanel: String = ""
         
         /* development */
-        //static var mixpanel = "124273404c25acfd8a9dbf25758d09f9"
+        //static var mixpanel: String = "124273404c25acfd8a9dbf25758d09f9"
         
         /* staging */
-        //static var mixpanel = "3721be8315badb578332870550b03395"
+        //static var mixpanel: String = "3721be8315badb578332870550b03395"
         
         /* production */
-        static var mixpanel = "7b1423643b7e52dad5680f5fdc390a88"
+        static var mixpanel: String = "7b1423643b7e52dad5680f5fdc390a88"
     }
 }
 
@@ -53,7 +53,7 @@ let manager = AFHTTPRequestOperationManager()
 let containerViewController = ContainerViewController()
 let defaults = NSUserDefaults.standardUserDefaults()
 var firebaseRef = Firebase(url: SprubixConfig.URL.firebase)
-var mixpanel = Mixpanel.sharedInstanceWithToken(SprubixConfig.Token.mixpanel)
+var mixpanel = Mixpanel(token: SprubixConfig.Token.mixpanel, andFlushInterval: flushInterval)
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {

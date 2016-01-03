@@ -27,6 +27,7 @@ let sprubixOrange: UIColor = UIColor(red: 255/255, green: 152/255, blue: 102/255
 let countriesAvailable = ["SG"]
 let testUsernames = ["cameron", "tingzhi", "cecilia", "sprubixshop", "flufflea"]
 let testEmails = ["cameron@example.com", "tingzhi@example.com", "cecilia@example.com", "developers@sprubix.com", "shop@flufflea.com"]
+let flushInterval: UInt = 60
 
 var timestamp: String {
     get {

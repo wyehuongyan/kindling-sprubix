@@ -155,8 +155,8 @@ class SignInViewController: UIViewController, UITableViewDataSource, UITableView
         SprubixConfig.Token.mixpanel = "7b1423643b7e52dad5680f5fdc390a88"
         
         firebaseRef = Firebase(url: SprubixConfig.URL.firebase)
-        mixpanel = Mixpanel.sharedInstanceWithToken(SprubixConfig.Token.mixpanel)
-        
+        mixpanel = Mixpanel(token: SprubixConfig.Token.mixpanel, andFlushInterval: flushInterval)
+
         // Set seletected initial tab
         if currentCreateAccountState == CreateAccountState.Signup {
             signupToolbarButton.addSubview(buttonLine)
@@ -578,21 +578,19 @@ class SignInViewController: UIViewController, UITableViewDataSource, UITableView
                         self.signInSprubix()
                         
                         // Mixpanel - Signed Up, Success
+                        var signupSource = "Email"
+                        
                         if facebook_id != "" {
-                            MixpanelService.track("User Signed Up", propertySet: [
-                                "User ID": data.objectForKey("id") as! Int,
-                                "Status": "Success",
-                                "Source": "Facebook"
-                            ])
-                        } else {
-                            MixpanelService.track("User Signed Up", propertySet: [
-                                "User ID": data.objectForKey("id") as! Int,
-                                "Status": "Success",
-                                "Source": "Email"
-                            ])
+                            signupSource = "Facebook"
                         }
+                        
+                        MixpanelService.track("User Signed Up", propertySet: [
+                            "User ID": data.objectForKey("id") as! Int,
+                            "Status": "Success",
+                            "Source": signupSource
+                        ])
                         // Mixpanel - Register
-                        MixpanelService.register(data)
+                        MixpanelService.register(data, signupSource: signupSource)
                         // Mixpanel - End
                     }
                 },
@@ -687,7 +685,7 @@ class SignInViewController: UIViewController, UITableViewDataSource, UITableView
                 SprubixConfig.Token.mixpanel = "3721be8315badb578332870550b03395"
                 
                 firebaseRef = Firebase(url: SprubixConfig.URL.firebase)
-                mixpanel = Mixpanel.sharedInstanceWithToken(SprubixConfig.Token.mixpanel)
+                mixpanel = Mixpanel(token: SprubixConfig.Token.mixpanel, andFlushInterval: flushInterval)
             }
             
             // authenticate with server
