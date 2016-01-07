@@ -55,6 +55,10 @@ class UserProfileHeader: UICollectionReusableView, UIScrollViewDelegate {
     var numFollowers: UILabel!
     var numFollowing: UILabel!
     
+    var numOutfitsText: UILabel!
+    var numFollowersText: UILabel!
+    var numFollowingText: UILabel!
+    
     required init(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -134,9 +138,10 @@ class UserProfileHeader: UICollectionReusableView, UIScrollViewDelegate {
         buttonLine = UIView(frame: CGRect(x: 0, y: button1.frame.height - 2.0, width: button1.frame.width, height: 2))
         buttonLine.backgroundColor = sprubixColor
         
-        // button 1 is initially selected
-        button1.addSubview(buttonLine)
-        button1.tintColor = sprubixColor
+        // button 2 is initially selected
+        button2.addSubview(buttonLine)
+        button2.tintColor = sprubixColor
+        currentChoice = button2
     }
     
     func initUserInfo() {
@@ -220,7 +225,7 @@ class UserProfileHeader: UICollectionReusableView, UIScrollViewDelegate {
         numOutfits.layer.shadowColor = UIColor.blackColor().CGColor;
         numOutfits.layer.shadowOffset = CGSizeMake(0.0, 1.0);
         
-        let numOutfitsText = UILabel(frame: CGRectMake(0, 20, followInfoViewWidth / 3, 20))
+        numOutfitsText = UILabel(frame: CGRectMake(0, 20, followInfoViewWidth / 3, 20))
         numOutfitsText.text = "Outfits"
         numOutfitsText.textColor = UIColor.whiteColor()
         numOutfitsText.font = UIFont(name: profileName.font.fontName, size: 12)
@@ -251,7 +256,7 @@ class UserProfileHeader: UICollectionReusableView, UIScrollViewDelegate {
         numFollowers.userInteractionEnabled = true
         numFollowers.addGestureRecognizer(followersGestureRecognizer)
         
-        let numFollowersText = UILabel(frame: CGRectMake(followInfoViewWidth / 3, 20, followInfoViewWidth / 3, 20))
+        numFollowersText = UILabel(frame: CGRectMake(followInfoViewWidth / 3, 20, followInfoViewWidth / 3, 20))
         numFollowersText.text = "Followers"
         numFollowersText.textColor = UIColor.whiteColor()
         numFollowersText.font = UIFont(name: profileName.font.fontName, size: 12)
@@ -289,7 +294,7 @@ class UserProfileHeader: UICollectionReusableView, UIScrollViewDelegate {
         numFollowing.userInteractionEnabled = true
         numFollowing.addGestureRecognizer(followingGestureRecognizer)
         
-        let numFollowingText = UILabel(frame: CGRectMake(2 * followInfoViewWidth / 3, 20, followInfoViewWidth / 3, 20))
+        numFollowingText = UILabel(frame: CGRectMake(2 * followInfoViewWidth / 3, 20, followInfoViewWidth / 3, 20))
         numFollowingText.text = "Following"
         numFollowingText.textColor = UIColor.whiteColor()
         numFollowingText.font = UIFont(name: profileName.font.fontName, size: 12)
@@ -394,21 +399,30 @@ class UserProfileHeader: UICollectionReusableView, UIScrollViewDelegate {
         var userDescriptionString = user!["description"] as? String
         
         if userDescriptionString != nil && userDescriptionString != "" {
-        var userDescriptionData: NSData = userDescriptionString!.dataUsingEncoding(NSUTF8StringEncoding)!
-        
-        var userDescriptionDict: NSDictionary = NSJSONSerialization.JSONObjectWithData(userDescriptionData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSDictionary
-        
-        profileDescription.text = userDescriptionDict["description"] as? String
+            var userDescriptionData: NSData = userDescriptionString!.dataUsingEncoding(NSUTF8StringEncoding)!
+            
+            var userDescriptionDict: NSDictionary = NSJSONSerialization.JSONObjectWithData(userDescriptionData, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSDictionary
+            
+            profileDescription.text = userDescriptionDict["description"] as? String
         }
         
         // follow info
-        let numOutfitsText = user!["num_outfits"] as! Int
-        let numFollowersText = user!["num_followers"] as! Int
-        let numFollowingText = user!["num_following"] as! Int
+        let numOutfitsValue = user!["num_outfits"] as! Int
+        let numFollowersValue = user!["num_followers"] as! Int
+        let numFollowingValue = user!["num_following"] as! Int
         
-        numOutfits.text = "\(numOutfitsText)"
-        numFollowers.text = "\(numFollowersText)"
-        numFollowing.text = "\(numFollowingText)"
+        numOutfits.text = "\(numOutfitsValue)"
+        numFollowers.text = "\(numFollowersValue)"
+        numFollowing.text = "\(numFollowingValue)"
+        
+        if username == "sprubix" {
+            numFollowers.text = "-"
+            numFollowersText.userInteractionEnabled = false
+            numFollowers.userInteractionEnabled = false
+        } else {
+            numFollowersText.userInteractionEnabled = true
+            numFollowers.userInteractionEnabled = true
+        }
     }
     
     func scrollViewDidScroll(scrollView: UIScrollView) {

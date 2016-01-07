@@ -50,7 +50,7 @@ class UserProfileViewController: UIViewController, DZNEmptyDataSetSource, DZNEmp
     var communityOutfits:[NSDictionary] = [NSDictionary]()
     
     var profileCollectionView: UICollectionView!
-    var currentProfileState: ProfileState = .Outfits
+    var currentProfileState: ProfileState = .Pieces
     var activityView: UIActivityIndicatorView?
     
     @IBOutlet var closeUserProfileButton: UIBarButtonItem!
